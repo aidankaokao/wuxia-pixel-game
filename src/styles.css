@@ -729,36 +729,131 @@ kbd {
 }
 
 /* ── 武功裝備 ─────────────────────────── */
-.skill.selectable {
-  padding: 4px 6px;
-  border: 2px solid transparent;
+.skill-board {
+  display: grid;
+  grid-template-columns: 150px 150px 1fr;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.col-title {
+  margin: 4px 0 6px;
+  font-size: 13px;
+  color: var(--gold-dim);
+  letter-spacing: 0.2em;
+}
+
+.skill-col .col-title:not(:first-child) {
+  margin-top: 14px;
+}
+
+.skill-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin-bottom: 6px;
+  padding: 0 8px;
+  border: 2px solid #3a2e22;
+  background: #0f0d14;
   cursor: pointer;
 }
 
-.skill.selectable.active {
-  border-color: #5a4a30;
+.skill-cell.empty {
+  border-style: dashed;
 }
 
-.skill.unequipped .skill-name {
-  color: var(--muted);
+.skill-cell.active {
+  border-color: var(--gold);
 }
 
-.equip-mark {
-  margin-left: auto;
+.skill-cell.open {
+  background: #241d18;
+}
+
+.cell-name {
+  flex: 1;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cell-level {
+  font-size: 12px;
+  color: #e8d27a;
+}
+
+.cell-empty {
+  width: 100%;
+  text-align: center;
   font-size: 13px;
-  color: var(--muted);
+  color: #4a4256;
 }
 
-.equip-mark.on {
-  color: #8fd06a;
+/* 像素書：封面＋書背＋書頁 */
+.book {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 22px;
+  background: #b0443a;
+  border: 2px solid #1a1218;
+  box-shadow: inset 3px 0 0 #6e2420, 2px 2px 0 #e8dcc0;
+}
+
+.book::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  width: 6px;
+  height: 8px;
+  background: #f1e7cf;
+  box-shadow: 0 1px 0 #1a1218;
+}
+
+.book.kind-inner {
+  background: #3a6ab0;
+  box-shadow: inset 3px 0 0 #22406e, 2px 2px 0 #e8dcc0;
+}
+
+.book.kind-light {
+  background: #3a8a5a;
+  box-shadow: inset 3px 0 0 #205236, 2px 2px 0 #e8dcc0;
+}
+
+.skill-side {
+  min-width: 0;
+}
+
+.skill-side .system-rows {
+  margin-top: 0;
+}
+
+.system-rows li.disabled {
+  color: #5a5262;
+}
+
+.act-box {
+  margin: 8px 0 4px 14px;
+  padding-left: 10px;
+  border-left: 3px solid var(--gold-dim);
+}
+
+.skill-detail {
+  margin-top: 12px;
+}
+
+.skill-detail p {
+  margin: 6px 0;
+}
+
+.skill-detail .exp-track {
+  margin-top: 4px;
 }
 
 .realm.over {
   color: #f08a5a;
-}
-
-.skill-actions {
-  margin: 6px 0 2px 18px;
 }
 
 .good {
@@ -878,4 +973,23 @@ kbd {
 
 .attrs.attr-table td.realm {
   font-size: 18px;
+}
+
+/* ── 自動戰鬥 ─────────────────────────── */
+.auto-on {
+  color: var(--gold);
+  animation: auto-blink 1.2s steps(2) infinite;
+}
+
+@keyframes auto-blink {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.cmd-list li.cmd-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: default;
 }

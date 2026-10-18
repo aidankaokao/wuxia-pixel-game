@@ -6,6 +6,7 @@ import { ENCOUNTERS, EncounterDef, enemyUnits } from '../battle/enemies';
 import { Battle } from '../battle/engine';
 import { RoundController, TurnController } from '../battle/controller';
 import { settle } from '../battle/rewards';
+import { autoCommand } from '../battle/auto';
 import type { BattleCommand, BattleEvent, BattleView, Hit, Outcome, Unit } from '../battle/types';
 import { useGame } from '../../state/store';
 
@@ -171,16 +172,26 @@ export class BattleScene extends Phaser.Scene {
     const items = Object.entries(this.battle.items)
       .filter(([id, n]) => n > 0 && usableInBattle(id))
       .map(([id, count]) => ({ id, count, name: ITEMS[id].name, desc: ITEMS[id].desc }));
+    const auto = () => {
+      const { settings } = useGame.getState();
+      return autoCommand(this.battle, hero, settings.autoTactic, settings.autoItems);
+    };
+    if (useGame.getState().battleAuto) return this.wait(150).then(auto);
+
     this.message = `${hero.name}，該你出手了。`;
     this.sync({ actorId: hero.id, moves, items, canFlee: this.battle.canFlee });
     return new Promise((resolve) => {
-      useGame.setState({
-        battleInput: (cmd) => {
-          if (!cmd) return;
-          useGame.setState({ battleInput: null, battleTarget: null });
-          resolve(cmd);
-        },
+      const done = (cmd: BattleCommand) => {
+        unsubscribe();
+        useGame.setState({ battleInput: null, battleTarget: null });
+        resolve(cmd);
+      };
+      // 等玩家下指令時切到自動，就直接由電腦接手
+      const unsubscribe = useGame.subscribe((st, prev) => {
+        if (st.battleAuto && !prev.battleAuto) done(auto());
       });
+      this.events.once('shutdown', unsubscribe);
+      useGame.setState({ battleInput: (cmd) => cmd && done(cmd) });
     });
   }
 
@@ -391,6 +402,10 @@ export class BattleScene extends Phaser.Scene {
   }
 
   update() {
+    // 自動戰鬥時動畫兩倍速
+    const speed = useGame.getState().battleAuto ? 2 : 1;
+    this.time.timeScale = speed;
+    this.tweens.timeScale = speed;
     // 選目標時，箭頭指在目標頭上
     const target = useGame.getState().battleTarget;
     if (target === this.cursorFor) return;

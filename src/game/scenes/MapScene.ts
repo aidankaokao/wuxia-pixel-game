@@ -116,7 +116,8 @@ export class MapScene extends Phaser.Scene {
     // 用按鍵事件而非 JustDown：按下與放開落在同一幀時 JustDown 會漏掉
     this.events.once('shutdown', () => kb.off('keydown'));
     kb.on('keydown', (e: KeyboardEvent) => {
-      if (e.repeat || uiBlocking()) return;
+      // Ctrl/Cmd 組合鍵是快捷鍵（例如即時存檔），不當成遊戲操作
+      if (e.repeat || e.ctrlKey || e.metaKey || uiBlocking()) return;
       // 這個按鍵已經被對話框或選單用掉了（例如用來關閉對話）
       if (e.timeStamp <= useGame.getState().uiClosedAt) return;
       if (['e', 'E', ' ', 'Enter'].includes(e.key)) this.queued = 'interact';
@@ -585,10 +586,12 @@ export class MapScene extends Phaser.Scene {
 
   private heldDir(): Dir | null {
     const k = this.keys;
-    if (k.up.isDown || k.w.isDown) return 'up';
-    if (k.down.isDown || k.s.isDown) return 'down';
-    if (k.left.isDown || k.a.isDown) return 'left';
-    if (k.right.isDown || k.d.isDown) return 'right';
+    // 按著 Ctrl/Cmd 時（例如 Ctrl+S 即時存檔）不移動
+    const on = (key: Phaser.Input.Keyboard.Key) => key.isDown && !key.ctrlKey && !key.metaKey;
+    if (on(k.up) || on(k.w)) return 'up';
+    if (on(k.down) || on(k.s)) return 'down';
+    if (on(k.left) || on(k.a)) return 'left';
+    if (on(k.right) || on(k.d)) return 'right';
     return null;
   }
 

@@ -82,10 +82,17 @@ export function BattleUI() {
     }
   };
 
+  const auto = useGame((s) => s.battleAuto);
+
   useKeys(!!battle, (k) => {
     if (!battle) return;
     if (battle.result) {
       if (isConfirm(k)) send?.(null);
+      return;
+    }
+    if (k === 'q' || k === 'Q') {
+      setTarget(null);
+      useGame.setState({ battleAuto: !auto });
       return;
     }
     if (!input || !send) return;
@@ -144,7 +151,14 @@ export function BattleUI() {
         </div>
 
         <div className="battle-cmd">
-          {input && <Commands mode={mode} root={root} rootCursor={rootCursor} cursor={cursor} moves={moves} items={items} pendingMove={pendingMove} input={input} onRoot={chooseRoot} onMove={chooseMove} onItem={(it) => submit({ type: 'item', itemId: it.id })} />}
+          {auto && (
+            <p className="cmd-desc auto-on">
+              自動戰鬥中……
+              <br />
+              按 Q 收回手動
+            </p>
+          )}
+          {input && !auto && <Commands mode={mode} root={root} rootCursor={rootCursor} cursor={cursor} moves={moves} items={items} pendingMove={pendingMove} input={input} onRoot={chooseRoot} onMove={chooseMove} onItem={(it) => submit({ type: 'item', itemId: it.id })} />}
         </div>
       </div>
 
@@ -199,6 +213,7 @@ function Commands(p: CommandsProps) {
             {o.label}
           </li>
         ))}
+        <li className="cmd-hint">Q 自動戰鬥</li>
       </ul>
     );
   }

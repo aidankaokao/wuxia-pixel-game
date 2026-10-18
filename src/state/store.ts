@@ -18,10 +18,18 @@ export interface DialogState {
 
 export type BattleMode = 'turn' | 'active';
 
+export type AutoTactic = 'steady' | 'aggressive';
+
 export interface Settings {
   /** 戰鬥模式：回合制，或之後開放的半即時制 */
   battleMode: BattleMode;
+  /** 自動戰鬥的方針：穩健（會防禦、早點補血）或猛攻 */
+  autoTactic: AutoTactic;
+  /** 自動戰鬥時可不可以用藥 */
+  autoItems: boolean;
 }
+
+export const DEFAULT_SETTINGS: Settings = { battleMode: 'turn', autoTactic: 'steady', autoItems: false };
 
 /** 劇情旗標：任務進度、是否已拿過寶箱等，一律存成數字（0 表示沒發生過）。 */
 export type Flags = Record<string, number>;
@@ -52,6 +60,8 @@ interface GameState {
   battle: BattleView | null;
   /** 戰鬥介面送出指令給戰鬥場景；結算畫面按確認時傳 null */
   battleInput: ((cmd: BattleCommand | null) => void) | null;
+  /** 自動戰鬥開著（戰鬥中按 Q 切換；不存檔，同一次遊玩會延續到下一場） */
+  battleAuto: boolean;
   /** 戰鬥中選目標時，游標指著誰（戰鬥場景據此畫出箭頭） */
   battleTarget: string | null;
   /** 被打倒的野獸何時重生：`地圖id:npc id` → 時間戳（不存檔） */
@@ -80,7 +90,7 @@ export const useGame = create<GameState>((set, get) => ({
   toast: null,
   hero: newHero(),
   flags: {},
-  settings: { battleMode: 'turn' },
+  settings: { ...DEFAULT_SETTINGS },
   mapName: '',
   bannerKey: 0,
   dialog: null,
@@ -91,6 +101,7 @@ export const useGame = create<GameState>((set, get) => ({
   battle: null,
   battleInput: null,
   battleTarget: null,
+  battleAuto: false,
   respawnAt: {},
 
   enterMap: (name, subtitle) => set((s) => ({ mapName: name, mapSubtitle: subtitle, bannerKey: s.bannerKey + 1 })),
@@ -144,6 +155,7 @@ export const useGame = create<GameState>((set, get) => ({
       battle: null,
       battleInput: null,
       battleTarget: null,
+      battleAuto: false,
       respawnAt: {},
     }),
 }));

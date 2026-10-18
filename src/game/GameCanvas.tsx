@@ -4,7 +4,7 @@ import { BootScene } from './scenes/BootScene';
 import { BattleScene } from './scenes/BattleScene';
 import { MapScene } from './scenes/MapScene';
 import { autosave } from './save';
-import { setGame } from './session';
+import { bindHotkeys, setGame } from './session';
 
 /** 把 Phaser 遊戲掛進 React，畫布填滿整個視窗。 */
 export function GameCanvas() {
@@ -23,7 +23,9 @@ export function GameCanvas() {
     setGame(game);
     // 關閉或重新整理頁面前自動存檔
     window.addEventListener('beforeunload', autosave);
+    const unbind = bindHotkeys();
     return () => {
+      unbind();
       window.removeEventListener('beforeunload', autosave);
       setGame(null);
       game.destroy(true);

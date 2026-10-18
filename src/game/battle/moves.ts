@@ -1,4 +1,4 @@
-import { Character, attrs, effLevel, equippedLevel, skillDef, slotOf } from '../character';
+import { Character, attrs, effLevel, equippedLevel, isEquipped, skillDef, slotOf } from '../character';
 import type { Move, Unit } from './types';
 
 /** 所有招式。武功學到後，對應的招式就會出現在戰鬥選單裡。 */
@@ -42,8 +42,8 @@ export const SKILL_MOVES: Record<string, string[]> = {
 export function heroUnit(c: Character, max: { maxHp: number; maxQi: number }): Unit {
   const a = attrs(c);
   const moves = ['attack'];
-  for (const s of c.skills) if (s.equipped && s.level > 0) moves.push(...(SKILL_MOVES[s.id] ?? []));
-  const outer = c.skills.filter((s) => s.equipped && slotOf(skillDef(s).kind) === 'outer');
+  for (const s of c.skills) if (isEquipped(s) && s.level > 0) moves.push(...(SKILL_MOVES[s.id] ?? []));
+  const outer = c.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'outer');
   const baseSkill = outer.sort((x, y) => effLevel(y) - effLevel(x))[0]?.id;
   return {
     id: 'hero',

@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { autosave, restoreHero, SaveData } from './save';
+import { autosave, canSave, readSave, restoreHero, SaveData, writeSave } from './save';
 import { useGame } from '../state/store';
 import { Attrs, newHero } from './character';
 
@@ -49,4 +49,40 @@ export function toTitle() {
   game?.scene.stop('map');
   useGame.getState().resetGame();
   useGame.setState({ screen: 'title' });
+}
+
+/** 即時存檔（Ctrl/Cmd+S） */
+export function quickSave() {
+  const st = useGame.getState();
+  if (st.screen !== 'game') return;
+  if (!canSave()) return st.showToast('對話、劇情或戰鬥中無法存檔');
+  st.showToast(writeSave('quick') ? '已即時存檔' : '存檔失敗');
+}
+
+/** 讀取即時存檔（F9） */
+export function quickLoad() {
+  const st = useGame.getState();
+  if (st.screen !== 'game') return;
+  if (!canSave()) return st.showToast('對話、劇情或戰鬥中無法讀檔');
+  const d = readSave('quick');
+  if (!d) return st.showToast('還沒有即時存檔');
+  st.setMenu(false);
+  loadGame(d);
+  st.showToast('已讀取即時存檔');
+}
+
+/** 全域快捷鍵：Ctrl/Cmd+S 即時存檔、F9 讀取即時存檔。回傳移除監聽的函式。 */
+export function bindHotkeys() {
+  const onKey = (e: KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+      // 擋掉瀏覽器的「另存網頁」
+      e.preventDefault();
+      if (!e.repeat) quickSave();
+    } else if (e.key === 'F9' && !e.repeat) {
+      e.preventDefault();
+      quickLoad();
+    }
+  };
+  window.addEventListener('keydown', onKey);
+  return () => window.removeEventListener('keydown', onKey);
 }

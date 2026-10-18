@@ -132,7 +132,8 @@ export interface Skill {
   level: number;
   /** 這一重內累積的經驗 */
   exp: number;
-  equipped: boolean;
+  /** 裝在該類欄位的第幾格（0 起算）；null 表示沒有裝備 */
+  pos: number | null;
   /** 連續突破失敗的次數（每次失敗，下一次成功率提高） */
   fails: number;
   /** 下一次突破事先擲好的結果 0–1，存進存檔，讀檔重試也不會改變結果 */
@@ -191,7 +192,7 @@ export function attrParts(c: Character) {
     const d = skillDef(s);
     const m = effLevel(s) * TIERS[d.tier].mult;
     for (const [k, v] of Object.entries(d.grow) as [AttrKey, number][]) grow[k] += v * m;
-    if (s.equipped) for (const [k, v] of Object.entries(d.equip) as [AttrKey, number][]) equip[k] += v * m;
+    if (isEquipped(s)) for (const [k, v] of Object.entries(d.equip) as [AttrKey, number][]) equip[k] += v * m;
   }
   const total = zeroAttrs();
   for (const { key } of ATTRS) total[key] = c.base[key] + grow[key] + equip[key];
@@ -202,7 +203,7 @@ export const attrs = (c: Character) => attrParts(c).total;
 
 /** 已裝備的某類武功的有效等級總和 */
 export function equippedLevel(c: Character, slot: Slot, mode: 'sum' | 'max' = 'sum'): number {
-  const ls = c.skills.filter((s) => s.equipped && slotOf(skillDef(s).kind) === slot).map((s) => effLevel(s) * TIERS[skillDef(s).tier].mult);
+  const ls = c.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === slot).map((s) => effLevel(s) * TIERS[skillDef(s).tier].mult);
   if (!ls.length) return 0;
   return mode === 'max' ? Math.max(...ls) : ls.reduce((a, b) => a + b, 0);
 }
@@ -294,26 +295,47 @@ export function tryBreakthrough(c: Character, id: string, rand: () => number = M
 export function learnSkill(c: Character, id: string, level = 1): string | null {
   if (c.skills.some((s) => s.id === id)) return null;
   const slot = slotOf(SKILLS[id].kind);
-  const equipped = equippedCount(c, slot) < SLOT_LIMIT[slot];
-  c.skills.push({ id, level, exp: 0, equipped, fails: 0, roll: Math.random() });
-  return `你學會了「${SKILLS[id].name}」！${equipped ? '' : `（${SKILL_SLOT_NAME[slot]}欄位已滿，可在選單「武功」中替換）`}`;
+  const pos = freePos(c, slot);
+  c.skills.push({ id, level, exp: 0, pos, fails: 0, roll: Math.random() });
+  return `你學會了「${SKILLS[id].name}」！${pos !== null ? '' : `（${SKILL_SLOT_NAME[slot]}欄位已滿，可在選單「武功」中替換）`}`;
 }
 
-export const equippedCount = (c: Character, slot: Slot) =>
-  c.skills.filter((s) => s.equipped && slotOf(skillDef(s).kind) === slot).length;
+export const isEquipped = (s: Skill) => s.pos !== null;
 
-/** 裝備或卸下；欄位已滿時回傳錯誤訊息 */
-export function toggleEquip(c: Character, id: string): string | null {
-  const s = c.skills.find((k) => k.id === id);
-  if (!s) return null;
-  if (s.equipped) {
-    s.equipped = false;
-    return null;
-  }
+/** 某類欄位裡各格裝的武功（沒裝的格子是 undefined） */
+export function slotSkills(c: Character, slot: Slot): (Skill | undefined)[] {
+  return Array.from({ length: SLOT_LIMIT[slot] }, (_, i) =>
+    c.skills.find((s) => s.pos === i && slotOf(skillDef(s).kind) === slot),
+  );
+}
+
+export const equippedCount = (c: Character, slot: Slot) => slotSkills(c, slot).filter(Boolean).length;
+
+/** 第一個空格；全滿時回傳 null */
+export function freePos(c: Character, slot: Slot): number | null {
+  const i = slotSkills(c, slot).findIndex((s) => !s);
+  return i < 0 ? null : i;
+}
+
+/**
+ * 把武功裝到指定的格子。這門武功若已裝在別格就換過來；
+ * 這格原本的武功會被卸下。回傳提示文字。
+ */
+export function equipAt(c: Character, id: string, pos: number): string {
+  const s = c.skills.find((k) => k.id === id)!;
   const slot = slotOf(skillDef(s).kind);
-  if (equippedCount(c, slot) >= SLOT_LIMIT[slot]) return `${SKILL_SLOT_NAME[slot]}最多只能裝備 ${SLOT_LIMIT[slot]} 門。`;
-  s.equipped = true;
-  return null;
+  if (pos < 0 || pos >= SLOT_LIMIT[slot]) return `${SKILL_SLOT_NAME[slot]}最多只能裝備 ${SLOT_LIMIT[slot]} 門。`;
+  const old = slotSkills(c, slot)[pos];
+  if (old === s) return `「${skillDef(s).name}」已經裝在這一格了。`;
+  if (old) old.pos = null;
+  s.pos = pos;
+  return old ? `以「${skillDef(s).name}」替換了「${skillDef(old).name}」` : `裝備了「${skillDef(s).name}」`;
+}
+
+export function unequip(c: Character, id: string): string {
+  const s = c.skills.find((k) => k.id === id)!;
+  s.pos = null;
+  return `卸下了「${skillDef(s).name}」`;
 }
 
 export function giveItem(c: Character, id: string, n = 1): string {
@@ -351,8 +373,8 @@ export function newHero(opts: { surname?: string; given?: string; base?: Attrs }
     base: { ...(opts.base ?? DEFAULT_BASE) },
     extra: zeroAttrs(),
     skills: [
-      { id: 'basic-fist', level: 1, exp: 30, equipped: true, fails: 0, roll: Math.random() },
-      { id: 'breathing', level: 0, exp: 40, equipped: true, fails: 0, roll: Math.random() },
+      { id: 'basic-fist', level: 1, exp: 30, pos: 0, fails: 0, roll: Math.random() },
+      { id: 'breathing', level: 0, exp: 40, pos: 0, fails: 0, roll: Math.random() },
     ],
     points: 0,
     items: {},

@@ -1,4 +1,4 @@
-import { attrs, Character, gainSkill, skillCap, skillDef, slotOf } from '../character';
+import { attrs, Character, isEquipped, gainSkill, skillCap, skillDef, slotOf } from '../character';
 import type { Battle } from './engine';
 import type { EncounterDef } from './enemies';
 import type { Outcome } from './types';
@@ -32,7 +32,7 @@ export function settle(c: Character, b: Battle, enc: EncounterDef, outcome: Outc
   const exp: Record<string, number> = {};
   for (const [id, n] of Object.entries(s.skillUses)) exp[id] = n * 6;
   for (const sk of c.skills) {
-    if (!sk.equipped) continue;
+    if (!isEquipped(sk)) continue;
     const slot = slotOf(skillDef(sk).kind);
     if (slot === 'light') exp[sk.id] = (exp[sk.id] ?? 0) + 3 + s.dodges * 5;
     if (slot === 'inner') exp[sk.id] = (exp[sk.id] ?? 0) + 2 + s.qiUsed / 4;
