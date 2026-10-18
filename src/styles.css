@@ -1,0 +1,387 @@
+@font-face {
+  font-family: 'Cubic11';
+  src: url('/fonts/Cubic_11.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --ink: #17141f;
+  --ink-2: #251f2e;
+  --gold: #d8c08a;
+  --gold-dim: #8a7650;
+  --paper: #f1e7cf;
+  --muted: #a89c86;
+  --red: #c4483c;
+  --font: 'Cubic11', 'PingFang TC', 'Noto Sans TC', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font);
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  user-select: none;
+}
+
+.game-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.game-canvas canvas {
+  image-rendering: pixelated;
+  display: block;
+}
+
+/* 像素風視窗：墨色底、金色雙框 */
+.pixel-frame {
+  background: rgba(23, 20, 31, 0.94);
+  border: 3px solid var(--gold);
+  box-shadow:
+    inset 0 0 0 3px #3a2e22,
+    0 0 0 3px #0c0a10,
+    6px 6px 0 3px rgba(0, 0, 0, 0.35);
+  border-radius: 2px;
+}
+
+kbd {
+  font-family: var(--font);
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 0.35em;
+  text-align: center;
+  color: var(--ink);
+  background: var(--paper);
+  border-bottom: 2px solid var(--gold-dim);
+  border-radius: 2px;
+  font-size: 0.85em;
+}
+
+/* ── 狀態列 ───────────────────────────── */
+.status {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 260px;
+  padding: 12px 14px;
+  font-size: 15px;
+}
+
+.status-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.status-name {
+  font-size: 20px;
+  color: var(--gold);
+}
+
+.status-title {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 36px 1fr 64px;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.bar-label {
+  color: var(--paper);
+}
+
+.bar-track,
+.exp-track {
+  height: 10px;
+  background: #0c0a10;
+  border: 2px solid #3a2e22;
+}
+
+.bar-fill,
+.exp-fill {
+  height: 100%;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.25);
+}
+
+.exp-fill {
+  background: var(--gold);
+}
+
+.bar-num {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.status-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.silver {
+  color: #e8d27a;
+}
+
+/* ── 互動提示與操作說明 ─────────────────── */
+.prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.help {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--paper);
+  text-shadow: 2px 2px 0 #000;
+}
+
+/* ── 地名橫幅 ─────────────────────────── */
+.banner {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  animation: banner 3.6s ease forwards;
+  text-shadow: 3px 3px 0 #000;
+}
+
+.banner-name {
+  font-size: 44px;
+  letter-spacing: 0.5em;
+  padding-left: 0.5em;
+  color: var(--paper);
+}
+
+.banner-sub {
+  margin-top: 6px;
+  font-size: 16px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+
+.banner::before,
+.banner::after {
+  content: '';
+  display: block;
+  height: 3px;
+  margin: 8px auto;
+  width: 70%;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+@keyframes banner {
+  0% { opacity: 0; transform: translate(-50%, 8px); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── 對話框 ──────────────────────────── */
+.dialog {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 32px));
+  min-height: 128px;
+  padding: 22px 26px 18px;
+  font-size: 20px;
+  line-height: 1.7;
+  cursor: pointer;
+}
+
+.dialog-name {
+  position: absolute;
+  top: -22px;
+  left: 18px;
+  padding: 2px 14px;
+  font-size: 17px;
+  color: var(--gold);
+}
+
+.dialog-text {
+  white-space: pre-wrap;
+}
+
+.dialog-next {
+  position: absolute;
+  right: 18px;
+  bottom: 10px;
+  color: var(--gold);
+  animation: blink 0.8s steps(2) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ── 選單 ────────────────────────────── */
+.menu-backdrop {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  width: min(820px, calc(100vw - 32px));
+  height: min(520px, calc(100vh - 32px));
+}
+
+.menu-tabs {
+  list-style: none;
+  margin: 0;
+  padding: 18px 0;
+  border-right: 3px solid #3a2e22;
+  font-size: 18px;
+}
+
+.menu-tabs li {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.menu-tabs li.active {
+  color: var(--gold);
+}
+
+.menu-body {
+  padding: 18px 24px;
+  overflow-y: auto;
+  font-size: 16px;
+}
+
+.menu-body h2 {
+  margin: 0 0 8px;
+  font-weight: normal;
+  font-size: 24px;
+  color: var(--gold);
+}
+
+.menu-body h2 small {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 13px;
+}
+
+.placeholder {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.attrs {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.attrs th,
+.attrs td {
+  padding: 7px 6px;
+  text-align: left;
+  font-weight: normal;
+  border-bottom: 2px dashed #2e2636;
+}
+
+.attrs th {
+  width: 52px;
+  color: var(--paper);
+  font-size: 18px;
+}
+
+.attrs .realm {
+  width: 92px;
+}
+
+.attrs td:nth-child(3) {
+  width: 120px;
+}
+
+.realm {
+  color: #e8d27a;
+}
+
+.derived {
+  display: flex;
+  gap: 18px;
+  margin-top: 6px;
+  color: var(--paper);
+}
+
+.skill {
+  margin: 12px 0 16px;
+}
+
+.skill-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.skill-name {
+  font-size: 19px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 1px 6px;
+  color: var(--ink);
+  background: var(--gold);
+}
+
+@media (max-width: 640px) {
+  .help {
+    display: none;
+  }
+  .status {
+    width: 210px;
+    font-size: 13px;
+  }
+}
