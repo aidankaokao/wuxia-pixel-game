@@ -10,7 +10,41 @@ export type Side = 'hero' | 'enemy';
 export type Outcome = 'win' | 'lose' | 'flee';
 
 /** 招式的視覺效果 */
-export type MoveFx = 'slash' | 'punch' | 'leaves' | 'qi' | 'heavy';
+export type MoveFx = 'slash' | 'punch' | 'leaves' | 'qi' | 'heavy' | 'wind';
+
+/**
+ * 戰鬥中的狀態（增益／減益）。數值是比例，例如 block 0.35 表示受到的傷害減少 35%。
+ * 持續時間以「擁有者的出手次數」計算：每次輪到他出手時減一，歸零就消失（回合制、半即時制通用）。
+ */
+export type EffectKind =
+  | 'block' // 格擋：受到的傷害減少
+  | 'speed' // 迅捷：速度提高
+  | 'power' // 勁增：攻擊與內勁提高
+  | 'evade' // 身輕：閃避率提高（加上去的值）
+  | 'counter' // 反擊：閃過攻擊時還手一擊（數值是威力倍率）
+  | 'slow' // 遲緩：速度降低
+  | 'weaken' // 力竭：攻擊降低
+  | 'armorBreak' // 破綻：防禦降低
+  | 'stun'; // 震懾：下一次輪到時無法出手
+
+export const EFFECT_NAME: Record<EffectKind, string> = {
+  block: '格擋',
+  speed: '迅捷',
+  power: '勁增',
+  evade: '身輕',
+  counter: '反擊',
+  slow: '遲緩',
+  weaken: '力竭',
+  armorBreak: '破綻',
+  stun: '震懾',
+};
+export const DEBUFFS: EffectKind[] = ['slow', 'weaken', 'armorBreak', 'stun'];
+
+export interface Effect {
+  kind: EffectKind;
+  value: number;
+  turns: number;
+}
 
 export interface Move {
   id: string;
@@ -18,14 +52,20 @@ export interface Move {
   desc: string;
   /** 消耗內力 */
   qi: number;
-  /** 威力倍率；restore 類則為回復量的倍率 */
+  /** 威力倍率；restore 類則為回復量的倍率；buff 類為 0 */
   power: number;
-  /** outer：外功，看攻擊力；inner：內功，看內勁；restore：調息回復 */
-  kind: 'outer' | 'inner' | 'restore';
+  /** outer：外功，看攻擊力；inner：內功，看內勁；restore：調息回復；buff：只給自己狀態 */
+  kind: 'outer' | 'inner' | 'restore' | 'buff';
   target: 'enemy' | 'allEnemies' | 'self';
-  /** 由哪門武功而來，使用後該武功增加熟練度 */
+  /** 由哪門武功而來，使用後該武功增加熟練度與領悟度 */
   skillId?: string;
   fx: MoveFx;
+  /** 連擊次數（預設 1） */
+  hits?: number;
+  /** 出招後給自己的狀態 */
+  self?: Effect[];
+  /** 打中目標時給對方的狀態；chance 為機率（預設必定） */
+  foe?: (Effect & { chance?: number })[];
 }
 
 export interface Unit {
@@ -54,6 +94,8 @@ export interface Unit {
   ai?: 'grunt' | 'boss';
   /** 主角用「出手」時，熟練度算在哪門武功（裝備中最高的外功） */
   baseSkill?: string;
+  /** 身上的狀態 */
+  effects: Effect[];
 }
 
 export type BattleCommand =
@@ -77,6 +119,8 @@ export type BattleEvent =
   | { type: 'message'; text: string }
   | { type: 'strike'; actor: string; move: Move; hits: Hit[] }
   | { type: 'restore'; actor: string; hp: number; qi: number }
+  /** 狀態有變化（得到、消失），畫面重新整理標籤 */
+  | { type: 'effects'; actor: string; gained?: EffectKind[] }
   | { type: 'guard'; actor: string }
   | { type: 'charge'; actor: string }
   | { type: 'flee'; actor: string; success: boolean };
@@ -94,6 +138,7 @@ export interface UnitView {
   alive: boolean;
   guard: boolean;
   charging: boolean;
+  effects: Effect[];
 }
 
 export interface MoveView {

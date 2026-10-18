@@ -1,6 +1,6 @@
 import { ITEMS } from '../character';
 import { MOVES } from './moves';
-import type { BattleCommand, BattleEvent, Hit, Outcome, Unit } from './types';
+import { EFFECT_NAME, type BattleCommand, type BattleEvent, type Effect, type EffectKind, type Hit, type Move, type Outcome, type Unit } from './types';
 
 /**
  * 戰鬥規則：給定「誰、做了什麼」，算出結果並改動雙方狀態。
@@ -35,6 +35,53 @@ export class Battle {
     return this.units.filter((u) => u.hp > 0 && (!side || u.side === side));
   }
 
+  // ── 狀態 ──────────────────────────────────────────────
+
+  private effect(u: Unit, kind: EffectKind) {
+    return u.effects.filter((e) => e.kind === kind).reduce((n, e) => n + e.value, 0);
+  }
+
+  /** 套用狀態後的數值（出手順序、命中、傷害都用這個） */
+  stat(u: Unit, key: 'atk' | 'ipow' | 'def' | 'spd' | 'eva'): number {
+    const e = (k: EffectKind) => this.effect(u, k);
+    switch (key) {
+      case 'atk':
+        return u.atk * (1 + e('power') - e('weaken'));
+      case 'ipow':
+        return u.ipow * (1 + e('power') - e('weaken'));
+      case 'def':
+        return u.def * Math.max(0, 1 - e('armorBreak'));
+      case 'spd':
+        return u.spd * Math.max(0.3, 1 + e('speed') - e('slow'));
+      case 'eva':
+        return Math.min(0.6, u.eva + e('evade'));
+    }
+  }
+
+  /** 給狀態；同種狀態不疊加，取比較強、比較久的 */
+  addEffect(u: Unit, eff: Effect) {
+    const old = u.effects.find((e) => e.kind === eff.kind);
+    if (old) {
+      old.value = Math.max(old.value, eff.value);
+      old.turns = Math.max(old.turns, eff.turns);
+    } else u.effects.push({ ...eff });
+  }
+
+  /**
+   * 輪到某人出手時先呼叫：狀態的持續次數減一。
+   * 被震懾的話這次不能出手（skip 為真），由呼叫端略過他的指令。
+   */
+  startTurn(u: Unit): { skip: boolean; events: BattleEvent[] } {
+    const stunned = u.effects.some((e) => e.kind === 'stun');
+    const before = u.effects.length;
+    for (const e of u.effects) e.turns--;
+    u.effects = u.effects.filter((e) => e.turns > 0);
+    const events: BattleEvent[] = [];
+    if (u.effects.length !== before) events.push({ type: 'effects', actor: u.id });
+    if (stunned) events.unshift({ type: 'message', text: `${u.name}被震懾住了，一時動彈不得！` });
+    return { skip: stunned, events };
+  }
+
   outcome(): Outcome | null {
     if (this.alive('hero').length === 0) return 'lose';
     if (this.alive('enemy').length === 0) return 'win';
@@ -49,8 +96,8 @@ export class Battle {
         actor.guard = true;
         return [{ type: 'guard', actor: actor.id }, { type: 'message', text: `${actor.name}凝神守備。` }];
       case 'flee': {
-        const enemySpd = Math.max(...this.alive('enemy').map((u) => u.spd));
-        const success = this.canFlee && this.rand() < 0.45 + (actor.spd - enemySpd) * 0.04;
+        const enemySpd = Math.max(...this.alive('enemy').map((u) => this.stat(u, 'spd')));
+        const success = this.canFlee && this.rand() < 0.45 + (this.stat(actor, 'spd') - enemySpd) * 0.04;
         return [
           { type: 'flee', actor: actor.id, success },
           { type: 'message', text: success ? '你施展身法，脫離了戰鬥。' : '被攔了下來，沒能脫身！' },
@@ -91,14 +138,18 @@ export class Battle {
     }
 
     if (move.kind === 'restore') {
-      const qi = Math.min(Math.round(12 + actor.ipow * 1.2), actor.maxQi - actor.qi);
+      const qi = Math.min(Math.round(12 + this.stat(actor, 'ipow') * 1.2), actor.maxQi - actor.qi);
       const hp = Math.min(Math.round(actor.maxHp * 0.08), actor.maxHp - actor.hp);
       actor.qi += qi;
       actor.hp += hp;
       return [
-        { type: 'message', text: `${actor.name}運起${move.name}，氣息漸穩。` },
+        { type: 'message', text: `${actor.name}運起「${move.name}」，氣息漸穩。` },
         { type: 'restore', actor: actor.id, hp, qi },
       ];
+    }
+
+    if (move.kind === 'buff') {
+      return [{ type: 'message', text: `${actor.name}施展「${move.name}」！` }, ...this.selfEffects(actor, move)];
     }
 
     const foes = this.alive(actor.side === 'hero' ? 'enemy' : 'hero');
@@ -106,31 +157,81 @@ export class Battle {
     if (move.target === 'allEnemies') targets = foes;
     else targets = [foes.find((u) => u.id === targetId) ?? foes[0]];
 
-    const hits = targets.map((t) => this.hit(actor, t, move.power, move.kind === 'inner'));
+    // 連擊：每一下分別算命中與傷害；目標倒下就不再打
+    const hits: Hit[] = [];
+    for (let n = 0; n < (move.hits ?? 1); n++)
+      for (const t of targets) if (t.hp > 0) hits.push(this.hit(actor, t, move.power, move.kind === 'inner'));
+
     const events: BattleEvent[] = [
       { type: 'message', text: `${actor.name}使出「${move.name}」！` },
       { type: 'strike', actor: actor.id, move, hits },
     ];
-    for (const h of hits) {
-      const t = this.unit(h.target);
-      if (h.miss) events.push({ type: 'message', text: `${t.name}閃身避開了。` });
-      else if (h.killed) events.push({ type: 'message', text: t.side === 'enemy' ? `${t.name}倒地不起！` : `${t.name}支撐不住，倒了下去……` });
-    }
     const crit = hits.find((h) => h.crit && !h.miss);
-    if (crit) events.splice(2, 0, { type: 'message', text: '會心一擊！' });
+    if (crit) events.push({ type: 'message', text: '會心一擊！' });
+    for (const t of targets) {
+      const mine = hits.filter((h) => h.target === t.id);
+      if (mine.every((h) => h.miss)) {
+        events.push({ type: 'message', text: `${t.name}閃身避開了。` });
+        events.push(...this.counter(t, actor));
+        continue;
+      }
+      if (t.hp === 0) {
+        events.push({ type: 'message', text: t.side === 'enemy' ? `${t.name}倒地不起！` : `${t.name}支撐不住，倒了下去……` });
+        continue;
+      }
+      // 打中後給對方的狀態
+      const gained: EffectKind[] = [];
+      for (const f of move.foe ?? []) {
+        if (f.chance !== undefined && this.rand() >= f.chance) continue;
+        this.addEffect(t, f);
+        gained.push(f.kind);
+      }
+      if (gained.length) {
+        events.push({ type: 'effects', actor: t.id, gained });
+        events.push({ type: 'message', text: `${t.name}陷入${gained.map((k) => `「${EFFECT_NAME[k]}」`).join('')}！` });
+      }
+    }
+    if (actor.hp > 0) events.push(...this.selfEffects(actor, move));
+    return events;
+  }
+
+  /** 出招後給自己的狀態 */
+  private selfEffects(actor: Unit, move: Move): BattleEvent[] {
+    if (!move.self?.length) return [];
+    // +1：這次出手結束後，到下一次出手前也都算數
+    for (const e of move.self) this.addEffect(actor, { ...e, turns: e.turns + 1 });
+    const names = move.self.map((e) => `「${EFFECT_NAME[e.kind]}」`).join('');
+    return [
+      { type: 'effects', actor: actor.id, gained: move.self.map((e) => e.kind) },
+      { type: 'message', text: `${actor.name}得到${names}！` },
+    ];
+  }
+
+  /** 閃過攻擊、身上有「反擊」時還手一擊（反擊不會再被反擊） */
+  private counter(u: Unit, attacker: Unit): BattleEvent[] {
+    const power = this.effect(u, 'counter');
+    if (!power || u.hp <= 0 || attacker.hp <= 0) return [];
+    const h = this.hit(u, attacker, power, false);
+    const counterMove: Move = { ...MOVES.attack, name: '反擊' };
+    const events: BattleEvent[] = [
+      { type: 'message', text: `${u.name}順勢回身還擊！` },
+      { type: 'strike', actor: u.id, move: counterMove, hits: [h] },
+    ];
+    if (h.killed) events.push({ type: 'message', text: attacker.side === 'enemy' ? `${attacker.name}倒地不起！` : `${attacker.name}支撐不住，倒了下去……` });
     return events;
   }
 
   private hit(actor: Unit, target: Unit, power: number, inner: boolean): Hit {
-    if (this.rand() > 0.95 - target.eva) {
+    if (this.rand() > 0.95 - this.stat(target, 'eva')) {
       if (target.side === 'hero') this.stats.dodges++;
       return { target: target.id, damage: 0, miss: true, crit: false, killed: false };
     }
     const crit = this.rand() < 0.08;
-    const base = (inner ? actor.ipow : actor.atk) * power * (0.9 + this.rand() * 0.2);
-    let dmg = base - target.def * 0.5;
+    const base = this.stat(actor, inner ? 'ipow' : 'atk') * power * (0.9 + this.rand() * 0.2);
+    let dmg = base - this.stat(target, 'def') * 0.5;
     if (crit) dmg *= 1.5;
     if (target.guard) dmg *= 0.5;
+    dmg *= Math.max(0.2, 1 - this.effect(target, 'block'));
     const damage = Math.max(1, Math.round(dmg));
     target.hp = Math.max(0, target.hp - damage);
     if (actor.side === 'hero' && !inner) this.stats.outerHits++;

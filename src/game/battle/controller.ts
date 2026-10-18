@@ -21,7 +21,7 @@ export class RoundController implements TurnController {
       }
       this.queue = battle
         .alive()
-        .map((u) => ({ u, k: u.spd * (0.85 + Math.random() * 0.3) }))
+        .map((u) => ({ u, k: battle.stat(u, 'spd') * (0.85 + Math.random() * 0.3) }))
         .sort((a, b) => b.k - a.k)
         .map((x) => x.u);
     }

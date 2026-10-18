@@ -31,6 +31,8 @@ export interface EncounterDef {
   growth?: number;
   /** 打贏獲得的武學點數 */
   points: number;
+  /** 頭目戰：打贏時有機會「靈光一閃」直接悟出下一招 */
+  boss?: boolean;
 }
 
 export const ENCOUNTERS: Record<string, EncounterDef> = {
@@ -38,7 +40,7 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   dogs: { enemies: ['dog', 'dog'], background: 'mountain', intro: '兩隻野狗一左一右圍了上來！', canFlee: true, silver: 0, growth: 0.35, points: 2 },
   boar: { enemies: ['boar'], background: 'mountain', intro: '山豬刨著前蹄，低頭朝你衝來！', canFlee: true, silver: 0, growth: 0.5, points: 2 },
   scouts: { enemies: ['grunt', 'grunt'], background: 'mountain', intro: '斷崖寨的嘍囉攔住了去路！', canFlee: true, silver: 8, points: 3 },
-  camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10 },
+  camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 
 const SUFFIX = ['甲', '乙', '丙', '丁'];
@@ -67,6 +69,7 @@ export function enemyUnits(e: EncounterDef): Unit[] {
       moves: d.moves,
       guard: false,
       charging: false,
+      effects: [],
       ai: d.ai,
     };
   });

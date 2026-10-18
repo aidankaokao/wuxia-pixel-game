@@ -16,7 +16,7 @@ export const SLOT_NAME: Record<SlotId, string> = { quick: '即時存檔', auto: 
 export const MANUAL_SLOTS: SlotId[] = ['1', '2', '3'];
 
 /** 存檔格式有不相容的改變時遞增；舊版本在 migrate() 裡轉換，無法轉換的舊檔會被忽略 */
-const VERSION = 3;
+const VERSION = 4;
 
 export interface Position {
   mapId: string;
@@ -119,6 +119,16 @@ function migrate(d: any): SaveData | null {
       delete s.equipped;
     }
     d.version = 3;
+  }
+  if (d?.version === 3) {
+    // v3：還沒有悟招，學會武功就會全部招式。v4 起要一招一招悟，舊檔原本會的招式保留
+    const before = ['chongquan', 'tiaoxi', 'pozhu', 'fengyao'];
+    for (const s of d.hero.skills) {
+      const defs = SKILLS[s.id]?.moves ?? [];
+      s.moves = defs.filter((m, i) => i === 0 || before.includes(m.id)).map((m) => m.id);
+      s.insight = 0;
+    }
+    d.version = 4;
   }
   return d?.version === VERSION ? (d as SaveData) : null;
 }

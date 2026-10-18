@@ -6,7 +6,7 @@ function Bar({ label, value, max, color }: { label: string; value: number; max: 
     <div className="bar">
       <span className="bar-label">{label}</span>
       <div className="bar-track">
-        <div className="bar-fill" style={{ width: `${(value / max) * 100}%`, background: color }} />
+        <div className="bar-fill" style={{ width: `${max ? Math.min(100, (value / max) * 100) : 0}%`, background: color }} />
       </div>
       <span className="bar-num">
         {value}/{max}

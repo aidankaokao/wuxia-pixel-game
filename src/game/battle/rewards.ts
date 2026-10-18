@@ -1,4 +1,5 @@
-import { attrs, Character, isEquipped, gainSkill, skillCap, skillDef, slotOf } from '../character';
+import { attrs, Character, gainInsight, gainSkill, isEquipped, nextMove, skillCap, skillDef, slotOf } from '../character';
+import { MOVES } from './moves';
 import type { Battle } from './engine';
 import type { EncounterDef } from './enemies';
 import type { Outcome } from './types';
@@ -9,7 +10,10 @@ import type { Outcome } from './types';
  * 用過的招式替所屬武功加經驗；裝備中的輕功依閃避次數、內功依耗用的內力加經驗。
  * 會直接修改傳入的角色（呼叫端用 updateHero 包起來）。
  */
-export function settle(c: Character, b: Battle, enc: EncounterDef, outcome: Outcome): string[] {
+/** 頭目戰靈光一閃（直接悟出下一招）的機率 */
+const BOSS_FLASH = 0.2;
+
+export function settle(c: Character, b: Battle, enc: EncounterDef, outcome: Outcome, rand: () => number = Math.random): string[] {
   const hero = b.unit('hero');
   c.hp = hero.hp;
   c.qi = hero.qi;
@@ -50,5 +54,26 @@ export function settle(c: Character, b: Battle, enc: EncounterDef, outcome: Outc
     if (up) ups.push(up);
   }
   if (shown.length) lines.push('武功熟練：' + shown.join('　'));
+
+  // 悟招：這場用過的武功累積領悟度（輕功的閃避也算），頭目戰有機會靈光一閃
+  const insightUses: Record<string, number> = { ...s.skillUses };
+  for (const sk of c.skills)
+    if (isEquipped(sk) && slotOf(skillDef(sk).kind) === 'light' && s.dodges) insightUses[sk.id] = (insightUses[sk.id] ?? 0) + s.dodges;
+  for (const [id, uses] of Object.entries(insightUses)) {
+    const sk = c.skills.find((k) => k.id === id);
+    if (!sk || !nextMove(sk)) continue;
+    const before = sk.level;
+    const flash = !!enc.boss && rand() < BOSS_FLASH;
+    const learned = gainInsight(c, id, Math.round((8 + uses * 4) * g), flash);
+    const name = skillDef(sk).name;
+    if (learned) {
+      const after = c.skills.find((k) => k.id === id)!;
+      ups.push(`靈光一閃！你從「${name}」中悟出了「${MOVES[learned].name}」！`);
+      if (after.level > before) ups.push(`「${name}」隨之精進至第 ${after.level} 重！`);
+    } else {
+      const now = c.skills.find((k) => k.id === id)!;
+      if (now.insight > 0) lines.push(`對「${name}」的下一招似有所悟（領悟 ${now.insight}%）。`);
+    }
+  }
   return [...lines, ...ups];
 }

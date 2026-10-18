@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state/store';
-import type { BattleCommand, BattleView, ItemView, MoveView } from '../game/battle/types';
+import { DEBUFFS, EFFECT_NAME, type BattleCommand, type BattleView, type Effect, type ItemView, type MoveView } from '../game/battle/types';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
 type Mode = 'root' | 'moves' | 'items' | 'target';
@@ -137,6 +137,7 @@ export function BattleUI() {
                 {mode === 'target' && enemies[cursor]?.id === u.id ? '▶ ' : '　'}
                 {u.name}
                 {u.charging && <span className="tag danger">蓄勢</span>}
+                <EffectTags effects={u.effects} />
               </li>
             ))}
         </ul>
@@ -145,6 +146,7 @@ export function BattleUI() {
           <div className="battle-hero-name">
             {hero.name}
             {hero.guard && <span className="tag">防禦中</span>}
+            <EffectTags effects={hero.effects} />
           </div>
           <Bar label="氣血" value={hero.hp} max={hero.maxHp} color="#d8483c" />
           <Bar label="內力" value={hero.qi} max={hero.maxQi} color="#4a8ad8" />
@@ -175,12 +177,26 @@ export function BattleUI() {
   );
 }
 
+/** 狀態標籤：名稱＋剩餘次數，減益用另一個顏色 */
+function EffectTags({ effects }: { effects: Effect[] }) {
+  return (
+    <>
+      {effects.map((e) => (
+        <span key={e.kind} className={`tag effect ${DEBUFFS.includes(e.kind) ? 'debuff' : ''}`}>
+          {EFFECT_NAME[e.kind]}
+          {e.turns}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function Bar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
   return (
     <div className="bar">
       <span className="bar-label">{label}</span>
       <div className="bar-track">
-        <div className="bar-fill" style={{ width: `${max ? (value / max) * 100 : 0}%`, background: color }} />
+        <div className="bar-fill" style={{ width: `${max ? Math.min(100, (value / max) * 100) : 0}%`, background: color }} />
       </div>
       <span className="bar-num">
         {value}/{max}

@@ -1097,3 +1097,31 @@ img.bag-big {
   height: 32px;
   image-rendering: pixelated;
 }
+
+/* ── 戰鬥狀態標籤 ─────────────────────── */
+.tag.effect {
+  margin-left: 4px;
+  background: #e0b040;
+}
+
+.tag.effect.debuff {
+  color: var(--paper);
+  background: #7a4aa0;
+}
+
+.move-list {
+  margin: 8px 0;
+}
+
+.move-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 14px;
+  color: var(--paper);
+}
+
+.move-row.unknown {
+  color: #6a6276;
+}

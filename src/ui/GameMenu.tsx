@@ -14,6 +14,7 @@ import {
   ITEM_CATEGORIES,
   ItemCategory,
   ITEMS,
+  nextMove,
   pointsToNext,
   Skill,
   sortItems,
@@ -31,6 +32,7 @@ import {
   consumeItem,
 } from '../game/character';
 import { itemIconUrl } from '../game/art/items';
+import { MOVES } from '../game/battle/moves';
 import { QUESTS } from '../game/story/quests';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
@@ -374,6 +376,35 @@ function SkillDetail({ s }: { s: Skill }) {
       </div>
       <p className="small">裝備加成：{bonus(def.equip)}</p>
       <p className="small muted">永久成長：{bonus(def.grow)}</p>
+      <div className="move-list">
+        <div className="col-title">
+          招式 {s.moves.length}/{def.moves.length}
+        </div>
+        {def.moves.map((mv) => {
+          const known = s.moves.includes(mv.id);
+          const isNext = nextMove(s)?.id === mv.id;
+          return (
+            <div key={mv.id} className={`move-row ${known ? '' : 'unknown'}`} title={known ? MOVES[mv.id].desc : ''}>
+              <span>
+                {known ? '◆ ' : '◇ '}
+                {known ? MOVES[mv.id].name : '？？？'}
+              </span>
+              <span className="muted small">
+                {known
+                  ? MOVES[mv.id].qi
+                    ? `內力 ${MOVES[mv.id].qi}`
+                    : ''
+                  : s.level < mv.level
+                    ? `第 ${mv.level} 重後可悟`
+                    : isNext
+                      ? `領悟 ${s.insight}%`
+                      : '尚未參透'}
+              </span>
+            </div>
+          );
+        })}
+        {nextMove(s) && <p className="muted small">在戰鬥中使用這門武功，就有機會悟出新招；悟出時武功也會精進一重。</p>}
+      </div>
       <p className="muted small">{def.desc}</p>
     </div>
   );

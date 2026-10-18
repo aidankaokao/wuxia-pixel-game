@@ -149,6 +149,11 @@ export interface SkillDef {
   grow: Partial<Attrs>;
   /** 每一重永久提升的氣血／內力／體力上限 */
   vital: { hp?: number; qi?: number; stamina?: number };
+  /**
+   * 招式（招式本身的效果見 battle/moves.ts）。第一招學會武功時就會，其餘要在戰鬥中悟出：
+   * level 是悟招需要的重數，bonus 是悟出這招後永久增加的五維。
+   */
+  moves: { id: string; level: number; bonus?: Partial<Attrs> }[];
 }
 
 /** 可以學到的武功 */
@@ -157,21 +162,33 @@ export const SKILLS: Record<string, SkillDef> = {
     id: 'basic-fist', name: '粗淺拳腳', kind: '拳掌', tier: '入門',
     desc: '街頭巷尾都學得到的拳腳功夫，聊勝於無。',
     equip: { strength: 1 }, grow: { strength: 0.5, constitution: 0.3 }, vital: { hp: 3 },
+    moves: [{ id: 'chongquan', level: 0 }],
   },
   breathing: {
     id: 'breathing', name: '吐納心法', kind: '內功', tier: '入門',
     desc: '最基礎的呼吸吐納之法，是修習內功的入門。',
     equip: { energy: 1 }, grow: { energy: 0.5, constitution: 0.2 }, vital: { qi: 3 },
+    moves: [{ id: 'tiaoxi', level: 0 }],
   },
   zhuying: {
     id: 'zhuying', name: '竹影劍法', kind: '劍法', tier: '中品',
     desc: '自竹林石碑上的劍痕悟出的劍法，劍勢如風過竹林，虛實難測。',
     equip: { strength: 0.6, agility: 0.8 }, grow: { agility: 0.5, strength: 0.3, insight: 0.2 }, vital: { hp: 2, stamina: 2 },
+    moves: [
+      { id: 'pozhu', level: 0 },
+      { id: 'fengyao', level: 1, bonus: { agility: 1 } },
+      { id: 'qingshou', level: 3, bonus: { constitution: 1 } },
+      { id: 'fengguo', level: 5, bonus: { agility: 1, strength: 0.5 } },
+    ],
   },
   qingzhu: {
     id: 'qingzhu', name: '青竹步', kind: '輕功', tier: '中品',
     desc: '柳承安年輕時行走江湖的輕身功夫，步法輕靈，善於閃避。',
     equip: { agility: 1.2 }, grow: { agility: 0.6, constitution: 0.2 }, vital: { stamina: 4 },
+    moves: [
+      { id: 'taye', level: 0 },
+      { id: 'fanzhu', level: 3, bonus: { agility: 1 } },
+    ],
   },
 };
 
@@ -187,6 +204,10 @@ export interface Skill {
   fails: number;
   /** 下一次突破事先擲好的結果 0–1，存進存檔，讀檔重試也不會改變結果 */
   roll: number;
+  /** 已悟出的招式 id */
+  moves: string[];
+  /** 下一招的領悟度 0–100 */
+  insight: number;
 }
 
 export const skillDef = (s: { id: string }) => SKILLS[s.id];
@@ -241,6 +262,9 @@ export function attrParts(c: Character) {
     const d = skillDef(s);
     const m = effLevel(s) * TIERS[d.tier].mult;
     for (const [k, v] of Object.entries(d.grow) as [AttrKey, number][]) grow[k] += v * m;
+    // 每悟出一招的永久加成
+    for (const mv of d.moves)
+      if (s.moves.includes(mv.id)) for (const [k, v] of Object.entries(mv.bonus ?? {}) as [AttrKey, number][]) grow[k] += v;
     if (isEquipped(s)) for (const [k, v] of Object.entries(d.equip) as [AttrKey, number][]) equip[k] += v * m;
   }
   const total = zeroAttrs();
@@ -340,12 +364,42 @@ export function tryBreakthrough(c: Character, id: string, rand: () => number = M
   return { ok: true, success, text: `突破失敗……你對「${name}」又多了幾分體悟（下次成功率提高）。` };
 }
 
+/** 剛學會的武功：只會第一招 */
+export function newSkill(id: string, level: number, pos: number | null): Skill {
+  return { id, level, exp: 0, pos, fails: 0, roll: Math.random(), moves: [SKILLS[id].moves[0].id], insight: 0 };
+}
+
+// ── 悟招 ────────────────────────────────────────────────
+
+/** 下一招（照順序悟，一次只看下一招）；全部悟完回傳 undefined */
+export const nextMove = (s: Skill) => skillDef(s).moves.find((m) => !s.moves.includes(m.id));
+
+/**
+ * 增加領悟度；滿 100（或 flash 為真：頭目戰的靈光一閃）就悟出下一招。
+ * 悟出時武功自動升一重（已在正常上限就不升）。
+ * 回傳悟出的招式 id，或 null；重數不夠時不累積。
+ */
+export function gainInsight(c: Character, id: string, amount: number, flash = false): string | null {
+  const s = c.skills.find((k) => k.id === id);
+  const next = s && nextMove(s);
+  if (!s || !next || s.level < next.level) return null;
+  s.insight = Math.min(100, s.insight + amount);
+  if (s.insight < 100 && !flash) return null;
+  s.moves.push(next.id);
+  s.insight = 0;
+  if (s.level < skillCap(s)) {
+    s.level++;
+    if (s.level >= skillCap(s)) s.exp = 0;
+  }
+  return next.id;
+}
+
 /** 學會武功；對應欄位還有空位就自動裝備 */
 export function learnSkill(c: Character, id: string, level = 1): string | null {
   if (c.skills.some((s) => s.id === id)) return null;
   const slot = slotOf(SKILLS[id].kind);
   const pos = freePos(c, slot);
-  c.skills.push({ id, level, exp: 0, pos, fails: 0, roll: Math.random() });
+  c.skills.push(newSkill(id, level, pos));
   return `你學會了「${SKILLS[id].name}」！${pos !== null ? '' : `（${SKILL_SLOT_NAME[slot]}欄位已滿，可在選單「武功」中替換）`}`;
 }
 
@@ -422,8 +476,8 @@ export function newHero(opts: { surname?: string; given?: string; base?: Attrs }
     base: { ...(opts.base ?? DEFAULT_BASE) },
     extra: zeroAttrs(),
     skills: [
-      { id: 'basic-fist', level: 1, exp: 30, pos: 0, fails: 0, roll: Math.random() },
-      { id: 'breathing', level: 0, exp: 40, pos: 0, fails: 0, roll: Math.random() },
+      { ...newSkill('basic-fist', 1, 0), exp: 30 },
+      { ...newSkill('breathing', 0, 0), exp: 40 },
     ],
     points: 0,
     items: {},

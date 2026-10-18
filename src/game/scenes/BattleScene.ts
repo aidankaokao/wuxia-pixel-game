@@ -7,7 +7,7 @@ import { Battle } from '../battle/engine';
 import { RoundController, TurnController } from '../battle/controller';
 import { settle } from '../battle/rewards';
 import { autoCommand } from '../battle/auto';
-import type { BattleCommand, BattleEvent, BattleView, Hit, Outcome, Unit } from '../battle/types';
+import { DEBUFFS, type BattleCommand, type BattleEvent, type BattleView, type Hit, type Outcome, type Unit } from '../battle/types';
 import { useGame } from '../../state/store';
 
 interface SceneData {
@@ -119,6 +119,13 @@ export class BattleScene extends Phaser.Scene {
     await this.say(this.enc.intro, 800);
     for (;;) {
       const actor = await this.controller.next(this.battle);
+      // 狀態的持續次數在輪到他時減一；被震懾就跳過這次
+      const turn = this.battle.startTurn(actor);
+      for (const ev of turn.events) await this.play(ev);
+      if (turn.skip) {
+        this.sync();
+        continue;
+      }
       let cmd: BattleCommand;
       if (actor.side === 'hero') {
         cmd = await this.requestCommand(actor);
@@ -152,7 +159,7 @@ export class BattleScene extends Phaser.Scene {
         const s = this.shown.get(u.id)!;
         return {
           id: u.id, name: u.name, side: u.side, hp: s.hp, maxHp: u.maxHp, qi: s.qi, maxQi: u.maxQi,
-          alive: s.hp > 0, guard: u.guard, charging: u.charging,
+          alive: s.hp > 0, guard: u.guard, charging: u.charging, effects: u.effects.map((e) => ({ ...e })),
         };
       }),
       message: this.message,
@@ -232,6 +239,16 @@ export class BattleScene extends Phaser.Scene {
         await this.wait(500);
         break;
       }
+      case 'effects': {
+        const s = this.units.get(ev.actor)!.sprite;
+        if (ev.gained?.length) {
+          const bad = ev.gained.some((k) => DEBUFFS.includes(k));
+          this.burst(s.x, s.y - 12, bad ? 0xb070e0 : 0xffd070, 8, -1);
+          await this.wait(220);
+        }
+        this.sync();
+        break;
+      }
       case 'guard': {
         const s = this.units.get(ev.actor)!.sprite;
         s.setTintFill(0x9ac8ff);
@@ -276,9 +293,19 @@ export class BattleScene extends Phaser.Scene {
 
     if (fx === 'leaves') this.leaves(targets);
     if (fx === 'heavy') this.cameras.main.shake(260, 0.012);
-    hits.forEach((h, i) => this.impact(targets[i], h, fx, actorId === 'hero'));
+    // 連擊時一下一下打，每下間隔一點時間
+    const firstOf = new Map<string, number>();
+    hits.forEach((h) => {
+      const t = this.units.get(h.target)!.sprite;
+      const nth = firstOf.get(h.target) ?? 0;
+      firstOf.set(h.target, nth + 1);
+      const fire = () => (this.impact(t, h, fx, actorId === 'hero'), this.sync());
+      if (nth === 0) fire();
+      else this.time.delayedCall(nth * 170, fire);
+    });
     this.sync();
-    await this.wait(fx === 'leaves' ? 520 : 380);
+    const extra = (Math.max(...firstOf.values()) - 1) * 170;
+    await this.wait((fx === 'leaves' ? 520 : 380) + extra);
 
     s.play({ key: `${s.texture.key}-${dirKey}`, frameRate: 14 });
     await this.tween({ targets: s, x: a.home.x, y: a.home.y, duration: 220 });
@@ -294,8 +321,9 @@ export class BattleScene extends Phaser.Scene {
       this.tweens.add({ targets: t, x: t.x + (t.x > BATTLE_W / 2 ? 8 : -8), duration: 90, yoyo: true });
       return;
     }
-    if (fx === 'slash' || fx === 'heavy') {
-      const slash = this.add.image(t.x, head, 'fx_slash').setDepth(2000).setTint(fx === 'heavy' ? 0xff9070 : 0xffffff);
+    if (fx === 'slash' || fx === 'heavy' || fx === 'wind') {
+      const tint = fx === 'heavy' ? 0xff9070 : fx === 'wind' ? 0xa8f0c0 : 0xffffff;
+      const slash = this.add.image(t.x, head, 'fx_slash').setDepth(2000).setTint(tint);
       if (t.x > BATTLE_W / 2) slash.setFlipX(true);
       this.tweens.add({ targets: slash, alpha: 0, duration: 260, onComplete: () => slash.destroy() });
     } else if (fx === 'punch') {
