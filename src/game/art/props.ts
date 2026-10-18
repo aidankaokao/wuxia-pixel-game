@@ -140,6 +140,86 @@ function drawStele(): PropArt {
   return { canvas: c };
 }
 
+// ── 山寨 ────────────────────────────────────────────────
+
+/** 帳篷：佔兩格寬 */
+function drawTent(): PropArt {
+  const [c, ctx] = makeCanvas(34, 28);
+  for (let y = 0; y < 24; y++) {
+    const half = Math.round(2 + y * 0.62);
+    hline(ctx, 17 - half, 16 + half, y + 2, y % 5 === 4 ? '#a8946a' : '#c8b48a');
+  }
+  for (let y = 0; y < 24; y++) px(ctx, 16 - Math.round(2 + y * 0.62), y + 2, 1, 1, '#8a7650');
+  vline(ctx, 16, 0, 25, '#5e3b1d');
+  // 門簾
+  for (let y = 12; y < 26; y++) {
+    const half = Math.round((y - 12) * 0.45);
+    hline(ctx, 16 - half, 16 + half, y, '#3a2e22');
+  }
+  px(ctx, 13, 12, 1, 14, '#c8b48a');
+  hline(ctx, 0, 33, 26, '#6e5a3a');
+  outline(ctx, 0, 0, 34, 28, OUTLINE_DARK);
+  return { canvas: c };
+}
+
+function drawCampfire(frame: number): PropArt {
+  const [c, ctx] = makeCanvas(16, 18);
+  // 圍石
+  for (const [x, y] of [[2, 14], [5, 15], [9, 15], [12, 14], [7, 16]]) {
+    px(ctx, x, y, 3, 2, '#8a8478');
+    px(ctx, x, y, 2, 1, '#aaa497');
+  }
+  px(ctx, 3, 12, 10, 2, '#6b4423');
+  px(ctx, 5, 11, 6, 1, '#4f311a');
+  // 火焰（兩個畫格左右搖曳）
+  const s = frame === 0 ? 0 : 1;
+  const flame: [number, number, number, string][] = [
+    [4 + s, 6, 8, '#e8603c'], [5, 4 - s, 6, '#f29a3a'], [6 + s, 2, 4, '#f7d26a'], [7, 0 + s, 2, '#fff2b0'],
+  ];
+  for (const [x, y, w, col] of flame) px(ctx, x, y + 3, w, 11 - y - 3, col);
+  outline(ctx, 0, 0, 16, 18, '#3a1a10');
+  return { canvas: c };
+}
+
+function drawChest(open: boolean): PropArt {
+  const [c, ctx] = makeCanvas(16, 16);
+  px(ctx, 2, 8, 12, 7, '#8a5a2a');
+  hline(ctx, 2, 13, 8, '#a8763f');
+  vline(ctx, 4, 8, 14, '#d4a640');
+  vline(ctx, 11, 8, 14, '#d4a640');
+  if (open) {
+    // 箱蓋往後掀開，看得到蓋子內側與空空的箱底
+    px(ctx, 3, 0, 10, 3, '#c8955a');
+    hline(ctx, 3, 12, 0, '#8a5a2a');
+    px(ctx, 2, 3, 12, 5, '#1e140c');
+    hline(ctx, 3, 12, 7, '#3a2618');
+  } else {
+    px(ctx, 2, 4, 12, 4, '#9a6a35');
+    hline(ctx, 2, 13, 4, '#b8854a');
+    vline(ctx, 4, 4, 7, '#d4a640');
+    vline(ctx, 11, 4, 7, '#d4a640');
+    px(ctx, 7, 7, 2, 3, '#e8c060');
+  }
+  outline(ctx, 0, 0, 16, 16, OUTLINE_DARK);
+  return { canvas: c };
+}
+
+/** 寨旗：黑底紅邊 */
+function drawFlag(): PropArt {
+  const [c, ctx] = makeCanvas(16, 34);
+  vline(ctx, 3, 1, 33, '#5e3b1d');
+  vline(ctx, 4, 1, 33, '#7d532a');
+  px(ctx, 5, 3, 10, 13, '#2a2a32');
+  for (let y = 3; y < 16; y += 2) px(ctx, 14, y, 1, 1, '#b8322a');
+  hline(ctx, 5, 14, 3, '#b8322a');
+  hline(ctx, 5, 14, 15, '#b8322a');
+  px(ctx, 8, 6, 4, 1, '#e8e0cc');
+  px(ctx, 9, 6, 2, 7, '#e8e0cc');
+  px(ctx, 7, 10, 6, 1, '#e8e0cc');
+  outline(ctx, 0, 0, 16, 34, OUTLINE_DARK);
+  return { canvas: c };
+}
+
 // ── 建築 ────────────────────────────────────────────────
 
 export interface BuildingStyle {
@@ -311,6 +391,12 @@ export function allProps(): Record<string, PropArt> {
     sign: drawSign(),
     bulletin: drawBulletin(),
     stele: drawStele(),
+    tent: drawTent(),
+    campfire: drawCampfire(0),
+    campfire_b: drawCampfire(1),
+    chest: drawChest(false),
+    chest_open: drawChest(true),
+    flag: drawFlag(),
   };
   for (const [k, st] of Object.entries(BUILDINGS)) out[`b_${k}`] = drawBuilding(st);
   return out;

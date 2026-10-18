@@ -72,6 +72,16 @@ export const CHARACTERS: Record<string, CharStyle> = {
     skin: SKIN, hair: '#1a1614', robe: '#4f8a7a', robeDark: '#36685b', inner: '#e8eee8', sash: '#2a3a36',
     pants: '#2a3a36', shoe: '#161a1a', hairStyle: 'long', band: '#e8eee8', sword: true,
   },
+  // 斷崖寨嘍囉：紅頭巾、短鬚、背刀
+  bandit: {
+    skin: '#d9a77c', hair: '#2a1f1a', robe: '#6a5440', robeDark: '#4a3a2c', inner: '#a89070', sash: '#a83a2a',
+    pants: '#3a3028', shoe: '#1e1a16', hairStyle: 'topknot', band: '#a83a2a', beard: '#2a1f1a', sword: true,
+  },
+  // 斷崖寨寨主祁三刀：光頭黑巾、絡腮鬍
+  boss: {
+    skin: '#c99468', hair: '#1a1410', robe: '#3a3a48', robeDark: '#26262f', inner: '#8a3a2a', sash: '#b8322a',
+    pants: '#2a2a30', shoe: '#141418', hairStyle: 'bald', band: '#1e1e22', beard: '#1a1410', sword: true,
+  },
 };
 
 type View = 'down' | 'side' | 'up';

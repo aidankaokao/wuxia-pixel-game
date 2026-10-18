@@ -1,4 +1,6 @@
 import type { Dir } from '../constants';
+import type { Script } from '../events';
+import type { Flags } from '../../state/store';
 
 /**
  * 地圖資料格式。
@@ -10,6 +12,7 @@ import type { Dir } from '../constants';
  *   E  出入口（走上去會觸發 exits 裡對應的事件）
  *
  * 建築、告示牌、NPC 等不寫在字元裡，另外列在 buildings / props / npcs。
+ * 會隨劇情變化的東西用 when（依旗標決定是否存在）與 script（互動時執行的劇情腳本）。
  */
 
 /** 一段對話：可以是旁白，也可以標出說話的人。 */
@@ -17,6 +20,9 @@ export interface Line {
   speaker?: string;
   text: string;
 }
+
+/** 依劇情旗標決定是否出現 */
+export type Condition = (f: Flags) => boolean;
 
 export interface BuildingDef {
   /** 對應 art/props.ts 的 BUILDINGS */
@@ -30,10 +36,16 @@ export interface BuildingDef {
 }
 
 export interface PropDef {
-  sprite: string;
+  id?: string;
+  /** 貼圖名稱；也可以依旗標換圖（例如打開的寶箱） */
+  sprite: string | ((f: Flags) => string);
   x: number;
   y: number;
-  lines: Line[];
+  /** 佔幾格寬（預設 1） */
+  w?: number;
+  lines?: Line[];
+  script?: Script;
+  when?: Condition;
 }
 
 export interface NpcDef {
@@ -46,16 +58,31 @@ export interface NpcDef {
   facing?: Dir;
   /** 會在出生點附近幾格內走動；0 或不填表示站著不動 */
   wander?: number;
-  /** 每次對話依序輪播一組台詞 */
-  talks: Line[][];
+  /** 簡單的 NPC：每次對話依序輪播一組台詞 */
+  talks?: Line[][];
+  /** 會隨劇情改變說法的 NPC：對話時執行這段腳本 */
+  script?: Script;
+  when?: Condition;
+  /** 野獸：碰到或按確認鍵就開打這場遭遇戰（battle/enemies.ts 的 ENCOUNTERS） */
+  encounter?: string;
+  /** 野獸被打倒後，幾秒後重新出現 */
+  respawn?: number;
 }
 
 export interface ExitDef {
   /** 出入口所在的格子（可以多格） */
   tiles: [number, number][];
-  /** 目標地圖 id；尚未開放的地圖先留空 */
+  /** 目標地圖 id 與落腳處；沒有 to 表示尚未開放，只顯示 lines */
   to?: string;
-  lines: Line[];
+  spawn?: { x: number; y: number; facing: Dir };
+  lines?: Line[];
+}
+
+/** 踩到就觸發的區域（例如埋伏） */
+export interface TriggerDef {
+  tiles: [number, number][];
+  when?: Condition;
+  script: Script;
 }
 
 export interface MapDef {
@@ -68,6 +95,9 @@ export interface MapDef {
   props: PropDef[];
   npcs: NpcDef[];
   exits: ExitDef[];
+  triggers?: TriggerDef[];
+  /** 這張地圖在戰鬥時用哪種背景 */
+  battleBg?: 'mountain' | 'camp';
 }
 
 /** 不能走上去的地形字元 */

@@ -17,3 +17,7 @@ export function useKeys(active: boolean, handler: (key: string, e: KeyboardEvent
 
 export const isConfirm = (k: string) => k === 'e' || k === 'E' || k === ' ' || k === 'Enter';
 export const isCancel = (k: string) => k === 'x' || k === 'X' || k === 'Escape';
+export const isUp = (k: string) => k === 'ArrowUp' || k === 'w' || k === 'W';
+export const isDown = (k: string) => k === 'ArrowDown' || k === 's' || k === 'S';
+export const isLeft = (k: string) => k === 'ArrowLeft' || k === 'a' || k === 'A';
+export const isRight = (k: string) => k === 'ArrowRight' || k === 'd' || k === 'D';

@@ -20,8 +20,10 @@ export function Hud() {
   const hero = useGame((s) => s.hero);
   const mapName = useGame((s) => s.mapName);
   const prompt = useGame((s) => s.prompt);
-  const blocking = useGame((s) => s.dialog !== null || s.menuOpen);
+  const blocking = useGame((s) => s.dialog !== null || s.menuOpen || s.eventRunning);
+  const inBattle = useGame((s) => s.battle !== null || s.screen !== 'game');
   const d = derive(hero);
+  if (inBattle) return null;
 
   return (
     <>

@@ -1,3 +1,4 @@
+import { aniuTalk, kidTalk, liuTalk, steleRead, strangerTalk, wellUse, zhongTalk } from '../story/bandits';
 import type { MapDef } from './types';
 
 /**
@@ -78,52 +79,27 @@ export const qingzhu: MapDef = {
   ],
 
   props: [
-    { sprite: 'well', x: 23, y: 19, lines: [{ text: '一口老井，井水清涼。' }, { text: '你掬起一捧喝了，精神為之一振。' }] },
+    { sprite: 'well', x: 23, y: 19, script: wellUse },
     {
       sprite: 'bulletin', x: 29, y: 17,
       lines: [
         { text: '【告示】' },
-        { text: '近日蒼嵐山一帶有山賊出沒，村民切勿獨自上山。\n凡有能人願為本村除害者，請至柳宅一敘。' },
+        { text: '近日蒼嵐山一帶有山賊出沒，村民切勿獨自上山。\n凡有能人願為本村除害者，請找村長柳承安一敘。' },
         { text: '──青竹村 村長 柳承安' },
       ],
     },
     { sprite: 'sign', x: 28, y: 33, lines: [{ text: '「青竹村」\n北通蒼嵐山・東往臨江城・南接南嶺古道' }] },
     { sprite: 'sign', x: 28, y: 9, lines: [{ text: '北 ── 蒼嵐山\n山路險峻，日落後勿行。' }] },
     { sprite: 'sign', x: 36, y: 19, lines: [{ text: '東 ── 臨江城　三十里' }] },
-    {
-      sprite: 'stele', x: 5, y: 9,
-      lines: [
-        { text: '竹林深處立著一塊長滿青苔的石碑。' },
-        { text: '碑上刻著八個字，筆畫如劍痕：\n「竹影搖風，劍意自生」' },
-        { text: '你盯著那幾道刻痕看了許久，似乎領悟了些什麼……\n（武功系統尚未開放）' },
-      ],
-    },
+    { sprite: 'stele', x: 5, y: 9, script: steleRead },
   ],
 
   npcs: [
     {
-      id: 'liu', name: '柳承安', sprite: 'elder', x: 20, y: 17, facing: 'down',
-      talks: [
-        [
-          { speaker: '柳承安', text: '年輕人，看你面生，是頭一回到青竹村吧？' },
-          { speaker: '柳承安', text: '老夫柳承安，忝為本村村長。這村子雖小，倒也清靜。' },
-          { speaker: '柳承安', text: '只是近來北邊蒼嵐山上不太平，你若要上山，千萬當心。' },
-        ],
-        [
-          { speaker: '柳承安', text: '想闖蕩江湖？先把身子骨練結實了再說。' },
-          { speaker: '柳承安', text: '武功不是一天練成的，根骨、內息，一樣都馬虎不得。' },
-        ],
-      ],
+      id: 'liu', name: '柳承安', sprite: 'elder', x: 20, y: 17, facing: 'down', script: liuTalk,
     },
     {
-      id: 'zhong', name: '鍾嬸', sprite: 'aunt', x: 32, y: 17, facing: 'down',
-      talks: [
-        [
-          { speaker: '鍾嬸', text: '客官，來碗竹葉清茶歇歇腳吧！' },
-          { speaker: '鍾嬸', text: '聽說臨江城的漕幫，最近跟金刀鏢局鬧得很僵，來往的商客都繞道走呢。' },
-        ],
-        [{ speaker: '鍾嬸', text: '我家這茶，用的是雲水河上游的水，別處喝不到的。' }],
-      ],
+      id: 'zhong', name: '鍾嬸', sprite: 'aunt', x: 32, y: 17, facing: 'down', script: zhongTalk,
     },
     {
       id: 'shi', name: '石岳', sprite: 'smith', x: 14, y: 19, facing: 'down', wander: 1,
@@ -136,14 +112,7 @@ export const qingzhu: MapDef = {
       ],
     },
     {
-      id: 'kid', name: '小石頭', sprite: 'child', x: 25, y: 23, wander: 4,
-      talks: [
-        [
-          { speaker: '小石頭', text: '大哥哥，你會飛簷走壁嗎？' },
-          { speaker: '小石頭', text: '韓叔叔說，真正的高手踩著竹梢就能飛過整片竹林！' },
-        ],
-        [{ speaker: '小石頭', text: '西邊竹林裡有一塊怪石頭，上面刻著字，可是我看不懂……' }],
-      ],
+      id: 'kid', name: '小石頭', sprite: 'child', x: 25, y: 23, wander: 4, script: kidTalk,
     },
     {
       id: 'qin', name: '秦老漢', sprite: 'fisher', x: 37, y: 31, facing: 'right',
@@ -155,29 +124,16 @@ export const qingzhu: MapDef = {
       ],
     },
     {
-      id: 'aniu', name: '阿牛', sprite: 'farmer', x: 9, y: 33, wander: 3,
-      talks: [
-        [
-          { speaker: '阿牛', text: '今年雨水好，秧苗長得旺。' },
-          { speaker: '阿牛', text: '就怕山上的山賊又下來搶糧……唉。' },
-        ],
-      ],
+      id: 'aniu', name: '阿牛', sprite: 'farmer', x: 9, y: 33, wander: 3, script: aniuTalk,
     },
     {
-      id: 'stranger', name: '青衫客', sprite: 'swordsman', x: 27, y: 12, facing: 'up',
-      talks: [
-        [
-          { speaker: '青衫客', text: '……' },
-          { text: '他瞥了你一眼，又轉頭望向北方的山。' },
-          { speaker: '青衫客', text: '這把劍，等了三年。' },
-        ],
-        [{ speaker: '青衫客', text: '少管閒事，對你沒有壞處。' }],
-      ],
+      id: 'stranger', name: '青衫客', sprite: 'swordsman', x: 27, y: 12, facing: 'up', script: strangerTalk,
+      when: (f) => !f.stranger,
     },
   ],
 
   exits: [
-    { tiles: [[26, 0], [27, 0]], lines: [{ text: '山路蜿蜒而上，通往蒼嵐山。\n（地圖尚未開放）' }] },
+    { tiles: [[26, 0], [27, 0]], to: 'canglan', spawn: { x: 11, y: 42, facing: 'up' } },
     { tiles: [[55, 20], [55, 21]], lines: [{ text: '前方是通往臨江城的官道。\n（地圖尚未開放）' }] },
     { tiles: [[26, 39], [27, 39]], lines: [{ text: '南嶺古道荒草蔓生，不知通往何處。\n（地圖尚未開放）' }] },
   ],
