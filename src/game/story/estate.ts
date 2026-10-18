@@ -23,7 +23,6 @@ import { useGame } from '../../state/store';
  */
 
 const du = (text: string): Line => ({ speaker: '杜大樑', text });
-const tao = (text: string): Line => ({ speaker: '陶四', text });
 const st = () => useGame.getState();
 
 // ── 空地 ────────────────────────────────────────────────
@@ -79,13 +78,6 @@ export const carpenterTalk: Script = async (ctx) => {
 export const plotName = (e: Estate) => plotNames[e.plot] ?? '自宅';
 const plotNames: Record<string, string> = {};
 export const registerPlotNames = (plots: PlotDef[]) => plots.forEach((p) => (plotNames[p.id] = p.name));
-
-// ── 貨郎 ────────────────────────────────────────────────
-
-export const merchantTalk: Script = async (ctx) => {
-  await ctx.say(tao('走過路過不要錯過！傷藥、茶葉、草藥，樣樣都有。'), tao('打到的獸皮、獸肉也可以賣給我，價錢公道！'));
-  await ctx.panel({ kind: 'shop' });
-};
 
 // ── 家具 ────────────────────────────────────────────────
 

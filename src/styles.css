@@ -1262,3 +1262,20 @@ img.bag-big {
 .confirm-buttons button.active {
   color: var(--gold);
 }
+
+/* 人物的互動清單 */
+.prompt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 16px;
+}
+
+.prompt-title {
+  margin-bottom: 2px;
+  color: var(--gold);
+}
+
+.exp-fill.bad {
+  background: #a84a5a;
+}

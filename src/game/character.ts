@@ -74,6 +74,7 @@ export const sellPrice = (id: string) => Math.floor((ITEMS[id]?.price ?? 0) / 2)
 export const ITEMS: Record<string, ItemDef> = {
   jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80, price: 30 },
   tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30, price: 12 },
+  yunwu: { name: '雲霧茶', category: '藥品', icon: 'tea', desc: '高山雲霧間採的好茶，入口回甘。回復內力 60。', qi: 60, price: 30 },
   stew: { name: '燉山豬肉', category: '藥品', icon: 'stew', desc: '自家灶台燉的山豬肉，香氣撲鼻。回復氣血 150。', hp: 150, price: 40 },
   herb: { name: '止血草', category: '雜物', icon: 'herb', desc: '常見的草藥，可以拿到藥爐煉成金創藥。', price: 6 },
   boar_meat: { name: '山豬肉', category: '雜物', icon: 'meat', desc: '一大塊山豬肉。可以賣錢，也可以在自家灶台燉來吃。', price: 16 },
@@ -247,7 +248,8 @@ export interface Character {
   given: string;
   /** 全名（姓＋名），顯示用 */
   name: string;
-  title: string;
+  /** 名聲：稱號由它決定（social.ts 的 fameTitle） */
+  fame: number;
   silver: number;
   /** 擲骰決定的五維底值 */
   base: Attrs;
@@ -453,6 +455,11 @@ export function unequip(c: Character, id: string): string {
   return `卸下了「${skillDef(s).name}」`;
 }
 
+export function addFame(c: Character, n: number): string {
+  c.fame += n;
+  return `名聲 +${n}。`;
+}
+
 export function giveItem(c: Character, id: string, n = 1): string {
   c.items[id] = (c.items[id] ?? 0) + n;
   return `獲得「${ITEMS[id].name}」${ITEMS[id].manual ? '' : `×${n}`}。`;
@@ -483,7 +490,7 @@ export function newHero(opts: { surname?: string; given?: string; base?: Attrs }
     surname,
     given,
     name: surname + given,
-    title: '初出茅廬',
+    fame: 0,
     silver: 12,
     base: { ...(opts.base ?? DEFAULT_BASE) },
     extra: zeroAttrs(),

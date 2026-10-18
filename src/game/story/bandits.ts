@@ -1,5 +1,5 @@
-import { giveItem, learnSkill, restoreAll } from '../character';
-import type { Script } from '../events';
+import { addFame, giveItem, learnSkill, restoreAll } from '../character';
+import type { EventCtx, Script } from '../events';
 import type { Line } from '../maps/types';
 import type { Flags } from '../../state/store';
 
@@ -15,6 +15,7 @@ import type { Flags } from '../../state/store';
  *   tea            1 已收下鍾嬸的茶
  *   chest_camp     1 已打開山寨的寶箱
  *   home_deed      覆命時一併給地契（見 story/estate.ts）
+ *   deed_hint      1 村長提醒過地契的事
  */
 
 const by = (speaker: string) => (text: string): Line => ({ speaker, text });
@@ -41,15 +42,13 @@ export const banditsQuest = {
 
 // ── 青竹村 ──────────────────────────────────────────────
 
-export const liuTalk: Script = async (ctx) => {
+/**
+ * 柳承安的劇情部分（接委託、覆命）。處理了就回傳 true；
+ * 其餘時候交給人際系統的一般交談（台詞在 story/people.ts）。
+ */
+export const liuStory = async (ctx: EventCtx): Promise<boolean> => {
   const q = ctx.flag('q_bandits');
-  if (q === 3) {
-    await ctx.say(liu('托少俠的福，村裡總算能睡個安穩覺了。'));
-    if (ctx.flag('home_deed') === 1) await ctx.say(liu('地契可收好了？村東、村西南的空地，插著木牌的就是，挑一塊喜歡的吧。'));
-    else await ctx.say(liu('往後若累了，就回家好好歇著。'));
-    return;
-  }
-  if (ctx.flag('bandit_boss')) {
+  if (ctx.flag('bandit_boss') && q !== 3) {
     if (q === 0) {
       await ctx.say(liu('……什麼？斷崖寨的山賊，是你一個人挑了的？'), liu('老夫還沒開口相求，少俠便已出手。這份俠義，青竹村記下了！'));
     } else {
@@ -61,7 +60,7 @@ export const liuTalk: Script = async (ctx) => {
     );
     await ctx.hero((c) => {
       c.silver += 50;
-      return ['獲得銀兩 50。', learnSkill(c, 'qingzhu'), giveItem(c, 'manual_qingzhu')];
+      return ['獲得銀兩 50。', learnSkill(c, 'qingzhu'), giveItem(c, 'manual_qingzhu'), addFame(c, 15)];
     });
     await ctx.say(
       liu('步法的要訣在「輕」與「變」。多加練習，閃躲刀劍時自有妙用。'),
@@ -72,15 +71,15 @@ export const liuTalk: Script = async (ctx) => {
     ctx.setFlag('q_bandits', 3);
     ctx.setFlag('home_deed', 1);
     await ctx.say('（獲得「地契」：到空地的木牌前，就能免費挑一塊地蓋房子）');
-    return;
+    return true;
   }
-  if (q === 1) {
-    await ctx.say(
-      liu('斷崖寨就在蒼嵐山道的盡頭，從村北的山口上去便是。'),
-      liu('若是受了傷，就回村裡的老井喝口水歇歇，那井水可是能養人的。'),
-    );
-    return;
+  if (q === 3 && ctx.flag('home_deed') === 1 && ctx.flag('deed_hint') === 0) {
+    ctx.setFlag('deed_hint');
+    await ctx.say(liu('地契可收好了？村東、村西南的空地，插著木牌的就是，挑一塊喜歡的吧。'));
+    return true;
   }
+  if (q !== 0) return false;
+
   if (!ctx.flag('met_liu')) {
     await ctx.say(liu('年輕人，看你面生，是頭一回到青竹村吧？'), liu('老夫柳承安，忝為本村村長。'));
     ctx.setFlag('met_liu');
@@ -92,7 +91,7 @@ export const liuTalk: Script = async (ctx) => {
   const choice = await ctx.ask(liu('看少俠背上負劍，想必身手不凡。不知……可願替本村走一趟？'), ['義不容辭', '容我想想']);
   if (choice === 1) {
     await ctx.say(liu('不勉強，不勉強。少俠若改變心意，再來找老夫。'));
-    return;
+    return true;
   }
   ctx.setFlag('q_bandits', 1);
   await ctx.say(liu('好！老夫果然沒看錯人！'), liu('這幾帖金創藥你帶著，山上刀劍無眼。'));
@@ -101,6 +100,7 @@ export const liuTalk: Script = async (ctx) => {
     liu('還有一事。聽逃回來的樵夫說，祁三刀每回使出殺招之前，總要先高舉大刀蓄勢。'),
     liu('見他蓄勢，切莫硬拼——先「防禦」守住了，再找機會反擊。'),
   );
+  return true;
 };
 
 export const wellUse: Script = async (ctx) => {
@@ -127,22 +127,17 @@ export const steleRead: Script = async (ctx) => {
   ctx.setFlag('stele');
 };
 
-export const zhongTalk: Script = async (ctx) => {
-  if (ctx.flag('q_bandits') === 3) {
-    await ctx.say(zhong('聽說是你把山賊趕跑的？哎呀，真是了不起！'), zhong('往後來喝茶，嬸都不收你錢！'));
-    return;
-  }
-  if (!ctx.flag('tea')) {
-    await ctx.say(
-      zhong('客官，來碗竹葉清茶歇歇腳吧！'),
-      zhong('聽說臨江城的漕幫，最近跟金刀鏢局鬧得很僵，來往的商客都繞道走呢。'),
-      zhong('看你要出遠門的樣子，這碗茶帶著路上喝。不收錢！'),
-    );
-    await ctx.hero((c) => giveItem(c, 'tea', 1));
-    ctx.setFlag('tea');
-    return;
-  }
-  await ctx.say(zhong('我家這茶，用的是雲水河上游的水，別處喝不到的。'));
+/** 鍾嬸的劇情部分：第一次見面送茶。其餘交給人際系統。 */
+export const zhongStory = async (ctx: EventCtx): Promise<boolean> => {
+  if (ctx.flag('tea')) return false;
+  await ctx.say(
+    zhong('客官，來碗竹葉清茶歇歇腳吧！'),
+    zhong('聽說臨江城的漕幫，最近跟金刀鏢局鬧得很僵，來往的商客都繞道走呢。'),
+    zhong('看你要出遠門的樣子，這碗茶帶著路上喝。不收錢！'),
+  );
+  await ctx.hero((c) => giveItem(c, 'tea', 1));
+  ctx.setFlag('tea');
+  return true;
 };
 
 export const kidTalk: Script = async (ctx) => {
@@ -193,6 +188,7 @@ export const scoutsFight: Script = async (ctx) => {
     ctx.setFlag('bandit_scouts');
     ctx.refresh();
     await ctx.say('嘍囉們抱頭鼠竄，往山上逃去了。');
+    await ctx.hero((c) => addFame(c, 5));
   } else {
     await ctx.walk('player', ['down']);
   }
@@ -208,6 +204,7 @@ export const bossFight: Script = async (ctx) => {
   ctx.setFlag('bandit_boss');
   await ctx.say(qi('好……好小子……'), qi('這筆帳，斷崖寨記下了！'));
   await ctx.say('祁三刀摀著傷口，帶著手下從寨後的小路逃進了深山。');
+  await ctx.hero((c) => addFame(c, 20));
   ctx.refresh();
 
   // 青衫客現身

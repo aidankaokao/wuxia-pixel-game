@@ -8,6 +8,8 @@
  * 同一套配置之後也能拿來產生 NPC 的家。
  */
 
+import type { Relation } from './social';
+
 export type HomeStyle = 'plain' | 'scholar' | 'martial';
 export const HOME_STYLES: HomeStyle[] = ['plain', 'scholar', 'martial'];
 export const STYLE_NAME: Record<HomeStyle, string> = { plain: '樸素', scholar: '書香', martial: '武人' };
@@ -35,9 +37,11 @@ export interface World {
   estates: Record<string, Estate>;
   /** 每天限定次數的事：key → 哪一天用了幾次 */
   daily: Record<string, { day: number; n: number }>;
+  /** 人際關係：人物 id → 熟悉度等（見 social.ts） */
+  relations: Record<string, Relation>;
 }
 
-export const newWorld = (): World => ({ day: 1, estates: {}, daily: {} });
+export const newWorld = (): World => ({ day: 1, estates: {}, daily: {}, relations: {} });
 
 /** 今天已經用了幾次 */
 export const usedToday = (w: World, key: string) => (w.daily[key]?.day === w.day ? w.daily[key].n : 0);

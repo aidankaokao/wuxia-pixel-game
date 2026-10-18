@@ -1,4 +1,5 @@
 import { derive } from '../game/character';
+import { fameTitle } from '../game/social';
 import { useGame } from '../state/store';
 
 function Bar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
@@ -31,7 +32,7 @@ export function Hud() {
       <div className="status pixel-frame">
         <div className="status-head">
           <span className="status-name">{hero.name}</span>
-          <span className="status-title">{hero.title}</span>
+          <span className="status-title">{fameTitle(hero.fame)}</span>
         </div>
         <Bar label="氣血" value={hero.hp} max={d.maxHp} color="#d8483c" />
         <Bar label="內力" value={hero.qi} max={d.maxQi} color="#4a8ad8" />
@@ -44,11 +45,22 @@ export function Hud() {
         </div>
       </div>
 
-      {prompt && !blocking && (
-        <div className="prompt pixel-frame">
-          <kbd>E</kbd> {prompt}
-        </div>
-      )}
+      {prompt && !blocking &&
+        (typeof prompt === 'string' ? (
+          <div className="prompt pixel-frame">
+            <kbd>E</kbd> {prompt}
+          </div>
+        ) : (
+          // 人物：列出目前能做的事與對應按鍵
+          <div className="prompt prompt-list pixel-frame">
+            <div className="prompt-title">{prompt.title}</div>
+            {prompt.actions.map((a) => (
+              <div key={a.key}>
+                <kbd>{a.key}</kbd> {a.label}
+              </div>
+            ))}
+          </div>
+        ))}
 
       {!blocking && (
         <div className="help">

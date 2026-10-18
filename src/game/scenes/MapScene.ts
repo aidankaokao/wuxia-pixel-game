@@ -7,7 +7,9 @@ import { Actor } from '../entities/Actor';
 import { getMap } from '../maps';
 import { BLOCKING, BuildingDef, Line, MapDef, NpcDef, PropDef } from '../maps/types';
 import { EventCtx, Script, ScriptAbort } from '../events';
+import { Action, ACTIONS, availableActions, KEY_ACTION, personScript, personTitle } from '../story/social';
 import { derive } from '../character';
+import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { autosave, setPositionProvider } from '../save';
 import { flag, uiBlocking, useGame } from '../../state/store';
@@ -58,7 +60,7 @@ export class MapScene extends Phaser.Scene {
   private turnUntil = 0;
   private lastDir: Dir | null = null;
   /** 按下確認／選單鍵時排入的動作，等主角站定後執行 */
-  private queued: 'interact' | 'menu' | null = null;
+  private queued: 'interact' | 'menu' | Action | null = null;
   /** 正在離開這張地圖（淡出中），不再處理任何操作 */
   private leaving = false;
 
@@ -112,7 +114,7 @@ export class MapScene extends Phaser.Scene {
       up: 'UP', down: 'DOWN', left: 'LEFT', right: 'RIGHT',
       w: 'W', s: 'S', a: 'A', d: 'D', shift: 'SHIFT',
     }) as Record<string, Phaser.Input.Keyboard.Key>;
-    kb.addCapture('E,X,SPACE,ENTER,ESC');
+    kb.addCapture('E,X,SPACE,ENTER,ESC,F,G,R,T');
     // 用按鍵事件而非 JustDown：按下與放開落在同一幀時 JustDown 會漏掉
     this.events.once('shutdown', () => kb.off('keydown'));
     kb.on('keydown', (e: KeyboardEvent) => {
@@ -122,6 +124,7 @@ export class MapScene extends Phaser.Scene {
       if (e.timeStamp <= useGame.getState().uiClosedAt) return;
       if (['e', 'E', ' ', 'Enter'].includes(e.key)) this.queued = 'interact';
       else if (['x', 'X', 'Escape'].includes(e.key)) this.queued = 'menu';
+      else if (KEY_ACTION[e.key.toLowerCase()]) this.queued = KEY_ACTION[e.key.toLowerCase()];
     });
 
     // 開發模式下讓自動化測試讀得到主角位置
@@ -359,6 +362,8 @@ export class MapScene extends Phaser.Scene {
       npc.actor.face(OPPOSITE[this.player.facing]);
       if (npc.def.encounter) {
         this.fightBeast(npc);
+      } else if (npc.def.person) {
+        this.runScript(personScript(npc.def.person, 'talk')!);
       } else if (npc.def.script) {
         this.runScript(npc.def.script);
       } else if (npc.def.talks?.length) {
@@ -398,6 +403,14 @@ export class MapScene extends Phaser.Scene {
     const prop = this.propAt(f.x, f.y);
     const door = this.inBounds(f.x, f.y) ? this.doors.get(this.idx(f.x, f.y)) : undefined;
     const talkable = npc && (npc.def.script || npc.def.talks?.length);
+    if (npc?.def.person) {
+      const id = npc.def.person;
+      useGame.getState().setPrompt({
+        title: personTitle(id),
+        actions: availableActions(id).map((a) => ({ key: ACTIONS[a].key, label: ACTIONS[a].name })),
+      });
+      return;
+    }
     useGame
       .getState()
       .setPrompt(
@@ -531,6 +544,13 @@ export class MapScene extends Phaser.Scene {
         this.scene.pause();
       });
     }).then((o) => {
+      if (o === 'lose' && ENCOUNTERS[encounter]?.spar) {
+        // 切磋輸了：點到為止，留一成氣血
+        useGame.getState().updateHero((c) => {
+          c.hp = Math.max(c.hp, Math.ceil(derive(c).maxHp * 0.1));
+        });
+        return o;
+      }
       if (o === 'lose') {
         // 戰敗：被人救回村裡，恢復一半氣血
         useGame.getState().updateHero((c) => {
@@ -573,6 +593,16 @@ export class MapScene extends Phaser.Scene {
       this.player.stand();
       useGame.getState().setMenu(true);
       return;
+    }
+    if (action) {
+      // 切磋、贈禮、請教、交易：面對的人有開放這件事才執行
+      const npc = this.npcAt(this.player.front().x, this.player.front().y);
+      const script = npc?.actor && npc.def.person ? personScript(npc.def.person, action) : null;
+      if (script) {
+        npc!.actor!.face(OPPOSITE[this.player.facing]);
+        this.runScript(script);
+        return;
+      }
     }
 
     const dir = this.heldDir();
@@ -626,10 +656,13 @@ export class MapScene extends Phaser.Scene {
   }
 
   private updateNpcs(time: number) {
+    // 主角正面對著的人停下來，不會聊到一半走開
+    const f = this.player.front();
     for (const n of this.npcs) {
       const a = n.actor;
       const r = n.def.wander ?? 0;
       if (!a || !r || a.moving || time < n.nextWander) continue;
+      if (a.tx === f.x && a.ty === f.y) continue;
       n.nextWander = time + 1800 + Math.random() * 3200;
       const dir = DIRS[Math.floor(Math.random() * 4)];
       const t = a.front(dir);

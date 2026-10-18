@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { ITEMS, sellPrice } from '../game/character';
 import { itemIconUrl } from '../game/art/items';
+import { discountOf, tradeAffinity } from '../game/story/social';
 import { useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
-/** 貨郎賣的東西 */
+/** 貨郎賣的東西；熟了之後多賣雲霧茶（旗標 tao_stock） */
 const STOCK = ['jinchuang', 'tea', 'herb'];
+const EXTRA_STOCK = ['yunwu'];
 
 /** 等待確認的交易 */
 interface Pending {
@@ -24,16 +26,21 @@ export function ShopPanel() {
   const open = panel?.kind === 'shop';
 
   const st = useGame.getState();
+  const person = panel?.kind === 'shop' ? panel.person : undefined;
+  const flags = useGame((s) => s.flags);
+  // 熟客打折
+  const discount = person ? discountOf(person) : 0;
+  const buyPrice = (id: string) => Math.ceil(ITEMS[id].price! * (1 - discount));
   const list =
     tab === 'buy'
-      ? STOCK
+      ? [...STOCK, ...(flags.tao_stock ? EXTRA_STOCK : [])]
       : Object.keys(hero.items).filter((id) => hero.items[id] > 0 && sellPrice(id) > 0 && !ITEMS[id].manual);
   const cur = Math.min(cursor, Math.max(0, list.length - 1));
 
   /** 這筆交易最多能買／賣幾個 */
   const maxQty = (mode: Pending['mode'], id: string) =>
-    mode === 'buy' ? Math.floor(st.hero.silver / ITEMS[id].price!) : st.hero.items[id] ?? 0;
-  const unit = (p: Pending) => (p.mode === 'buy' ? ITEMS[p.id].price! : sellPrice(p.id));
+    mode === 'buy' ? Math.floor(st.hero.silver / buyPrice(id)) : st.hero.items[id] ?? 0;
+  const unit = (p: Pending) => (p.mode === 'buy' ? buyPrice(p.id) : sellPrice(p.id));
 
   const choose = (mode: Pending['mode'], id: string, all = false) => {
     const max = maxQty(mode, id);
@@ -52,7 +59,11 @@ export function ShopPanel() {
         if (!c.items[p.id]) delete c.items[p.id];
       }
     });
-    st.showToast(`${p.mode === 'buy' ? '買' : '賣'}了${ITEMS[p.id].name}${p.qty > 1 ? ` ×${p.qty}` : ''}（${p.mode === 'buy' ? '−' : '+'}${total} 兩）`);
+    // 跟商家買賣越多越熟
+    const aff = person ? tradeAffinity(person, total) : 0;
+    st.showToast(
+      `${p.mode === 'buy' ? '買' : '賣'}了${ITEMS[p.id].name}${p.qty > 1 ? ` ×${p.qty}` : ''}（${p.mode === 'buy' ? '−' : '+'}${total} 兩）${aff ? `　熟悉度 +${aff}` : ''}`,
+    );
     setPending(null);
   };
 
@@ -86,7 +97,7 @@ export function ShopPanel() {
     <div className="menu-backdrop">
       <div className="panel pixel-frame">
         <h2>
-          貨郎攤子　<small>銀兩 {hero.silver}</small>
+          貨郎攤子　<small>銀兩 {hero.silver}{discount ? `　熟客 ${Math.round((1 - discount) * 10)} 折` : ''}</small>
         </h2>
         <div className="panel-tabs">
           <span className={tab === 'buy' ? 'active' : ''} onClick={() => (setTab('buy'), setCursor(0))}>
@@ -107,7 +118,7 @@ export function ShopPanel() {
                 {ITEMS[id].name}
                 <small className="muted">　持有 {hero.items[id] ?? 0}</small>
               </span>
-              <span>{tab === 'buy' ? ITEMS[id].price : sellPrice(id)} 兩</span>
+              <span>{tab === 'buy' ? buyPrice(id) : sellPrice(id)} 兩</span>
             </li>
           ))}
         </ul>

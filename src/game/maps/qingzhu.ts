@@ -1,5 +1,5 @@
-import { carpenterTalk, merchantTalk } from '../story/estate';
-import { aniuTalk, kidTalk, liuTalk, steleRead, strangerTalk, wellUse, zhongTalk } from '../story/bandits';
+import { carpenterTalk } from '../story/estate';
+import { aniuTalk, kidTalk, steleRead, strangerTalk, wellUse } from '../story/bandits';
 import type { MapDef } from './types';
 
 /**
@@ -105,20 +105,13 @@ export const qingzhu: MapDef = {
 
   npcs: [
     {
-      id: 'liu', name: '柳承安', sprite: 'elder', x: 20, y: 17, facing: 'down', script: liuTalk,
+      id: 'liu', name: '柳承安', sprite: 'elder', x: 20, y: 17, facing: 'down', person: 'liu',
     },
     {
-      id: 'zhong', name: '鍾嬸', sprite: 'aunt', x: 32, y: 17, facing: 'down', script: zhongTalk,
+      id: 'zhong', name: '鍾嬸', sprite: 'aunt', x: 32, y: 17, facing: 'down', person: 'zhong',
     },
     {
-      id: 'shi', name: '石岳', sprite: 'smith', x: 14, y: 19, facing: 'down', wander: 1,
-      talks: [
-        [
-          { speaker: '石岳', text: '叮——噹——！' },
-          { speaker: '石岳', text: '要打一把好刀，得看鐵，也得看人。' },
-          { speaker: '石岳', text: '等你攢夠了銀兩，再來找我吧。' },
-        ],
-      ],
+      id: 'shi', name: '石岳', sprite: 'smith', x: 14, y: 19, facing: 'down', wander: 1, person: 'shi',
     },
     {
       id: 'kid', name: '小石頭', sprite: 'child', x: 25, y: 23, wander: 4, script: kidTalk,
@@ -139,7 +132,7 @@ export const qingzhu: MapDef = {
       id: 'du', name: '杜大樑', sprite: 'carpenter', x: 17, y: 19, facing: 'down', script: carpenterTalk,
     },
     {
-      id: 'tao', name: '陶四', sprite: 'peddler', x: 32, y: 22, facing: 'left', script: merchantTalk,
+      id: 'tao', name: '陶四', sprite: 'peddler', x: 32, y: 22, facing: 'left', person: 'tao',
     },
     {
       id: 'stranger', name: '青衫客', sprite: 'swordsman', x: 27, y: 12, facing: 'up', script: strangerTalk,

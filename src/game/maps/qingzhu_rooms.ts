@@ -22,7 +22,6 @@ const exitTo = (map: MapDef['id'], x: number, y: number, exitX: number, h: numbe
 // ── 柳家大宅 ────────────────────────────────────────────
 
 const fu = by('老福');
-const he = by('柳青禾');
 
 export const qzLiu: MapDef = {
   id: 'qz_liu',
@@ -54,12 +53,7 @@ export const qzLiu: MapDef = {
       ],
     },
     {
-      id: 'qinghe', name: '柳青禾', sprite: 'girl', x: 2, y: 2, facing: 'down', wander: 1,
-      talks: [
-        he('你就是那個從外地來的人？', '我叫柳青禾，村長是我爺爺。'),
-        he('噓——別跟爺爺說，我偷偷在後院拿木劍練功。', '總有一天，我也要去臨江城看看真正的江湖！'),
-        he('爺爺書房裡有一本舊拳譜，他從來不讓我碰。', '你說，裡面是不是藏著什麼了不起的武功？'),
-      ],
+      id: 'qinghe', name: '柳青禾', sprite: 'girl', x: 2, y: 2, facing: 'down', wander: 1, person: 'qinghe',
     },
   ],
   exits: [exitTo('qingzhu', 20, 16, 5, 7)],
@@ -138,7 +132,6 @@ export const qzTea: MapDef = {
 
 // ── 石家鐵鋪 ────────────────────────────────────────────
 
-const hu = by('石小虎');
 
 export const qzSmithy: MapDef = {
   id: 'qz_smithy',
@@ -156,12 +149,7 @@ export const qzSmithy: MapDef = {
   ],
   npcs: [
     {
-      id: 'xiaohu', name: '石小虎', sprite: 'apprentice', x: 5, y: 3, facing: 'down', wander: 1,
-      talks: [
-        hu('我爹在外頭打鐵，我負責拉風箱。', '等我長大了，要打一把比我爹的還好的刀！'),
-        hu('兵器還不能賣給你喔。', '我爹說了，等你攢夠了銀兩、他也覺得你配得上，才肯動手給你打。（打造兵器尚未開放）'),
-        hu('斷崖寨那個祁三刀，用的大刀其實是我爹年輕時打的。', '我爹說，刀是好刀，可惜跟錯了人。'),
-      ],
+      id: 'xiaohu', name: '石小虎', sprite: 'apprentice', x: 5, y: 3, facing: 'down', wander: 1, person: 'xiaohu',
     },
   ],
   exits: [exitTo('qingzhu', 13, 19, 2, 7)],

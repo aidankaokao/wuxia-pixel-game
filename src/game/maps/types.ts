@@ -82,6 +82,8 @@ export interface NpcDef {
   /** 會隨劇情改變說法的 NPC：對話時執行這段腳本 */
   script?: Script;
   when?: Condition;
+  /** 有人物檔案（story/people.ts）的人：交談、切磋、贈禮等都走人際系統，熟悉度跟著這個 id */
+  person?: string;
   /** 野獸：碰到或按確認鍵就開打這場遭遇戰（battle/enemies.ts 的 ENCOUNTERS） */
   encounter?: string;
   /** 野獸被打倒後，幾秒後重新出現 */

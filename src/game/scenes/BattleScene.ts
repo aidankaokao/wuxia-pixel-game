@@ -254,7 +254,9 @@ export class BattleScene extends Phaser.Scene {
       const result: BattleView['result'] =
         o === 'win'
           ? { outcome: o, title: '勝利', lines }
-          : { outcome: o, title: '敗北', lines: ['你眼前一黑，倒了下去……'] };
+          : this.enc.spar
+            ? { outcome: o, title: '落敗', lines: ['點到為止——這一場是你輸了。'] }
+            : { outcome: o, title: '敗北', lines: ['你眼前一黑，倒了下去……'] };
       this.cancelInput?.();
       this.sync(result);
       await new Promise<void>((resolve) => useGame.setState({ battleInput: () => resolve() }));

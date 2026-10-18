@@ -17,7 +17,7 @@ export const SLOT_NAME: Record<SlotId, string> = { quick: '即時存檔', auto: 
 export const MANUAL_SLOTS: SlotId[] = ['1', '2', '3'];
 
 /** 存檔格式有不相容的改變時遞增；舊版本在 migrate() 裡轉換，無法轉換的舊檔會被忽略 */
-const VERSION = 5;
+const VERSION = 6;
 
 export interface Position {
   mapId: string;
@@ -140,6 +140,14 @@ function migrate(d: any): SaveData | null {
     if (d.flags?.q_bandits === 3 && !d.flags.home_deed) d.flags.home_deed = 1;
     d.version = 5;
   }
+  if (d?.version === 5) {
+    // v5：還沒有人際關係與名聲。名聲依已完成的劇情補上
+    const f = d.flags ?? {};
+    d.hero.fame = (f.bandit_scouts ? 5 : 0) + (f.bandit_boss ? 20 : 0) + (f.q_bandits === 3 ? 15 : 0);
+    delete d.hero.title;
+    d.world.relations = {};
+    d.version = 6;
+  }
   return d?.version === VERSION ? (d as SaveData) : null;
 }
 
@@ -151,6 +159,7 @@ export function restoreHero(saved: Character): Character {
     ...saved,
     base: { ...fresh.base, ...saved.base },
     extra: { ...fresh.extra, ...saved.extra },
+    fame: saved.fame ?? 0,
     items: saved.items ?? {},
   };
   c.name = c.surname + c.given;

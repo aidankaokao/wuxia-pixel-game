@@ -36,10 +36,12 @@ import { MOVES } from '../game/battle/moves';
 import { QUESTS } from '../game/story/quests';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
+import { fameTitle, stageOf, STAGES } from '../game/social';
+import { PEOPLE } from '../game/story/people';
 import { Settings, useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
-const TABS = ['人物', '武功', '行囊', '江湖事', '系統'] as const;
+const TABS = ['人物', '武功', '行囊', '交遊', '江湖事', '系統'] as const;
 type Tab = (typeof TABS)[number];
 
 /** 可以用鍵盤選的一列 */
@@ -90,6 +92,7 @@ export function GameMenu() {
           {tab === '人物' && <CharacterPage />}
           {tab === '武功' && <SkillsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
           {tab === '行囊' && <ItemsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
+          {tab === '交遊' && <PeoplePage />}
           {tab === '江湖事' && <QuestsPage />}
           {tab === '系統' && <SystemPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
         </div>
@@ -126,7 +129,7 @@ function CharacterPage() {
   return (
     <div>
       <h2>
-        {hero.name}　<small>{hero.title}</small>
+        {hero.name}　<small>{fameTitle(hero.fame)}</small>
       </h2>
       <p className="muted small">本作沒有人物等級。五維 ＝ 天生底值 ＋ 武功帶來的永久成長 ＋ 裝備中武功的加成。</p>
       <table className="attrs attr-table">
@@ -158,6 +161,7 @@ function CharacterPage() {
         <span>內力 {hero.qi}/{d.maxQi}</span>
         <span>體力 {hero.stamina}/{d.maxStamina}</span>
         <span>武學點數 {hero.points}</span>
+        <span>名聲 {hero.fame}</span>
       </div>
     </div>
   );
@@ -653,6 +657,45 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** 交遊：認識的人、熟悉度、知道的喜好 */
+function PeoplePage() {
+  const relations = useGame((s) => s.world.relations);
+  const ids = Object.keys(relations).filter((id) => PEOPLE[id]);
+  return (
+    <div>
+      <h2>交遊</h2>
+      <p className="muted small">每個人增進感情的方式不同：有人愛聊天、有人看重買賣、有人收禮、有人只認名聲。熟悉度越高，能做的事越多。</p>
+      {ids.length === 0 && <p className="muted placeholder">還沒有認識什麼人。</p>}
+      {ids.map((id) => {
+        const r = relations[id];
+        const p = PEOPLE[id];
+        const s = stageOf(r.aff);
+        const next = STAGES[s + 1];
+        const pct = next ? ((r.aff - STAGES[s].min) / (next.min - STAGES[s].min)) * 100 : 100;
+        return (
+          <div key={id} className="skill">
+            <div className="skill-head">
+              <span className="skill-name">{p.name}</span>
+              <span className={`tag ${r.aff < 0 ? 'danger' : ''}`}>{STAGES[s].name}</span>
+              <span className="muted small">熟悉度 {r.aff}</span>
+            </div>
+            <div className="exp-track">
+              <div className={`exp-fill ${r.aff < 0 ? 'bad' : ''}`} style={{ width: `${Math.max(0, pct)}%` }} />
+            </div>
+            <p className="muted small">
+              {r.known.length
+                ? `喜好：${r.known.map((k) => `${ITEMS[k].name}${p.gift?.likes[k] ? '（喜歡）' : '（不喜歡）'}`).join('、')}`
+                : p.gift
+                  ? '喜好：還不清楚（送過東西才知道）'
+                  : '不收禮'}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }

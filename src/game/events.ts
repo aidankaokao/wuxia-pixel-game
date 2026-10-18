@@ -28,7 +28,10 @@ export interface EventCtx {
    * 例如 `ctx.hero((c) => [giveItem(c, 'jinchuang', 3), learnSkill(c, 'qingzhu')])`。
    */
   hero(fn: (c: Character) => (string | null)[] | string | null | void): Promise<void>;
-  /** 開戰。輸了會自動被送回村裡、腳本中止，所以呼叫端只需處理 win / flee。 */
+  /**
+   * 開戰。輸了會自動被送回村裡、腳本中止，所以呼叫端只需處理 win / flee。
+   * 切磋（遭遇戰設了 spar）輸了不會被送走，回傳 'lose'。
+   */
   battle(encounter: string): Promise<Outcome>;
   /** 讓 NPC（或 'player'）照著方向一步步走 */
   walk(who: string, dirs: Dir[]): Promise<void>;

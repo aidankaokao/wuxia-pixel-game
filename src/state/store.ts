@@ -37,8 +37,10 @@ export const DEFAULT_SETTINGS: Settings = { battleMode: 'turn', autoTactic: 'ste
 /** 劇情旗標：任務進度、是否已拿過寶箱等，一律存成數字（0 表示沒發生過）。 */
 export type Flags = Record<string, number>;
 
+export type Prompt = string | { title: string; actions: { key: string; label: string }[] };
+
 /** 劇情腳本打開的介面面板（商店、房屋），關閉時 resolve */
-export type Panel = { kind: 'shop' } | { kind: 'home'; plot: string };
+export type Panel = { kind: 'shop'; person?: string } | { kind: 'home'; plot: string };
 
 interface GameState {
   /** 標題畫面、建立角色或遊戲中 */
@@ -63,8 +65,8 @@ interface GameState {
   menuOpen: boolean;
   /** 劇情事件進行中（主角不能自由行動） */
   eventRunning: boolean;
-  /** 面前可互動的東西（顯示在畫面上的提示） */
-  prompt: string | null;
+  /** 面前可互動的東西（顯示在畫面上的提示）：一句話，或人物的互動清單 */
+  prompt: Prompt | null;
   /** 對話或選單剛關閉的時間，用來避免同一次按鍵又觸發互動 */
   uiClosedAt: number;
 
@@ -87,7 +89,7 @@ interface GameState {
   ask: (line: Line, choices: string[]) => Promise<number>;
   advance: (choice?: number) => void;
   setMenu: (open: boolean) => void;
-  setPrompt: (p: string | null) => void;
+  setPrompt: (p: Prompt | null) => void;
   setFlag: (key: string, value: number) => void;
   /** 修改角色：傳入的函式拿到一份複本，可直接改 */
   updateHero: <T>(fn: (c: Character) => T) => T;
@@ -154,7 +156,7 @@ export const useGame = create<GameState>((set, get) => ({
 
   setMenu: (open) => set(open ? { menuOpen: true } : { menuOpen: false, uiClosedAt: performance.now() }),
   setPrompt: (p) => {
-    if (get().prompt !== p) set({ prompt: p });
+    if (JSON.stringify(get().prompt) !== JSON.stringify(p)) set({ prompt: p });
   },
   setFlag: (key, value) => set((s) => ({ flags: { ...s.flags, [key]: value } })),
 
