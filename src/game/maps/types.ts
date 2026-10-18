@@ -11,7 +11,10 @@ import type { Flags } from '../../state/store';
  *   f  木籬（不可走） T  樹（不可走）     Y  竹子（不可走） o  石頭（不可走）
  *   E  出入口（走上去會觸發 exits 裡對應的事件）
  *
+ * 室內另有：W  牆（不可走）  _  地板  d  屋內的門（可走）
+ *
  * 建築、告示牌、NPC 等不寫在字元裡，另外列在 buildings / props / npcs。
+ * 空地（可以買下蓋房子）列在 plots，房子蓋好後由 maps/index.ts 的 getMap() 動態加上建築與室內地圖。
  * 會隨劇情變化的東西用 when（依旗標決定是否存在）與 script（互動時執行的劇情腳本）。
  */
 
@@ -31,8 +34,10 @@ export interface BuildingDef {
   x: number;
   y: number;
   name: string;
-  /** 對著門按確認時的文字 */
+  /** 對著門按確認時的文字（可以進去的建築不需要） */
   door: Line[];
+  /** 可以進去：走向門或對門按確認就進到這張地圖 */
+  enter?: { to: string; spawn: { x: number; y: number; facing: Dir } };
 }
 
 export interface PropDef {
@@ -46,7 +51,21 @@ export interface PropDef {
   lines?: Line[];
   script?: Script;
   when?: Condition;
+  /** 面對時的提示文字（預設「查看」），例如家具的「睡覺」 */
+  label?: string;
 }
+
+/** 可以買下來蓋房子的空地。佔地固定 PLOT_W × PLOT_H 格，門口朝下 */
+export interface PlotDef {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  /** 售價（銀兩）；用地契的第一塊免費 */
+  price: number;
+}
+export const PLOT_W = 7;
+export const PLOT_H = 5;
 
 export interface NpcDef {
   id: string;
@@ -98,7 +117,10 @@ export interface MapDef {
   triggers?: TriggerDef[];
   /** 這張地圖在戰鬥時用哪種背景 */
   battleBg?: 'mountain' | 'camp';
+  plots?: PlotDef[];
+  /** 室內地圖的配色（房屋風格） */
+  theme?: string;
 }
 
 /** 不能走上去的地形字元 */
-export const BLOCKING = new Set(['^', '~', 'f', 'T', 'Y', 'o']);
+export const BLOCKING = new Set(['^', '~', 'f', 'T', 'Y', 'o', 'W']);

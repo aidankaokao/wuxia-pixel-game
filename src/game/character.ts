@@ -64,11 +64,21 @@ export interface ItemDef {
   qi?: number;
   /** 秘笈：對應的武功 id。持有時才能突破該武功的等級上限（不會消耗） */
   manual?: string;
+  /** 價錢（銀兩）：商店照這個價賣，收購時給一半；沒有就是不能買賣 */
+  price?: number;
 }
 
+/** 商店收購價 */
+export const sellPrice = (id: string) => Math.floor((ITEMS[id]?.price ?? 0) / 2);
+
 export const ITEMS: Record<string, ItemDef> = {
-  jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80 },
-  tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30 },
+  jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80, price: 30 },
+  tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30, price: 12 },
+  stew: { name: '燉山豬肉', category: '藥品', icon: 'stew', desc: '自家灶台燉的山豬肉，香氣撲鼻。回復氣血 150。', hp: 150, price: 40 },
+  herb: { name: '止血草', category: '雜物', icon: 'herb', desc: '常見的草藥，可以拿到藥爐煉成金創藥。', price: 6 },
+  boar_meat: { name: '山豬肉', category: '雜物', icon: 'meat', desc: '一大塊山豬肉。可以賣錢，也可以在自家灶台燉來吃。', price: 16 },
+  boar_tusk: { name: '山豬獠牙', category: '雜物', icon: 'tusk', desc: '又長又硬的獠牙，貨郎說城裡有人收。', price: 30 },
+  dog_pelt: { name: '野狗皮', category: '雜物', icon: 'pelt', desc: '粗硬的狗皮，硝過之後能做些皮件。', price: 12 },
   manual_zhuying: {
     name: '竹影劍痕拓本', category: '秘笈', icon: 'scroll', manual: 'zhuying',
     desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。',
@@ -248,6 +258,8 @@ export interface Character {
   points: number;
   /** 物品 id → 數量 */
   items: Record<string, number>;
+  /** 睡過好床後「精神飽滿」：接下來幾場戰鬥武功經驗加成 */
+  rested?: { battles: number; mult: number };
   /** 目前值；上限由 derive() 算出 */
   hp: number;
   qi: number;

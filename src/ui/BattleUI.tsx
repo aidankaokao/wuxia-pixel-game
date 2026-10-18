@@ -83,6 +83,7 @@ export function BattleUI() {
   };
 
   const auto = useGame((s) => s.battleAuto);
+  const gauge = useGame((s) => s.battleGauge);
 
   useKeys(!!battle, (k) => {
     if (!battle) return;
@@ -111,7 +112,8 @@ export function BattleUI() {
       if (mode === 'root') chooseRoot(rootCursor);
       else if (mode === 'moves') chooseMove(moves[cursor]);
       else if (mode === 'items') submit({ type: 'item', itemId: items[cursor].id });
-      else if (mode === 'target') submit({ type: 'move', moveId: pendingMove!, targetId: enemies[cursor].id });
+      // 半即時制下，選目標時目標可能已被別人打倒，就改打第一個還站著的
+      else if (mode === 'target') submit({ type: 'move', moveId: pendingMove!, targetId: (enemies[cursor] ?? enemies[0])?.id });
     } else if (isCancel(k)) {
       if (mode === 'target') {
         setTarget(null);
@@ -150,6 +152,15 @@ export function BattleUI() {
           </div>
           <Bar label="氣血" value={hero.hp} max={hero.maxHp} color="#d8483c" />
           <Bar label="內力" value={hero.qi} max={hero.maxQi} color="#4a8ad8" />
+          {gauge !== null && (
+            <div className="bar gauge">
+              <span className="bar-label">行動</span>
+              <div className="bar-track">
+                <div className={`bar-fill ${gauge >= 1 ? 'full' : ''}`} style={{ width: `${gauge * 100}%` }} />
+              </div>
+              <span className="bar-num">{gauge >= 1 ? '可出手' : ''}</span>
+            </div>
+          )}
         </div>
 
         <div className="battle-cmd">

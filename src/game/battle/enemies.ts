@@ -11,12 +11,15 @@ interface EnemyDef {
   eva: number;
   moves: string[];
   ai: Unit['ai'];
+  /** 打倒後可能掉落的物品：物品 id 與機率 */
+  drops?: { item: string; chance: number }[];
 }
 
 export const ENEMIES: Record<string, EnemyDef> = {
   grunt: { name: '斷崖寨嘍囉', sprite: 'bandit', hp: 55, atk: 15, def: 3, spd: 9, eva: 0.05, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
-  dog: { name: '野狗', sprite: 'dog', hp: 48, atk: 13, def: 2, spd: 13, eva: 0.1, moves: ['e_bite', 'e_pounce'], ai: 'grunt' },
-  boar: { name: '山豬', sprite: 'boar', hp: 115, atk: 17, def: 6, spd: 7, eva: 0.02, moves: ['e_gore', 'e_ram'], ai: 'grunt' },
+  dog: { name: '野狗', sprite: 'dog', hp: 48, atk: 13, def: 2, spd: 13, eva: 0.1, moves: ['e_bite', 'e_pounce'], ai: 'grunt', drops: [{ item: 'dog_pelt', chance: 0.6 }] },
+  boar: { name: '山豬', sprite: 'boar', hp: 115, atk: 17, def: 6, spd: 7, eva: 0.02, moves: ['e_gore', 'e_ram'], ai: 'grunt',
+    drops: [{ item: 'boar_meat', chance: 1 }, { item: 'boar_tusk', chance: 0.3 }] },
   boss: { name: '祁三刀', sprite: 'boss', hp: 240, atk: 22, def: 6, spd: 12, eva: 0.06, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
 };
 

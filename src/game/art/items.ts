@@ -2,7 +2,7 @@ import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
 
 /** 物品圖示：16×16，給 React 的物品欄用（轉成 data URL 放進 <img>）。 */
 
-export type ItemIcon = 'salve' | 'tea' | 'book' | 'scroll';
+export type ItemIcon = 'salve' | 'tea' | 'book' | 'scroll' | 'stew' | 'herb' | 'meat' | 'tusk' | 'pelt';
 
 const OUTLINE = '#1a1218';
 
@@ -53,6 +53,46 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
       vline(ctx, x, 9, 10, '#3a3040');
     }
     vline(ctx, 13, 5, 11, '#b09a70');
+  },
+  // 燉肉：陶碗裝著肉塊，冒熱氣
+  stew(ctx) {
+    ellipse(ctx, 8, 10, 6, 3, '#8a5a3a');
+    px(ctx, 3, 10, 11, 3, '#8a5a3a');
+    px(ctx, 5, 13, 7, 1, '#6a4028');
+    ellipse(ctx, 8, 9, 5, 2, '#c07040');
+    px(ctx, 5, 8, 2, 2, '#e09060');
+    px(ctx, 9, 8, 3, 2, '#a85a30');
+    vline(ctx, 6, 3, 5, '#d8d8e0');
+    vline(ctx, 10, 2, 4, '#d8d8e0');
+  },
+  // 止血草：一束綠葉
+  herb(ctx) {
+    vline(ctx, 8, 6, 13, '#4a7a30');
+    for (const [x, y] of [[5, 4], [10, 5], [4, 8], [11, 8], [7, 2]] as const) ellipse(ctx, x, y, 2, 1, '#6aaa40');
+    px(ctx, 7, 12, 3, 2, '#c8a050');
+  },
+  // 山豬肉：帶骨的肉塊
+  meat(ctx) {
+    ellipse(ctx, 8, 9, 5, 4, '#c0504a');
+    ellipse(ctx, 7, 8, 3, 2, '#e07a6a');
+    px(ctx, 11, 4, 2, 4, '#f1e7cf');
+    px(ctx, 12, 3, 2, 2, '#f1e7cf');
+    hline(ctx, 4, 11, 12, '#8a3a34');
+  },
+  // 獠牙：彎彎的白牙
+  tusk(ctx) {
+    for (let i = 0; i < 9; i++) px(ctx, 3 + i, 12 - Math.round(Math.sin((i / 8) * 2.4) * 7), 2, 2, '#f1e7cf');
+    px(ctx, 3, 12, 3, 2, '#c8b890');
+  },
+  // 狗皮：攤開的毛皮
+  pelt(ctx) {
+    px(ctx, 4, 4, 8, 9, '#8a6a46');
+    px(ctx, 2, 5, 2, 3, '#8a6a46');
+    px(ctx, 12, 5, 2, 3, '#8a6a46');
+    px(ctx, 2, 10, 2, 3, '#8a6a46');
+    px(ctx, 12, 10, 2, 3, '#8a6a46');
+    px(ctx, 6, 6, 4, 5, '#a8865a');
+    px(ctx, 7, 13, 2, 2, '#8a6a46');
   },
 };
 

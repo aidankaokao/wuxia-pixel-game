@@ -721,16 +721,28 @@ function SystemPage({ active, onEnter, onExit }: { active: boolean; onEnter: () 
               label: SLOT_NAME[s],
               detail: summary(s),
               disabled: !readSave(s),
-              run: () => {
+              run: async () => {
                 const d = readSave(s);
                 if (!d) return st.showToast('這個檔案是空的');
+                const ok = await st.askConfirm(`要讀取「${SLOT_NAME[s]}」嗎？\n${describeSave(d)}\n\n目前還沒存檔的進度會遺失。`, '讀取');
+                if (!ok) return;
                 st.setMenu(false);
                 loadGame(d);
                 st.showToast(`已讀取${SLOT_NAME[s]}`);
               },
             }))
           : [
-              { label: '戰鬥模式：回合制', detail: '半即時制開發中', run: () => st.showToast('半即時制開發中，敬請期待') },
+              {
+                label: `戰鬥模式：${settings.battleMode === 'turn' ? '回合制' : '半即時制'}`,
+                detail: settings.battleMode === 'turn' ? '依速度排順序，輪流出手' : '行動條跑滿才能出手，速度越快出手越多',
+                run: () => setSetting({ battleMode: settings.battleMode === 'turn' ? 'active' : 'turn' }),
+              },
+              {
+                label: `半即時制選指令時：${settings.atbWait ? '暫停' : '不暫停'}`,
+                detail: settings.atbWait ? '等待模式：慢慢想，時間會停住' : '即時模式：想太久敵人會先出手',
+                disabled: settings.battleMode === 'turn',
+                run: () => setSetting({ atbWait: !settings.atbWait }),
+              },
               {
                 label: `自動戰鬥方針：${settings.autoTactic === 'steady' ? '穩健' : '猛攻'}`,
                 detail: settings.autoTactic === 'steady' ? '見敵蓄勢就防禦，氣血低於三成補血' : '只管出招，氣血低於兩成才補血',

@@ -1,7 +1,7 @@
-import { attrs, Character, gainInsight, gainSkill, isEquipped, nextMove, skillCap, skillDef, slotOf } from '../character';
+import { attrs, Character, gainInsight, gainSkill, giveItem, isEquipped, nextMove, skillCap, skillDef, slotOf } from '../character';
 import { MOVES } from './moves';
 import type { Battle } from './engine';
-import type { EncounterDef } from './enemies';
+import { ENEMIES, type EncounterDef } from './enemies';
 import type { Outcome } from './types';
 
 /**
@@ -30,9 +30,20 @@ export function settle(c: Character, b: Battle, enc: EncounterDef, outcome: Outc
     c.points += enc.points;
     lines.push(`獲得武學點數 ${enc.points}。`);
   }
+  // 掉落物
+  const drops: Record<string, number> = {};
+  for (const id of enc.enemies)
+    for (const d of ENEMIES[id].drops ?? []) if (rand() < d.chance) drops[d.item] = (drops[d.item] ?? 0) + 1;
+  for (const [id, n] of Object.entries(drops)) lines.push(giveItem(c, id, n));
 
-  // 悟性越高，練得越快
-  const g = (enc.growth ?? 1) * (1 + attrs(c).insight / 40);
+  // 悟性越高，練得越快；睡過好床「精神飽滿」時再加成
+  let g = (enc.growth ?? 1) * (1 + attrs(c).insight / 40);
+  if (c.rested?.battles) {
+    g *= c.rested.mult;
+    c.rested.battles--;
+    lines.push(`精神飽滿：武功經驗 ×${c.rested.mult}${c.rested.battles ? `（還有 ${c.rested.battles} 場）` : '（效果結束）'}`);
+    if (!c.rested.battles) delete c.rested;
+  }
   const exp: Record<string, number> = {};
   for (const [id, n] of Object.entries(s.skillUses)) exp[id] = n * 6;
   for (const sk of c.skills) {

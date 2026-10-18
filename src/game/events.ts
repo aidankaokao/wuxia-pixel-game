@@ -2,6 +2,7 @@ import type { Character } from './character';
 import type { Dir } from './constants';
 import type { Outcome } from './battle/types';
 import type { Line } from './maps/types';
+import type { Panel } from '../state/store';
 
 /**
  * 劇情腳本。用 async 函式寫，讀起來就像劇本：
@@ -37,6 +38,10 @@ export interface EventCtx {
   wait(ms: number): Promise<void>;
   /** 依目前旗標重新決定哪些 NPC、物件要出現 */
   refresh(): void;
+  /** 重新載入目前的地圖（例如蓋好房子後要換上新建築），主角留在原地 */
+  reload(arrive?: Line[]): void;
+  /** 打開介面面板（商店、房屋），關閉後才繼續 */
+  panel(p: Panel): Promise<void>;
 }
 
 /** 腳本中途被打斷（例如戰敗被送走）時拋出，由執行者接住即可 */

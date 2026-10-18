@@ -19,6 +19,7 @@ function Bar({ label, value, max, color }: { label: string; value: number; max: 
 export function Hud() {
   const hero = useGame((s) => s.hero);
   const mapName = useGame((s) => s.mapName);
+  const day = useGame((s) => s.world.day);
   const prompt = useGame((s) => s.prompt);
   const blocking = useGame((s) => s.dialog !== null || s.menuOpen || s.eventRunning);
   const inBattle = useGame((s) => s.battle !== null || s.screen !== 'game');
@@ -36,7 +37,9 @@ export function Hud() {
         <Bar label="內力" value={hero.qi} max={d.maxQi} color="#4a8ad8" />
         <Bar label="體力" value={hero.stamina} max={d.maxStamina} color="#e0b040" />
         <div className="status-foot">
-          <span>◆ {mapName}</span>
+          <span>
+            ◆ {mapName}　第 {day} 日
+          </span>
           <span className="silver">銀兩 {hero.silver}</span>
         </div>
       </div>

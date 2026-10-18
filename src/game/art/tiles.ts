@@ -60,13 +60,36 @@ function mask(g: Grid, x: number, y: number, same: (c: string) => boolean): numb
   return (t(at(g, x, y - 1)) ? 1 : 0) | (t(at(g, x + 1, y)) ? 2 : 0) | (t(at(g, x, y + 1)) ? 4 : 0) | (t(at(g, x - 1, y)) ? 8 : 0);
 }
 
-/** 取得 (x, y) 這格的地形外觀。frame 用於水面動畫（0 或 1）。 */
-export function tileArt(g: Grid, x: number, y: number, frame = 0): TileArt {
+/** 室內配色（依房屋風格） */
+const INDOOR: Record<string, { floor: string; floorDark: string; floorLight: string; wall: string; beam: string; top: string }> = {
+  plain: { floor: '#b08458', floorDark: '#8a6038', floorLight: '#c89a6a', wall: '#c8b08a', beam: '#6a4428', top: '#4a3220' },
+  scholar: { floor: '#cdb48c', floorDark: '#a88c66', floorLight: '#e0caa2', wall: '#e8e0cc', beam: '#5a4a3a', top: '#3a3a40' },
+  martial: { floor: '#8a5a3a', floorDark: '#6a4028', floorLight: '#a06a46', wall: '#9a4a34', beam: '#4a2018', top: '#2a1a14' },
+  // 鐵鋪：灰撲撲的地面與煙燻的牆
+  stone: { floor: '#8a8478', floorDark: '#6e695e', floorLight: '#a49e92', wall: '#7a7068', beam: '#3e3630', top: '#2a2420' },
+};
+const INDOOR_FLOOR = new Set(['_', 'd']);
+
+/** 取得 (x, y) 這格的地形外觀。frame 用於水面動畫（0 或 1）；theme 是室內配色。 */
+export function tileArt(g: Grid, x: number, y: number, frame = 0, theme?: string): TileArt {
   const c = at(g, x, y) ?? '.';
   const v = Math.floor(hash(x, y) * 4);
+  const pal = INDOOR[theme ?? 'plain'];
   switch (c) {
-    case ':':
-    case 'E': {
+    case '_':
+    case 'd':
+      return { key: `floor_${theme}_${v % 2}`, draw: (ctx) => drawFloor(ctx, pal, v % 2) };
+    case 'W': {
+      // 下面是地板的牆畫成牆面，其餘畫成牆頂
+      const below = at(g, x, y + 1);
+      const face = below !== null && (INDOOR_FLOOR.has(below) || below === 'E');
+      return { key: `wall_${theme}_${face ? 1 : 0}`, draw: (ctx) => drawWall(ctx, pal, face) };
+    }
+    case 'E':
+    case ':': {
+      // 室內牆上的出口畫成門檻踏墊
+      if (c === 'E' && theme && (at(g, x - 1, y) === 'W' || at(g, x + 1, y) === 'W'))
+        return { key: `mat_${theme}`, draw: (ctx) => (drawFloor(ctx, pal, 0), drawMat(ctx)) };
       const m = mask(g, x, y, (n) => ROADLIKE.has(n));
       return { key: `road${m}_${v % 2}`, draw: (ctx) => drawRoad(ctx, m, v % 2) };
     }
@@ -102,6 +125,43 @@ export function tileArt(g: Grid, x: number, y: number, frame = 0): TileArt {
 }
 
 // ── 各種地形 ───────────────────────────────────────────────
+
+type Indoor = (typeof INDOOR)[string];
+
+/** 木地板：直向長木板，偶爾一道接縫與木紋 */
+function drawFloor(ctx: Ctx, p: Indoor, v: number) {
+  px(ctx, 0, 0, TILE, TILE, p.floor);
+  for (let x = 0; x < TILE; x += 8) {
+    vline(ctx, x + 7, 0, TILE - 1, p.floorDark);
+    vline(ctx, x, 0, TILE - 1, p.floorLight);
+  }
+  // 兩塊木板的接縫錯開
+  hline(ctx, 1, 6, v ? 4 : 11, p.floorDark);
+  hline(ctx, 9, 14, v ? 12 : 3, p.floorDark);
+  px(ctx, v ? 3 : 11, 7, 1, 2, p.floorDark);
+}
+
+/** 牆：牆面（看得到的那一面）畫木板與橫樑；牆頂畫成深色厚邊 */
+function drawWall(ctx: Ctx, p: Indoor, face: boolean) {
+  if (!face) {
+    px(ctx, 0, 0, TILE, TILE, p.top);
+    hline(ctx, 0, TILE - 1, TILE - 1, p.beam);
+    return;
+  }
+  px(ctx, 0, 0, TILE, TILE, p.wall);
+  px(ctx, 0, 0, TILE, 3, p.top);
+  hline(ctx, 0, TILE - 1, 3, p.beam);
+  hline(ctx, 0, TILE - 1, 9, p.beam);
+  px(ctx, 0, TILE - 2, TILE, 2, p.beam);
+  vline(ctx, 0, 3, TILE - 1, p.beam);
+}
+
+/** 門口的踏墊 */
+function drawMat(ctx: Ctx) {
+  px(ctx, 2, 4, 12, 9, '#8a3a34');
+  px(ctx, 3, 5, 10, 7, '#a84a40');
+  hline(ctx, 4, 11, 8, '#c86a5a');
+}
 
 function drawGrass(ctx: Ctx, v: number) {
   px(ctx, 0, 0, TILE, TILE, C.grass);

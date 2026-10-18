@@ -1,5 +1,7 @@
 import { TILE } from '../constants';
 import { ellipse, hline, makeCanvas, outline, px, rng, vline } from './pixel';
+import { furnitureProps } from './furniture';
+import { interiorProps } from './interior';
 
 /**
  * 場景物件（樹、竹、石、井、告示、建築……）。
@@ -245,6 +247,12 @@ export const BUILDINGS: Record<string, BuildingStyle> = {
   smithy: { w: 5, h: 4, door: 2, roof: '#4a4248', roofDark: '#302a2e', roofLight: '#625860', wall: '#c9bda6', chimney: true },
   house: { w: 5, h: 4, door: 2, roof: '#4a5568', roofDark: '#323a4a', roofLight: '#64708a' },
   house2: { w: 5, h: 4, door: 2, roof: '#6a4a3a', roofDark: '#4a3226', roofLight: '#86624e' },
+  // 自宅的五個等級（home.ts 的 HOME_TIERS），佔地都不超過空地的 7×5
+  home1: { w: 4, h: 3, door: 1, roof: '#b8944a', roofDark: '#8a6a30', roofLight: '#d4b066', wall: '#b8a07a' },
+  home2: { w: 5, h: 4, door: 2, roof: '#a88a48', roofDark: '#7a6230', roofLight: '#c8a860', wall: '#d0c098' },
+  home3: { w: 6, h: 4, door: 2, roof: '#5a6070', roofDark: '#3e4450', roofLight: '#767c8c' },
+  home4: { w: 7, h: 5, door: 3, roof: '#3a4a5a', roofDark: '#28323e', roofLight: '#526476', wall: '#9aa0a8' },
+  home5: { w: 7, h: 5, door: 3, roof: '#3f4a5e', roofDark: '#2a3242', roofLight: '#5a6880', timber: '#8a2e26', lanterns: true, plaque: true },
 };
 
 const EAVE = 2; // 屋簷左右外凸的像素
@@ -399,5 +407,5 @@ export function allProps(): Record<string, PropArt> {
     flag: drawFlag(),
   };
   for (const [k, st] of Object.entries(BUILDINGS)) out[`b_${k}`] = drawBuilding(st);
-  return out;
+  return { ...out, ...furnitureProps(), ...interiorProps() };
 }

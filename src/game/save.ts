@@ -1,6 +1,7 @@
 import { Character, clampVitals, newHero, SKILLS, SLOT_LIMIT, slotOf } from './character';
 import type { Dir } from './constants';
 import { MAPS } from './maps';
+import { newWorld, World } from './home';
 import { Flags, Settings, useGame } from '../state/store';
 
 /**
@@ -16,7 +17,7 @@ export const SLOT_NAME: Record<SlotId, string> = { quick: '即時存檔', auto: 
 export const MANUAL_SLOTS: SlotId[] = ['1', '2', '3'];
 
 /** 存檔格式有不相容的改變時遞增；舊版本在 migrate() 裡轉換，無法轉換的舊檔會被忽略 */
-const VERSION = 4;
+const VERSION = 5;
 
 export interface Position {
   mapId: string;
@@ -32,6 +33,7 @@ export interface SaveData extends Position {
   hero: Character;
   flags: Flags;
   settings: Settings;
+  world: World;
 }
 
 /** 目前主角的位置，由地圖場景提供 */
@@ -47,7 +49,9 @@ export function readSave(slot: SlotId): SaveData | null {
     const raw = localStorage.getItem(key(slot));
     if (!raw) return null;
     const d = migrate(JSON.parse(raw));
-    if (!d || !MAPS[d.mapId]) return null;
+    // 存在室內時，要那間房子還在才算數
+    const inHome = d?.mapId.startsWith('home:') && d.world.estates[d.mapId.slice(5)];
+    if (!d || !(MAPS[d.mapId] || inHome)) return null;
     return d;
   } catch {
     return null;
@@ -58,7 +62,7 @@ export function writeSave(slot: SlotId): boolean {
   const pos = position();
   if (!pos) return false;
   const s = useGame.getState();
-  const data: SaveData = { version: VERSION, savedAt: Date.now(), ...pos, hero: s.hero, flags: s.flags, settings: s.settings };
+  const data: SaveData = { version: VERSION, savedAt: Date.now(), ...pos, hero: s.hero, flags: s.flags, settings: s.settings, world: s.world };
   try {
     localStorage.setItem(key(slot), JSON.stringify(data));
     return true;
@@ -130,6 +134,12 @@ function migrate(d: any): SaveData | null {
     }
     d.version = 4;
   }
+  if (d?.version === 4) {
+    // v4：還沒有房產與日子。已經跟村長覆命的舊檔補上地契
+    d.world = newWorld();
+    if (d.flags?.q_bandits === 3 && !d.flags.home_deed) d.flags.home_deed = 1;
+    d.version = 5;
+  }
   return d?.version === VERSION ? (d as SaveData) : null;
 }
 
@@ -151,5 +161,5 @@ export function restoreHero(saved: Character): Character {
 export function describeSave(d: SaveData): string {
   const t = new Date(d.savedAt);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.mapName}　銀兩 ${d.hero.silver}　${t.getMonth() + 1}/${t.getDate()} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+  return `${d.mapName}　第 ${d.world.day} 日　銀兩 ${d.hero.silver}　${t.getMonth() + 1}/${t.getDate()} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
 }

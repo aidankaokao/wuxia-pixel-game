@@ -14,6 +14,7 @@ import type { Flags } from '../../state/store';
  *   stele          1 已從石碑悟出竹影劍法
  *   tea            1 已收下鍾嬸的茶
  *   chest_camp     1 已打開山寨的寶箱
+ *   home_deed      覆命時一併給地契（見 story/estate.ts）
  */
 
 const by = (speaker: string) => (text: string): Line => ({ speaker, text });
@@ -43,7 +44,9 @@ export const banditsQuest = {
 export const liuTalk: Script = async (ctx) => {
   const q = ctx.flag('q_bandits');
   if (q === 3) {
-    await ctx.say(liu('托少俠的福，村裡總算能睡個安穩覺了。'), liu('往後若路過青竹村，記得回來喝杯茶。'));
+    await ctx.say(liu('托少俠的福，村裡總算能睡個安穩覺了。'));
+    if (ctx.flag('home_deed') === 1) await ctx.say(liu('地契可收好了？村東、村西南的空地，插著木牌的就是，挑一塊喜歡的吧。'));
+    else await ctx.say(liu('往後若累了，就回家好好歇著。'));
     return;
   }
   if (ctx.flag('bandit_boss')) {
@@ -63,8 +66,12 @@ export const liuTalk: Script = async (ctx) => {
     await ctx.say(
       liu('步法的要訣在「輕」與「變」。多加練習，閃躲刀劍時自有妙用。'),
       liu('那本手札是老夫當年的心得。等你把步法練熟了，再翻翻看，或許能更上一層樓。'),
+      liu('還有——少俠若不嫌棄，就在青竹村安個家吧。'),
+      liu('村東、村西南有三塊空地，這張地契你收著，挑一塊喜歡的，杜木匠會幫你把屋子搭起來。'),
     );
     ctx.setFlag('q_bandits', 3);
+    ctx.setFlag('home_deed', 1);
+    await ctx.say('（獲得「地契」：到空地的木牌前，就能免費挑一塊地蓋房子）');
     return;
   }
   if (q === 1) {

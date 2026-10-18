@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { autosave, canSave, readSave, restoreHero, SaveData, writeSave } from './save';
+import { autosave, canSave, describeSave, readSave, restoreHero, SaveData, writeSave } from './save';
 import { useGame } from '../state/store';
 import { Attrs, newHero } from './character';
 
@@ -38,6 +38,7 @@ export function loadGame(d: SaveData) {
     screen: 'game',
     hero: restoreHero(d.hero),
     flags: { ...d.flags },
+    world: structuredClone(d.world),
     settings: { ...st.settings, ...d.settings },
   });
   startMap({ mapId: d.mapId, spawn: { x: d.x, y: d.y, facing: d.facing } });
@@ -59,13 +60,14 @@ export function quickSave() {
   st.showToast(writeSave('quick') ? '已即時存檔' : '存檔失敗');
 }
 
-/** 讀取即時存檔（F9） */
-export function quickLoad() {
+/** 讀取即時存檔（F9），先確認 */
+export async function quickLoad() {
   const st = useGame.getState();
-  if (st.screen !== 'game') return;
+  if (st.screen !== 'game' || st.confirm || st.panel) return;
   if (!canSave()) return st.showToast('對話、劇情或戰鬥中無法讀檔');
   const d = readSave('quick');
   if (!d) return st.showToast('還沒有即時存檔');
+  if (!(await st.askConfirm(`要讀取即時存檔嗎？\n${describeSave(d)}\n\n目前還沒存檔的進度會遺失。`, '讀取'))) return;
   st.setMenu(false);
   loadGame(d);
   st.showToast('已讀取即時存檔');

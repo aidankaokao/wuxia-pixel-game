@@ -4,8 +4,8 @@ import { tileArt } from '../art/tiles';
 import { BUILDINGS } from '../art/props';
 import { hash, makeCanvas } from '../art/pixel';
 import { Actor } from '../entities/Actor';
-import { MAPS } from '../maps';
-import { BLOCKING, Line, MapDef, NpcDef, PropDef } from '../maps/types';
+import { getMap } from '../maps';
+import { BLOCKING, BuildingDef, Line, MapDef, NpcDef, PropDef } from '../maps/types';
 import { EventCtx, Script, ScriptAbort } from '../events';
 import { derive } from '../character';
 import type { Outcome } from '../battle/types';
@@ -50,7 +50,7 @@ export class MapScene extends Phaser.Scene {
   /** 地形與建築造成的阻擋（不隨劇情改變） */
   private blocked!: Uint8Array;
   /** 建築的門 */
-  private doors = new Map<number, { label: string; lines: Line[] }>();
+  private doors = new Map<number, { label: string; lines: Line[]; enter?: BuildingDef['enter'] }>();
   private props: Prop[] = [];
   private player!: Actor;
   private npcs: Npc[] = [];
@@ -68,7 +68,8 @@ export class MapScene extends Phaser.Scene {
 
   init(data: SceneData) {
     this.data_ = data;
-    this.def = MAPS[data.mapId];
+    // 找不到（例如房子已不存在）就回到村裡
+    this.def = getMap(data.mapId) ?? getMap('qingzhu')!;
     this.npcs = [];
     this.props = [];
     this.doors.clear();
@@ -100,7 +101,6 @@ export class MapScene extends Phaser.Scene {
     this.refresh();
 
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, this.w * TILE, this.h * TILE);
     cam.startFollow(this.player.sprite, true, 1, 1, 0, TILE / 2);
     cam.setRoundPixels(true);
     this.fitZoom();
@@ -131,6 +131,10 @@ export class MapScene extends Phaser.Scene {
         state: () => useGame.getState(),
         store: useGame,
         npcs: () => this.npcs.filter((n) => n.actor).map((n) => ({ id: n.def.id, x: n.actor!.tx, y: n.actor!.ty })),
+        // 直接開打指定的遭遇戰（例如 'dog'、'camp'）
+        battle: (encounter: string) => this.runScript(async (ctx) => void (await ctx.battle(encounter))),
+        // 瞬間移動到指定地圖與位置（例如 'home:qz_east'）
+        warp: (mapId: string, x: number, y: number, facing: Dir = 'up') => this.warp(mapId, { x, y, facing }),
       };
     }
     setPositionProvider(() => ({ mapId: def.id, mapName: def.name, x: this.player.tx, y: this.player.ty, facing: this.player.facing }));
@@ -168,9 +172,9 @@ export class MapScene extends Phaser.Scene {
     for (let y = 0; y < this.h; y++) {
       const row: number[] = [];
       for (let x = 0; x < this.w; x++) {
-        const i0 = use(tileArt(g, x, y, 0));
+        const i0 = use(tileArt(g, x, y, 0, this.def.theme));
         row.push(i0);
-        if (g[y][x] === '~') water.push({ x, y, f: [i0, use(tileArt(g, x, y, 1))] });
+        if (g[y][x] === '~') water.push({ x, y, f: [i0, use(tileArt(g, x, y, 1, this.def.theme))] });
       }
       data.push(row);
     }
@@ -243,7 +247,11 @@ export class MapScene extends Phaser.Scene {
       const img = this.add.image(b.x * TILE - 2, bottom, `b_${b.style}`).setOrigin(0, 1).setDepth(bottom);
       for (let y = b.y; y < b.y + st.h; y++)
         for (let x = b.x; x < b.x + st.w; x++) this.blocked[this.idx(x, y)] = 1;
-      this.doors.set(this.idx(b.x + st.door, b.y + st.h - 1), { label: `${b.name}的門`, lines: b.door });
+      this.doors.set(this.idx(b.x + st.door, b.y + st.h - 1), {
+        label: b.enter ? `進入${b.name}` : `${b.name}的門`,
+        lines: b.door,
+        enter: b.enter,
+      });
       if (st.chimney) this.smoke(img.x + img.width - 13, img.y - img.height + 1);
     }
   }
@@ -311,13 +319,16 @@ export class MapScene extends Phaser.Scene {
   private fitZoom() {
     // 開發用：網址加 ?zoom=1 可以看到整張地圖
     const forced = Number(new URLSearchParams(location.search).get('zoom'));
-    if (forced > 0) {
-      this.cameras.main.setZoom(forced);
-      return;
-    }
     const { width, height } = this.scale.gameSize;
     const z = Math.floor(Math.min(width / (VIEW_TILES_W * TILE), height / (VIEW_TILES_H * TILE)));
-    this.cameras.main.setZoom(Phaser.Math.Clamp(z, 2, 6));
+    const cam = this.cameras.main;
+    cam.setZoom(forced > 0 ? forced : Phaser.Math.Clamp(z, 2, 6));
+    // 地圖比畫面小（例如室內）時，把邊界往外撐，讓地圖置中
+    const vw = width / cam.zoom;
+    const vh = height / cam.zoom;
+    const mw = this.w * TILE;
+    const mh = this.h * TILE;
+    cam.setBounds(mw < vw ? (mw - vw) / 2 : 0, mh < vh ? (mh - vh) / 2 : 0, Math.max(mw, vw), Math.max(mh, vh));
   }
 
   // ── 碰撞與互動 ───────────────────────────────────────────
@@ -365,7 +376,8 @@ export class MapScene extends Phaser.Scene {
       return;
     }
     const door = this.inBounds(f.x, f.y) ? this.doors.get(this.idx(f.x, f.y)) : undefined;
-    if (door) this.runScript((ctx) => ctx.say(...door.lines));
+    if (door?.enter) this.warp(door.enter.to, door.enter.spawn);
+    else if (door) this.runScript((ctx) => ctx.say(...door.lines));
   }
 
   /** 跟野獸開打；打贏後牠消失，過一陣子才重生 */
@@ -388,7 +400,17 @@ export class MapScene extends Phaser.Scene {
     const talkable = npc && (npc.def.script || npc.def.talks?.length);
     useGame
       .getState()
-      .setPrompt(npc?.def.encounter ? `與 ${npc.def.name} 交手` : talkable ? `與 ${npc.def.name} 交談` : prop ? '查看' : door ? door.label : null);
+      .setPrompt(
+        npc?.def.encounter
+          ? `與 ${npc.def.name} 交手`
+          : talkable
+            ? `與 ${npc.def.name} 交談`
+            : prop
+              ? (prop.def.label ?? '查看')
+              : door
+                ? door.label
+                : null,
+      );
   }
 
   private afterPlayerStep() {
@@ -483,6 +505,8 @@ export class MapScene extends Phaser.Scene {
       },
       wait: (ms) => new Promise((done) => this.time.delayedCall(ms, done)),
       refresh: () => this.refresh(),
+      reload: (arrive) => this.warp(this.def.id, { x: this.player.tx, y: this.player.ty, facing: this.player.facing }, arrive),
+      panel: (p) => st().openPanel(p),
     };
   }
 
@@ -571,6 +595,12 @@ export class MapScene extends Phaser.Scene {
     const t = this.player.front(dir);
     if (this.isBlocked(t.x, t.y, this.player)) {
       this.player.face(dir);
+      // 往可以進去的門走，就直接進屋
+      const door = this.inBounds(t.x, t.y) ? this.doors.get(this.idx(t.x, t.y)) : undefined;
+      if (door?.enter && dir === 'up') {
+        this.warp(door.enter.to, door.enter.spawn);
+        return;
+      }
       const beast = this.npcAt(t.x, t.y);
       if (beast?.def.encounter && beast.actor && !beast.actor.moving) {
         beast.actor.face(OPPOSITE[dir]);

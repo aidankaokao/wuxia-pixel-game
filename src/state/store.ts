@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Character, newHero } from '../game/character';
+import { newWorld, World } from '../game/home';
 import type { Line } from '../game/maps/types';
 import type { BattleCommand, BattleView } from '../game/battle/types';
 
@@ -27,12 +28,17 @@ export interface Settings {
   autoTactic: AutoTactic;
   /** 自動戰鬥時可不可以用藥 */
   autoItems: boolean;
+  /** 半即時制：選指令時是否暫停時間（等待模式）；否則為即時模式，敵人照樣行動 */
+  atbWait: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { battleMode: 'turn', autoTactic: 'steady', autoItems: false };
+export const DEFAULT_SETTINGS: Settings = { battleMode: 'turn', autoTactic: 'steady', autoItems: false, atbWait: true };
 
 /** 劇情旗標：任務進度、是否已拿過寶箱等，一律存成數字（0 表示沒發生過）。 */
 export type Flags = Record<string, number>;
+
+/** 劇情腳本打開的介面面板（商店、房屋），關閉時 resolve */
+export type Panel = { kind: 'shop' } | { kind: 'home'; plot: string };
 
 interface GameState {
   /** 標題畫面、建立角色或遊戲中 */
@@ -43,6 +49,11 @@ interface GameState {
   toast: { text: string; id: number } | null;
   hero: Character;
   flags: Flags;
+  /** 日子、房產等世界狀態（存檔） */
+  world: World;
+  panel: (Panel & { close: () => void }) | null;
+  /** 確認選單（例如讀檔前），選完 resolve(true/false) */
+  confirm: { text: string; ok: string; resolve: (yes: boolean) => void } | null;
   settings: Settings;
   mapName: string;
   mapSubtitle?: string;
@@ -62,6 +73,8 @@ interface GameState {
   battleInput: ((cmd: BattleCommand | null) => void) | null;
   /** 自動戰鬥開著（戰鬥中按 Q 切換；不存檔，同一次遊玩會延續到下一場） */
   battleAuto: boolean;
+  /** 半即時制下主角的行動條 0–1（回合制時為 null） */
+  battleGauge: number | null;
   /** 戰鬥中選目標時，游標指著誰（戰鬥場景據此畫出箭頭） */
   battleTarget: string | null;
   /** 被打倒的野獸何時重生：`地圖id:npc id` → 時間戳（不存檔） */
@@ -78,6 +91,13 @@ interface GameState {
   setFlag: (key: string, value: number) => void;
   /** 修改角色：傳入的函式拿到一份複本，可直接改 */
   updateHero: <T>(fn: (c: Character) => T) => T;
+  /** 修改世界狀態：同上 */
+  updateWorld: <T>(fn: (w: World) => T) => T;
+  /** 打開面板，關閉後 resolve */
+  openPanel: (p: Panel) => Promise<void>;
+  closePanel: () => void;
+  /** 跳出「確定／取消」選單 */
+  askConfirm: (text: string, ok?: string) => Promise<boolean>;
   setSettings: (s: Partial<Settings>) => void;
   showToast: (text: string) => void;
   /** 回到全新的遊戲狀態（開新遊戲、讀檔、回標題前呼叫） */
@@ -90,6 +110,9 @@ export const useGame = create<GameState>((set, get) => ({
   toast: null,
   hero: newHero(),
   flags: {},
+  world: newWorld(),
+  panel: null,
+  confirm: null,
   settings: { ...DEFAULT_SETTINGS },
   mapName: '',
   bannerKey: 0,
@@ -102,6 +125,7 @@ export const useGame = create<GameState>((set, get) => ({
   battleInput: null,
   battleTarget: null,
   battleAuto: false,
+  battleGauge: null,
   respawnAt: {},
 
   enterMap: (name, subtitle) => set((s) => ({ mapName: name, mapSubtitle: subtitle, bannerKey: s.bannerKey + 1 })),
@@ -141,6 +165,33 @@ export const useGame = create<GameState>((set, get) => ({
     return result;
   },
 
+  updateWorld: (fn) => {
+    const copy = structuredClone(get().world);
+    const result = fn(copy);
+    set({ world: copy });
+    return result;
+  },
+
+  openPanel: (p) =>
+    new Promise((resolve) => {
+      set({ panel: { ...p, close: () => (set({ panel: null, uiClosedAt: performance.now() }), resolve()) } });
+    }),
+  closePanel: () => get().panel?.close(),
+
+  askConfirm: (text, ok = '確定') =>
+    new Promise((resolve) => {
+      set({
+        confirm: {
+          text,
+          ok,
+          resolve: (yes) => {
+            set({ confirm: null, uiClosedAt: performance.now() });
+            resolve(yes);
+          },
+        },
+      });
+    }),
+
   setSettings: (s) => set((st) => ({ settings: { ...st.settings, ...s } })),
   showToast: (text) => set({ toast: { text, id: Date.now() } }),
 
@@ -148,6 +199,8 @@ export const useGame = create<GameState>((set, get) => ({
     set({
       hero: newHero(),
       flags: {},
+      world: newWorld(),
+      panel: null,
       dialog: null,
       menuOpen: false,
       eventRunning: false,
@@ -165,5 +218,5 @@ export const flag = (key: string) => useGame.getState().flags[key] ?? 0;
 /** 介面是否擋住了地圖操作 */
 export const uiBlocking = () => {
   const s = useGame.getState();
-  return s.dialog !== null || s.menuOpen || s.eventRunning || s.battle !== null;
+  return s.dialog !== null || s.menuOpen || s.eventRunning || s.battle !== null || s.panel !== null || s.confirm !== null;
 };

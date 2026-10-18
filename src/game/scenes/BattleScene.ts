@@ -4,7 +4,7 @@ import { derive, ITEMS, usableInBattle } from '../character';
 import { MOVES, heroUnit } from '../battle/moves';
 import { ENCOUNTERS, EncounterDef, enemyUnits } from '../battle/enemies';
 import { Battle } from '../battle/engine';
-import { RoundController, TurnController } from '../battle/controller';
+import { ATBController, RoundController, TurnController } from '../battle/controller';
 import { settle } from '../battle/rewards';
 import { autoCommand } from '../battle/auto';
 import { DEBUFFS, type BattleCommand, type BattleEvent, type BattleView, type Hit, type Outcome, type Unit } from '../battle/types';
@@ -50,6 +50,12 @@ export class BattleScene extends Phaser.Scene {
   private cursor!: Phaser.GameObjects.Image;
   private message = '';
   private cursorFor: string | null = null;
+  /** 半即時制的控制器（回合制時為 null） */
+  private atb: ATBController | null = null;
+  /** 目前打開的指令選單（半即時制下，選單開著時敵人也可能出手，畫面更新時要保留） */
+  private cmdInput: BattleView['input'] = null;
+  private cancelInput: (() => void) | null = null;
+  private gaugeShownAt = 0;
   /**
    * 畫面上顯示的氣血／內力。規則層一出手就算完結果，
    * 但血條要等動畫打中的那一刻才扣，所以另外記一份，動作播完再跟實際數值對齊。
@@ -70,8 +76,19 @@ export class BattleScene extends Phaser.Scene {
     const hero = heroUnit(st.hero, derive(st.hero));
     this.battle = new Battle([hero, ...enemyUnits(this.enc)], { ...st.hero.items }, this.enc.canFlee);
     this.reconcile();
-    // 之後加入半即時制時，在這裡依 settings.battleMode 換成另一個控制器
-    this.controller = new RoundController();
+    // 依設定選出手順序：回合制或半即時制（規則層共用）
+    this.cmdInput = null;
+    this.cancelInput = null;
+    if (st.settings.battleMode === 'active') {
+      this.atb = new ATBController(
+        () => new Promise((r) => this.time.delayedCall(16, () => r(16))),
+        () => useGame.getState().settings.atbWait,
+      );
+      this.controller = this.atb;
+    } else {
+      this.atb = null;
+      this.controller = new RoundController();
+    }
 
     const bgKey = `bg-${data.background}`;
     if (!this.textures.exists(bgKey)) this.textures.addCanvas(bgKey, drawBattleBg(data.background));
@@ -89,7 +106,8 @@ export class BattleScene extends Phaser.Scene {
     this.scale.on('resize', this.fit, this);
     this.events.once('shutdown', () => {
       this.scale.off('resize', this.fit, this);
-      useGame.setState({ battle: null, battleInput: null, battleTarget: null });
+      this.cancelInput?.();
+      useGame.setState({ battle: null, battleInput: null, battleTarget: null, battleGauge: null });
     });
     this.cameras.main.fadeIn(250, 255, 255, 255);
 
@@ -119,19 +137,30 @@ export class BattleScene extends Phaser.Scene {
     await this.say(this.enc.intro, 800);
     for (;;) {
       const actor = await this.controller.next(this.battle);
-      // 狀態的持續次數在輪到他時減一；被震懾就跳過這次
-      const turn = this.battle.startTurn(actor);
-      for (const ev of turn.events) await this.play(ev);
-      if (turn.skip) {
-        this.sync();
-        continue;
-      }
+      const atb = this.atb;
       let cmd: BattleCommand;
-      if (actor.side === 'hero') {
-        cmd = await this.requestCommand(actor);
+      if (atb && actor.side === 'hero' && atb.hasCommand()) {
+        // 半即時制：主角先前在選單選好的指令，現在輪到執行
+        cmd = atb.takeCommand()!;
       } else {
-        await this.wait(250);
-        cmd = this.battle.enemyCommand(actor);
+        // 狀態的持續次數在輪到他時減一；被震懾就跳過這次
+        const turn = this.battle.startTurn(actor);
+        for (const ev of turn.events) await this.play(ev);
+        if (turn.skip) {
+          atb?.done(actor);
+          this.sync();
+          continue;
+        }
+        if (atb && actor.side === 'hero') {
+          // 半即時制：主角的行動條滿了，打開選單但不停下來等（即時模式下敵人照樣行動）
+          this.openInput(actor, (c) => atb.setCommand(c));
+          continue;
+        }
+        if (actor.side === 'hero') cmd = await this.requestCommand(actor);
+        else {
+          await this.wait(250);
+          cmd = this.battle.enemyCommand(actor);
+        }
       }
       const events = this.battle.act(actor, cmd);
       let fled = false;
@@ -139,6 +168,7 @@ export class BattleScene extends Phaser.Scene {
         await this.play(ev);
         if (ev.type === 'flee' && ev.success) fled = true;
       }
+      atb?.done(actor);
       this.reconcile();
       this.sync();
       if (fled) return this.finish('flee');
@@ -153,7 +183,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   /** 把戰鬥狀態整理成介面要顯示的樣子（氣血、內力用畫面上的數值） */
-  private sync(input: BattleView['input'] = null, result: BattleView['result'] = null) {
+  private sync(result: BattleView['result'] = null) {
     const view: BattleView = {
       units: this.battle.units.map((u) => {
         const s = this.shown.get(u.id)!;
@@ -163,15 +193,31 @@ export class BattleScene extends Phaser.Scene {
         };
       }),
       message: this.message,
-      input,
+      input: this.cmdInput,
       result,
     };
     useGame.setState({ battle: view });
     for (const u of this.battle.units) this.drawBar(u);
   }
 
-  /** 輪到主角：把可用的招式、物品交給介面，等玩家選好 */
+  /** 回合制：輪到主角，打開選單等玩家選好 */
   private requestCommand(hero: Unit): Promise<BattleCommand> {
+    return new Promise((resolve) => this.openInput(hero, resolve));
+  }
+
+  /**
+   * 把可用的招式、物品交給介面，玩家選好後呼叫 onCommand。
+   * 自動戰鬥時直接由電腦決定；選單開著時切到自動，也立刻由電腦接手。
+   */
+  private openInput(hero: Unit, onCommand: (cmd: BattleCommand) => void) {
+    const auto = () => {
+      const { settings } = useGame.getState();
+      return autoCommand(this.battle, hero, settings.autoTactic, settings.autoItems);
+    };
+    if (useGame.getState().battleAuto) {
+      this.wait(150).then(() => onCommand(auto()));
+      return;
+    }
     const moves = hero.moves.map((id) => {
       const m = MOVES[id];
       return { id, name: m.name, desc: m.desc, qi: m.qi, target: m.target, usable: hero.qi >= m.qi };
@@ -179,27 +225,26 @@ export class BattleScene extends Phaser.Scene {
     const items = Object.entries(this.battle.items)
       .filter(([id, n]) => n > 0 && usableInBattle(id))
       .map(([id, count]) => ({ id, count, name: ITEMS[id].name, desc: ITEMS[id].desc }));
-    const auto = () => {
-      const { settings } = useGame.getState();
-      return autoCommand(this.battle, hero, settings.autoTactic, settings.autoItems);
-    };
-    if (useGame.getState().battleAuto) return this.wait(150).then(auto);
 
-    this.message = `${hero.name}，該你出手了。`;
-    this.sync({ actorId: hero.id, moves, items, canFlee: this.battle.canFlee });
-    return new Promise((resolve) => {
-      const done = (cmd: BattleCommand) => {
-        unsubscribe();
-        useGame.setState({ battleInput: null, battleTarget: null });
-        resolve(cmd);
-      };
-      // 等玩家下指令時切到自動，就直接由電腦接手
-      const unsubscribe = useGame.subscribe((st, prev) => {
-        if (st.battleAuto && !prev.battleAuto) done(auto());
-      });
-      this.events.once('shutdown', unsubscribe);
-      useGame.setState({ battleInput: (cmd) => cmd && done(cmd) });
+    const close = () => {
+      unsubscribe();
+      this.cmdInput = null;
+      this.cancelInput = null;
+      useGame.setState({ battleInput: null, battleTarget: null });
+    };
+    const done = (cmd: BattleCommand) => {
+      close();
+      this.sync();
+      onCommand(cmd);
+    };
+    const unsubscribe = useGame.subscribe((st, prev) => {
+      if (st.battleAuto && !prev.battleAuto) done(auto());
     });
+    this.cancelInput = close;
+    this.cmdInput = { actorId: hero.id, moves, items, canFlee: this.battle.canFlee };
+    this.message = `${hero.name}，該你出手了。`;
+    this.sync();
+    useGame.setState({ battleInput: (cmd) => cmd && done(cmd) });
   }
 
   private async finish(o: Outcome) {
@@ -210,7 +255,8 @@ export class BattleScene extends Phaser.Scene {
         o === 'win'
           ? { outcome: o, title: '勝利', lines }
           : { outcome: o, title: '敗北', lines: ['你眼前一黑，倒了下去……'] };
-      this.sync(null, result);
+      this.cancelInput?.();
+      this.sync(result);
       await new Promise<void>((resolve) => useGame.setState({ battleInput: () => resolve() }));
     }
     useGame.setState({ battle: null, battleInput: null, battleTarget: null });
@@ -403,6 +449,12 @@ export class BattleScene extends Phaser.Scene {
     g.fillStyle(0x1e1a24).fillRect(x - 1, y - 1, w + 2, 4);
     g.fillStyle(0x4a2a2a).fillRect(x, y, w, 2);
     g.fillStyle(hp / u.maxHp > 0.3 ? 0xd8483c : 0xf2a03a).fillRect(x, y, Math.max(1, Math.round((w * hp) / u.maxHp)), 2);
+    if (this.atb) {
+      // 行動條：血條下方一條細線，滿了變白
+      const f = this.atb.fill(u);
+      g.fillStyle(0x1e1a24).fillRect(x - 1, y + 3, w + 2, 2);
+      g.fillStyle(f >= 1 ? 0xffffff : 0xe0c060).fillRect(x, y + 3, Math.round(w * f), 1);
+    }
   }
 
   /** 蓄勢中的敵人泛紅 */
@@ -429,7 +481,15 @@ export class BattleScene extends Phaser.Scene {
     return new Promise<void>((resolve) => this.tweens.add({ ...cfg, onComplete: () => resolve() }));
   }
 
-  update() {
+  update(time: number) {
+    // 半即時制：敵人的行動條每幀重畫；主角的行動條交給介面（每 80ms 更新一次就夠）
+    if (this.atb) {
+      for (const u of this.battle.units) if (u.side === 'enemy') this.drawBar(u);
+      if (time - this.gaugeShownAt > 80) {
+        this.gaugeShownAt = time;
+        useGame.setState({ battleGauge: this.atb.fill(this.battle.unit('hero')) });
+      }
+    }
     // 自動戰鬥時動畫兩倍速
     const speed = useGame.getState().battleAuto ? 2 : 1;
     this.time.timeScale = speed;

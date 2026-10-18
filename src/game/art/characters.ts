@@ -32,6 +32,41 @@ const EYE = '#1b1b2a';
 const OUTLINE = '#1e1a24';
 
 export const CHARACTERS: Record<string, CharStyle> = {
+  // 木匠杜大樑：頭綁布巾、短鬚、褐色工作服
+  carpenter: {
+    skin: '#d9a77c', hair: '#3a2a20', robe: '#8a6a3a', robeDark: '#6a4e28', inner: '#e8d8b0', sash: '#4a3a28',
+    pants: '#4a3a2a', shoe: '#2a2018', hairStyle: 'bald', band: '#c8b890', beard: '#3a2a20',
+  },
+  // 柳家管家老福：花白頭髮、灰衣
+  servant: {
+    skin: SKIN, hair: '#a8a49c', robe: '#6a6a72', robeDark: '#4a4a52', inner: '#e0dcd0', sash: '#3a3a42',
+    pants: '#3a3a42', shoe: '#22222a', hairStyle: 'topknot', band: '#3a3a42',
+  },
+  // 柳村長的孫女柳青禾：雙髻、淡綠衣、背著木劍
+  girl: {
+    skin: SKIN, hair: '#2a1f1a', robe: '#7aaa8a', robeDark: '#5a8a6a', inner: '#f4f0e0', sash: '#e8a0a0',
+    pants: '#5a7a6a', shoe: '#2a2a22', hairStyle: 'twinbuns', band: '#e8a0a0', sword: true,
+  },
+  // 茶寮的說書人葛先生：長鬚、青灰長衫
+  storyteller: {
+    skin: '#e8c09a', hair: '#5a5650', robe: '#5a6a7a', robeDark: '#3e4c5a', inner: '#e8e4d8', sash: '#2a3038',
+    pants: '#2a3038', shoe: '#1e1e22', hairStyle: 'topknot', beard: '#8a8680',
+  },
+  // 鐵鋪學徒石小虎：光頭、短褂
+  apprentice: {
+    skin: '#d9a77c', hair: '#3a2a20', robe: '#7a6a5a', robeDark: '#5a4a3e', inner: '#c8a070', sash: '#3a2a20',
+    pants: '#3a3a40', shoe: '#1e1e22', hairStyle: 'bald', band: '#e8c070', short: true,
+  },
+  // 王嫂：髮髻、碎花布衣
+  lady: {
+    skin: SKIN, hair: '#2a1f1a', robe: '#c88a6a', robeDark: '#a86a4a', inner: '#f0e4cc', sash: '#6a8aa8',
+    pants: '#6a4a3a', shoe: '#2a1a1a', hairStyle: 'bun', band: '#6a8aa8',
+  },
+  // 貨郎陶四：斗笠、藍布衣
+  peddler: {
+    skin: SKIN, hair: '#2a1f1a', robe: '#4a6a9a', robeDark: '#34507a', inner: '#e8e0c8', sash: '#c8a050',
+    pants: '#3a3a4a', shoe: '#22222a', hairStyle: 'topknot', hat: 'straw',
+  },
   // 主角：髮髻綁藍色髮帶，背負長劍
   hero: {
     skin: SKIN, hair: '#2a1f1a', robe: '#3d6fa8', robeDark: '#2b4f7a', inner: '#eef0f2', sash: '#e2cf9c',
