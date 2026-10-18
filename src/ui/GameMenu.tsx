@@ -11,9 +11,13 @@ import {
   expToNext,
   hasManual,
   HIDDEN_CAP,
+  ITEM_CATEGORIES,
+  ItemCategory,
   ITEMS,
   pointsToNext,
   Skill,
+  sortItems,
+  swapItems,
   skillCap,
   skillDef,
   SKILL_SLOT_NAME,
@@ -24,7 +28,9 @@ import {
   trainWithPoints,
   tryBreakthrough,
   unequip,
+  consumeItem,
 } from '../game/character';
+import { itemIconUrl } from '../game/art/items';
 import { QUESTS } from '../game/story/quests';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
@@ -44,14 +50,14 @@ interface Row {
 
 /**
  * 系統選單：左側分頁、右側內容。↑↓ 切換分頁，X/Esc 關閉。
- * 「武功」「系統」分頁按 E 或 → 進入內容，內容裡一層一層往下，X 回上一層。
+ * 「武功」「行囊」「系統」分頁按 E 或 → 進入內容，內容裡一層一層往下，X 回上一層。
  */
 export function GameMenu() {
   const open = useGame((s) => s.menuOpen);
   const setMenu = useGame((s) => s.setMenu);
   const [tab, setTab] = useState<Tab>('人物');
   const [inBody, setInBody] = useState(false);
-  const hasBody = tab === '武功' || tab === '系統';
+  const hasBody = tab === '武功' || tab === '系統' || tab === '行囊';
   useEffect(() => {
     if (!open) setInBody(false);
   }, [open]);
@@ -81,7 +87,7 @@ export function GameMenu() {
         <div className="menu-body">
           {tab === '人物' && <CharacterPage />}
           {tab === '武功' && <SkillsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
-          {tab === '行囊' && <ItemsPage />}
+          {tab === '行囊' && <ItemsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
           {tab === '江湖事' && <QuestsPage />}
           {tab === '系統' && <SystemPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
         </div>
@@ -419,26 +425,203 @@ function clampVitals(c: Parameters<typeof derive>[0]) {
 
 // ── 行囊、江湖事 ─────────────────────────────────────────
 
-function ItemsPage() {
+const BAG_COLS = 6;
+const BAG_MIN = 24;
+type BagCat = '全部' | ItemCategory;
+const BAG_CATS: BagCat[] = ['全部', ...ITEM_CATEGORIES];
+type BagLayer = 'cats' | 'grid' | 'act' | 'move';
+
+/** 行囊：左邊分類與「重新整理」，右邊一格一格的物品。E 開啟動作（使用、移動）。 */
+function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () => void; onExit: () => void }) {
   const hero = useGame((s) => s.hero);
-  const list = Object.entries(hero.items).filter(([, n]) => n > 0);
+  const [layer, setLayer] = useState<BagLayer>('cats');
+  const [cat, setCat] = useState(0);
+  const [cell, setCell] = useState(0);
+  const [act, setAct] = useState(0);
+  /** 移動中的物品 */
+  const [held, setHeld] = useState<string | null>(null);
+  useEffect(() => {
+    if (!active) (setLayer('cats'), setHeld(null));
+  }, [active]);
+
+  const st = useGame.getState();
+  const category = BAG_CATS[cat];
+  const ids = Object.keys(hero.items).filter((id) => hero.items[id] > 0 && ITEMS[id] && (category === '全部' || ITEMS[id].category === category));
+  const total = Math.max(BAG_MIN, Math.ceil((ids.length + 1) / BAG_COLS) * BAG_COLS);
+  const selected = layer === 'cats' ? undefined : ids[cell];
+  const sortRow = BAG_CATS.length;
+
+  const actRows: Row[] = selected
+    ? [
+        ...(ITEMS[selected].hp || ITEMS[selected].qi
+          ? [
+              {
+                label: '使用',
+                run: () => {
+                  const msg = st.updateHero((c) => consumeItem(c, selected));
+                  st.showToast(msg);
+                  if (!useGame.getState().hero.items[selected]) setLayer('grid');
+                },
+              },
+            ]
+          : []),
+        { label: '移動', detail: '換到別的格子', run: () => (setHeld(selected), setLayer('move')) },
+      ]
+    : [];
+
+  const tidy = () => {
+    st.updateHero((c) => sortItems(c));
+    st.showToast('行囊已整理');
+  };
+  /** 放下移動中的物品：放在別的物品上就對調，放在空格就排到最後 */
+  const drop = () => {
+    const target = ids[cell];
+    st.updateHero((c) => {
+      if (!held) return;
+      if (target && target !== held) swapItems(c, held, target);
+      else if (!target) {
+        const n = c.items[held];
+        delete c.items[held];
+        c.items[held] = n;
+      }
+    });
+    setHeld(null);
+    setLayer('grid');
+    const keys = Object.keys(useGame.getState().hero.items).filter((id) => category === '全部' || ITEMS[id].category === category);
+    setCell(Math.max(0, keys.indexOf(held!)));
+  };
+
+  const moveCellBy = (k: string): boolean => {
+    const col = cell % BAG_COLS;
+    if (isUp(k)) setCell((c) => (c - BAG_COLS + total) % total);
+    else if (isDown(k)) setCell((c) => (c + BAG_COLS) % total);
+    else if (isRight(k)) setCell((c) => (col === BAG_COLS - 1 ? c - col : c + 1));
+    else if (isLeft(k)) {
+      if (col === 0) return false;
+      setCell((c) => c - 1);
+    } else return false;
+    return true;
+  };
+
+  useKeys(active, (k) => {
+    if (layer === 'cats') {
+      const n = BAG_CATS.length + 1;
+      if (isUp(k)) setCat((c) => (c + n - 1) % n);
+      else if (isDown(k)) setCat((c) => (c + 1) % n);
+      else if (isConfirm(k) || isRight(k)) {
+        if (cat === sortRow) return isConfirm(k) && tidy();
+        setLayer('grid');
+        setCell(0);
+      } else if (isCancel(k) || isLeft(k)) onExit();
+      return;
+    }
+    if (layer === 'grid') {
+      if (isConfirm(k) && selected) (setLayer('act'), setAct(0));
+      else if (isCancel(k)) setLayer('cats');
+      else if (!moveCellBy(k) && isLeft(k)) setLayer('cats');
+      return;
+    }
+    if (layer === 'act') {
+      const n = actRows.length;
+      if (isUp(k)) setAct((a) => (a + n - 1) % n);
+      else if (isDown(k)) setAct((a) => (a + 1) % n);
+      else if (isConfirm(k)) actRows[act]?.run();
+      else if (isCancel(k) || isLeft(k)) setLayer('grid');
+      return;
+    }
+    // 移動中
+    if (isConfirm(k)) drop();
+    else if (isCancel(k)) (setHeld(null), setLayer('grid'));
+    else moveCellBy(k);
+  });
+
+
+  const hint = !active
+    ? '按 E 或 → 開始選擇。'
+    : layer === 'cats'
+      ? '↑↓ 選擇分類，E 或 → 進入物品格，X 返回。'
+      : layer === 'grid'
+        ? '方向鍵選擇物品，E 使用或移動，X 返回分類。'
+        : layer === 'act'
+          ? '↑↓ 選擇，E 確定，X 返回。'
+          : '方向鍵選擇位置，E 放下（放在別的物品上會對調），X 取消。';
+
+  const focus = held ?? selected;
   return (
-    <div>
-      <h2>行囊</h2>
-      <p className="muted">銀兩 {hero.silver}</p>
-      {list.length === 0 && <p className="muted placeholder">行囊空空如也。</p>}
-      {list.map(([id, n]) => (
-        <div key={id} className="skill">
-          <div className="skill-head">
-            <span className="skill-name">{ITEMS[id].name}</span>
-            {ITEMS[id].manual ? <span className="tag">秘笈</span> : <span className="muted">×{n}</span>}
+    <div className="bag-page">
+      <h2>
+        行囊　<small>銀兩 {hero.silver}</small>
+      </h2>
+      <p className="muted small">{hint}</p>
+      <div className="bag-board">
+        <ul className="bag-cats">
+          {BAG_CATS.map((c, i) => (
+            <li
+              key={c}
+              className={`${i === cat ? 'current' : ''} ${active && layer === 'cats' && i === cat ? 'active' : ''}`}
+              onClick={() => (onEnter(), setCat(i), setLayer('grid'), setCell(0))}
+            >
+              {active && layer === 'cats' && i === cat ? '▶ ' : '　'}
+              {c}
+            </li>
+          ))}
+          <li
+            className={`bag-sort ${active && layer === 'cats' && cat === sortRow ? 'active' : ''}`}
+            onClick={() => (onEnter(), setCat(sortRow), tidy())}
+          >
+            {active && layer === 'cats' && cat === sortRow ? '▶ ' : '　'}重新整理
+          </li>
+        </ul>
+        <div className="bag-main">
+          <div className="bag-grid" style={{ gridTemplateColumns: `repeat(${BAG_COLS}, 1fr)` }}>
+            {Array.from({ length: total }, (_, i) => {
+              const id = ids[i];
+              const on = active && layer !== 'cats' && i === cell;
+              return (
+                <div
+                  key={i}
+                  className={`bag-cell ${id ? 'filled' : ''} ${on ? 'active' : ''} ${held && id === held ? 'lifted' : ''}`}
+                  onClick={() => {
+                    onEnter();
+                    setCell(i);
+                    if (layer === 'move') return;
+                    setLayer(ids[i] ? 'act' : 'grid');
+                    setAct(0);
+                  }}
+                >
+                  {id && (
+                    <>
+                      <img src={itemIconUrl(ITEMS[id].icon)} alt={ITEMS[id].name} />
+                      {!ITEMS[id].manual && <span className="bag-count">{hero.items[id]}</span>}
+                    </>
+                  )}
+                  {/* 移動中：拿起的物品跟著游標 */}
+                  {on && held && <img className="bag-held" src={itemIconUrl(ITEMS[held].icon)} alt="" />}
+                </div>
+              );
+            })}
           </div>
-          <p className="muted small">
-            {ITEMS[id].desc}
-            {ITEMS[id].manual ? '' : '（戰鬥中使用）'}
-          </p>
+          <div className="bag-detail">
+            {focus ? (
+              <>
+                <div className="skill-head">
+                  <img className="bag-big" src={itemIconUrl(ITEMS[focus].icon)} alt="" />
+                  <span className="skill-name">{ITEMS[focus].name}</span>
+                  <span className="tag">{ITEMS[focus].category}</span>
+                  {!ITEMS[focus].manual && <span className="muted">×{hero.items[focus]}</span>}
+                </div>
+                <p className="muted small">
+                  {ITEMS[focus].desc}
+                  {ITEMS[focus].hp || ITEMS[focus].qi ? '（戰鬥中或行囊裡都能使用）' : ''}
+                </p>
+                {layer === 'act' && <RowList rows={actRows} cursor={act} onPick={(i) => actRows[i].run()} />}
+              </>
+            ) : (
+              <p className="muted small">{ids.length ? '選一格看看物品的說明。' : category === '全部' ? '行囊空空如也。' : `沒有${category}。`}</p>
+            )}
+          </div>
         </div>
-      ))}
+      </div>
     </div>
   );
 }

@@ -7,6 +7,8 @@
  * 武功有品階，品階決定正常上限；到了上限後，有秘笈就能花「武學點數」嘗試突破，最高到隱藏上限。
  */
 
+import type { ItemIcon } from './art/items';
+
 export type AttrKey = 'strength' | 'agility' | 'constitution' | 'energy' | 'insight';
 export type Attrs = Record<AttrKey, number>;
 
@@ -49,9 +51,15 @@ export function rollName(rand: () => number = Math.random): { surname: string; g
 
 // ── 物品 ────────────────────────────────────────────────
 
+export type ItemCategory = '藥品' | '秘笈' | '雜物';
+/** 物品欄的分類（也是「重新整理」排序的先後） */
+export const ITEM_CATEGORIES: ItemCategory[] = ['藥品', '秘笈', '雜物'];
+
 export interface ItemDef {
   name: string;
   desc: string;
+  category: ItemCategory;
+  icon: ItemIcon;
   hp?: number;
   qi?: number;
   /** 秘笈：對應的武功 id。持有時才能突破該武功的等級上限（不會消耗） */
@@ -59,11 +67,52 @@ export interface ItemDef {
 }
 
 export const ITEMS: Record<string, ItemDef> = {
-  jinchuang: { name: '金創藥', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80 },
-  tea: { name: '竹葉清茶', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30 },
-  manual_zhuying: { name: '竹影劍痕拓本', desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。', manual: 'zhuying' },
-  manual_qingzhu: { name: '青竹步手札', desc: '柳承安年輕時寫下的步法心得。持有時可突破「青竹步」的等級上限。', manual: 'qingzhu' },
+  jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80 },
+  tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30 },
+  manual_zhuying: {
+    name: '竹影劍痕拓本', category: '秘笈', icon: 'scroll', manual: 'zhuying',
+    desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。',
+  },
+  manual_qingzhu: {
+    name: '青竹步手札', category: '秘笈', icon: 'book', manual: 'qingzhu',
+    desc: '柳承安年輕時寫下的步法心得。持有時可突破「青竹步」的等級上限。',
+  },
 };
+
+// 物品欄的順序就是 items 物件的鍵順序（存檔時 JSON 會保留），新拿到的物品排在最後。
+
+/** 重新整理：依分類、再依物品表的順序排好 */
+export function sortItems(c: Character) {
+  const ids = Object.keys(ITEMS);
+  const rank = (id: string) => ITEM_CATEGORIES.indexOf(ITEMS[id].category) * 1000 + ids.indexOf(id);
+  const keys = Object.keys(c.items).filter((id) => c.items[id] > 0 && ITEMS[id]);
+  c.items = Object.fromEntries(keys.sort((a, b) => rank(a) - rank(b)).map((id) => [id, c.items[id]]));
+}
+
+/** 對調兩個物品在物品欄裡的位置 */
+export function swapItems(c: Character, a: string, b: string) {
+  const keys = Object.keys(c.items);
+  const i = keys.indexOf(a);
+  const j = keys.indexOf(b);
+  if (i < 0 || j < 0) return;
+  [keys[i], keys[j]] = [keys[j], keys[i]];
+  c.items = Object.fromEntries(keys.map((id) => [id, c.items[id]]));
+}
+
+/** 在地圖上使用回復類物品；回傳提示文字 */
+export function consumeItem(c: Character, id: string): string {
+  const def = ITEMS[id];
+  if (!c.items[id] || !(def.hp || def.qi)) return '這樣東西現在用不上。';
+  const d = derive(c);
+  const hp = Math.min(def.hp ?? 0, d.maxHp - c.hp);
+  const qi = Math.min(def.qi ?? 0, d.maxQi - c.qi);
+  if (hp <= 0 && qi <= 0) return '現在用不著。';
+  c.hp += hp;
+  c.qi += qi;
+  c.items[id]--;
+  if (!c.items[id]) delete c.items[id];
+  return `用了${def.name}。${hp ? `氣血 +${hp}` : ''}${hp && qi ? '　' : ''}${qi ? `內力 +${qi}` : ''}`;
+}
 
 /** 戰鬥中可以使用的物品（有回復效果的） */
 export const usableInBattle = (id: string) => !!(ITEMS[id]?.hp || ITEMS[id]?.qi);

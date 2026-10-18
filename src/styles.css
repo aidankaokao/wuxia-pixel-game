@@ -993,3 +993,107 @@ kbd {
   color: var(--muted);
   cursor: default;
 }
+
+/* ── 行囊 ─────────────────────────────── */
+.bag-board {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.bag-cats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.bag-cats li {
+  padding: 6px 4px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.bag-cats li.current {
+  color: var(--paper);
+}
+
+.bag-cats li.active {
+  color: var(--gold);
+}
+
+.bag-cats li.bag-sort {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px dashed #2e2636;
+}
+
+.bag-grid {
+  display: grid;
+  gap: 4px;
+  max-width: 372px;
+}
+
+.bag-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: #0f0d14;
+  border: 2px solid #2e2636;
+  cursor: pointer;
+}
+
+.bag-cell.filled {
+  border-color: #3a2e22;
+  background: #17131c;
+}
+
+.bag-cell.active {
+  border-color: var(--gold);
+}
+
+.bag-cell img {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+}
+
+.bag-cell.lifted img {
+  opacity: 0.3;
+}
+
+.bag-cell img.bag-held {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 40px;
+  height: 40px;
+  opacity: 1;
+  filter: drop-shadow(2px 2px 0 #000);
+}
+
+.bag-count {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-size: 13px;
+  color: var(--paper);
+  text-shadow: 1px 1px 0 #000;
+}
+
+.bag-detail {
+  margin-top: 12px;
+  min-height: 90px;
+}
+
+.bag-detail p {
+  margin: 6px 0;
+}
+
+img.bag-big {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
