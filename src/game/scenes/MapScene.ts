@@ -341,7 +341,7 @@ export class MapScene extends Phaser.Scene {
   }
 
   private propAt(x: number, y: number) {
-    return this.props.find((p) => p.visible && y === p.def.y && x >= p.def.x && x < p.def.x + (p.def.w ?? 1));
+    return this.props.find((p) => p.visible && !p.def.passable && y === p.def.y && x >= p.def.x && x < p.def.x + (p.def.w ?? 1));
   }
 
   private npcAt(x: number, y: number) {

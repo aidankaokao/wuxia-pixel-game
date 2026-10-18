@@ -2,6 +2,7 @@ import { TILE } from '../constants';
 import { ellipse, hline, makeCanvas, outline, px, rng, vline } from './pixel';
 import { furnitureProps } from './furniture';
 import { interiorProps } from './interior';
+import { landmarkProps } from './landmarks';
 
 /**
  * 場景物件（樹、竹、石、井、告示、建築……）。
@@ -407,5 +408,5 @@ export function allProps(): Record<string, PropArt> {
     flag: drawFlag(),
   };
   for (const [k, st] of Object.entries(BUILDINGS)) out[`b_${k}`] = drawBuilding(st);
-  return { ...out, ...furnitureProps(), ...interiorProps() };
+  return { ...out, ...furnitureProps(), ...interiorProps(), ...landmarkProps() };
 }

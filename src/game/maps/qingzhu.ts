@@ -142,7 +142,7 @@ export const qingzhu: MapDef = {
 
   exits: [
     { tiles: [[26, 0], [27, 0]], to: 'canglan', spawn: { x: 11, y: 42, facing: 'up' } },
-    { tiles: [[55, 20], [55, 21]], lines: [{ text: '前方是通往臨江城的官道。\n（地圖尚未開放）' }] },
+    { tiles: [[55, 20], [55, 21]], to: 'guandao', spawn: { x: 1, y: 7, facing: 'right' } },
     { tiles: [[26, 39], [27, 39]], lines: [{ text: '南嶺古道荒草蔓生，不知通往何處。\n（地圖尚未開放）' }] },
   ],
 };

@@ -47,7 +47,7 @@ const C = {
 } as const;
 
 // ── 字元分類 ───────────────────────────────────────────────
-const ROADLIKE = new Set([':', 'E', '=', '#']);
+const ROADLIKE = new Set([':', 'E', '=', '#', 'S', 'X']);
 const WATERLIKE = new Set(['~', '#']);
 
 type Grid = readonly string[];
@@ -93,10 +93,19 @@ export function tileArt(g: Grid, x: number, y: number, frame = 0, theme?: string
       const m = mask(g, x, y, (n) => ROADLIKE.has(n));
       return { key: `road${m}_${v % 2}`, draw: (ctx) => drawRoad(ctx, m, v % 2) };
     }
-    case '=': {
-      const m = mask(g, x, y, (n) => n === '=');
+    case '=':
+    case 'X': {
+      // X：看起來是石板地、但不能走（例如牌坊柱腳）
+      const m = mask(g, x, y, (n) => n === '=' || n === 'X');
       return { key: `plaza${m}`, draw: (ctx) => drawPlaza(ctx, m) };
     }
+    case 'H': {
+      // 城牆：上方不是城牆的那一格畫出垛口
+      const top = at(g, x, y - 1) !== 'H';
+      return { key: `citywall${top ? 1 : 0}_${v % 2}`, draw: (ctx) => drawCityWall(ctx, top, v % 2) };
+    }
+    case 'S':
+      return { key: 'steps', draw: (ctx) => drawSteps(ctx) };
     case '~': {
       const m = mask(g, x, y, (n) => WATERLIKE.has(n));
       return { key: `water${m}_${frame}`, draw: (ctx) => drawWater(ctx, m, frame) };
@@ -154,6 +163,29 @@ function drawWall(ctx: Ctx, p: Indoor, face: boolean) {
   hline(ctx, 0, TILE - 1, 9, p.beam);
   px(ctx, 0, TILE - 2, TILE, 2, p.beam);
   vline(ctx, 0, 3, TILE - 1, p.beam);
+}
+
+/** 城牆：灰磚，頂端有垛口 */
+function drawCityWall(ctx: Ctx, top: boolean, v: number) {
+  px(ctx, 0, 0, TILE, TILE, '#8a8478');
+  for (let y = 3; y < TILE; y += 4) hline(ctx, 0, TILE - 1, y, '#6e695e');
+  for (let r = 0; r < 4; r++) for (let x = (r % 2) * 4 + v * 2; x < TILE; x += 8) vline(ctx, x, r * 4, r * 4 + 2, '#6e695e');
+  if (top) {
+    px(ctx, 0, 0, TILE, 4, '#4a4640');
+    for (let x = 1; x < TILE; x += 6) px(ctx, x, 0, 3, 3, '#a8a296');
+  }
+  hline(ctx, 0, TILE - 1, TILE - 1, '#4a4640');
+}
+
+/** 石階：一級一級的橫條 */
+function drawSteps(ctx: Ctx) {
+  px(ctx, 0, 0, TILE, TILE, C.stone);
+  for (let y = 0; y < TILE; y += 4) {
+    hline(ctx, 0, TILE - 1, y, C.stoneLight);
+    hline(ctx, 0, TILE - 1, y + 3, C.stoneDark);
+  }
+  vline(ctx, 0, 0, TILE - 1, C.stoneDark);
+  vline(ctx, TILE - 1, 0, TILE - 1, C.stoneDark);
 }
 
 /** 門口的踏墊 */

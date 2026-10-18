@@ -1,4 +1,7 @@
 import { canglan } from './canglan';
+import { guandao } from './guandao';
+import { linjiang } from './linjiang';
+import { mingquan } from './mingquan';
 import { buildHomeMap, PlacedPlot, withPlots } from './home';
 import { qingzhu } from './qingzhu';
 import { qzLiu, qzSmithy, qzTea, qzWang } from './qingzhu_rooms';
@@ -10,6 +13,9 @@ import { useGame } from '../../state/store';
 export const MAPS: Record<string, MapDef> = {
   [qingzhu.id]: qingzhu,
   [canglan.id]: canglan,
+  [guandao.id]: guandao,
+  [linjiang.id]: linjiang,
+  [mingquan.id]: mingquan,
   [qzLiu.id]: qzLiu,
   [qzTea.id]: qzTea,
   [qzSmithy.id]: qzSmithy,

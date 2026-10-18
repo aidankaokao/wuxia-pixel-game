@@ -62,6 +62,36 @@ export const CHARACTERS: Record<string, CharStyle> = {
     skin: SKIN, hair: '#2a1f1a', robe: '#c88a6a', robeDark: '#a86a4a', inner: '#f0e4cc', sash: '#6a8aa8',
     pants: '#6a4a3a', shoe: '#2a1a1a', hairStyle: 'bun', band: '#6a8aa8',
   },
+  // 臨江城的守城兵：紅帽、號衣
+  guard: {
+    skin: '#e2b48a', hair: '#2a1f1a', robe: '#a83a2a', robeDark: '#7a2a1e', inner: '#e8d8b0', sash: '#2a2a30',
+    pants: '#2a2a30', shoe: '#1e1e22', hairStyle: 'bald', band: '#2a2a30', sword: true,
+  },
+  // 鳴泉劍派弟子：月白道袍、青色髮帶、背劍
+  disciple: {
+    skin: SKIN, hair: '#1a1614', robe: '#d8e0e8', robeDark: '#a8b4c0', inner: '#f4f6f8', sash: '#3e6656',
+    pants: '#5a6a7a', shoe: '#22262a', hairStyle: 'topknot', band: '#3e6656', sword: true,
+  },
+  // 金刀鏢局的鏢師：黑衣、金色腰帶、背刀
+  escort: {
+    skin: '#d9a77c', hair: '#2a1f1a', robe: '#2a2a32', robeDark: '#1a1a22', inner: '#8a7a5a', sash: '#d4a640',
+    pants: '#2a2a32', shoe: '#141418', hairStyle: 'topknot', band: '#d4a640', beard: '#2a1f1a', sword: true,
+  },
+  // 漕幫幫眾：短打、藍頭巾
+  boatman: {
+    skin: '#c89a6a', hair: '#2a1f1a', robe: '#4a6a8a', robeDark: '#34506a', inner: '#c8b890', sash: '#2a3a4a',
+    pants: '#3a3a40', shoe: '#1e1e22', hairStyle: 'bald', band: '#3a5a8a',
+  },
+  // 書生：長髮、淡青長衫
+  scholar: {
+    skin: SKIN, hair: '#1a1614', robe: '#a8c0c8', robeDark: '#8098a0', inner: '#f4f0e8', sash: '#5a6a7a',
+    pants: '#5a6a7a', shoe: '#22262a', hairStyle: 'long', band: '#5a6a7a',
+  },
+  // 乞丐：灰褐破衣、亂髮
+  beggar: {
+    skin: '#c89a6a', hair: '#4a3a2a', robe: '#7a6a52', robeDark: '#5a4a3a', inner: '#9a8a6a', sash: '#4a3a2a',
+    pants: '#5a4a3a', shoe: '#3a2a1a', hairStyle: 'long', beard: '#4a3a2a',
+  },
   // 貨郎陶四：斗笠、藍布衣
   peddler: {
     skin: SKIN, hair: '#2a1f1a', robe: '#4a6a9a', robeDark: '#34507a', inner: '#e8e0c8', sash: '#c8a050',
