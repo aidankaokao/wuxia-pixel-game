@@ -27,6 +27,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
   lumingchuan: { name: '陸鳴川', sprite: 'sect_senior', hp: 650, atk: 50, def: 10, spd: 20, eva: 0.08, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   qizhenyuan: { name: '齊振遠', sprite: 'disciple', hp: 320, atk: 38, def: 7, spd: 17, eva: 0.08, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   mengduo: { name: '孟鐸', sprite: 'disciple', hp: 380, atk: 42, def: 9, spd: 13, eva: 0.04, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  hanjingqiu: { name: '韓靖秋', sprite: 'sect_elder', hp: 1150, atk: 74, def: 15, spd: 23, eva: 0.12, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  masked: { name: '蒙面人', sprite: 'masked', hp: 950, atk: 82, def: 17, spd: 16, eva: 0.05, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
+  boar_big: { name: '護藥山豬', sprite: 'boar', hp: 950, atk: 80, def: 15, spd: 10, eva: 0.02, moves: ['e_gore', 'e_ram'], ai: 'grunt' },
   boss: { name: '祁三刀', sprite: 'boss', hp: 240, atk: 22, def: 6, spd: 12, eva: 0.06, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
 };
 
@@ -62,6 +65,12 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   mq_path_dogs: { enemies: ['dog', 'dog', 'dog'], background: 'mountain', intro: '三隻野狗堵在山道上，齜牙低吼！', canFlee: true, silver: 0, growth: 0.5, points: 3 },
   exam_qi: { enemies: ['qizhenyuan'], background: 'mountain', intro: '齊振遠抱劍一禮：「考核不講情面，也不許用藥。師弟小心了。」', canFlee: false, silver: 0, growth: 0.8, points: 3, spar: true, noItems: true },
   exam_meng: { enemies: ['mengduo'], background: 'mountain', intro: '孟鐸活動了一下手腕：「連戰兩場，就看你撐不撐得住。」', canFlee: false, silver: 0, growth: 0.8, points: 3, spar: true, noItems: true },
+  // 真傳拜師試煉
+  trial_han: { enemies: ['hanjingqiu'], background: 'mountain', intro: '韓靖秋在試劍石前拔劍：「拿出你全部的本事。」', canFlee: false, silver: 0, growth: 1, points: 5, spar: true, noItems: true },
+  trial_night1: { enemies: ['dog', 'dog', 'dog'], background: 'mountain', intro: '第一夜。黑暗中亮起幾雙綠眼睛——野狗群摸上了崖！', canFlee: false, silver: 0, growth: 0.5, points: 2, spar: true, noItems: true },
+  trial_night2: { enemies: ['boar', 'boar'], background: 'mountain', intro: '第二夜。兩頭山豬嗅著氣味，低頭朝你衝來！', canFlee: false, silver: 0, growth: 0.5, points: 2, spar: true, noItems: true },
+  trial_night3: { enemies: ['masked'], background: 'mountain', intro: '第三夜。一個蒙面人從崖頂躍下，一言不發，揮掌便打！', canFlee: false, silver: 0, growth: 1, points: 5, spar: true, noItems: true },
+  trial_boar: { enemies: ['boar_big'], background: 'mountain', intro: '一頭比尋常大上一倍的山豬護在藥草前，鼻孔噴著白氣！', canFlee: true, silver: 0, growth: 0.8, points: 3, spar: true },
   camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 

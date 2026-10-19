@@ -161,8 +161,19 @@ function portrait(): PropArt {
   return done(c, ctx);
 }
 
+/** 野生藥草：一叢葉子，頂上開著小花（後山採藥用） */
+function wildHerb(): PropArt {
+  const [c, ctx] = makeCanvas(16, 14);
+  vline(ctx, 8, 5, 13, '#3e6a28');
+  for (const [x, y, w] of [[3, 8, 5], [9, 7, 5], [5, 4, 4], [9, 3, 3], [2, 11, 4], [10, 10, 4]] as const) px(ctx, x, y, w, 2, '#5a9a38');
+  px(ctx, 7, 1, 3, 2, '#e8e0f8');
+  px(ctx, 8, 0, 1, 1, '#ffffff');
+  return done(c, ctx);
+}
+
 export function landmarkProps(): Record<string, PropArt> {
   return {
+    wild_herb: wildHerb(),
     pavilion: pavilion(),
     ding: ding(),
     sword_rock: swordRock(),

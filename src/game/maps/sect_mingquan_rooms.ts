@@ -1,4 +1,4 @@
-import { armoryTalk, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, cellBed, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
 import type { MapDef, PropDef } from './types';
 
@@ -96,7 +96,7 @@ export const mqRoomA = innerRoom('mq_room_a', '弟子房・甲', [4, 21], '桌�
 export const mqRoomB = innerRoom('mq_room_b', '弟子房・乙', [9, 21], '桌上攤著一封家書，寫到一半。');
 
 /** 真傳弟子房：一人一間 */
-const cell = (id: string, name: string, door: [number, number], desk: string): MapDef => ({
+const cell = (id: string, name: string, door: [number, number], desk: string, mine = false): MapDef => ({
   id,
   name,
   subtitle: '鳴泉劍派・弟子居所',
@@ -105,7 +105,7 @@ const cell = (id: string, name: string, door: [number, number], desk: string): M
   theme: 'scholar',
   buildings: [],
   props: [
-    bed(1, 1, 'scholar', 3, '真傳弟子的床鋪，被褥是上好的棉布。'),
+    mine ? { ...bed(1, 1, 'scholar', 3), lines: undefined, script: cellBed, label: '睡覺' } : bed(1, 1, 'scholar', 3, '真傳弟子的床鋪，被褥是上好的棉布。'),
     { sprite: 'f_table_scholar_1', x: 4, y: 2, w: 2, lines: [{ text: desk }] },
     { sprite: 'f_deco_scholar_1', x: 4, y: 0, lines: [{ text: '牆上掛著師父親筆寫的字：「勤」。' }] },
   ],
@@ -113,7 +113,7 @@ const cell = (id: string, name: string, door: [number, number], desk: string): M
   exits: [back(door[0], door[1], 3, 5)],
 });
 export const mqCell1 = cell('mq_cell_1', '真傳弟子房・一', [3, 26], '陸鳴川的書案。案上擺著筆墨與一卷劍譜，譜上的字跡工整，邊角寫滿了晨課要教的重點。');
-export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。');
+export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。', true);
 
 // ── 練功、書房、武器、藥房、廚房 ─────────────────────────
 
@@ -204,6 +204,8 @@ export const mqMed: MapDef = {
     { sprite: 'drying_rack', x: 8, y: 4, w: 2, script: choreAt('herbs', [{ text: '架上晾著剛採回來的草藥。' }]) },
   ],
   npcs: [
+    // 蘇長老在正式弟子考核之後回山
+    { id: 'mqm_su', name: MQ.su, sprite: 'sect_healer', x: 3, y: 3, facing: 'down', person: 'su', when: (f) => f.mq_exam === 2 },
     { id: 'mqm_herbalist', name: MQ.miao, sprite: 'lady', x: 6, y: 3, facing: 'down', wander: 1, script: herbalistTalk },
   ],
   exits: [back(38, 27, 5, 7)],
