@@ -1191,6 +1191,8 @@ const fellow = (stage: number) => (inSect(st().world, SECT) ? (stage >= STAGE.CL
 const wenP: PersonDef = {
   id: 'wen',
   name: '聞松年',
+  place: '鳴泉劍派',
+  role: '掌門',
   address: () => (inSect(st().world, SECT) ? '{名}' : '年輕人'),
   story: wenStory,
   talk: { gain: 2, perDay: 1, after: 'busy' },
@@ -1209,6 +1211,8 @@ const wenP: PersonDef = {
 const luP: PersonDef = {
   id: 'lu',
   name: '陸鳴川',
+  place: '鳴泉劍派',
+  role: '大師兄，主持晨課',
   address: (s) => fellow(s),
   story: luStory,
   talk: { gain: 2, perDay: 1, after: 'chat' },
@@ -1230,6 +1234,8 @@ const luP: PersonDef = {
 const xiaomanP: PersonDef = {
   id: 'xiaoman',
   name: '顧小滿',
+  place: '鳴泉劍派',
+  role: '記名弟子，上個月入門',
   address: (s) => (inSect(st().world, SECT) ? (s >= STAGE.FAMILIAR ? '{名}師兄' : '師兄') : '這位朋友'),
   talk: { gain: 3, perDay: 1, after: 'chat' },
   lines: {
@@ -1264,6 +1270,8 @@ const xiaomanP: PersonDef = {
 const hanP: PersonDef = {
   id: 'han',
   name: '韓靖秋',
+  place: '鳴泉劍派',
+  role: '傳功長老',
   address: elderAddress('han'),
   story: hanStory,
   gate: {
@@ -1286,6 +1294,8 @@ const hanP: PersonDef = {
 const yanP: PersonDef = {
   id: 'yan',
   name: MQ.yan,
+  place: '鳴泉劍派',
+  role: '執法長老',
   address: elderAddress('yan'),
   story: (ctx) => masterStory(ctx, 1),
   gate: {
@@ -1307,6 +1317,8 @@ const yanP: PersonDef = {
 const suP: PersonDef = {
   id: 'su',
   name: MQ.su,
+  place: '鳴泉劍派',
+  role: '藥堂長老',
   address: elderAddress('su'),
   story: (ctx) => masterStory(ctx, 2),
   gate: {

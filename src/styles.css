@@ -1310,3 +1310,132 @@ img.bag-big {
 .exp-fill.bad {
   background: #a84a5a;
 }
+
+/* ── 分層瀏覽（選單「門派」「交遊」） ───────────── */
+.browser {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.browser-crumbs {
+  font-size: 20px;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.browser-panes {
+  display: flex;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+}
+
+.browser-list {
+  flex: 0 0 200px;
+  margin: 0;
+  padding: 0 6px 0 0;
+  list-style: none;
+  overflow-y: auto;
+  border-right: 2px dashed #2e2636;
+}
+
+.browser-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  cursor: pointer;
+}
+
+.browser-list li.active {
+  color: var(--gold);
+  background: rgba(232, 210, 122, 0.08);
+}
+
+.browser-tag {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.browser-detail {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 4px 8px 2px;
+  border: 2px solid transparent;
+}
+
+.browser-detail.focus {
+  border-color: #4a3e2c;
+}
+
+.browser-detail h3 {
+  margin: 0 0 8px;
+  font-weight: normal;
+  font-size: 20px;
+}
+
+.browser-detail h3 small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.browser-detail h4 {
+  margin: 14px 0 4px;
+  font-weight: normal;
+  color: var(--gold);
+}
+
+.browser-detail p {
+  margin: 6px 0;
+}
+
+.browser-preview {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.browser-preview li {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 2px dashed #2e2636;
+}
+
+.browser-help {
+  margin: 8px 0 0;
+}
+
+dl.kv {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 6px 10px;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+dl.kv dt {
+  color: var(--muted);
+}
+
+dl.kv dd {
+  margin: 0;
+}
+
+table.charter {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.charter th,
+table.charter td {
+  text-align: left;
+  font-weight: normal;
+  padding: 4px 6px 4px 0;
+  border-bottom: 2px dashed #2e2636;
+  vertical-align: top;
+}

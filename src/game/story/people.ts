@@ -26,6 +26,10 @@ export type Convo = Line[] | { when: (f: Flags) => boolean; lines: Line[] };
 export interface PersonDef {
   id: string;
   name: string;
+  /** 在哪裡認識的（選單「交遊」依這個分類） */
+  place: string;
+  /** 身分（選單顯示用） */
+  role: string;
   /** 對方怎麼稱呼你 */
   address: (stage: number, fame: number) => string;
   /** 不理人：條件不成立就只回這幾句 */
@@ -63,6 +67,8 @@ const liu = by('柳承安');
 const liuP: PersonDef = {
   id: 'liu',
   name: '柳承安',
+  place: '青竹村',
+  role: '青竹村村長',
   address: (s, fame) => (fame >= 80 ? '{姓}大俠' : s >= STAGE.CLOSE ? '{姓}賢侄' : s >= STAGE.FAMILIAR ? '{姓}少俠' : s >= STAGE.NOD ? '少俠' : '年輕人'),
   story: liuStory,
   talk: { gain: 3, perDay: 2, after: 'chat' },
@@ -121,6 +127,8 @@ const he = by('柳青禾');
 const qingheP: PersonDef = {
   id: 'qinghe',
   name: '柳青禾',
+  place: '青竹村',
+  role: '柳村長的孫女',
   address: (s, fame) => (s >= STAGE.CLOSE ? '{姓}大哥' : s >= STAGE.FAMILIAR || fame >= 40 ? '{姓}少俠' : s >= STAGE.NOD ? '喂，外地來的' : '你'),
   talk: { gain: 4, perDay: 1, after: 'busy' },
   lines: {
@@ -169,6 +177,8 @@ const zhong = by('鍾嬸');
 const zhongP: PersonDef = {
   id: 'zhong',
   name: '鍾嬸',
+  place: '青竹村',
+  role: '村口茶攤的老闆娘',
   address: (s, fame) => (fame >= 80 ? '{姓}大俠' : s >= STAGE.FAMILIAR ? '小{姓}' : s >= STAGE.NOD ? '小哥' : '客官'),
   story: zhongStory,
   talk: { gain: 3, perDay: 2, after: 'chat' },
@@ -224,6 +234,8 @@ const tao = by('陶四');
 const taoP: PersonDef = {
   id: 'tao',
   name: '陶四',
+  place: '青竹村',
+  role: '走村串鄉的貨郎',
   address: (s, fame) => (s >= STAGE.FAMILIAR ? '{姓}老弟' : fame >= 40 ? '{姓}少俠' : '客官'),
   talk: { gain: 1, perDay: 1, after: 'chat' },
   lines: {
@@ -252,6 +264,8 @@ const shi = by('石岳');
 const shiP: PersonDef = {
   id: 'shi',
   name: '石岳',
+  place: '青竹村',
+  role: '石家鐵鋪的鐵匠',
   address: (s, fame) => (fame >= 80 ? '{姓}大俠' : s >= STAGE.FAMILIAR ? '{姓}兄弟' : '小子'),
   gate: {
     open: (f, fame) => fame >= 15 || !!f.smith_intro,
@@ -291,6 +305,8 @@ const hu = by('石小虎');
 const xiaohuP: PersonDef = {
   id: 'xiaohu',
   name: '石小虎',
+  place: '青竹村',
+  role: '鐵鋪學徒，石岳的兒子',
   address: (_s, fame) => (fame >= 40 ? '{姓}大俠' : '大哥哥'),
   talk: { gain: 4, perDay: 1, after: 'chat' },
   lines: {
