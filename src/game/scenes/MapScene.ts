@@ -12,7 +12,7 @@ import { derive } from '../character';
 import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { autosave, setPositionProvider } from '../save';
-import { npcPresent, periodOf, type Period } from '../time';
+import { npcPresent, periodOf, shichenStart, SHICHEN_INDEX, type Period } from '../time';
 import { flag, uiBlocking, useGame } from '../../state/store';
 
 interface Npc {
@@ -20,6 +20,12 @@ interface Npc {
   actor: Actor | null;
   talkIndex: number;
   nextWander: number;
+  /** 照作息出門或回來：一格一格走的路線 */
+  path?: { x: number; y: number }[];
+  /** 正在走去門口，走到就消失 */
+  leaving?: boolean;
+  /** 路被擋住時等了幾次 */
+  waited?: number;
 }
 
 interface Prop {
@@ -105,7 +111,7 @@ export class MapScene extends Phaser.Scene {
     }
     const spawn = this.data_.spawn ?? def.spawn;
     this.player = new Actor(this, 'hero', spawn.x, spawn.y, spawn.facing);
-    this.refresh();
+    this.refresh(true);
 
     const cam = this.cameras.main;
     cam.startFollow(this.player.sprite, true, 1, 1, 0, TILE / 2);
@@ -288,23 +294,43 @@ export class MapScene extends Phaser.Scene {
     }
   }
 
-  /** 依目前的劇情旗標與時辰，決定哪些 NPC、物件存在，以及物件的外觀。 */
-  private refresh() {
+  /**
+   * 依目前的劇情旗標與時辰，決定哪些 NPC、物件存在，以及物件的外觀。
+   * 照作息出門、回房的人（不是剛進場景時）會從門口走進來、走到門口才消失，而不是突然出現或不見。
+   */
+  private refresh(initial = false) {
     const { flags: f, respawnAt, world } = useGame.getState();
     const now = Date.now();
     const outdoor = !this.def.theme;
     for (const n of this.npcs) {
       const down = (respawnAt[`${this.def.id}:${n.def.id}`] ?? 0) > now;
+      const allowed = (!n.def.when || n.def.when(f)) && !down;
+      const here = npcPresent(n.def, outdoor, world.time);
       // 出現時若主角剛好站在那一格，等下次再說
       const occupied = !n.actor && this.player && this.player.tx === n.def.x && this.player.ty === n.def.y;
-      const here = npcPresent(n.def, outdoor, world.time);
-      const show = (!n.def.when || n.def.when(f)) && here && !down && !occupied;
+      const show = allowed && here && !occupied;
       if (show && !n.actor) {
-        n.actor = new Actor(this, n.def.sprite, n.def.x, n.def.y, n.def.facing ?? 'down');
+        const walkIn = !initial && !n.def.encounter ? this.pathFromGate(n.def.x, n.def.y) : null;
+        const start = walkIn?.[0] ?? { x: n.def.x, y: n.def.y };
+        n.actor = new Actor(this, n.def.sprite, start.x, start.y, n.def.facing ?? 'down');
+        n.path = walkIn?.slice(1);
+        n.leaving = false;
         n.nextWander = this.time.now + 1500 + Math.random() * 3000;
-      } else if (!show && n.actor) {
-        n.actor.destroy();
-        n.actor = null;
+      } else if (show && n.actor && n.leaving) {
+        // 正要出門又不用走了（例如時間倒回去）：走回原位
+        n.leaving = false;
+        n.path = this.findPath(n.actor.tx, n.actor.ty, (x, y) => x === n.def.x && y === n.def.y) ?? undefined;
+      } else if (!show && n.actor && !n.leaving) {
+        // 照作息出門：走到最近的門口或出口才消失；劇情旗標讓人消失的就直接不見
+        const path = allowed && !initial && !n.def.encounter ? this.pathToGate(n.actor.tx, n.actor.ty) : null;
+        if (path) {
+          n.leaving = true;
+          n.path = path;
+          n.waited = 0;
+        } else {
+          n.actor.destroy();
+          n.actor = null;
+        }
       }
     }
     for (const p of this.props) {
@@ -312,6 +338,91 @@ export class MapScene extends Phaser.Scene {
       p.image.setVisible(p.visible);
       if (typeof p.def.sprite === 'function') p.image.setTexture(p.def.sprite(f));
     }
+  }
+
+  // ── 照作息走動 ───────────────────────────────────────────
+
+  /** 沿著路線走一格；走完了，要出門的人就消失 */
+  private followPath(n: Npc) {
+    const a = n.actor!;
+    const next = n.path!.shift();
+    if (!next) {
+      n.path = undefined;
+      if (n.leaving) {
+        a.destroy();
+        n.actor = null;
+        n.leaving = false;
+      } else a.face(n.def.facing ?? 'down');
+      return;
+    }
+    const dir: Dir = next.x > a.tx ? 'right' : next.x < a.tx ? 'left' : next.y > a.ty ? 'down' : 'up';
+    if (this.isBlocked(next.x, next.y, a)) {
+      // 被人擋住：等一下再走，等太久就直接到位（或直接離開）
+      n.path!.unshift(next);
+      a.face(dir);
+      n.waited = (n.waited ?? 0) + 1;
+      if (n.waited > 6) {
+        n.path = [];
+        if (!n.leaving) {
+          a.destroy();
+          n.actor = new Actor(this, n.def.sprite, n.def.x, n.def.y, n.def.facing ?? 'down');
+        }
+      }
+      n.nextWander = this.time.now + 400;
+      return;
+    }
+    n.waited = 0;
+    a.step(dir, NPC_WALK_MS, () => a.stand());
+  }
+
+  /** 門口：出入口的格子，還有室外建築門前的那一格 */
+  private gates(): { x: number; y: number }[] {
+    const out = this.def.exits.flatMap((e) => e.tiles.map(([x, y]) => ({ x, y })));
+    for (const key of this.doors.keys()) out.push({ x: key % this.w, y: Math.floor(key / this.w) + 1 });
+    return out.filter((g) => this.inBounds(g.x, g.y) && !this.blocked[this.idx(g.x, g.y)]);
+  }
+
+  /** 從某格走到最近的門口的路線（不含起點）；走不到回傳 null */
+  private pathToGate(x: number, y: number) {
+    const gates = new Set(this.gates().map((g) => this.idx(g.x, g.y)));
+    if (!gates.size) return null;
+    return this.findPath(x, y, (gx, gy) => gates.has(this.idx(gx, gy)));
+  }
+
+  /** 從最近的門口走到某格的路線（第一格是門口） */
+  private pathFromGate(x: number, y: number) {
+    const back = this.pathToGate(x, y);
+    if (!back?.length) return null;
+    return [...back].reverse().concat({ x, y });
+  }
+
+  /** 廣度優先找路：只看地形與物件，不管其他人（走的時候遇到人再等） */
+  private findPath(sx: number, sy: number, goal: (x: number, y: number) => boolean) {
+    if (goal(sx, sy)) return [];
+    const prev = new Map<number, number>();
+    const start = this.idx(sx, sy);
+    prev.set(start, -1);
+    const queue = [start];
+    while (queue.length) {
+      const cur = queue.shift()!;
+      const cx = cur % this.w;
+      const cy = Math.floor(cur / this.w);
+      for (const d of DIRS) {
+        const nx = cx + (d === 'right' ? 1 : d === 'left' ? -1 : 0);
+        const ny = cy + (d === 'down' ? 1 : d === 'up' ? -1 : 0);
+        if (!this.inBounds(nx, ny)) continue;
+        const ni = this.idx(nx, ny);
+        if (prev.has(ni) || this.blocked[ni] || this.propAt(nx, ny)) continue;
+        prev.set(ni, cur);
+        if (goal(nx, ny)) {
+          const path: { x: number; y: number }[] = [];
+          for (let i = ni; i !== start; i = prev.get(i)!) path.unshift({ x: i % this.w, y: Math.floor(i / this.w) });
+          return path;
+        }
+        queue.push(ni);
+      }
+    }
+    return null;
   }
 
   // ── 日夜與天氣 ───────────────────────────────────────────
@@ -323,9 +434,9 @@ export class MapScene extends Phaser.Scene {
     this.shade = this.add.rectangle(cam.width / 2, cam.height / 2, big, big, 0x000000, 0).setScrollFactor(0).setDepth(900000);
     this.fog = this.add.rectangle(cam.width / 2, cam.height / 2, big, big, 0xd8dee6, 0).setScrollFactor(0).setDepth(900002);
     if (!this.textures.exists('raindrop')) {
-      const [c, ctx] = makeCanvas(1, 4);
+      const [c, ctx] = makeCanvas(1, 5);
       ctx.fillStyle = '#c8d8f0';
-      ctx.fillRect(0, 0, 1, 4);
+      ctx.fillRect(0, 0, 1, 5);
       this.textures.addCanvas('raindrop', c);
     }
     this.rain = null;
@@ -337,7 +448,8 @@ export class MapScene extends Phaser.Scene {
     const outdoor = !this.def.theme;
     // 室內點了燈，夜裡沒有室外那麼暗
     const SHADE: Record<Period, [number, number, number]> = {
-      dawn: [0x405890, 0.2, 0.08],
+      // 早晨就是白天的樣子（起霧是天氣，不是時段）
+      dawn: [0x000000, 0, 0],
       day: [0x000000, 0, 0],
       dusk: [0xd06a28, 0.3, 0.12],
       night: [0x0a1238, 0.6, 0.25],
@@ -352,7 +464,7 @@ export class MapScene extends Phaser.Scene {
     }
     // setFillStyle 不給透明度會變成不透明，要帶上目前的值
     this.shade.setFillStyle(tint, this.shade.fillAlpha);
-    const fogAlpha = outdoor && weather === 'fog' ? 0.32 : 0;
+    const fogAlpha = outdoor && weather === 'fog' ? 0.24 : 0;
     if (animate) {
       this.tweens.add({ targets: this.shade, fillAlpha: alpha, duration: 600 });
       this.tweens.add({ targets: this.fog, fillAlpha: fogAlpha, duration: 600 });
@@ -370,25 +482,23 @@ export class MapScene extends Phaser.Scene {
     }
   }
 
-  /** 雨絲：從畫面上方斜斜落下 */
+  /** 雨絲：在鏡頭看得到的範圍上方生成，斜斜落下（用地圖座標，每幀跟著鏡頭移動生成的位置） */
   private makeRain() {
+    // 剛建好場景時鏡頭的 worldView 還沒算出來，可視範圍改用畫面尺寸 ÷ 縮放倍率
     const cam = this.cameras.main;
     const vw = cam.width / cam.zoom;
     const vh = cam.height / cam.zoom;
-    const left = cam.width / 2 - vw / 2;
-    const top = cam.height / 2 - vh / 2;
     return this.add
-      .particles(0, 0, 'raindrop', {
-        x: { min: left - 40, max: left + vw + 40 },
-        y: top - 8,
-        speedY: { min: 260, max: 340 },
-        speedX: { min: -50, max: -30 },
-        lifespan: (vh / 260) * 1000,
-        quantity: 2,
-        frequency: 25,
-        alpha: { start: 0.7, end: 0.4 },
+      .particles(cam.worldView.x, cam.worldView.y, 'raindrop', {
+        x: { min: -30, max: vw + 30 },
+        y: { min: -12, max: vh * 0.6 },
+        speedY: { min: 200, max: 260 },
+        speedX: { min: -40, max: -25 },
+        lifespan: { min: 400, max: 900 },
+        quantity: 3,
+        frequency: 16,
+        alpha: { start: 0.75, end: 0.25 },
       })
-      .setScrollFactor(0)
       .setDepth(900001);
   }
 
@@ -672,6 +782,7 @@ export class MapScene extends Phaser.Scene {
   update(time: number) {
     const k = this.keys;
     if (this.leaving) return;
+    if (this.rain) this.rain.setPosition(this.cameras.main.worldView.x, this.cameras.main.worldView.y);
 
     if (uiBlocking()) {
       this.queued = null;
@@ -756,9 +867,16 @@ export class MapScene extends Phaser.Scene {
   private updateNpcs(time: number) {
     // 主角正面對著的人停下來，不會聊到一半走開
     const f = this.player.front();
+    const clock = useGame.getState().world.time;
+    // 夜裡回房的人，卯時起床後到出門前會在房裡走動
+    const morning = clock >= shichenStart(SHICHEN_INDEX.卯) && clock < shichenStart(SHICHEN_INDEX.午);
     for (const n of this.npcs) {
       const a = n.actor;
-      const r = n.def.wander ?? 0;
+      if (a && n.path) {
+        if (!a.moving && time >= n.nextWander) this.followPath(n);
+        continue;
+      }
+      const r = n.def.wander ?? (n.def.night && morning ? 1 : 0);
       if (!a || !r || a.moving || time < n.nextWander) continue;
       if (a.tx === f.x && a.ty === f.y) continue;
       n.nextWander = time + 1800 + Math.random() * 3200;

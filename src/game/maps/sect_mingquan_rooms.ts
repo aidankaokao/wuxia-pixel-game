@@ -126,7 +126,7 @@ const cell = (id: string, name: string, door: [number, number], desk: string, mi
 });
 export const mqCell1 = cell('mq_cell_1', '真傳弟子房・一', [3, 26], '陸鳴川的書案。案上擺著筆墨與一卷劍譜，譜上的字跡工整，邊角寫滿了晨課要教的重點。');
 // 陸鳴川夜裡回到自己的房間
-mqCell1.npcs.push({ id: 'mqc_lu', name: MQ.lu, sprite: 'sect_senior', x: 1, y: 2, facing: 'down', night: true, person: 'lu' });
+mqCell1.npcs.push({ id: 'mqc_lu', name: MQ.lu, sprite: 'sect_senior', x: 1, y: 2, facing: 'down', night: true, person: 'lu', out: 19 });
 export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。', true);
 
 // ── 練功、書房、武器、藥房、廚房 ─────────────────────────

@@ -98,6 +98,8 @@ export interface NpcDef {
   allDay?: boolean;
   work?: boolean;
   night?: boolean;
+  /** 幾點出門（今天的第幾刻）；不填就依名字錯開。白天、夜裡兩份要填一樣的 */
+  out?: number;
 }
 
 export interface ExitDef {

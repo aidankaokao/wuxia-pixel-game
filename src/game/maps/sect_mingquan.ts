@@ -100,7 +100,8 @@ export const mqSect: MapDef = {
 
   npcs: [
     { id: 'mqs_greeter', name: MQ.fang, sprite: 'disciple', x: 25, y: 40, facing: 'down', script: greeterTalk },
-    { id: 'mqs_lu', name: '陸鳴川', sprite: 'sect_senior', x: 22, y: 21, facing: 'down', person: 'lu' },
+    // 陸鳴川要帶晨課，寅時末（卯時之前）就到廣場
+    { id: 'mqs_lu', name: '陸鳴川', sprite: 'sect_senior', x: 22, y: 21, facing: 'down', person: 'lu', out: 19 },
     { id: 'mqs_xiaoman', name: '顧小滿', sprite: 'disciple_girl', x: 18, y: 26, facing: 'up', wander: 1, person: 'xiaoman' },
     {
       id: 'mqs_trainee1', name: MQ.bao, sprite: 'disciple', x: 25, y: 23, facing: 'left', wander: 1,
