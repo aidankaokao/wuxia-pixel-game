@@ -12,7 +12,7 @@ import {
   usedToday,
 } from '../home';
 import type { Line, PlotDef } from '../maps/types';
-import { inShichen, keUntilDawn, SHICHEN, SHICHEN_INDEX, timeText } from '../time';
+import { dateText, festivalOf, inShichen, keUntilDawn, SHICHEN, SHICHEN_INDEX, timeText } from '../time';
 import { useGame } from '../../state/store';
 
 /**
@@ -139,7 +139,7 @@ export async function sleep(ctx: EventCtx, lv: number, wake?: (Line | string)[])
     return null;
   });
   await ctx.say(
-    `你一覺睡到天亮。\n——第 ${day} 日　${timeText(time)}`,
+    `你一覺睡到天亮。\n——${dateText(day)}${festivalOf(day) ? `（${festivalOf(day)}）` : ''}　${timeText(time)}`,
     ...(wake ?? []),
     `（氣血、內力、體力完全恢復）${bonus ? `\n精神飽滿！接下來 ${bonus.battles} 場戰鬥，武功經驗 ×${bonus.mult}。` : ''}`,
   );

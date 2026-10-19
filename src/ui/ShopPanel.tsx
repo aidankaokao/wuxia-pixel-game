@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ITEMS, sellPrice } from '../game/character';
+import { holdable, ITEMS, sellPrice } from '../game/character';
 import { itemIconUrl } from '../game/art/items';
 import { discountOf, tradeAffinity } from '../game/story/social';
 import { useGame } from '../state/store';
@@ -39,12 +39,12 @@ export function ShopPanel() {
 
   /** 這筆交易最多能買／賣幾個 */
   const maxQty = (mode: Pending['mode'], id: string) =>
-    mode === 'buy' ? Math.floor(st.hero.silver / buyPrice(id)) : st.hero.items[id] ?? 0;
+    mode === 'buy' ? Math.min(Math.floor(st.hero.silver / buyPrice(id)), holdable(st.hero, id)) : st.hero.items[id] ?? 0;
   const unit = (p: Pending) => (p.mode === 'buy' ? buyPrice(p.id) : sellPrice(p.id));
 
   const choose = (mode: Pending['mode'], id: string, all = false) => {
     const max = maxQty(mode, id);
-    if (max < 1) return st.showToast('銀兩不夠。');
+    if (max < 1) return st.showToast(mode === 'buy' && holdable(st.hero, id) < 1 ? '行囊滿了，拿不下了。' : '銀兩不夠。');
     setPending({ mode, id, qty: all ? max : 1 });
   };
   const commit = (p: Pending) => {

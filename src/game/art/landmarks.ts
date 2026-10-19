@@ -161,6 +161,30 @@ function portrait(): PropArt {
   return done(c, ctx);
 }
 
+/** 馬車：木造車廂、兩個車輪、往前伸出的車轅（寬兩格） */
+function carriage(): PropArt {
+  const [c, ctx] = makeCanvas(32, 26);
+  // 車轅
+  px(ctx, 24, 15, 8, 2, '#6a4428');
+  // 車廂與車頂
+  px(ctx, 3, 4, 22, 13, '#8a5a32');
+  px(ctx, 2, 2, 24, 3, '#4a5a6a');
+  hline(ctx, 2, 25, 4, '#34404c');
+  px(ctx, 6, 7, 6, 5, '#e8d8b0');
+  px(ctx, 15, 7, 6, 5, '#e8d8b0');
+  vline(ctx, 9, 7, 11, '#8a5a32');
+  vline(ctx, 18, 7, 11, '#8a5a32');
+  hline(ctx, 3, 24, 16, '#5a3a20');
+  // 車輪
+  for (const x of [8, 20]) {
+    px(ctx, x - 4, 17, 9, 9, '#3a2a1a');
+    px(ctx, x - 3, 18, 7, 7, '#a07a48');
+    px(ctx, x - 1, 20, 3, 3, '#3a2a1a');
+  }
+  outline(ctx, 0, 0, 32, 26, OUTLINE);
+  return done(c, ctx);
+}
+
 /** 野生藥草：一叢葉子，頂上開著小花（後山採藥用） */
 function wildHerb(): PropArt {
   const [c, ctx] = makeCanvas(16, 14);
@@ -174,6 +198,7 @@ function wildHerb(): PropArt {
 export function landmarkProps(): Record<string, PropArt> {
   return {
     wild_herb: wildHerb(),
+    carriage: carriage(),
     pavilion: pavilion(),
     ding: ding(),
     sword_rock: swordRock(),

@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  ATTRS,
   attrName,
-  attrParts,
   AttrKey,
   breakthrough,
   derive,
@@ -30,15 +28,17 @@ import {
   tryBreakthrough,
   unequip,
   consumeItem,
+  bagCapacity,
+  bagUsed,
 } from '../game/character';
 import { itemIconUrl } from '../game/art/items';
 import { MOVES } from '../game/battle/moves';
 import { QUESTS } from '../game/story/quests';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
-import { fameTitle } from '../game/social';
 import { Settings, useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
+import { CharacterPage } from './CharacterPage';
 import { PeoplePage } from './PeoplePage';
 import { SectPage } from './SectPage';
 
@@ -62,7 +62,7 @@ export function GameMenu() {
   const setMenu = useGame((s) => s.setMenu);
   const [tab, setTab] = useState<Tab>('人物');
   const [inBody, setInBody] = useState(false);
-  const hasBody = tab === '武功' || tab === '系統' || tab === '行囊' || tab === '門派' || tab === '交遊';
+  const hasBody = tab === '人物' || tab === '武功' || tab === '系統' || tab === '行囊' || tab === '門派' || tab === '交遊';
   useEffect(() => {
     if (!open) setInBody(false);
   }, [open]);
@@ -90,7 +90,7 @@ export function GameMenu() {
           ))}
         </ul>
         <div className="menu-body">
-          {tab === '人物' && <CharacterPage />}
+          {tab === '人物' && <CharacterPage active={inBody} onExit={exit} />}
           {tab === '武功' && <SkillsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
           {tab === '行囊' && <ItemsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
           {tab === '門派' && <SectPage active={inBody} onExit={exit} />}
@@ -121,53 +121,6 @@ function RowList({ rows, cursor, onPick }: { rows: Row[]; cursor: number; onPick
 }
 
 const fmt = (n: number) => (Math.round(n * 10) / 10).toString();
-
-// ── 人物 ────────────────────────────────────────────────
-
-function CharacterPage() {
-  const hero = useGame((s) => s.hero);
-  const d = derive(hero);
-  const parts = attrParts(hero);
-  return (
-    <div>
-      <h2>
-        {hero.name}　<small>{fameTitle(hero.fame)}</small>
-      </h2>
-      <p className="muted small">本作沒有人物等級。五維 ＝ 天生底值 ＋ 武功帶來的永久成長 ＋ 裝備中武功的加成。</p>
-      <table className="attrs attr-table">
-        <thead>
-          <tr className="muted small">
-            <th />
-            <td>總計</td>
-            <td>底值</td>
-            <td>成長</td>
-            <td>裝備</td>
-            <td />
-          </tr>
-        </thead>
-        <tbody>
-          {ATTRS.map((a) => (
-            <tr key={a.key} title={a.desc}>
-              <th>{a.name}</th>
-              <td className="realm">{Math.floor(parts.total[a.key])}</td>
-              <td>{parts.base[a.key]}</td>
-              <td className="muted">+{fmt(parts.grow[a.key])}</td>
-              <td className={parts.equip[a.key] ? 'good' : 'muted'}>+{fmt(parts.equip[a.key])}</td>
-              <td className="muted small">{a.desc}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="derived">
-        <span>氣血 {hero.hp}/{d.maxHp}</span>
-        <span>內力 {hero.qi}/{d.maxQi}</span>
-        <span>體力 {hero.stamina}/{d.maxStamina}</span>
-        <span>武學點數 {hero.points}</span>
-        <span>名聲 {hero.fame}</span>
-      </div>
-    </div>
-  );
-}
 
 // ── 武功 ────────────────────────────────────────────────
 
@@ -587,7 +540,9 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
   return (
     <div className="bag-page">
       <h2>
-        行囊　<small>銀兩 {hero.silver}</small>
+        行囊　<small>
+          銀兩 {hero.silver}　已用 {bagUsed(hero)}/{bagCapacity(hero)} 格
+        </small>
       </h2>
       <p className="muted small">{hint}</p>
       <div className="bag-board">

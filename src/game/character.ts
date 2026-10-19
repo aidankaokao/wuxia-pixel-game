@@ -8,6 +8,7 @@
  */
 
 import type { ItemIcon } from './art/items';
+import type { CraftId, Progress } from './crafts';
 
 export type AttrKey = 'strength' | 'agility' | 'constitution' | 'energy' | 'insight';
 export type Attrs = Record<AttrKey, number>;
@@ -335,6 +336,12 @@ export interface Character {
   points: number;
   /** 物品 id → 數量 */
   items: Record<string, number>;
+  /** 擴充行囊的道具多給的格數（見 bagCapacity） */
+  bagExtra: number;
+  /** 生活技能（烹飪、學識、琴棋書畫…，見 crafts.ts） */
+  crafts?: Partial<Record<CraftId, Progress>>;
+  /** 生活技能底下各項目的熟練度（例如每道菜），key 是「技能:項目」 */
+  works?: Record<string, Progress>;
   /** 睡過好床後「精神飽滿」：接下來幾場戰鬥武功經驗加成 */
   rested?: { battles: number; mult: number };
   /** 目前值；上限由 derive() 算出 */
@@ -535,7 +542,50 @@ export function addFame(c: Character, n: number): string {
   return `名聲 +${n}。`;
 }
 
+// ── 行囊容量 ────────────────────────────────────────────
+
+/** 裝備欄（之後的「衣」階段開放；武器之後再設計） */
+export const GEAR_SLOTS = [
+  { id: 'hat', name: '帽子' },
+  { id: 'top', name: '上衣' },
+  { id: 'bottom', name: '褲子' },
+  { id: 'shoes', name: '鞋子' },
+  { id: 'leftHand', name: '左手飾品' },
+  { id: 'rightHand', name: '右手飾品' },
+  { id: 'neck', name: '頸部飾品' },
+  { id: 'weapon', name: '武器' },
+] as const;
+
+/** 行囊一開始有幾格；同一種東西一格最多疊幾個 */
+export const BAG_BASE = 36;
+export const STACK = 99;
+
+export const bagCapacity = (c: Character) => BAG_BASE + (c.bagExtra ?? 0);
+/** 目前用了幾格 */
+export const bagUsed = (c: Character) => Object.values(c.items).reduce((s, n) => s + (n > 0 ? Math.ceil(n / STACK) : 0), 0);
+
+/** 再放 n 個 id 進行囊放不放得下（任務必需品、秘笈不佔格限制，一定收得下，免得劇情卡住） */
+export function canHold(c: Character, id: string, n = 1): boolean {
+  if (ITEMS[id].bound || ITEMS[id].manual) return true;
+  const have = c.items[id] ?? 0;
+  const more = Math.ceil((have + n) / STACK) - Math.ceil(have / STACK);
+  return bagUsed(c) + more <= bagCapacity(c);
+}
+
+/** 這種東西最多還能放幾個 */
+export function holdable(c: Character, id: string): number {
+  if (ITEMS[id].bound || ITEMS[id].manual) return Infinity;
+  const have = c.items[id] ?? 0;
+  const roomInStack = Math.ceil(have / STACK) * STACK - have;
+  return roomInStack + Math.max(0, bagCapacity(c) - bagUsed(c)) * STACK;
+}
+
+/** 行囊滿了時的說法 */
+export const bagFullText = (id: string) => `你手上東西太多，拿不下「${ITEMS[id].name}」了。（行囊滿了，先賣掉或用掉一些吧）`;
+
+/** 放進行囊；放不下就不給，回傳說明 */
 export function giveItem(c: Character, id: string, n = 1): string {
+  if (!canHold(c, id, n)) return bagFullText(id);
   c.items[id] = (c.items[id] ?? 0) + n;
   return `獲得「${ITEMS[id].name}」${ITEMS[id].manual ? '' : `×${n}`}。`;
 }
@@ -575,6 +625,7 @@ export function newHero(opts: { surname?: string; given?: string; base?: Attrs }
     ],
     points: 0,
     items: {},
+    bagExtra: 0,
     hp: 0,
     qi: 0,
     stamina: 0,

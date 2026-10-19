@@ -2,7 +2,7 @@ import { Character, clampVitals, newHero, SKILLS, SLOT_LIMIT, slotOf } from './c
 import type { Dir } from './constants';
 import { MAPS } from './maps';
 import { newWorld, World } from './home';
-import { START_TIME, timeText } from './time';
+import { dateText, START_TIME, timeText } from './time';
 import { Flags, Settings, useGame } from '../state/store';
 
 /**
@@ -165,6 +165,9 @@ export function restoreHero(saved: Character): Character {
     extra: { ...fresh.extra, ...saved.extra },
     fame: saved.fame ?? 0,
     items: saved.items ?? {},
+    bagExtra: saved.bagExtra ?? 0,
+    crafts: saved.crafts ?? {},
+    works: saved.works ?? {},
   };
   c.name = c.surname + c.given;
   clampVitals(c);
@@ -174,5 +177,5 @@ export function restoreHero(saved: Character): Character {
 export function describeSave(d: SaveData): string {
   const t = new Date(d.savedAt);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.mapName}　第 ${d.world.day} 日 ${timeText(d.world.time ?? START_TIME)}　銀兩 ${d.hero.silver}　${t.getMonth() + 1}/${t.getDate()} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+  return `${d.mapName}　${dateText(d.world.day)} ${timeText(d.world.time ?? START_TIME)}　銀兩 ${d.hero.silver}　${t.getMonth() + 1}/${t.getDate()} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
 }

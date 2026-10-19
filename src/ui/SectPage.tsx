@@ -5,6 +5,7 @@ import { choreKey, leaveRuleText, nextStipendDay, promotionChecks, recruitText, 
 import { stageOf, STAGES } from '../game/social';
 import { PEOPLE } from '../game/story/people';
 import { MINGQUAN } from '../game/story/sect_mingquan';
+import { dateText } from '../game/time';
 import { useGame } from '../state/store';
 import { BrowseItem, Browser } from './Browser';
 
@@ -66,7 +67,7 @@ export function SectPage({ active, onExit }: { active: boolean; onExit: () => vo
               k="月例"
               v={`每 ${STIPEND_DAYS} 天 ${rank.stipend.silver} 兩${Object.entries(rank.stipend.items ?? {})
                 .map(([id, n]) => `、${ITEMS[id].name}×${n}`)
-                .join('')}（第 ${nextStipendDay(s)} 日起可領）`}
+                .join('')}（${dateText(nextStipendDay(s))}起可領）`}
             />
             <Row k="今日雜務" v={`${usedToday(world, choreKey(s.id))}/${def.choresPerDay} 件${chore ? `，手上：${chore.name}（${chore.where}）` : ''}`} />
           </dl>

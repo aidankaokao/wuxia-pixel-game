@@ -8,7 +8,7 @@ import { useGame } from '../../state/store';
 import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estate';
 import { heroUnit } from '../battle/moves';
 import { setupDrill } from '../battle/enemies';
-import { inShichen, keUntilDawn, shichenStart, SHICHEN_INDEX, timeText } from '../time';
+import { dateText, inShichen, keUntilDawn, shichenStart, SHICHEN_INDEX, timeText } from '../time';
 import type { PersonDef } from './people';
 
 /**
@@ -409,7 +409,7 @@ async function hanStory(ctx: EventCtx): Promise<boolean> {
   if (!examReady()) return false;
   const last = ctx.flag('mq_exam_day');
   if (last && day() < last + EXAM_RETRY) {
-    await ctx.say(...han(`上回的考核才過去沒幾天。第 ${last + EXAM_RETRY} 日再來。`));
+    await ctx.say(...han(`上回的考核才過去沒幾天。${dateText(last + EXAM_RETRY)}再來。`));
     return true;
   }
   const c = await ctx.ask(han('你入門也有些日子了，功績、劍法都夠了。要報考正式弟子嗎？')[0], ['弟子報考', '改天再說']);
@@ -533,7 +533,7 @@ async function masterStory(ctx: EventCtx, i: number): Promise<boolean> {
   if (doing === i + 1) return trialProgress(ctx, i);
   const last = ctx.flag('mq_mt_day');
   if (last && day() < last + EXAM_RETRY) {
-    await ctx.say(...say(`你上回的試煉才過去沒幾天。第 ${last + EXAM_RETRY} 日再來。`));
+    await ctx.say(...say(`你上回的試煉才過去沒幾天。${dateText(last + EXAM_RETRY)}再來。`));
     return true;
   }
   const aff = st().world.relations[m.id]?.aff ?? 0;
@@ -587,7 +587,7 @@ const TRIALS: ((ctx: EventCtx) => Promise<void>)[] = [
       ctx.pass(keUntilDawn(st().world.time));
       if (n < 3) await ctx.say(n === 1 ? '天亮了。你揉了揉發僵的腿，又坐回原處。' : '又一個天亮。你的手臂已經抬不太起來了。');
     }
-    await ctx.say('蒙面人退開幾步，扯下面巾——竟是嚴守拙。', ...yan('三夜都守住了，最後一夜還接得住我的掌。'), `——第 ${day()} 日　${timeText(st().world.time)}`);
+    await ctx.say('蒙面人退開幾步，扯下面巾——竟是嚴守拙。', ...yan('三夜都守住了，最後一夜還接得住我的掌。'), `——${dateText(day())}　${timeText(st().world.time)}`);
     await trialPass(ctx, 1);
   },
   // 蘇芷蘅：採三味藥（藥草在後山，見 herbAt）
@@ -725,7 +725,7 @@ export const dutyTalk: Script = async (ctx) => {
     );
   } else if (c === 1) {
     if (!ready) {
-      await ctx.say(...duty(`月例每 ${STIPEND_DAYS} 天領一次，第 ${nextStipendDay(s)} 日再來吧。`));
+      await ctx.say(...duty(`月例每 ${STIPEND_DAYS} 天領一次，${dateText(nextStipendDay(s))}再來吧。`));
       return;
     }
     const pay = MINGQUAN.ranks[s.rank].stipend;
@@ -1351,7 +1351,7 @@ export const masterQuest = {
       const left = HERBS.filter((h) => !(f.mq_herbs & h.bit)).map((h) => `${h.name}（${h.where}）`);
       return { text: left.length ? `蘇芷蘅的試煉：到後山採藥，還差${left.join('、')}。` : '三味藥都採齊了，回藥房找蘇芷蘅。', done: false };
     }
-    if (f.mq_mt_day) return { text: `拜師試煉沒過。第 ${f.mq_mt_day + EXAM_RETRY} 日起可以再去找長老。`, done: false };
+    if (f.mq_mt_day) return { text: `拜師試煉沒過。${dateText(f.mq_mt_day + EXAM_RETRY)}起可以再去找長老。`, done: false };
     if (f.mq_true_hint)
       return { text: '掌門說可以拜師了：韓靖秋（練功房，疊泉劍）、嚴守拙（後山，斷流掌）、蘇芷蘅（藥房，寒潭心經）。要先跟長老熟識，長老才肯收徒。', done: false };
     return null;
@@ -1364,7 +1364,7 @@ export const examQuest = {
   status(f: Record<string, number>): { text: string; done: boolean } | null {
     if (f.mq_exam === 2) return { text: '通過考核，成為鳴泉劍派的正式弟子。', done: true };
     if (f.mq_exam === 1) return { text: '通過了正式弟子考核。到大殿見掌門聞松年。', done: false };
-    if (f.mq_exam_day) return { text: `考核沒過。第 ${f.mq_exam_day + EXAM_RETRY} 日起可以再到練功房找傳功長老韓靖秋報考。`, done: false };
+    if (f.mq_exam_day) return { text: `考核沒過。${dateText(f.mq_exam_day + EXAM_RETRY)}起可以再到練功房找傳功長老韓靖秋報考。`, done: false };
     return null;
   },
 };
