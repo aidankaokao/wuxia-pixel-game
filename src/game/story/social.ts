@@ -234,7 +234,8 @@ const teach =
     updateRel(p.id, (r) => (r.teachDay = day));
     const id = ready[i].id;
     const name = skillDef(ready[i]).name;
-    await ctx.say(`${p.name}聽你說完，指點了幾處關竅……`);
+    ctx.pass(2);
+    await ctx.say(`${p.name}聽你說完，指點了幾處關竅……\n（請教了兩刻）`);
     await ctx.hero((h) => {
       const before = h.skills.find((s) => s.id === id)!.level;
       const learned = gainInsight(h, id, p.teach!.insight);

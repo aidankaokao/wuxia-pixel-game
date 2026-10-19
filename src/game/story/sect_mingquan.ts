@@ -1,11 +1,14 @@
-import { addFame, attrs, Character, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, restoreAll, skillCap, skillDef, SKILLS, slotOf } from '../character';
+import { addFame, attrs, Character, derive, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
 import { addContrib, choreKey, inSect, promote, promotionChecks, roster, SectMember, leaveRuleText, nextStipendDay, newSectState, rankName, registerSect, SectDef, STIPEND_DAYS } from '../sect';
 import { clampAff, newRelation, STAGE } from '../social';
 import { useGame } from '../../state/store';
-import { sleep, studyable, studyInsight, useDaily } from './estate';
+import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estate';
+import { heroUnit } from '../battle/moves';
+import { setupDrill } from '../battle/enemies';
+import { inShichen, keUntilDawn, shichenStart, SHICHEN_INDEX, timeText } from '../time';
 import type { PersonDef } from './people';
 
 /**
@@ -21,6 +24,13 @@ import type { PersonDef } from './people';
  *   mq_left       1 離開了鳴泉劍派（不能再回來拜師）
  *   mq_exam       正式弟子考核：1 考過了（等掌門升你為正式弟子） / 2 已升為正式弟子
  *   mq_exam_day   考核沒過是第幾天（隔三天才能再考）
+ *   mq_true_hint  1 掌門提過可以拜師了
+ *   mq_mt         真傳拜師試煉進行中：1 韓靖秋 / 2 嚴守拙 / 3 蘇芷蘅
+ *   mq_mt_day     拜師試煉沒過是第幾天（隔三天才能再考）
+ *   mq_herbs      蘇芷蘅的試煉採到的藥草（位元：1 泉心草、2 鐵骨藤、4 雲根芝）
+ *   mq_herb_boar  1 打跑了守著雲根芝的護藥山豬
+ *   mq_master     拜師試煉通過了誰：1 韓靖秋 / 2 嚴守拙 / 3 蘇芷蘅（等掌門升你為真傳弟子）
+ *   mq_true       1 已成為真傳弟子
  *   mq_c_path     下山委託「清理山道」：1 接下 / 2 打跑了野狗群 / 3 已覆命
  *   mq_c_med      下山委託「回春堂送藥」：1 接下（身上帶著藥包） / 2 送到了 / 3 已覆命
  */
@@ -35,8 +45,8 @@ const by =
 export const MQ_MEMBERS = {
   wen: { name: '聞松年', rank: '掌門', role: '鳴泉劍派第七代掌門', person: 'wen' },
   han: { name: '韓靖秋', rank: '長老', role: '傳功長老，在練功房指點弟子', person: 'han' },
-  yan: { name: '嚴守拙', rank: '長老', role: '執法長老', note: '坐鎮後山，看守思過崖' },
-  su: { name: '蘇芷蘅', rank: '長老', role: '藥堂長老', note: '下山行醫，不在山上' },
+  yan: { name: '嚴守拙', rank: '長老', role: '執法長老', note: '坐鎮後山，看守思過崖', person: 'yan' },
+  su: { name: '蘇芷蘅', rank: '長老', role: '藥堂長老', note: '常下山行醫', person: 'su' },
   lu: { name: '陸鳴川', rank: '真傳弟子', role: '大弟子，主持晨課與入門考驗', person: 'lu' },
   ye: { name: '葉疏桐', rank: '真傳弟子', role: '二弟子', note: '下山歷練，久未回山' },
   qi: { name: '齊振遠', rank: '正式弟子', role: '教習，在練功房教基本功' },
@@ -63,6 +73,8 @@ const lu = by('陸鳴川');
 const wen = by('聞松年');
 const xm = by('顧小滿');
 const han = by('韓靖秋');
+const yan = by('嚴守拙');
+const su = by('蘇芷蘅');
 const duty = by(MQ.ke);
 const keeper = by(MQ.song);
 
@@ -87,12 +99,12 @@ export const MINGQUAN: SectDef = {
       perks: ['練功房的鐵木人樁', '書房抄錄「踏石步」', '更多下山委託'],
       stipend: { silver: 12, items: { jinchuang: 2 } },
       leave: [{ kind: 'fine', silver: 500 }, { kind: 'trial', name: '泉音劍陣', encounter: 'mq_array' }],
-      promote: { days: 60, merit: 600, skills: [{ id: 'mingquan', level: 8 }, { id: 'chengquan', level: 5 }], test: '真傳拜師試煉' },
+      promote: { days: 60, merit: 600, skills: [{ id: 'mingquan', level: 8 }, { id: 'chengquan', level: 5 }], test: '真傳拜師試煉（條件齊了就去拜見掌門）' },
     },
     {
       name: '真傳弟子',
       dorm: '真傳弟子房（一人一間）',
-      perks: ['拜長老為師，學上乘武功', '借閱秘笈'],
+      perks: ['拜長老為師，學上乘武功', '每天向師父請教', '真傳弟子房的床鋪（精神飽滿更久）'],
       stipend: { silver: 25, items: { jinchuang: 3 } },
       leave: [{ kind: 'trial', name: '泉音劍陣', encounter: 'mq_array' }],
     },
@@ -116,7 +128,7 @@ export const MINGQUAN: SectDef = {
     { id: 'books', name: '整理書房', where: '書房的掌故書架' },
     { id: 'garden', name: '照顧菜圃', where: `菜圃旁找伙房的${MQ.bu}` },
   ],
-  choresPerDay: 2,
+  choresPerDay: 3,
   members: Object.values(MQ_MEMBERS),
 };
 registerSect(MINGQUAN);
@@ -243,17 +255,21 @@ async function luStory(ctx: EventCtx): Promise<boolean> {
     await swordTrial(ctx);
     return true;
   }
-  // 弟子：每天一次晨課
-  if (st().world.daily['mq:morning']?.day === day()) return false;
+  // 弟子：晨課在卯時到巳時之間，一天一回
+  if (!morningTime() || st().world.daily['mq:morning']?.day === day()) return false;
   const c = await ctx.ask({ speaker: '陸鳴川', text: '來得正好，今天的晨課要一起練嗎？' }, ['跟著練', '晚點再說']);
   if (c !== 0) return false;
   await morningDrill(ctx);
   return true;
 }
 
+/** 晨課的時間：卯時到巳時（早上 5 點到 11 點） */
+const morningTime = () => inShichen(st().world.time, SHICHEN_INDEX.卯, SHICHEN_INDEX.巳);
+
 async function morningDrill(ctx: EventCtx) {
   if (!(await useDaily(ctx, 'mq:morning', 1, '今天的晨課已經練過了。'))) return;
-  await ctx.say('你跟著陸鳴川和師兄弟們，在演武廣場上一招一式地練起鳴泉劍法。', '劍風與泉聲混在一起，迴盪在山間……');
+  ctx.pass(8);
+  await ctx.say('你跟著陸鳴川和師兄弟們，在演武廣場上一招一式地練起鳴泉劍法。', '劍風與泉聲混在一起，迴盪在山間……\n（晨課練了一個時辰）');
   await ctx.hero((h) => (h.skills.some((s) => s.id === 'mingquan') ? gainSkillText(h, 'mingquan', 30) : null));
   await contrib(ctx, 2);
 }
@@ -266,9 +282,28 @@ async function wenStory(ctx: EventCtx): Promise<boolean> {
     return true;
   }
   if (member()) {
-    if (ctx.flag('mq_exam') !== 1 || sect().rank !== 0) return false;
-    await promotionCeremony(ctx);
-    return true;
+    if (ctx.flag('mq_exam') === 1 && sect().rank === 0) {
+      await promotionCeremony(ctx);
+      return true;
+    }
+    if (sect().rank !== 1) return false;
+    if (ctx.flag('mq_master')) {
+      await trueCeremony(ctx);
+      return true;
+    }
+    if (trueReady() && !ctx.flag('mq_true_hint')) {
+      ctx.setFlag('mq_true_hint');
+      await ctx.say(
+        ...wen('你成了正式弟子以來，功績、武功都長進了不少。是時候拜師了。'),
+        ...wen(
+          `本門三位長老，各有一門上乘武功：靖秋的「疊泉劍」、守拙的「斷流掌」、芷蘅的「寒潭心經」。`,
+          `靖秋在練功房，守拙在後山思過崖前，芷蘅在藥房。想拜誰為師，就去找誰。`,
+          '只是長老收徒，看的不只是武功，也看緣分——跟長老不夠熟，他們未必肯收。每位長老的試煉也不一樣。',
+        ),
+      );
+      return true;
+    }
+    return false;
   }
   if (ctx.flag('mq_trial') !== 2) {
     await ctx.say(...wen('想入我鳴泉，先去演武廣場找鳴川，過了入門考驗再來。'));
@@ -365,6 +400,7 @@ async function examFail(ctx: EventCtx, why: string) {
 
 /** 韓靖秋的劇情部分：記名弟子條件齊了就能報考 */
 async function hanStory(ctx: EventCtx): Promise<boolean> {
+  if (member() && sect().rank === 1) return masterStory(ctx, 0);
   if (!member() || sect().rank !== 0) return false;
   if (ctx.flag('mq_exam') === 1) {
     await ctx.say(...han('考核過了，還愣在這裡做什麼？去大殿見掌門。'));
@@ -434,9 +470,184 @@ export const roomBed: Script = async (ctx) => {
     await ctx.say('正式弟子的床鋪，被褥比大通鋪的厚實多了。');
     return;
   }
-  const c = await ctx.ask('你在弟子房的床。要躺下休息嗎？', ['睡到天亮', '算了']);
-  if (c !== 0) return;
-  await sleep(ctx, 2);
+  await rest(ctx, 2, '你在弟子房的床。要躺下休息嗎？', wakeLines('room'));
+};
+
+// ── 真傳拜師試煉：三位長老各有試煉，通過一位就拜他為師 ─────────
+
+interface Master {
+  /** 人物 id */
+  id: string;
+  name: string;
+  skill: string;
+  /** 試煉的說明 */
+  trial: string;
+}
+
+const MASTERS: Master[] = [
+  { id: 'han', name: MQ.han, skill: 'diequan', trial: '到後山試劍石前，接我一套劍。勝了，「疊泉劍」就傳給你。' },
+  { id: 'yan', name: MQ.yan, skill: 'duanliu', trial: '在思過崖前守三夜，不許下崖、不許用藥。三夜都守住了，「斷流掌」就傳給你。' },
+  {
+    id: 'su',
+    name: MQ.su,
+    skill: 'hantan',
+    trial: '到後山採三味藥回來：鳴泉源頭的泉心草、劍塚旁的鐵骨藤、望江台崖邊的雲根芝。採齊了，我還要考你藥性。',
+  },
+];
+const MASTER_LINES = [han, yan, su];
+
+/** 真傳弟子的條件（試煉以外）是不是都齊了 */
+const trueReady = () => sect().rank === 1 && examReady();
+
+async function trialFail(ctx: EventCtx, i: number, why: string) {
+  ctx.setFlag('mq_mt', 0);
+  ctx.setFlag('mq_mt_day', day());
+  ctx.setFlag('mq_herbs', 0);
+  await ctx.say(...MASTER_LINES[i](why, `${EXAM_RETRY} 天後再來吧。`));
+}
+
+async function trialPass(ctx: EventCtx, i: number) {
+  ctx.setFlag('mq_mt', 0);
+  ctx.setFlag('mq_master', i + 1);
+  await ctx.say(...MASTER_LINES[i]('好。從今往後，你就是我的徒弟了。', '去大殿稟告掌門，由掌門升你為真傳弟子。'));
+  await ctx.hero((h) => addFame(h, 8));
+}
+
+/** 三位長老共用的劇情：條件齊了、熟悉度夠了就能接受拜師試煉 */
+async function masterStory(ctx: EventCtx, i: number): Promise<boolean> {
+  const m = MASTERS[i];
+  const say = MASTER_LINES[i];
+  if (!member() || sect().rank !== 1) return false;
+  const passed = ctx.flag('mq_master');
+  if (passed) {
+    if (passed !== i + 1) return false;
+    await ctx.say(...say('還不去大殿見掌門？'));
+    return true;
+  }
+  if (!trueReady()) return false;
+  const doing = ctx.flag('mq_mt');
+  if (doing && doing !== i + 1) {
+    await ctx.say(...say(`你正在接受${MASTERS[doing - 1].name}的試煉，先把那邊的事辦完。`));
+    return false;
+  }
+  if (doing === i + 1) return trialProgress(ctx, i);
+  const last = ctx.flag('mq_mt_day');
+  if (last && day() < last + EXAM_RETRY) {
+    await ctx.say(...say(`你上回的試煉才過去沒幾天。第 ${last + EXAM_RETRY} 日再來。`));
+    return true;
+  }
+  const aff = st().world.relations[m.id]?.aff ?? 0;
+  if (aff < 30) {
+    await ctx.say(...say('聽說你想拜師？你我還談不上熟，我不收不熟的徒弟。'), '（熟悉度要到「熟識」，長老才肯收你）');
+    return false;
+  }
+  const c = await ctx.ask(say(`想拜我為師？${m.trial}`)[0], ['接受試煉', '容我再想想']);
+  if (c !== 0) return true;
+  ctx.setFlag('mq_mt', i + 1);
+  await TRIALS[i](ctx);
+  return true;
+}
+
+/** 進行中的試煉（目前只有蘇芷蘅的採藥是分段的） */
+async function trialProgress(ctx: EventCtx, i: number): Promise<boolean> {
+  if (i !== 2) return false;
+  const got = ctx.flag('mq_herbs');
+  if (got !== 7) {
+    const left = HERBS.filter((h) => !(got & h.bit)).map((h) => `${h.name}（${h.where}）`);
+    await ctx.say(...su(`還差${left.join('、')}。`));
+    return true;
+  }
+  await ctx.say('你把三味藥一一攤在蘇芷蘅面前。', ...su('採得不錯，根鬚都完好。', '最後一問。'));
+  const c = await ctx.ask(su('寒潭心經最忌燥熱。用這三味藥配「寒潭散」，哪一味只能放一點，還要最後才下？')[0], HERBS.map((h) => h.name));
+  if (HERBS[c].id !== 'tiegu') {
+    await trialFail(ctx, i, `錯了。${HERBS[c].name}${HERBS[c].nature}，不是它。藥性不熟，這門心法練了會傷身。`);
+    return true;
+  }
+  await ctx.say(...su('不錯。鐵骨藤性溫，續筋接骨是好藥，可放多了，寒潭散就成了燥藥。'));
+  await trialPass(ctx, i);
+  return true;
+}
+
+const TRIALS: ((ctx: EventCtx) => Promise<void>)[] = [
+  // 韓靖秋：試劍石前接他一套劍
+  async (ctx) => {
+    await ctx.say('韓靖秋領著你上了後山，在試劍石前站定。', ...han('石上這些劍痕，是歷代真傳留下的。你若勝了，也能在上頭留一道。'));
+    if ((await ctx.battle('trial_han')) !== 'win') return trialFail(ctx, 0, '劍是快了，可還不夠穩。');
+    await ctx.say('韓靖秋收劍入鞘，看著試劍石上你剛留下的那道劍痕，點了點頭。');
+    await trialPass(ctx, 0);
+  },
+  // 嚴守拙：思過崖前守三夜
+  async (ctx) => {
+    await ctx.say(...yan('崖上夜裡不太平。守住了，才知道你的心定不定。'), '你在思過崖前盤膝坐下。天色漸漸暗了……');
+    // 從現在坐到子時，夜裡有東西摸上崖來；打完坐到天亮，白天也不許下崖，再等到下一個子時
+    const untilMidnight = () => (shichenStart(SHICHEN_INDEX.子) - st().world.time + 96) % 96 || 96;
+    for (const n of [1, 2, 3]) {
+      ctx.pass(untilMidnight());
+      if ((await ctx.battle(`trial_night${n}`)) !== 'win') return trialFail(ctx, 1, `第 ${n} 夜就撐不住了。心不定，掌就不穩。`);
+      ctx.pass(keUntilDawn(st().world.time));
+      if (n < 3) await ctx.say(n === 1 ? '天亮了。你揉了揉發僵的腿，又坐回原處。' : '又一個天亮。你的手臂已經抬不太起來了。');
+    }
+    await ctx.say('蒙面人退開幾步，扯下面巾——竟是嚴守拙。', ...yan('三夜都守住了，最後一夜還接得住我的掌。'), `——第 ${day()} 日　${timeText(st().world.time)}`);
+    await trialPass(ctx, 1);
+  },
+  // 蘇芷蘅：採三味藥（藥草在後山，見 herbAt）
+  async (ctx) => {
+    ctx.setFlag('mq_herbs', 0);
+    await ctx.say(...su('藥草要親手採，連根帶土，別弄斷了根鬚。採齊了再來找我。'), '（到後山採三味藥：鳴泉源頭的泉心草、劍塚旁的鐵骨藤、望江台崖邊的雲根芝）');
+  },
+];
+
+const HERBS = [
+  { id: 'quanxin', bit: 1, name: '泉心草', where: '鳴泉源頭', nature: '性寒，生在泉眼的石縫裡' },
+  { id: 'tiegu', bit: 2, name: '鐵骨藤', where: '劍塚旁', nature: '性溫，能續筋接骨' },
+  { id: 'yungen', bit: 4, name: '雲根芝', where: '望江台崖邊', nature: '性平，長在崖邊的雲氣裡' },
+];
+
+/** 後山的藥草：蘇芷蘅的試煉進行中、還沒採到時才出現 */
+export const herbVisible = (id: string) => (f: Record<string, number>) => f.mq_mt === 3 && !(f.mq_herbs & HERBS.find((h) => h.id === id)!.bit);
+
+export const herbAt =
+  (id: string): Script =>
+  async (ctx) => {
+    const h = HERBS.find((x) => x.id === id)!;
+    if (id === 'yungen' && !ctx.flag('mq_herb_boar')) {
+      if ((await ctx.battle('trial_boar')) !== 'win') return;
+      ctx.setFlag('mq_herb_boar');
+      await ctx.say('護藥山豬哼哼兩聲，鑽進林子裡去了。');
+    }
+    ctx.setFlag('mq_herbs', ctx.flag('mq_herbs') | h.bit);
+    ctx.refresh();
+    await ctx.say(`你小心地連根帶土，採下了一株${h.name}。\n（${h.name}${h.nature}）`);
+  };
+
+async function trueCeremony(ctx: EventCtx) {
+  const m = MASTERS[ctx.flag('mq_master') - 1];
+  await ctx.say(
+    ...wen(`${m.name}都跟我說了。好，好。`),
+    '大殿裡點起了香。你在祖師像前叩首，又轉身向師父行了拜師禮。',
+    ...wen(`從今日起，你是鳴泉劍派的真傳弟子，${m.name}的親傳徒弟。`),
+  );
+  st().updateWorld((w) => {
+    promote(w);
+    w.sect!.master = m.id;
+  });
+  ctx.setFlag('mq_master', 0);
+  ctx.setFlag('mq_true');
+  await ctx.hero((h) => [learnSkill(h, m.skill), giveItem(h, 'jinchuang', 3)]);
+  await ctx.say(
+    ...MASTER_LINES[MASTERS.indexOf(m)](`這門「${SKILLS[m.skill].name}」，往後每天來找我請教。`),
+    ...wen('疏桐下山多年，她的房間空著，你先搬進真傳弟子房・二吧。'),
+    '（成為真傳弟子：住處改為真傳弟子房・二，月例提高；離開師門只能闖「泉音劍陣」）',
+  );
+}
+
+/** 真傳弟子房・二的床 */
+export const cellBed: Script = async (ctx) => {
+  if (!member() || sect().rank < 2) {
+    await ctx.say('真傳弟子的床鋪，被褥是上好的棉布。');
+    return;
+  }
+  await rest(ctx, 3, '你在真傳弟子房的床。要躺下休息嗎？', wakeLines('cell'));
 };
 
 // ── 離開師門 ────────────────────────────────────────────
@@ -567,20 +778,15 @@ export const keeperTalk: Script = async (ctx) => {
   const ok = await st().askConfirm(`花 ${k.cost} 點門派貢獻抄錄「${def.name}」？`, '抄錄');
   if (!ok) return;
   st().updateWorld((w) => (w.sect!.contrib -= k.cost));
-  await ctx.say(`你在書案前坐下，一筆一劃地把「${def.name}」抄了下來。\n${def.desc}`);
+  ctx.pass(8);
+  await ctx.say(`你在書案前坐下，一筆一劃地把「${def.name}」抄了下來，花了一個時辰。\n${def.desc}`);
   await ctx.hero((h) => learnSkill(h, k.id));
 };
 
-/** 本派劍譜的書架：每天研讀一次 */
+/** 本派劍譜的書架：研讀一次兩刻、體力 10 */
 export const libShelf: Script = async (ctx) => {
   if (!member()) {
     await ctx.say('本派的劍譜與心法抄本，按入門先後排列。', ...keeper('這位朋友，書房只給本派弟子用。'));
-    return;
-  }
-  const tired = '今天在書房讀了好一陣子，腦袋有些發脹。';
-  // 今天練過了就直接說，不必先選武功
-  if (usedToday(st().world, 'mq:study')) {
-    await useDaily(ctx, 'mq:study', 1, tired);
     return;
   }
   const ready = studyable(st().hero);
@@ -590,7 +796,8 @@ export const libShelf: Script = async (ctx) => {
   }
   const i = await ctx.ask('要對照哪一門武功研讀？（本門武功收穫更多）', [...ready.map((s) => `${skillDef(s).name}（領悟 ${s.insight}%）`), '算了']);
   if (i >= ready.length) return;
-  if (!(await useDaily(ctx, 'mq:study', 1, tired))) return;
+  if (!(await exert(ctx, STAMINA.study, '在書房讀了好一陣子，腦袋有些發脹。'))) return;
+  ctx.pass(2);
   const id = ready[i].id;
   const amount = isSectSkill(id) ? 24 : 15;
   await ctx.say(`你從架上取下抄本，對照著「${skillDef(ready[i]).name}」的招式反覆推敲……`);
@@ -608,13 +815,8 @@ function gainSkillText(h: Character, id: string, amount: number): (string | null
   return [`「${name}」經驗 +${gained}。`, gainSkill(h, id, gained, false)];
 }
 
-/** 練樁：選一門裝備中、還沒練到上限的外功 */
-async function practice(ctx: EventCtx, key: string, amount: number, tired: string) {
-  // 今天練過了就直接說，不必先選武功
-  if (usedToday(st().world, key)) {
-    await useDaily(ctx, key, 1, tired);
-    return;
-  }
+/** 練樁：選一門裝備中、還沒練到上限的外功；一次兩刻 */
+async function practice(ctx: EventCtx, amount: number, stamina: number) {
   const list = st().hero.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'outer' && s.level < skillCap(s));
   if (!list.length) {
     await ctx.say('（要裝備著還沒練到上限的外功，才能在這裡練）');
@@ -622,9 +824,10 @@ async function practice(ctx: EventCtx, key: string, amount: number, tired: strin
   }
   const i = await ctx.ask('要練哪一門？（本門武功收穫更多）', [...list.map((s) => `${skillDef(s).name}（第 ${s.level} 重）`), '算了']);
   if (i >= list.length) return;
-  if (!(await useDaily(ctx, key, 1, tired))) return;
+  if (!(await exert(ctx, stamina, '手臂都快抬不起來了，虎口也震得發麻。'))) return;
+  ctx.pass(2);
   const id = list[i].id;
-  await ctx.say('「啪、啪、啪——」你對著木樁一招一式地練了起來。');
+  await ctx.say('「啪、啪、啪——」你對著木樁一招一式地練了起來。'); 
   await ctx.hero((h) => gainSkillText(h, id, isSectSkill(id) ? amount + 10 : amount));
 }
 
@@ -633,15 +836,40 @@ export const yardStake: Script = async (ctx) => {
     await ctx.say('木樁上滿是劍痕。\n（這是鳴泉弟子練功用的木樁，拜入門下之後才能用）');
     return;
   }
-  await practice(ctx, 'mq:stake', 30, '今天已經在木樁上練過了，虎口有些發麻。');
+  const c = await ctx.ask('廣場上的木樁林。', [`練樁（兩刻・體力 ${STAMINA.dummy}）`, `找同門過招（一刻・體力 ${STAMINA.spar}）`, '算了']);
+  if (c === 0) await practice(ctx, 30, STAMINA.dummy);
+  else if (c === 1) await drill(ctx);
 };
+
+/** 找同門過招：從名冊上挑一位同級或高一級的師兄弟，強弱跟你差不多 */
+async function drill(ctx: EventCtx) {
+  const myRank = sect().rank;
+  const rankOf = (r: string) => MINGQUAN.ranks.findIndex((x) => x.name === r);
+  const pool = Object.entries(MQ_MEMBERS).filter(([, m]) => {
+    const r = rankOf(m.rank);
+    return r >= 0 && r <= myRank + 1 && !('note' in m);
+  });
+  const [id, m] = pool[Math.floor(Math.random() * pool.length)];
+  if (!(await exert(ctx, STAMINA.spar, '已經累得喘不過氣，這時候過招只會挨打。'))) return;
+  const sprite = { gu: 'disciple_girl', miao: 'lady', lu: 'sect_senior', zheng: 'farmer' }[id] ?? 'disciple';
+  // 身分越高的同門會的招式越多
+  const moves = ['e_slash', 'quanyong', ...(rankOf(m.rank) >= 1 ? ['feipu'] : []), ...(rankOf(m.rank) >= 2 ? ['shiliu'] : [])];
+  const h = st().hero;
+  await ctx.say(`${m.name}正好在一旁練劍，看見你走過來，收了劍勢。`);
+  const o = await ctx.battle(setupDrill(heroUnit(h, derive(h)), { name: m.name, sprite }, moves));
+  if (o === 'win') await ctx.say({ speaker: m.name, text: '好功夫！改天再來討教。' });
+  else if (o === 'lose') await ctx.say({ speaker: m.name, text: '承讓了。你的劍再穩一點就好。' });
+  else await ctx.say(`你收劍認輸，${m.name}笑著點了點頭。`);
+  const person = 'person' in m ? m.person : undefined;
+  if (person) addAff(person, o === 'win' ? 2 : 1);
+}
 
 export const ironStake: Script = async (ctx) => {
   if (!member() || sect().rank < 1) {
     await ctx.say('包了鐵皮的木人樁，比廣場上的木樁沉得多。', { speaker: MQ.qi, text: '鐵木樁是給正式弟子練的，記名弟子先在廣場上把基本功練紮實。' });
     return;
   }
-  await practice(ctx, 'mq:iron', 55, '今天已經練過鐵木樁了，手臂都快抬不起來了。');
+  await practice(ctx, 55, 25);
 };
 
 export const cushion: Script = async (ctx) => {
@@ -650,19 +878,16 @@ export const cushion: Script = async (ctx) => {
     return;
   }
   const list = st().hero.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'inner' && s.level < skillCap(s));
-  const tired = '今天已經打坐過了，再坐下去腿都麻了。';
-  // 今天練過了就直接說，不必先選武功
-  if (usedToday(st().world, 'mq:cushion')) {
-    await useDaily(ctx, 'mq:cushion', 1, tired);
-    return;
-  }
-  const c = await ctx.ask('要在蒲團上打坐嗎？', ['盤膝打坐', '算了']);
+  const c = await ctx.ask(`要在蒲團上打坐嗎？（兩刻・體力 ${STAMINA.sit}）`, ['盤膝打坐', '算了']);
   if (c !== 0) return;
-  if (!(await useDaily(ctx, 'mq:cushion', 1, tired))) return;
+  if (!(await exert(ctx, STAMINA.sit, '坐得腿都麻了，心也靜不下來。'))) return;
+  ctx.pass(2);
   await ctx.say('你盤膝坐下，閉目調息。泉聲從窗外隱隱傳來，心思漸漸沉靜……');
   await ctx.hero((h) => {
-    restoreAll(h);
-    const out: (string | null)[] = ['（氣血、內力、體力完全恢復）'];
+    const d = derive(h);
+    h.qi = d.maxQi;
+    h.hp = Math.min(d.maxHp, h.hp + Math.round(d.maxHp * 0.2));
+    const out: (string | null)[] = ['（內力完全恢復，氣血也恢復了一些）'];
     for (const s of list) out.push(...gainSkillText(h, s.id, isSectSkill(s.id) ? 30 : 20));
     if (!list.length) out.push('（裝備著還沒練到上限的內功，打坐時才會精進）');
     return out;
@@ -681,10 +906,19 @@ export const dormBed: Script = async (ctx) => {
     await ctx.say('一張空床鋪，已經不是你的鋪位了。');
     return;
   }
-  const c = await ctx.ask(mine ? '你的鋪位。要躺下休息嗎？' : '大通鋪最裡頭的空鋪，借給上山應考的人住。要躺下休息嗎？', ['睡到天亮', '算了']);
-  if (c !== 0) return;
-  await sleep(ctx, 1);
+  await rest(ctx, 1, mine ? '你的鋪位。要躺下休息嗎？' : '大通鋪最裡頭的空鋪，借給上山應考的人住。要躺下休息嗎？', mine ? wakeLines('dorm') : undefined);
 };
+
+/** 在門派宿舍睡到天亮：卯時被同門叫醒去晨課（跟顧小滿熟了，她會跑來叫你） */
+function wakeLines(where: 'dorm' | 'room' | 'cell'): (Line | string)[] | undefined {
+  if (!member()) return undefined;
+  const name = st().hero.given;
+  if (where !== 'cell' && (st().world.relations.xiaoman?.aff ?? 0) >= 30)
+    return ['門外傳來砰砰的敲門聲。', { speaker: MQ.gu, text: `${name}師兄！再不起來，晨課就要遲到啦！` }];
+  if (where === 'dorm') return [`${MQ.tang}把你搖醒。`, { speaker: MQ.tang, text: '該起了，大師兄已經在廣場上等著晨課了。' }];
+  if (where === 'room') return [`${MQ.he}一邊打哈欠，一邊踢了踢你的床腳。`, { speaker: MQ.he, text: '起了起了，晨課別遲到。' }];
+  return ['隔壁傳來陸鳴川的聲音。', { speaker: MQ.lu, text: '師弟，晨課了。' }];
+}
 
 /** 知客弟子方硯清：迎客、指路 */
 export const greeterTalk: Script = async (ctx) => {
@@ -728,7 +962,9 @@ const CHORE_DONE: Record<string, { lines: (Line | string)[]; bonus?: [string, nu
 
 async function doChore(ctx: EventCtx, id: string) {
   const d = CHORE_DONE[id];
-  await ctx.say(...d.lines);
+  if (!(await exert(ctx, STAMINA.chore, '累得手腳發軟，這活兒今天是幹不動了。'))) return;
+  ctx.pass(8);
+  await ctx.say(...d.lines, '（做了一個時辰）');
   st().updateWorld((w) => {
     delete w.sect!.chore;
     for (const key of [choreKey(SECT), `${choreKey(SECT)}:${id}`]) w.daily[key] = { day: w.day, n: usedToday(w, key) + 1 };
@@ -760,11 +996,11 @@ async function choreBoard(ctx: EventCtx) {
   }
   const done = usedToday(st().world, choreKey(SECT));
   if (done >= per) {
-    await ctx.say(`今天已經做了 ${per} 件雜務，剩下的留給師兄弟吧。\n（明天再來。在床上睡一覺就是新的一天）`);
+    await ctx.say(`今天貼出來的 ${per} 件雜務都做完了。\n（明天再來。過了半夜就是新的一天）`);
     return;
   }
   const list = todaysChores(day()).filter((c) => !usedToday(st().world, `${choreKey(SECT)}:${c.id}`));
-  const i = await ctx.ask(`今天的雜務（已做 ${done}/${per} 件，每件門派貢獻 +${CHORE_REWARD}）`, [...list.map((c) => `${c.name}（${c.where}）`), '算了']);
+  const i = await ctx.ask(`今天的雜務（已做 ${done}/${per} 件，每件一個時辰、體力 ${STAMINA.chore}，門派貢獻 +${CHORE_REWARD}）`, [...list.map((c) => `${c.name}（${c.where}）`), '算了']);
   if (i >= list.length) return;
   st().updateWorld((w) => (w.sect!.chore = list[i].id));
   await ctx.say(`你揭下「${list[i].name}」的籤條。\n（地點：${list[i].where}）`);
@@ -887,19 +1123,13 @@ export const COMMISSION_QUESTS = COMMISSIONS.map(commissionQuest);
 
 // ── 繳納：把打獵、採藥得來的東西交給門裡 ─────────────────
 
-/** 每天每種東西收一次；交了回傳 true */
+/** 繳納：有東西就收，交了回傳 true */
 async function donate(ctx: EventCtx, who: string, item: string, n: number, reward: number, thanks: string): Promise<boolean> {
-  const key = `mq:give:${item}`;
   const have = st().hero.items[item] ?? 0;
-  if (usedToday(st().world, key)) {
-    await ctx.say(...by(who)('今天的已經收過了，明天再說吧。'));
-    return false;
-  }
   if (have < n) {
     await ctx.say(...by(who)(`要 ${n} 份「${ITEMS[item].name}」才收。你身上只有 ${have} 份。`));
     return false;
   }
-  st().updateWorld((w) => (w.daily[key] = { day: w.day, n: 1 }));
   await ctx.hero((h) => {
     h.items[item] -= n;
     if (!h.items[item]) delete h.items[item];
@@ -946,6 +1176,14 @@ export const sweeperTalk = choreAt('sweep', [
 ]);
 
 // ── 人物 ────────────────────────────────────────────────
+
+/** 長老怎麼稱呼你：拜了他為師就叫徒兒 */
+const elderAddress = (id: string) => (stage: number) => {
+  const w = st().world;
+  if (!inSect(w, SECT)) return '外人';
+  if (w.sect!.master === id) return '徒兒';
+  return stage >= STAGE.FAMILIAR ? '{名}' : '你';
+};
 
 /** 本門弟子怎麼稱呼你 */
 const fellow = (stage: number) => (inSect(st().world, SECT) ? (stage >= STAGE.CLOSE ? '{名}師弟' : '師弟') : '這位朋友');
@@ -1026,7 +1264,7 @@ const xiaomanP: PersonDef = {
 const hanP: PersonDef = {
   id: 'han',
   name: '韓靖秋',
-  address: (s) => (inSect(st().world, SECT) ? (s >= STAGE.FAMILIAR ? '{名}' : '你') : '外人'),
+  address: elderAddress('han'),
   story: hanStory,
   gate: {
     open: (f) => !!f.mq_join,
@@ -1036,15 +1274,77 @@ const hanP: PersonDef = {
   lines: {
     [STAGE.STRANGER]: [han('我是傳功長老韓靖秋。本門的武功，都經我的手傳下去。', '練不懂的地方，來問我。（熟一點之後，可以向他請教武學）')],
     [STAGE.NOD]: [han('劍招是死的，人是活的。招式練熟了，就要忘掉招式。'), han('「萬壑爭鳴」這一招，記名弟子能練出來的，這些年沒幾個。')],
-    [STAGE.FAMILIAR]: [han('{稱}，你的悟性不錯。好好練，將來真傳的位子，有你一個。')],
+    [STAGE.FAMILIAR]: [
+      { when: (f) => !f.mq_true, lines: han('{稱}，你的悟性不錯。好好練，將來真傳的位子，有你一個。') },
+      { when: (f) => !!f.mq_true, lines: han('{稱}，成了真傳也別鬆懈。劍法這條路，越往上越窄。') },
+    ],
   },
   idle: [],
   teach: { stage: STAGE.NOD, insight: 20 },
 };
 
-export const SECT_PEOPLE: PersonDef[] = [wenP, luP, xiaomanP, hanP];
+const yanP: PersonDef = {
+  id: 'yan',
+  name: MQ.yan,
+  address: elderAddress('yan'),
+  story: (ctx) => masterStory(ctx, 1),
+  gate: {
+    open: (f) => !!f.mq_join,
+    refuse: [{ text: '一位黑鬚長者盤坐在思過崖前，目光冷冷地掃過你，一言不發。' }, { text: '（他只理會本門弟子）' }],
+  },
+  talk: { gain: 2, perDay: 1, after: 'busy' },
+  lines: {
+    [STAGE.STRANGER]: [yan('我是執法長老嚴守拙。門規是我在管。', '思過崖就在我身後。沒事別往這兒跑。')],
+    [STAGE.NOD]: [yan('{稱}，最近沒犯規矩吧？'), yan('練掌先練站。站不穩，掌就是空的。')],
+    [STAGE.FAMILIAR]: [yan('{稱}，你比剛入門的時候穩重多了。', '我這一門斷流掌，傳得慢，因為肯在崖上熬的人少。')],
+    [STAGE.CLOSE]: [yan('{稱}，掌門年輕的時候，也在這崖前守過三夜。這事他沒跟人說過吧？')],
+  },
+  idle: [],
+  gift: { likes: { tea: 3, yunwu: 6 }, dislikes: { stew: 2 } },
+  teach: { stage: STAGE.NOD, insight: 20 },
+};
+
+const suP: PersonDef = {
+  id: 'su',
+  name: MQ.su,
+  address: elderAddress('su'),
+  story: (ctx) => masterStory(ctx, 2),
+  gate: {
+    open: (f) => !!f.mq_join,
+    refuse: [{ text: '一位青衣女子低頭配藥，頭也沒抬：「不是本門弟子，看病請下山去回春堂。」' }],
+  },
+  talk: { gain: 3, perDay: 1, after: 'chat' },
+  lines: {
+    [STAGE.STRANGER]: [su('我是藥堂的蘇芷蘅。青苗是我姪女，平常藥房都是她在照看。', '我常下山行醫，這回總算能在山上待一陣子了。')],
+    [STAGE.NOD]: [su('{稱}，練功受了傷別硬撐，來藥房讓我看看。'), su('止血草要是有多的，拿來給青苗，她正缺。')],
+    [STAGE.FAMILIAR]: [su('{稱}，你的內息比以前綿長了。', '寒潭心經講究的是「靜」——心靜，氣才沉得下去。')],
+    [STAGE.CLOSE]: [su('{稱}，疏桐下山前來找過我，要了幾帖藥……她說要去找一個人。')],
+  },
+  idle: [su('這幾味藥要曬足三天，急不得。'), su('臨江城這陣子跌打損傷的人特別多，不知道是不是漕幫又鬧事了。')],
+  gift: { likes: { herb: 3, yunwu: 5 }, dislikes: { dog_pelt: 2 } },
+  teach: { stage: STAGE.NOD, insight: 20 },
+};
+
+export const SECT_PEOPLE: PersonDef[] = [wenP, luP, xiaomanP, hanP, yanP, suP];
 
 // ── 任務日誌 ────────────────────────────────────────────
+
+export const masterQuest = {
+  id: 'mq_master',
+  title: '鳴泉・真傳拜師',
+  status(f: Record<string, number>): { text: string; done: boolean } | null {
+    if (f.mq_true) return { text: '通過拜師試煉，成為鳴泉劍派的真傳弟子。', done: true };
+    if (f.mq_master) return { text: `通過了${MASTERS[f.mq_master - 1].name}的試煉。到大殿見掌門聞松年。`, done: false };
+    if (f.mq_mt === 3) {
+      const left = HERBS.filter((h) => !(f.mq_herbs & h.bit)).map((h) => `${h.name}（${h.where}）`);
+      return { text: left.length ? `蘇芷蘅的試煉：到後山採藥，還差${left.join('、')}。` : '三味藥都採齊了，回藥房找蘇芷蘅。', done: false };
+    }
+    if (f.mq_mt_day) return { text: `拜師試煉沒過。第 ${f.mq_mt_day + EXAM_RETRY} 日起可以再去找長老。`, done: false };
+    if (f.mq_true_hint)
+      return { text: '掌門說可以拜師了：韓靖秋（練功房，疊泉劍）、嚴守拙（後山，斷流掌）、蘇芷蘅（藥房，寒潭心經）。要先跟長老熟識，長老才肯收徒。', done: false };
+    return null;
+  },
+};
 
 export const examQuest = {
   id: 'mq_exam',

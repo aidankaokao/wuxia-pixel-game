@@ -2,6 +2,7 @@ import { Character, clampVitals, newHero, SKILLS, SLOT_LIMIT, slotOf } from './c
 import type { Dir } from './constants';
 import { MAPS } from './maps';
 import { newWorld, World } from './home';
+import { START_TIME, timeText } from './time';
 import { Flags, Settings, useGame } from '../state/store';
 
 /**
@@ -151,6 +152,9 @@ function migrate(d: any): SaveData | null {
   return d?.version === VERSION ? (d as SaveData) : null;
 }
 
+/** 讀檔時補上世界狀態新加的欄位（例如時辰、天氣） */
+export const restoreWorld = (w: World): World => ({ ...newWorld(), ...structuredClone(w) });
+
 /** 讀檔時補上新版本才有的欄位，避免舊存檔少了東西 */
 export function restoreHero(saved: Character): Character {
   const fresh = newHero();
@@ -170,5 +174,5 @@ export function restoreHero(saved: Character): Character {
 export function describeSave(d: SaveData): string {
   const t = new Date(d.savedAt);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.mapName}　第 ${d.world.day} 日　銀兩 ${d.hero.silver}　${t.getMonth() + 1}/${t.getDate()} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+  return `${d.mapName}　第 ${d.world.day} 日 ${timeText(d.world.time ?? START_TIME)}　銀兩 ${d.hero.silver}　${t.getMonth() + 1}/${t.getDate()} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
 }

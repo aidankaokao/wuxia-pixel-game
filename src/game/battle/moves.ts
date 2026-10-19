@@ -77,6 +77,62 @@ export const MOVES: Record<string, Move> = {
     qi: 10, power: 0, kind: 'buff', target: 'self', skillId: 'tashi', fx: 'wind',
     self: [{ kind: 'evade', value: 0.15, turns: 2 }, { kind: 'counter', value: 1.1, turns: 2 }],
   },
+  // 疊泉劍
+  sandie: {
+    id: 'sandie', name: '三疊初鳴', desc: '一劍分三疊，如泉水層層落下，連刺三下。',
+    qi: 16, power: 0.8, hits: 3, kind: 'outer', target: 'enemy', skillId: 'diequan', fx: 'slash',
+  },
+  hanzhao: {
+    id: 'hanzhao', name: '寒泉照影', desc: '劍光如寒泉映影，直取破綻，有機會使對手露出破綻（防禦 −35%，持續 2 次出手）。',
+    qi: 20, power: 2.6, kind: 'outer', target: 'enemy', skillId: 'diequan', fx: 'slash', foe: [{ kind: 'armorBreak', value: 0.35, turns: 2, chance: 0.6 }],
+  },
+  qianchi: {
+    id: 'qianchi', name: '泉落千尺', desc: '縱身而起，一劍如飛泉直落千尺。威力極大的單體劍招。',
+    qi: 28, power: 3.2, kind: 'outer', target: 'enemy', skillId: 'diequan', fx: 'heavy',
+  },
+  jiudie: {
+    id: 'jiudie', name: '九疊回瀾', desc: '劍勢層層迴旋，籠罩所有敵人，收劍時劍幕護身（受傷 −25%，持續 2 次出手）。',
+    qi: 30, power: 1.3, kind: 'outer', target: 'allEnemies', skillId: 'diequan', fx: 'leaves', self: [{ kind: 'block', value: 0.25, turns: 2 }],
+  },
+  guiyi: {
+    id: 'guiyi', name: '疊泉歸一', desc: '百疊泉聲匯成一線，五劍連環，一劍快過一劍。',
+    qi: 40, power: 0.75, hits: 5, kind: 'outer', target: 'enemy', skillId: 'diequan', fx: 'wind',
+  },
+  // 斷流掌
+  jieliu: {
+    id: 'jieliu', name: '截流一掌', desc: '一掌如巨石截斷水流，有機會震懾對手（無法出手 1 次）。',
+    qi: 14, power: 2.0, kind: 'outer', target: 'enemy', skillId: 'duanliu', fx: 'punch', foe: [{ kind: 'stun', value: 1, turns: 1, chance: 0.2 }],
+  },
+  panshi: {
+    id: 'panshi', name: '磐石不移', desc: '沉肩墜肘，穩如磐石。出掌之後格擋大增並伺機反擊（受傷 −40%、反擊，持續 2 次出手）。',
+    qi: 12, power: 1.0, kind: 'outer', target: 'enemy', skillId: 'duanliu', fx: 'punch',
+    self: [{ kind: 'block', value: 0.4, turns: 2 }, { kind: 'counter', value: 1, turns: 2 }],
+  },
+  duanshui: {
+    id: 'duanshui', name: '斷水無痕', desc: '掌力如抽刀斷水，傷在內裡，有機會使對手力竭（攻擊 −25%，持續 2 次出手）。',
+    qi: 22, power: 2.8, kind: 'outer', target: 'enemy', skillId: 'duanliu', fx: 'heavy', foe: [{ kind: 'weaken', value: 0.25, turns: 2, chance: 0.6 }],
+  },
+  qianjun: {
+    id: 'qianjun', name: '千鈞壓頂', desc: '雙掌齊出，勢如千鈞壓頂。威力極大，有機會震懾對手。',
+    qi: 32, power: 3.6, kind: 'outer', target: 'enemy', skillId: 'duanliu', fx: 'heavy', foe: [{ kind: 'stun', value: 1, turns: 1, chance: 0.35 }],
+  },
+  // 寒潭心經
+  ningxi: {
+    id: 'ningxi', name: '寒潭凝息', desc: '內息沉入寒潭，回復內力與些許氣血。', qi: 0, power: 1, kind: 'restore', target: 'self', skillId: 'hantan', fx: 'qi',
+  },
+  hanqi: {
+    id: 'hanqi', name: '寒氣侵骨', desc: '以內力逼出一股寒氣，內功招式，有機會使對手遲緩（速度 −30%，持續 2 次出手）。',
+    qi: 16, power: 2.0, kind: 'inner', target: 'enemy', skillId: 'hantan', fx: 'qi', foe: [{ kind: 'slow', value: 0.3, turns: 2, chance: 0.6 }],
+  },
+  yingxue: {
+    id: 'yingxue', name: '潭心映雪', desc: '心如寒潭映雪，澄明不動。格擋與勁力同時提升（受傷 −30%、攻擊 +25%，持續 2 次出手）。',
+    qi: 14, power: 0, kind: 'buff', target: 'self', skillId: 'hantan', fx: 'qi',
+    self: [{ kind: 'block', value: 0.3, turns: 2 }, { kind: 'power', value: 0.25, turns: 2 }],
+  },
+  binquan: {
+    id: 'binquan', name: '冰泉貫脈', desc: '寒氣如冰泉灌入經脈，籠罩所有敵人，內功招式，有機會使對手遲緩。',
+    qi: 30, power: 1.5, kind: 'inner', target: 'allEnemies', skillId: 'hantan', fx: 'qi', foe: [{ kind: 'slow', value: 0.25, turns: 2, chance: 0.5 }],
+  },
   // 敵人的招式
   e_slash: { id: 'e_slash', name: '劈砍', desc: '', qi: 0, power: 1, kind: 'outer', target: 'enemy', fx: 'slash' },
   e_rush: { id: 'e_rush', name: '猛撲', desc: '', qi: 0, power: 1.3, kind: 'outer', target: 'enemy', fx: 'punch' },

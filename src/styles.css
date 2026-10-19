@@ -142,6 +142,11 @@ kbd {
   color: var(--muted);
 }
 
+.status-foot.status-time {
+  margin-top: 2px;
+  color: var(--paper);
+}
+
 .silver {
   color: #e8d27a;
 }

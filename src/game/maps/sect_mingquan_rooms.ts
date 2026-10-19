@@ -1,4 +1,4 @@
-import { armoryTalk, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, cellBed, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
 import type { MapDef, PropDef } from './types';
 
@@ -36,8 +36,8 @@ export const mqHall: MapDef = {
     { sprite: 'sect_flag', x: 13, y: 1, lines: [{ text: '殿內的門派旗幟。' }] },
   ],
   npcs: [
-    { id: 'mqh_wen', name: '聞松年', sprite: 'sect_master', x: 7, y: 4, facing: 'down', person: 'wen' },
-    { id: 'mqh_duty', name: MQ.ke, sprite: 'disciple', x: 10, y: 2, facing: 'down', script: dutyTalk },
+    { id: 'mqh_wen', work: true, name: '聞松年', sprite: 'sect_master', x: 7, y: 4, facing: 'down', person: 'wen' },
+    { id: 'mqh_duty', work: true, name: MQ.ke, sprite: 'disciple', x: 10, y: 2, facing: 'down', script: dutyTalk },
   ],
   exits: [back(23, 10, 7, 9)],
 };
@@ -60,6 +60,12 @@ export const mqDorm: MapDef = {
     { sprite: 'vat', x: 13, y: 3, lines: [{ text: '一缸清水，弟子們早上在這裡洗臉。' }] },
   ],
   npcs: [
+    // 天黑後回來睡覺的記名弟子
+    { id: 'mqd_zheng', name: MQ.zheng, sprite: 'farmer', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.zheng)('呼……呼……（鄭大壯已經睡得打呼了）')] },
+    { id: 'mqd_bao', name: MQ.bao, sprite: 'disciple', x: 5, y: 2, facing: 'down', night: true, talks: [by(MQ.bao)('明天晨課一定不睡過頭……一定……')] },
+    { id: 'mqd_tang', name: MQ.tang, sprite: 'disciple', x: 8, y: 2, facing: 'down', night: true, talks: [by(MQ.tang)('噓，小川睡了。他說夢話會背劍訣，挺好笑的。')] },
+    { id: 'mqd_cao', name: MQ.cao, sprite: 'disciple', x: 11, y: 2, facing: 'down', night: true, talks: [by(MQ.cao)('掃了一整天的地，腰都直不起來了……')] },
+    { id: 'mqd_qiao', name: MQ.qiao, sprite: 'disciple', x: 3, y: 5, facing: 'up', night: true, talks: [by(MQ.qiao)('站了一天山門，腿都是腫的。')] },
     {
       id: 'mqd_outer', name: MQ.hou, sprite: 'farmer', x: 6, y: 3, wander: 2,
       talks: [
@@ -93,10 +99,16 @@ export const mqRoomA = innerRoom('mq_room_a', '弟子房・甲', [4, 21], '桌�
   { lines: [{ text: `${MQ.he}的床鋪，被子胡亂捲成一團。聽說他打呼比雷還響。` }] },
   { lines: undefined, script: roomBed, label: '睡覺' },
 ]);
-export const mqRoomB = innerRoom('mq_room_b', '弟子房・乙', [9, 21], '桌上攤著一封家書，寫到一半。');
+export const mqRoomB = innerRoom('mq_room_b', '弟子房・乙', [9, 21], '桌上攤著一封家書，字跡歪歪扭扭：「爹，女兒在山上很好……」寫到一半。');
+// 夜裡回房的人：何守一住甲房；乙房住著蘇青苗，記名女弟子少，顧小滿暫住這裡
+mqRoomA.npcs.push({ id: 'mqra_he', name: MQ.he, sprite: 'disciple', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.he)('守了一天山門，總算能躺一下了。', '先說好，我打呼你別嫌吵。')] });
+mqRoomB.npcs.push(
+  { id: 'mqrb_miao', name: MQ.miao, sprite: 'lady', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.miao)('這麼晚了還沒睡？明天還要早起呢。')] },
+  { id: 'mqrb_gu', name: MQ.gu, sprite: 'disciple_girl', x: 7, y: 2, facing: 'down', night: true, person: 'xiaoman' },
+);
 
 /** 真傳弟子房：一人一間 */
-const cell = (id: string, name: string, door: [number, number], desk: string): MapDef => ({
+const cell = (id: string, name: string, door: [number, number], desk: string, mine = false): MapDef => ({
   id,
   name,
   subtitle: '鳴泉劍派・弟子居所',
@@ -105,7 +117,7 @@ const cell = (id: string, name: string, door: [number, number], desk: string): M
   theme: 'scholar',
   buildings: [],
   props: [
-    bed(1, 1, 'scholar', 3, '真傳弟子的床鋪，被褥是上好的棉布。'),
+    mine ? { ...bed(1, 1, 'scholar', 3), lines: undefined, script: cellBed, label: '睡覺' } : bed(1, 1, 'scholar', 3, '真傳弟子的床鋪，被褥是上好的棉布。'),
     { sprite: 'f_table_scholar_1', x: 4, y: 2, w: 2, lines: [{ text: desk }] },
     { sprite: 'f_deco_scholar_1', x: 4, y: 0, lines: [{ text: '牆上掛著師父親筆寫的字：「勤」。' }] },
   ],
@@ -113,7 +125,9 @@ const cell = (id: string, name: string, door: [number, number], desk: string): M
   exits: [back(door[0], door[1], 3, 5)],
 });
 export const mqCell1 = cell('mq_cell_1', '真傳弟子房・一', [3, 26], '陸鳴川的書案。案上擺著筆墨與一卷劍譜，譜上的字跡工整，邊角寫滿了晨課要教的重點。');
-export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。');
+// 陸鳴川夜裡回到自己的房間
+mqCell1.npcs.push({ id: 'mqc_lu', name: MQ.lu, sprite: 'sect_senior', x: 1, y: 2, facing: 'down', night: true, person: 'lu' });
+export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。', true);
 
 // ── 練功、書房、武器、藥房、廚房 ─────────────────────────
 
@@ -137,13 +151,13 @@ export const mqTrain: MapDef = {
   ],
   npcs: [
     {
-      id: 'mqt_coach', name: MQ.qi, sprite: 'disciple', x: 7, y: 4, facing: 'down',
+      id: 'mqt_coach', work: true, name: MQ.qi, sprite: 'disciple', x: 7, y: 4, facing: 'down',
       talks: [
         by(MQ.qi)('我是齊振遠，負責教記名弟子的基本功。', '劍法再精妙，馬步不穩、手腕不活，一樣是花架子。'),
         by(MQ.qi)('練功房裡的木人樁是包了鐵皮的，給正式弟子練。記名弟子可以用蒲團打坐。'),
       ],
     },
-    { id: 'mqt_han', name: '韓靖秋', sprite: 'sect_elder', x: 10, y: 4, facing: 'left', person: 'han' },
+    { id: 'mqt_han', work: true, name: '韓靖秋', sprite: 'sect_elder', x: 10, y: 4, facing: 'left', person: 'han' },
   ],
   exits: [back(40, 14, 6, 9)],
 };
@@ -164,7 +178,7 @@ export const mqLib: MapDef = {
     { sprite: 'f_deco_plain_1', x: 9, y: 5, lines: [{ text: '一盆文竹。' }] },
   ],
   npcs: [
-    { id: 'mql_keeper', name: MQ.song, sprite: 'scholar', x: 8, y: 4, facing: 'left', script: keeperTalk },
+    { id: 'mql_keeper', work: true, name: MQ.song, sprite: 'scholar', x: 8, y: 4, facing: 'left', script: keeperTalk },
   ],
   exits: [back(38, 20, 5, 7)],
 };
@@ -184,7 +198,7 @@ export const mqArmory: MapDef = {
     { sprite: 'anvil', x: 1, y: 3, lines: [{ text: '磨劍、修劍用的鐵砧。' }] },
     { sprite: 'chest', x: 7, y: 3, lines: [{ text: '上了鎖的木箱，裡頭似乎是貴重的兵器。' }] },
   ],
-  npcs: [{ id: 'mqa_keeper', name: MQ.meng, sprite: 'disciple', x: 4, y: 3, facing: 'down', script: armoryTalk }],
+  npcs: [{ id: 'mqa_keeper', work: true, name: MQ.meng, sprite: 'disciple', x: 4, y: 3, facing: 'down', script: armoryTalk }],
   exits: [back(44, 20, 4, 6)],
 };
 
@@ -204,7 +218,9 @@ export const mqMed: MapDef = {
     { sprite: 'drying_rack', x: 8, y: 4, w: 2, script: choreAt('herbs', [{ text: '架上晾著剛採回來的草藥。' }]) },
   ],
   npcs: [
-    { id: 'mqm_herbalist', name: MQ.miao, sprite: 'lady', x: 6, y: 3, facing: 'down', wander: 1, script: herbalistTalk },
+    // 蘇長老在正式弟子考核之後回山
+    { id: 'mqm_su', work: true, name: MQ.su, sprite: 'sect_healer', x: 3, y: 3, facing: 'down', person: 'su', when: (f) => f.mq_exam === 2 },
+    { id: 'mqm_herbalist', work: true, name: MQ.miao, sprite: 'lady', x: 6, y: 3, facing: 'down', wander: 1, script: herbalistTalk },
   ],
   exits: [back(38, 27, 5, 7)],
 };

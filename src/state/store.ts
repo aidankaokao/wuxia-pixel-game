@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Character, newHero } from '../game/character';
 import { newWorld, World } from '../game/home';
+import { advance } from '../game/time';
 import type { Line } from '../game/maps/types';
 import type { BattleCommand, BattleView } from '../game/battle/types';
 
@@ -95,6 +96,8 @@ interface GameState {
   updateHero: <T>(fn: (c: Character) => T) => T;
   /** 修改世界狀態：同上 */
   updateWorld: <T>(fn: (w: World) => T) => T;
+  /** 讓時間往前走幾刻（見 time.ts）；回傳換了幾天 */
+  passTime: (ke: number) => number;
   /** 打開面板，關閉後 resolve */
   openPanel: (p: Panel) => Promise<void>;
   closePanel: () => void;
@@ -173,6 +176,8 @@ export const useGame = create<GameState>((set, get) => ({
     set({ world: copy });
     return result;
   },
+
+  passTime: (ke) => get().updateWorld((w) => advance(w, ke)),
 
   openPanel: (p) =>
     new Promise((resolve) => {

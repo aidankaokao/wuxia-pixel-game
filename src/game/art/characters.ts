@@ -87,6 +87,21 @@ export const CHARACTERS: Record<string, CharStyle> = {
     skin: '#eac29a', hair: '#141210', robe: '#e8eef2', robeDark: '#b0bcc8', inner: '#ffffff', sash: '#24483c',
     pants: '#3a4a5a', shoe: '#181c20', hairStyle: 'topknot', band: '#24483c', sword: true,
   },
+  // 執法長老嚴守拙：黑鬚、深灰道袍、黑腰帶，神情嚴肅
+  sect_judge: {
+    skin: '#e2b48a', hair: '#3a3632', robe: '#4a4a52', robeDark: '#32323a', inner: '#d8d8d8', sash: '#1a1a1e',
+    pants: '#2a2a30', shoe: '#141418', hairStyle: 'topknot', band: '#1a1a1e', beard: '#2a2622', sword: true,
+  },
+  // 藥堂長老蘇芷蘅：髮髻、淡青長衣、藥囊色腰帶
+  sect_healer: {
+    skin: SKIN, hair: '#4a4440', robe: '#8ab0a0', robeDark: '#6a9080', inner: '#f4f0e6', sash: '#a8804a',
+    pants: '#5a7a6a', shoe: '#2a2a22', hairStyle: 'bun', band: '#a8804a',
+  },
+  // 蒙面人：黑衣黑巾
+  masked: {
+    skin: '#d9a77c', hair: '#141414', robe: '#202024', robeDark: '#141418', inner: '#303034', sash: '#3a3a40',
+    pants: '#18181c', shoe: '#0e0e10', hairStyle: 'bald', band: '#202024',
+  },
   // 鳴泉女弟子（顧小滿）：雙髻、月白道袍、青色髮帶
   disciple_girl: {
     skin: SKIN, hair: '#1a1614', robe: '#d8e0e8', robeDark: '#a8b4c0', inner: '#f4f6f8', sash: '#3e6656',

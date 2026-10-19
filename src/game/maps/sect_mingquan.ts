@@ -1,4 +1,4 @@
-import { cookTalk, greeterTalk, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
+import { cookTalk, greeterTalk, herbAt, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -186,11 +186,16 @@ export const mqBack: MapDef = {
     { sprite: 'sword_grave', x: 5, y: 16, lines: [{ text: '墓前的石碑字跡模糊，只認得出一個「沈」字。' }] },
     { sprite: 'sword_grave', x: 7, y: 16, lines: [{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }] },
     { sprite: 'sword_grave', x: 9, y: 16, lines: [{ text: '一把斷劍，只剩半截劍身。' }] },
+    // 蘇芷蘅的拜師試煉：要採的三味藥
+    { sprite: 'wild_herb', x: 21, y: 12, script: herbAt('quanxin'), label: '採藥', when: herbVisible('quanxin') },
+    { sprite: 'wild_herb', x: 12, y: 16, script: herbAt('tiegu'), label: '採藥', when: herbVisible('tiegu') },
+    { sprite: 'wild_herb', x: 26, y: 16, script: herbAt('yungen'), label: '採藥', when: herbVisible('yungen') },
     { sprite: 'sign', x: 24, y: 17, lines: [{ text: '「望江台」' }, { text: '站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。' }] },
   ],
   npcs: [
+    { id: 'mqb_yan', allDay: true, name: MQ.yan, sprite: 'sect_judge', x: 8, y: 4, facing: 'down', person: 'yan' },
     {
-      id: 'mqb_elder', name: '守山老人', sprite: 'storyteller', x: 22, y: 20, facing: 'left', wander: 1,
+      id: 'mqb_elder', allDay: true, name: '守山老人', sprite: 'storyteller', x: 22, y: 20, facing: 'left', wander: 1,
       talks: [
         [
           { speaker: '守山老人', text: '年輕人，爬到後山來看風景？' },

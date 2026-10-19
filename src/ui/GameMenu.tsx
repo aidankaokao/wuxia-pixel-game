@@ -697,6 +697,7 @@ function SectPage() {
         <span>入門 {world.day - s.joinedDay} 天</span>
         <span>門派貢獻 {s.contrib}</span>
         <span>累計功績 {s.merit}</span>
+        {s.master && <span>師父 {PEOPLE[s.master]?.name}</span>}
       </div>
       <p className="small">
         住處：{rank.dorm}　月例：每 {STIPEND_DAYS} 天 {rank.stipend.silver} 兩

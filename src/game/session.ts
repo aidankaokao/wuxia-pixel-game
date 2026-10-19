@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { autosave, canSave, describeSave, readSave, restoreHero, SaveData, writeSave } from './save';
+import { autosave, canSave, describeSave, readSave, restoreHero, restoreWorld, SaveData, writeSave } from './save';
 import { useGame } from '../state/store';
 import { Attrs, newHero } from './character';
 
@@ -38,7 +38,7 @@ export function loadGame(d: SaveData) {
     screen: 'game',
     hero: restoreHero(d.hero),
     flags: { ...d.flags },
-    world: structuredClone(d.world),
+    world: restoreWorld(d.world),
     settings: { ...st.settings, ...d.settings },
   });
   startMap({ mapId: d.mapId, spawn: { x: d.x, y: d.y, facing: d.facing } });

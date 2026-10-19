@@ -254,8 +254,9 @@ export class Battle {
       if (this.rand() < 0.34) return { type: 'charge' };
       return { type: 'move', moveId: 'e_slash', targetId: hero.id };
     }
-    // 一般敵人：七成用主要招式，其餘隨機用其他招式
-    const [main, ...others] = u.moves;
+    // 一般敵人：七成用主要招式，其餘隨機用其他招式（內力不夠的招式不用）
+    const [main, ...others] = u.moves.filter((m) => MOVES[m].qi <= u.qi);
+    if (!main) return { type: 'move', moveId: 'e_slash', targetId: hero.id };
     const moveId = others.length && this.rand() < 0.3 ? others[Math.floor(this.rand() * others.length)] : main;
     return { type: 'move', moveId, targetId: hero.id };
   }

@@ -241,6 +241,41 @@ export const SKILLS: Record<string, SkillDef> = {
       { id: 'zhulang', level: 3, bonus: { agility: 1 } },
     ],
   },
+  // 鳴泉劍派的上乘武功：拜師後由師父傳授（三位長老各一門）
+  diequan: {
+    id: 'diequan', name: '疊泉劍', kind: '劍法', tier: '上乘',
+    desc: '傳功長老韓靖秋的劍法。劍勢如泉水層層疊落，一劍未盡，一劍又至。',
+    equip: { strength: 0.8, agility: 0.7 }, grow: { strength: 0.5, agility: 0.4, insight: 0.1 }, vital: { hp: 3, stamina: 2 },
+    moves: [
+      { id: 'sandie', level: 0 },
+      { id: 'hanzhao', level: 2, bonus: { agility: 1 } },
+      { id: 'qianchi', level: 4, bonus: { strength: 1 } },
+      { id: 'jiudie', level: 6, bonus: { constitution: 1 } },
+      { id: 'guiyi', level: 9, bonus: { strength: 1, agility: 1 } },
+    ],
+  },
+  duanliu: {
+    id: 'duanliu', name: '斷流掌', kind: '拳掌', tier: '上乘',
+    desc: '執法長老嚴守拙的掌法。掌勢沉穩如磐石截流，出手不快，卻一掌重過一掌。',
+    equip: { strength: 1, constitution: 0.6 }, grow: { strength: 0.5, constitution: 0.5 }, vital: { hp: 6 },
+    moves: [
+      { id: 'jieliu', level: 0 },
+      { id: 'panshi', level: 2, bonus: { constitution: 1 } },
+      { id: 'duanshui', level: 4, bonus: { strength: 1 } },
+      { id: 'qianjun', level: 7, bonus: { strength: 1, constitution: 1 } },
+    ],
+  },
+  hantan: {
+    id: 'hantan', name: '寒潭心經', kind: '內功', tier: '上乘',
+    desc: '藥堂長老蘇芷蘅的內功。內息清寒如深潭，既能調養傷勢，也能以寒氣傷敵。',
+    equip: { energy: 1.2, constitution: 0.4 }, grow: { energy: 0.6, constitution: 0.3, insight: 0.1 }, vital: { qi: 6, hp: 3 },
+    moves: [
+      { id: 'ningxi', level: 0 },
+      { id: 'hanqi', level: 2, bonus: { energy: 1 } },
+      { id: 'yingxue', level: 4, bonus: { constitution: 1 } },
+      { id: 'binquan', level: 7, bonus: { energy: 1, insight: 0.5 } },
+    ],
+  },
 };
 
 export interface Skill {

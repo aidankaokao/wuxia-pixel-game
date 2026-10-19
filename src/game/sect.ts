@@ -122,6 +122,8 @@ export interface SectState {
   stipendDay: number;
   /** 手上接了、還沒做完的雜務 id */
   chore?: string;
+  /** 拜的師父（人物 id；真傳弟子才有） */
+  master?: string;
 }
 
 /** 今天做了幾件雜務記在 world.daily 的這個 key */
