@@ -1,4 +1,4 @@
-import { gainInsight, gainSkill, giveItem, isEquipped, nextMove, restoreAll, skillCap, skillDef, slotOf } from '../character';
+import { Character, gainInsight, gainSkill, giveItem, isEquipped, nextMove, restoreAll, skillCap, skillDef, slotOf } from '../character';
 import { MOVES } from '../battle/moves';
 import type { EventCtx, Script } from '../events';
 import {
@@ -84,7 +84,7 @@ export const registerPlotNames = (plots: PlotDef[]) => plots.forEach((p) => (plo
 const estateOf = (plot: string) => st().world.estates[plot];
 
 /** 每天限定次數：還能用就記一次並回傳 true */
-async function useDaily(ctx: EventCtx, key: string, perDay: number, tired: string): Promise<boolean> {
+export async function useDaily(ctx: EventCtx, key: string, perDay: number, tired: string): Promise<boolean> {
   if (usedToday(st().world, key) >= perDay) {
     await ctx.say(`${tired}\n（明天再來吧。在床上睡一覺就是新的一天）`);
     return false;
@@ -101,19 +101,23 @@ const bed =
   async (ctx) => {
     const c = await ctx.ask('要躺下休息嗎？', ['睡到天亮', '算了']);
     if (c !== 0) return;
-    const lv = furnitureLevel(estateOf(plot), 'bed');
-    const day = st().updateWorld((w) => ++w.day);
-    const rest = BED_REST[lv];
-    await ctx.hero((h) => {
-      restoreAll(h);
-      if (rest) h.rested = { battles: rest.battles, mult: rest.mult };
-      return null;
-    });
-    await ctx.say(
-      `你一覺睡到天亮。\n——第 ${day} 日`,
-      `（氣血、內力、體力完全恢復）${rest ? `\n精神飽滿！接下來 ${rest.battles} 場戰鬥，武功經驗 ×${rest.mult}。` : ''}`,
-    );
+    await sleep(ctx, furnitureLevel(estateOf(plot), 'bed'));
   };
+
+/** 睡一覺過一天、全回復；床的等級 2 起精神飽滿（門派宿舍的床鋪也用這個） */
+export async function sleep(ctx: EventCtx, lv: number) {
+  const day = st().updateWorld((w) => ++w.day);
+  const rest = BED_REST[lv];
+  await ctx.hero((h) => {
+    restoreAll(h);
+    if (rest) h.rested = { battles: rest.battles, mult: rest.mult };
+    return null;
+  });
+  await ctx.say(
+    `你一覺睡到天亮。\n——第 ${day} 日`,
+    `（氣血、內力、體力完全恢復）${rest ? `\n精神飽滿！接下來 ${rest.battles} 場戰鬥，武功經驗 ×${rest.mult}。` : ''}`,
+  );
+}
 
 const stove =
   (plot: string): Script =>
@@ -139,11 +143,7 @@ const stove =
 const shelf =
   (plot: string): Script =>
   async (ctx) => {
-    const hero = st().hero;
-    const ready = hero.skills.filter((s) => {
-      const next = nextMove(s);
-      return next && s.level >= next.level;
-    });
+    const ready = studyable(st().hero);
     if (!ready.length) {
       await ctx.say('架上擺著幾本書。\n（目前沒有可以參悟的招式：武功要練到一定重數，才悟得出下一招）');
       return;
@@ -156,14 +156,25 @@ const shelf =
     const id = ready[i].id;
     const name = skillDef(ready[i]).name;
     await ctx.say(`你翻開書冊，對照著「${name}」的招式反覆推敲……`);
-    await ctx.hero((h) => {
-      const before = h.skills.find((s) => s.id === id)!.level;
-      const learned = gainInsight(h, id, amount);
-      const s = h.skills.find((k) => k.id === id)!;
-      if (!learned) return `對「${name}」的下一招又多了幾分體會（領悟 ${s.insight}%）。`;
-      return [`靈光一閃！你從「${name}」中悟出了「${MOVES[learned].name}」！`, s.level > before ? `「${name}」隨之精進至第 ${s.level} 重！` : null];
-    });
+    await ctx.hero((h) => studyInsight(h, id, amount));
   };
+
+/** 研讀、打坐等加領悟度，回傳提示文字（悟出新招時連同升重一起說） */
+export function studyInsight(h: Character, id: string, amount: number): (string | null)[] {
+  const name = skillDef({ id }).name;
+  const before = h.skills.find((s) => s.id === id)!.level;
+  const learned = gainInsight(h, id, amount);
+  const s = h.skills.find((k) => k.id === id)!;
+  if (!learned) return [`對「${name}」的下一招又多了幾分體會（領悟 ${s.insight}%）。`];
+  return [`靈光一閃！你從「${name}」中悟出了「${MOVES[learned].name}」！`, s.level > before ? `「${name}」隨之精進至第 ${s.level} 重！` : null];
+}
+
+/** 能參悟下一招的武功（重數夠了、還有招沒悟） */
+export const studyable = (h: Character) =>
+  h.skills.filter((s) => {
+    const next = nextMove(s);
+    return next && s.level >= next.level;
+  });
 
 const dummy =
   (plot: string): Script =>

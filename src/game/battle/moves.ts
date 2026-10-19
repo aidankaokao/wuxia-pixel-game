@@ -39,6 +39,44 @@ export const MOVES: Record<string, Move> = {
     qi: 10, power: 0, kind: 'buff', target: 'self', skillId: 'qingzhu', fx: 'qi',
     self: [{ kind: 'evade', value: 0.15, turns: 2 }, { kind: 'counter', value: 1, turns: 2 }],
   },
+  // 鳴泉劍法
+  quanyong: {
+    id: 'quanyong', name: '泉湧初鳴', desc: '劍出如泉湧，一刺之後劍身回護（受傷 −15%，持續 1 次出手）。',
+    qi: 9, power: 1.7, kind: 'outer', target: 'enemy', skillId: 'mingquan', fx: 'slash', self: [{ kind: 'block', value: 0.15, turns: 1 }],
+  },
+  feipu: {
+    id: 'feipu', name: '飛瀑垂練', desc: '縱身而起，一劍如飛瀑直落。威力沉重，有機會劈出對手的破綻（防禦 −30%，持續 2 次出手）。',
+    qi: 16, power: 2.2, kind: 'outer', target: 'enemy', skillId: 'mingquan', fx: 'heavy', foe: [{ kind: 'armorBreak', value: 0.3, turns: 2, chance: 0.5 }],
+  },
+  shiliu: {
+    id: 'shiliu', name: '石上清流', desc: '劍尖貼著對手連點三下，如清流過石，綿綿不絕。',
+    qi: 14, power: 0.65, hits: 3, kind: 'outer', target: 'enemy', skillId: 'mingquan', fx: 'wind',
+  },
+  wanhe: {
+    id: 'wanhe', name: '萬壑爭鳴', desc: '劍嘯四起，如萬壑泉聲齊鳴，籠罩所有敵人，有機會震懾對手（無法出手 1 次）。',
+    qi: 22, power: 1.0, kind: 'outer', target: 'allEnemies', skillId: 'mingquan', fx: 'leaves', foe: [{ kind: 'stun', value: 1, turns: 1, chance: 0.2 }],
+  },
+  // 澄泉心法
+  quansheng: {
+    id: 'quansheng', name: '泉聲貫耳', desc: '以內力催動劍嘯，如泉聲直灌對手耳中。內功招式，有機會使對手遲緩（速度 −20%，持續 2 次出手）。',
+    qi: 10, power: 1.6, kind: 'inner', target: 'enemy', skillId: 'chengquan', fx: 'qi', foe: [{ kind: 'slow', value: 0.2, turns: 2, chance: 0.4 }],
+  },
+  chengtan: {
+    id: 'chengtan', name: '澄潭映月', desc: '心如深潭，內息沉穩。格擋與勁力同時提升（受傷 −25%、攻擊 +15%，持續 2 次出手）。',
+    qi: 8, power: 0, kind: 'buff', target: 'self', skillId: 'chengquan', fx: 'qi',
+    self: [{ kind: 'block', value: 0.25, turns: 2 }, { kind: 'power', value: 0.15, turns: 2 }],
+  },
+  // 踏石步
+  dianshi: {
+    id: 'dianshi', name: '點石過澗', desc: '足尖點著溪石掠過，身形又輕又快（閃避 +20%、速度 +20%，持續 2 次出手）。',
+    qi: 6, power: 0, kind: 'buff', target: 'self', skillId: 'tashi', fx: 'qi',
+    self: [{ kind: 'evade', value: 0.2, turns: 2 }, { kind: 'speed', value: 0.2, turns: 2 }],
+  },
+  zhulang: {
+    id: 'zhulang', name: '逐浪回身', desc: '如逐浪而行，退步讓過來招，順勢回身還擊（閃避 +15%、反擊，持續 2 次出手）。',
+    qi: 10, power: 0, kind: 'buff', target: 'self', skillId: 'tashi', fx: 'wind',
+    self: [{ kind: 'evade', value: 0.15, turns: 2 }, { kind: 'counter', value: 1.1, turns: 2 }],
+  },
   // 敵人的招式
   e_slash: { id: 'e_slash', name: '劈砍', desc: '', qi: 0, power: 1, kind: 'outer', target: 'enemy', fx: 'slash' },
   e_rush: { id: 'e_rush', name: '猛撲', desc: '', qi: 0, power: 1.3, kind: 'outer', target: 'enemy', fx: 'punch' },

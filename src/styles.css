@@ -554,6 +554,16 @@ kbd {
   margin: 12px 0 18px;
 }
 
+.sect-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sect-list li {
+  padding: 3px 0;
+}
+
 .quest.done .skill-name {
   color: var(--muted);
 }

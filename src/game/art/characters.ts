@@ -72,6 +72,26 @@ export const CHARACTERS: Record<string, CharStyle> = {
     skin: SKIN, hair: '#1a1614', robe: '#d8e0e8', robeDark: '#a8b4c0', inner: '#f4f6f8', sash: '#3e6656',
     pants: '#5a6a7a', shoe: '#22262a', hairStyle: 'topknot', band: '#3e6656', sword: true,
   },
+  // 鳴泉掌門聞松年：白髮長鬚、深青道袍、背劍
+  sect_master: {
+    skin: '#ecc8a4', hair: '#e8e6e0', robe: '#2e5a4e', robeDark: '#1e4036', inner: '#eef2ee', sash: '#c8c0a0',
+    pants: '#2a3a36', shoe: '#161a1a', hairStyle: 'topknot', band: '#c8c0a0', beard: '#f2f0ea', sword: true,
+  },
+  // 傳功長老韓靖秋：灰髮短鬚、青灰道袍
+  sect_elder: {
+    skin: SKIN, hair: '#8a8680', robe: '#7a8a96', robeDark: '#5a6a76', inner: '#eef0f2', sash: '#3e6656',
+    pants: '#3a4650', shoe: '#1e2226', hairStyle: 'topknot', band: '#3e6656', beard: '#8a8680', sword: true,
+  },
+  // 大師兄陸鳴川：月白道袍、深青腰帶與髮帶（比一般弟子顏色深）
+  sect_senior: {
+    skin: '#eac29a', hair: '#141210', robe: '#e8eef2', robeDark: '#b0bcc8', inner: '#ffffff', sash: '#24483c',
+    pants: '#3a4a5a', shoe: '#181c20', hairStyle: 'topknot', band: '#24483c', sword: true,
+  },
+  // 鳴泉女弟子（顧小滿）：雙髻、月白道袍、青色髮帶
+  disciple_girl: {
+    skin: SKIN, hair: '#1a1614', robe: '#d8e0e8', robeDark: '#a8b4c0', inner: '#f4f6f8', sash: '#3e6656',
+    pants: '#5a6a7a', shoe: '#22262a', hairStyle: 'twinbuns', band: '#3e6656', sword: true,
+  },
   // 金刀鏢局的鏢師：黑衣、金色腰帶、背刀
   escort: {
     skin: '#d9a77c', hair: '#2a1f1a', robe: '#2a2a32', robeDark: '#1a1a22', inner: '#8a7a5a', sash: '#d4a640',

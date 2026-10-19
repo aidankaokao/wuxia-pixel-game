@@ -149,7 +149,7 @@ const gift =
       await ctx.say(...fmt(p.refuseGift ?? [{ text: `${p.name}搖搖頭：「無功不受祿。」` }]));
       return;
     }
-    const items = Object.keys(st().hero.items).filter((id) => st().hero.items[id] > 0 && !ITEMS[id].manual);
+    const items = Object.keys(st().hero.items).filter((id) => st().hero.items[id] > 0 && !ITEMS[id].manual && !ITEMS[id].bound);
     if (!items.length) {
       await ctx.say('身上沒有可以送的東西。');
       return;

@@ -4,6 +4,7 @@ import type { Line } from '../maps/types';
 import { STAGE } from '../social';
 import type { Flags } from '../../state/store';
 import { liuStory, zhongStory } from './bandits';
+import { SECT_PEOPLE } from './sect_mingquan';
 
 /**
  * 人物檔案：每個人怎麼提升熟悉度、在各階段說什麼、怎麼稱呼你、什麼時候不理你。
@@ -331,7 +332,7 @@ const xiaohuP: PersonDef = {
 };
 
 export const PEOPLE: Record<string, PersonDef> = Object.fromEntries(
-  [liuP, qingheP, zhongP, taoP, shiP, xiaohuP].map((p) => [p.id, p]),
+  [liuP, qingheP, zhongP, taoP, shiP, xiaohuP, ...SECT_PEOPLE].map((p) => [p.id, p]),
 );
 
 /** 任務日誌：小虎的木劍 */

@@ -21,6 +21,7 @@ import {
   swapItems,
   skillCap,
   skillDef,
+  SKILLS,
   SKILL_SLOT_NAME,
   Slot,
   slotOf,
@@ -38,10 +39,11 @@ import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } fr
 import { loadGame, toTitle } from '../game/session';
 import { fameTitle, stageOf, STAGES } from '../game/social';
 import { PEOPLE } from '../game/story/people';
+import { leaveRuleText, nextStipendDay, promotionChecks, recruitText, sectDef, STIPEND_DAYS } from '../game/sect';
 import { Settings, useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
-const TABS = ['人物', '武功', '行囊', '交遊', '江湖事', '系統'] as const;
+const TABS = ['人物', '武功', '行囊', '門派', '交遊', '江湖事', '系統'] as const;
 type Tab = (typeof TABS)[number];
 
 /** 可以用鍵盤選的一列 */
@@ -92,6 +94,7 @@ export function GameMenu() {
           {tab === '人物' && <CharacterPage />}
           {tab === '武功' && <SkillsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
           {tab === '行囊' && <ItemsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
+          {tab === '門派' && <SectPage />}
           {tab === '交遊' && <PeoplePage />}
           {tab === '江湖事' && <QuestsPage />}
           {tab === '系統' && <SystemPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
@@ -657,6 +660,97 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** 門派：身分、貢獻、晉升條件、本門武功與門規 */
+function SectPage() {
+  const world = useGame((s) => s.world);
+  const hero = useGame((s) => s.hero);
+  const s = world.sect;
+  const def = s && sectDef(s.id);
+  if (!s || !def) {
+    const left = (world.leftSects ?? []).map((id) => sectDef(id)?.name).filter(Boolean);
+    return (
+      <div>
+        <h2>門派</h2>
+        <p className="muted placeholder">尚未拜入任何門派。</p>
+        <p className="muted small">
+          江湖上一個人只能拜一個門派。記名弟子通常可以自由離開；成了正式弟子以後，就要照各派的門規——交罰金、闖陣，有的門派甚至不准離開。
+        </p>
+        {left.length > 0 && <p className="small">曾經離開：{left.join('、')}（不能再回去拜師）</p>}
+      </div>
+    );
+  }
+  const rank = def.ranks[s.rank];
+  const next = def.ranks[s.rank + 1];
+  const level = (id: string) => hero.skills.find((k) => k.id === id)?.level ?? 0;
+  const checks = promotionChecks(s, world.day, level, (id) => SKILLS[id].name);
+  return (
+    <div>
+      <h2>
+        {def.name}　<small>{def.size}門派・{rank.name}</small>
+      </h2>
+      <div className="derived">
+        <span>入門 {world.day - s.joinedDay} 天</span>
+        <span>門派貢獻 {s.contrib}</span>
+        <span>累計功績 {s.merit}</span>
+      </div>
+      <p className="small">
+        住處：{rank.dorm}　月例：每 {STIPEND_DAYS} 天 {rank.stipend.silver} 兩
+        {Object.entries(rank.stipend.items ?? {}).map(([id, n]) => `、${ITEMS[id].name}×${n}`)}（第 {nextStipendDay(s)} 日起可領）
+      </p>
+      <p className="small muted">可以做的事：{rank.perks.join('；')}</p>
+
+      {next && checks && (
+        <div className="skill">
+          <div className="skill-head">
+            <span className="skill-name">晉升{next.name}</span>
+          </div>
+          <ul className="sect-list small">
+            {checks.map((c) => (
+              <li key={c.label} className={c.ok ? 'good' : 'muted'}>
+                {c.ok ? '✔' : '・'} {c.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="skill">
+        <div className="skill-head">
+          <span className="skill-name">本門武功</span>
+          <span className="muted small">在書房找管書弟子用貢獻抄錄</span>
+        </div>
+        <ul className="sect-list small">
+          {def.skills.map((k) => {
+            const learned = hero.skills.some((h) => h.id === k.id);
+            return (
+              <li key={k.id} className={learned ? 'muted' : ''}>
+                {SKILLS[k.id].name}（{SKILLS[k.id].tier}{SKILLS[k.id].kind}）　{def.ranks[k.rank].name}起・
+                {learned ? '已學會' : k.cost ? `${k.cost} 貢獻` : '入門傳授'}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="skill">
+        <div className="skill-head">
+          <span className="skill-name">門規</span>
+        </div>
+        <ul className="sect-list small">
+          {def.rules.map((r, i) => (
+            <li key={r.name}>
+              {'一二三四五六七八九十'[i]}、{r.name}　<span className="muted">{r.desc}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <p className="small muted">
+        {recruitText(def.recruit)}。傳授兵器：{def.weapons.join('、')}。以{rank.name}的身分離開師門：{rank.leave.map(leaveRuleText).join('，或')}。
+      </p>
     </div>
   );
 }
