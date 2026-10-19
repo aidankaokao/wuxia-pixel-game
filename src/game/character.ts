@@ -153,8 +153,8 @@ export function consumeItem(c: Character, id: string): string {
 /** 行囊裡能「使用」的物品：有回復或加成效果的藥品、菜餚 */
 export const usable = (id: string) => !!(ITEMS[id]?.hp || ITEMS[id]?.qi || ITEMS[id]?.stamina || ITEMS[id]?.treat);
 
-/** 戰鬥中可以使用的物品：只有藥品（菜餚要坐下來吃） */
-export const usableInBattle = (id: string) => ITEMS[id]?.category === '藥品' && !!(ITEMS[id].hp || ITEMS[id].qi);
+/** 戰鬥中可以使用的物品：藥品、菜餚都行，只要能回氣血或內力 */
+export const usableInBattle = (id: string) => !!(ITEMS[id]?.hp || ITEMS[id]?.qi);
 
 // ── 武功 ────────────────────────────────────────────────
 
