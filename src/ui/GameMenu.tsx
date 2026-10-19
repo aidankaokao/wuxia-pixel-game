@@ -28,6 +28,7 @@ import {
   tryBreakthrough,
   unequip,
   consumeItem,
+  equipGear,
   usable,
   usableInBattle,
   bagCapacity,
@@ -452,6 +453,18 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
                 run: () => {
                   const msg = st.updateHero((c) => consumeItem(c, selected));
                   st.showToast(msg);
+                  if (!useGame.getState().hero.items[selected]) setLayer('grid');
+                },
+              },
+            ]
+          : []),
+        ...(ITEMS[selected].gear
+          ? [
+              {
+                label: '穿上',
+                detail: '穿到身上（換下的放回行囊）',
+                run: () => {
+                  st.showToast(st.updateHero((c) => equipGear(c, selected)));
                   if (!useGame.getState().hero.items[selected]) setLayer('grid');
                 },
               },

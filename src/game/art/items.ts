@@ -7,7 +7,9 @@ export type ItemIcon =
   // 食材
   | 'sack' | 'flour' | 'egg' | 'tofu' | 'greens' | 'radish' | 'chicken' | 'mushroom' | 'beans' | 'sugar' | 'flower' | 'seeds' | 'nut'
   // 菜餚
-  | 'rice' | 'noodle' | 'soup' | 'sweet';
+  | 'rice' | 'noodle' | 'soup' | 'sweet'
+  // 服飾
+  | 'hat' | 'robe' | 'robe_gray' | 'robe_white' | 'robe_blue' | 'pants' | 'shoes' | 'bracer' | 'pouch';
 
 const OUTLINE = '#1a1218';
 
@@ -233,7 +235,66 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     px(ctx, 5, 8, 1, 1, '#f0b830');
     px(ctx, 11, 8, 1, 1, '#b0443a');
   },
+  // ── 服飾 ──
+  // 帽子：青布小帽
+  hat(ctx) {
+    ellipse(ctx, 8, 9, 5, 4, '#3a5a6a');
+    px(ctx, 3, 9, 11, 3, '#3a5a6a');
+    hline(ctx, 2, 14, 12, '#2a4050');
+    px(ctx, 6, 6, 3, 2, '#5a7a8a');
+  },
+  robe: (ctx) => robeShape(ctx, '#8a6a4a', '#6a4e34', '#c8a878'),
+  robe_gray: (ctx) => robeShape(ctx, '#8a8a90', '#66666e', '#4a7a8a'),
+  robe_white: (ctx) => robeShape(ctx, '#e4e8ec', '#b8c0c8', '#8aa8c0'),
+  robe_blue: (ctx) => robeShape(ctx, '#e0e6ea', '#b0bcc6', '#2e7a8a'),
+  // 褲子
+  pants(ctx) {
+    px(ctx, 4, 2, 8, 4, '#6a5a4a');
+    px(ctx, 4, 6, 3, 8, '#6a5a4a');
+    px(ctx, 9, 6, 3, 8, '#6a5a4a');
+    hline(ctx, 4, 11, 2, '#4a3e32');
+    vline(ctx, 5, 7, 13, '#7e6c5a');
+  },
+  // 鞋子：一雙布鞋
+  shoes(ctx) {
+    for (const x of [2, 9]) {
+      px(ctx, x, 8, 5, 5, '#3a3036');
+      px(ctx, x, 12, 6, 2, '#3a3036');
+      hline(ctx, x, x + 5, 14, '#e8dcc0');
+      px(ctx, x + 1, 9, 2, 1, '#5a4e56');
+    }
+  },
+  // 護腕：皮護腕
+  bracer(ctx) {
+    px(ctx, 4, 3, 8, 10, '#8a5a32');
+    for (const y of [5, 8, 11]) hline(ctx, 4, 11, y, '#5a3a20');
+    vline(ctx, 4, 3, 12, '#6a4428');
+    px(ctx, 9, 4, 2, 8, '#a8744a');
+  },
+  // 香囊：繡花小袋，繫著紅繩
+  pouch(ctx) {
+    vline(ctx, 8, 1, 4, '#c4483c');
+    ellipse(ctx, 8, 10, 4, 4, '#3e6a5a');
+    px(ctx, 5, 5, 6, 3, '#3e6a5a');
+    px(ctx, 7, 9, 2, 2, '#f0b830');
+    px(ctx, 7, 14, 2, 2, '#c4483c');
+  },
 };
+
+/** 長衫、道袍：交領、寬袖，顏色不同 */
+function robeShape(ctx: CanvasRenderingContext2D, color: string, dark: string, trim: string) {
+  px(ctx, 4, 2, 8, 13, color);
+  px(ctx, 1, 3, 3, 7, color);
+  px(ctx, 12, 3, 3, 7, color);
+  vline(ctx, 4, 3, 14, dark);
+  vline(ctx, 11, 3, 14, dark);
+  // 交領與腰帶
+  for (let i = 0; i < 5; i++) px(ctx, 6 + i, 2 + i, 1, 1, trim);
+  px(ctx, 6, 2, 1, 4, trim);
+  hline(ctx, 4, 11, 9, trim);
+  px(ctx, 1, 9, 3, 1, trim);
+  px(ctx, 12, 9, 3, 1, trim);
+}
 
 /** 布袋（米、麵粉） */
 function sackShape(ctx: CanvasRenderingContext2D, color: string, dark: string) {

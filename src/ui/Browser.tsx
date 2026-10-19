@@ -6,6 +6,7 @@ import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './u
  * 左邊是目前這一層的清單，右邊是游標所在那一項的細節；有下一層的項目按 E／→ 進去，X／← 回上一層。
  * 細節太長時，在沒有下一層的項目上按 E／→ 可以把焦點移到右邊，用 ↑↓ 捲動。
  * 項目也可以是一張表（ledger，例如弟子名冊）：進去後整個畫面是一張表，一列一個，用 ↑↓ 逐列看。
+ * 項目帶 action 時按 E 直接執行（例如在「裝備」裡挑一件穿上）。
  */
 
 /** 表格：像真的名冊一樣，一列一個 */
@@ -28,6 +29,9 @@ export interface BrowseItem {
   children?: () => BrowseItem[];
   /** 下一層是一張表 */
   ledger?: () => Ledger;
+  /** 按 E 執行的動作（例如穿上這件衣服）；actionLabel 是說明列上的字 */
+  action?: () => void;
+  actionLabel?: string;
 }
 
 export function Browser({ title, items, active, onExit }: { title: string; items: BrowseItem[]; active: boolean; onExit: () => void }) {
@@ -102,7 +106,8 @@ export function Browser({ title, items, active, onExit }: { title: string; items
     if (isUp(k)) setCursor((cur + n - 1) % n);
     else if (isDown(k)) setCursor((cur + 1) % n);
     else if (isConfirm(k) || isRight(k)) {
-      if (item?.children || item?.ledger) {
+      if (item?.action) item.action();
+      else if (item?.children || item?.ledger) {
         setStack([...stack, { key: item.key, cursor: cur }]);
         setCursor(0);
       } else if (detailRef.current && detailRef.current.scrollHeight > detailRef.current.clientHeight) setReading(true);
@@ -129,7 +134,11 @@ export function Browser({ title, items, active, onExit }: { title: string; items
                 key={it.key}
                 className={`${i === cur ? 'active' : ''} ${it.muted ? 'muted' : ''}`}
                 onClick={() =>
-                  i === cur && (it.children || it.ledger) ? (setStack([...stack, { key: it.key, cursor: i }]), setCursor(0)) : setCursor(i)
+                  i === cur && it.action
+                    ? it.action()
+                    : i === cur && (it.children || it.ledger)
+                      ? (setStack([...stack, { key: it.key, cursor: i }]), setCursor(0))
+                      : setCursor(i)
                 }
               >
                 <span>
@@ -151,7 +160,7 @@ export function Browser({ title, items, active, onExit }: { title: string; items
         {active
           ? ledger
             ? '↑↓ 逐列翻看　X／← 闔上名冊'
-            : `↑↓ 選擇　E／→ ${item?.children || item?.ledger ? '進入' : '細看'}　X／← ${stack.length || reading ? '回上一層' : '回到分頁'}`
+            : `↑↓ 選擇　E／→ ${item?.action ? (item.actionLabel ?? '確定') : item?.children || item?.ledger ? '進入' : '細看'}　X／← ${stack.length || reading ? '回上一層' : '回到分頁'}`
           : '按 E 或 → 開始瀏覽'}
       </p>
     </div>

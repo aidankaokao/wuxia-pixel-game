@@ -1,4 +1,4 @@
-import { addFame, attrs, canHold, Character, derive, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
+import { addFame, attrs, canHold, Character, derive, equipGear, gainSkill, giveItem, slotsFor, takeSectGear, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
@@ -9,6 +9,7 @@ import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estat
 import { cookAt, teachDishes } from './cooking';
 import { dailyMeal } from '../cooking';
 import { craftOf } from '../crafts';
+import { MQ_UNIFORMS } from '../gear';
 import { heroUnit } from '../battle/moves';
 import { setupDrill } from '../battle/enemies';
 import { dateText, inShichen, keUntilDawn, shichenStart, SHICHEN_INDEX, timeText } from '../time';
@@ -354,7 +355,13 @@ async function initiation(ctx: EventCtx) {
   ctx.setFlag('mq_join');
   // 問心的結果：守正合掌門的意、謙和合大師兄的意、好勝讓顧小滿把你當對手
   addAff(['wen', 'lu', 'xiaoman'][Math.max(0, heart)], 5);
-  await ctx.hero((h) => [giveItem(h, 'mq_token'), learnSkill(h, 'mingquan')]);
+  await ctx.hero((h) => {
+    const lines = [giveItem(h, 'mq_token'), learnSkill(h, 'mingquan')];
+    if (!h.gear?.neck) lines.push(equipGear(h, 'mq_token', 'neck'));
+    return lines;
+  });
+  await ctx.say(`${MQ.ke}捧來一套灰布衣：「這是記名弟子的衣服。」`);
+  await issueUniform(ctx, 0);
   await ctx.say(
     ...wen(
       '記名弟子住大通鋪。每天跟鳴川做晨課，廣場上的木樁、練功房的蒲團、書房的書，都可以用。',
@@ -458,6 +465,8 @@ async function promotionCeremony(ctx: EventCtx) {
   st().updateWorld((w) => promote(w));
   ctx.setFlag('mq_exam', 2);
   await ctx.hero((h) => giveItem(h, 'jinchuang', 2));
+  await ctx.say(`${MQ.ke}捧來一件月白道袍與一雙布靴：「恭喜師兄弟，這是正式弟子的衣服。」`);
+  await issueUniform(ctx, 1);
   await ctx.say(
     ...wen(
       `你搬去弟子房・甲，跟${MQ.he}同住。練功房的鐵木樁、書房的「踏石步」，往後都能用了；任務榜上的下山委託，也可以接。`,
@@ -637,6 +646,8 @@ async function trueCeremony(ctx: EventCtx) {
   ctx.setFlag('mq_master', 0);
   ctx.setFlag('mq_true');
   await ctx.hero((h) => [learnSkill(h, m.skill), giveItem(h, 'jinchuang', 3)]);
+  await ctx.say('師父親手替你披上一件青紋道袍。');
+  await issueUniform(ctx, 2);
   await ctx.say(
     ...MASTER_LINES[MASTERS.indexOf(m)](`這門「${SKILLS[m.skill].name}」，往後每天來找我請教。`),
     ...wen('疏桐下山多年，她的房間空著，你先搬進真傳弟子房・二吧。'),
@@ -652,6 +663,40 @@ export const cellBed: Script = async (ctx) => {
   }
   await rest(ctx, 3, '你在真傳弟子房的床。要躺下休息嗎？', wakeLines('cell'));
 };
+
+// ── 弟子服 ──────────────────────────────────────────────
+
+/** 現在的身分該有的弟子服都在身上或行囊裡了嗎 */
+const hasUniform = (h: Character, rank: number) => MQ_UNIFORMS[rank].every((id) => h.items[id] || Object.values(h.gear ?? {}).includes(id));
+
+/**
+ * 發這個身分的弟子服：收回舊的（腰牌留著），發新的。
+ * 欄位空著、或身上那件品級比較差，就直接換上；不然放進行囊。
+ */
+async function issueUniform(ctx: EventCtx, rank: number) {
+  const ids = MQ_UNIFORMS[rank];
+  await ctx.hero((h) => {
+    takeSectGear(h, SECT, MQ_UNIFORMS.flat().filter((id) => !ids.includes(id)));
+    const lines: string[] = [];
+    for (const id of ids) {
+      const worn = Object.values(h.gear ?? {}).includes(id);
+      if (worn) continue;
+      if (!h.items[id]) h.items[id] = 1;
+      const slot = slotsFor(id)[0];
+      const cur = h.gear?.[slot];
+      if (h.items[id] && (!cur || ITEMS[cur].gear!.grade < ITEMS[id].gear!.grade)) {
+        equipGear(h, id, slot);
+        lines.push(`領到了「${ITEMS[id].name}」，當場換上。`);
+      } else if (h.items[id]) lines.push(`領到了「${ITEMS[id].name}」。（放在行囊裡，到選單「人物 › 裝備」換上）`);
+    }
+    // 腰牌也繫上
+    if (h.items.mq_token && !h.gear?.neck) {
+      equipGear(h, 'mq_token', 'neck');
+      lines.push('順手把鳴泉腰牌繫在頸上。');
+    }
+    return lines;
+  });
+}
 
 // ── 離開師門 ────────────────────────────────────────────
 
@@ -689,8 +734,9 @@ async function leaveSect(ctx: EventCtx) {
   });
   ctx.setFlag('mq_join', 0);
   ctx.setFlag('mq_left');
+  // 腰牌與弟子服都留下
   await ctx.hero((h) => {
-    delete h.items.mq_token;
+    takeSectGear(h, SECT);
   });
 }
 
@@ -716,6 +762,11 @@ export const dutyTalk: Script = async (ctx) => {
     return;
   }
   const s = sect();
+  // 舊存檔或弄丟了：補發這個身分的弟子服
+  if (!hasUniform(st().hero, s.rank)) {
+    await ctx.say(...duty('你的弟子服還沒領吧？拿去，在門裡要穿得整整齊齊。'));
+    await issueUniform(ctx, s.rank);
+  }
   const ready = day() >= nextStipendDay(s);
   const c = await ctx.ask(duty('師兄弟有什麼事？')[0], ['請教門規', ready ? '領月例' : '領月例（還沒到日子）', '弟子名冊', '離開師門', '沒事']);
   if (c === 2) await readRoster(ctx);

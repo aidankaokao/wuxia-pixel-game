@@ -125,6 +125,37 @@ function lockedDoor(): PropArt {
   return done(c, ctx);
 }
 
+/** 布莊的布架：一格格捲好的布疋 */
+function clothRack(): PropArt {
+  const [c, ctx] = makeCanvas(32, 28);
+  px(ctx, 2, 1, 28, 26, '#7a5232');
+  px(ctx, 4, 3, 24, 22, '#4a3220');
+  for (const y of [11, 19]) hline(ctx, 4, 27, y, '#9a6a3a');
+  const colors = ['#b0443a', '#3e6a8a', '#e8dcc0', '#4a7a4a', '#c8a050', '#8a4a7a', '#5a8aa8', '#d88a6a', '#6a5a8a'];
+  for (let r = 0; r < 3; r++)
+    for (let i = 0; i < 3; i++) {
+      const col = colors[r * 3 + i];
+      px(ctx, 5 + i * 8, 4 + r * 8, 7, 6, col);
+      vline(ctx, 5 + i * 8, 4 + r * 8, 9 + r * 8, '#00000040');
+      px(ctx, 10 + i * 8, 5 + r * 8, 1, 4, '#ffffff40');
+    }
+  return done(c, ctx);
+}
+
+/** 衣架上的成衣：木架披著一件長衫 */
+function mannequin(): PropArt {
+  const [c, ctx] = makeCanvas(16, 24);
+  vline(ctx, 8, 1, 22, '#5a3a20');
+  hline(ctx, 2, 13, 3, '#5a3a20');
+  px(ctx, 4, 4, 8, 13, '#3e6a8a');
+  px(ctx, 2, 4, 2, 7, '#3e6a8a');
+  px(ctx, 12, 4, 2, 7, '#3e6a8a');
+  for (let i = 0; i < 4; i++) px(ctx, 6 + i, 4 + i, 1, 1, '#e8dcc0');
+  hline(ctx, 4, 11, 10, '#c8a050');
+  px(ctx, 5, 22, 7, 2, '#5a3a20');
+  return done(c, ctx);
+}
+
 export function interiorProps(): Record<string, PropArt> {
   return {
     altar: altar(),
@@ -137,5 +168,7 @@ export function interiorProps(): Record<string, PropArt> {
     cradle: cradle(),
     vat: vat(),
     door_locked: lockedDoor(),
+    cloth_rack: clothRack(),
+    mannequin: mannequin(),
   };
 }

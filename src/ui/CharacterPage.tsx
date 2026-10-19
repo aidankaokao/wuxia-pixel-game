@@ -1,4 +1,6 @@
-import { ATTRS, attrParts, Character, derive, GEAR_SLOTS, ITEMS } from '../game/character';
+import { Fragment } from 'react';
+import { ATTRS, attrParts, Character, derive, equipGear, GEAR_SLOTS, gearStats, ITEMS, slotsFor, unequipGear } from '../game/character';
+import { GearSlotId, GRADE_CLASS, GRADES } from '../game/gear';
 import { DISH_TIERS, DISHES, dishItem, knowsDish, needsText, STEW, TIER_LEVEL } from '../game/cooking';
 import { CRAFTS, craftExpToNext, CRAFT_MAX, craftOf, craftTitle, WORK_MAX, workExpToNext, workOf } from '../game/crafts';
 import { rankName, sectDef } from '../game/sect';
@@ -14,6 +16,7 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
   const sect = useGame((s) => s.world.sect);
   const d = derive(hero);
   const parts = attrParts(hero);
+  const gs = gearStats(hero);
 
   const items: BrowseItem[] = [
     {
@@ -104,24 +107,28 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
     {
       key: 'gear',
       label: '裝備',
-      tag: '未開放',
-      children: () =>
-        GEAR_SLOTS.map((g) => ({
-          key: g.id,
-          label: g.name,
-          tag: '（空）',
-          muted: true,
-          detail: () => (
-            <>
-              <h3>{g.name}</h3>
-              <p className="small muted">
-                {g.id === 'weapon'
-                  ? '兵器之後再設計。'
-                  : '裝備之後開放：可以在布莊、貨郎那裡買，成了門派弟子也會發衣服。衣物有品級，越好的防禦越高，也越值錢。'}
-              </p>
-            </>
-          ),
-        })),
+      tag: `防禦 +${gs.def}`,
+      children: () => GEAR_SLOTS.map((g) => gearSlot(hero, g.id, g.name)),
+      detail: () => (
+        <>
+          <h3>裝備</h3>
+          <dl className="kv">
+            {GEAR_SLOTS.map((g) => {
+              const id = hero.gear?.[g.id];
+              return (
+                <Fragment key={g.id}>
+                  <dt>{g.name}</dt>
+                  <dd className={id ? GRADE_CLASS[ITEMS[id].gear!.grade] : 'muted'}>{id ? ITEMS[id].name : g.id === 'weapon' ? '（之後開放）' : '（空）'}</dd>
+                </Fragment>
+              );
+            })}
+          </dl>
+          <p className="small">
+            服飾合計：防禦 +{gs.def}　閃避 +{Math.round(gs.eva * 1000) / 10}%
+          </p>
+          <p className="small muted">進去選一個欄位，再挑行囊裡的服飾穿上，或把身上的卸下。</p>
+        </>
+      ),
     },
     {
       key: 'crafts',
@@ -213,4 +220,46 @@ function dishList(hero: Character): BrowseItem[] {
       ),
     };
   });
+}
+
+/** 裝備 › 某一欄：身上穿的（可以卸下）與行囊裡能穿在這一欄的服飾 */
+function gearSlot(hero: Character, slot: GearSlotId, name: string): BrowseItem {
+  const now = hero.gear?.[slot];
+  const run = (f: (c: Character) => string) => () => {
+    const st = useGame.getState();
+    st.showToast(st.updateHero(f));
+  };
+  const info = (id: string) => (
+    <>
+      <h3 className={GRADE_CLASS[ITEMS[id].gear!.grade]}>
+        {ITEMS[id].name}　<small>{GRADES[ITEMS[id].gear!.grade]}</small>
+      </h3>
+      <p className="small">{ITEMS[id].desc}</p>
+    </>
+  );
+  if (slot === 'weapon') {
+    return { key: slot, label: name, tag: '之後開放', muted: true, detail: () => <p className="small muted">兵器之後再設計。</p> };
+  }
+  const options = Object.keys(hero.items).filter((id) => hero.items[id] > 0 && slotsFor(id).includes(slot));
+  const children: BrowseItem[] = [
+    ...(now
+      ? [{ key: 'off', label: `卸下「${ITEMS[now].name}」`, action: run((c) => unequipGear(c, slot)), actionLabel: '卸下', detail: () => info(now) }]
+      : []),
+    ...options.map((id) => ({
+      key: id,
+      label: ITEMS[id].name,
+      tag: <span className={GRADE_CLASS[ITEMS[id].gear!.grade]}>{GRADES[ITEMS[id].gear!.grade]}</span>,
+      action: run((c) => equipGear(c, id, slot)),
+      actionLabel: '穿上',
+      detail: () => info(id),
+    })),
+  ];
+  return {
+    key: slot,
+    label: name,
+    tag: now ? <span className={GRADE_CLASS[ITEMS[now].gear!.grade]}>{ITEMS[now].name}</span> : '（空）',
+    muted: !now,
+    children: () => (children.length ? children : [{ key: 'none', label: '行囊裡沒有能穿在這裡的東西', muted: true }]),
+    detail: () => (now ? info(now) : <p className="small muted">{name}沒有穿戴東西。{options.length ? `行囊裡有 ${options.length} 件可以穿。` : ''}</p>),
+  };
 }

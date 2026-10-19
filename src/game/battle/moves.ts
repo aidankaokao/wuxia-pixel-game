@@ -1,4 +1,4 @@
-import { Character, attrs, effLevel, equippedLevel, isEquipped, skillDef, slotOf } from '../character';
+import { Character, attrs, effLevel, equippedLevel, gearStats, isEquipped, skillDef, slotOf } from '../character';
 import type { Move, Unit } from './types';
 
 /** 所有招式。每門武功有哪些招式、幾重才能悟出，寫在 character.ts 的 SKILLS 裡。 */
@@ -165,9 +165,10 @@ export function heroUnit(c: Character, max: { maxHp: number; maxQi: number }): U
     qi: c.qi,
     atk: Math.round(10 + a.strength + equippedLevel(c, 'outer', 'max') * 4),
     ipow: Math.round(6 + a.energy * 1.2 + equippedLevel(c, 'inner') * 4),
-    def: Math.round(2 + a.constitution * 0.5),
+    // 服飾加防禦與閃避
+    def: Math.round(2 + a.constitution * 0.5 + gearStats(c).def),
     spd: Math.round(8 + a.agility),
-    eva: Math.min(0.35, 0.03 + a.agility * 0.006 + equippedLevel(c, 'light') * 0.04),
+    eva: Math.min(0.4, Math.min(0.35, 0.03 + a.agility * 0.006 + equippedLevel(c, 'light') * 0.04) + gearStats(c).eva),
     moves,
     guard: false,
     charging: false,
