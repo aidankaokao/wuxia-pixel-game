@@ -149,36 +149,29 @@ export function SectPage({ active, onExit }: { active: boolean; onExit: () => vo
       key: 'roster',
       label: '弟子名冊',
       tag: `${groups.reduce((n, g) => n + g.members.length, 0)} 人`,
-      children: () =>
-        groups.map((g) => ({
-          key: g.rank,
-          label: g.rank,
-          tag: `${g.members.length} 人`,
-          children: () =>
-            g.members.map((m) => {
-              const rel = m.person ? world.relations[m.person] : undefined;
-              return {
-                key: m.name,
-                label: m.me ? `${m.name}（你）` : m.name,
-                tag: rel ? STAGES[stageOf(rel.aff)].name : undefined,
-                muted: !!m.note,
-                detail: () => (
-                  <>
-                    <h3>
-                      {m.name}　<small>{g.rank}</small>
-                    </h3>
-                    <dl className="kv">
-                      {m.role && !m.me && <Row k="職司" v={m.role} />}
-                      {m.note && <Row k="近況" v={m.note} />}
-                      {m.me && <Row k="身分" v={`${rank.name}${s.master ? `，${PEOPLE[s.master]?.name}門下` : ''}`} />}
-                      {rel && <Row k="交情" v={`${STAGES[stageOf(rel.aff)].name}（熟悉度 ${rel.aff}）`} />}
-                      {m.person && !rel && <Row k="交情" v="還沒說過話" />}
-                    </dl>
-                  </>
-                ),
-              };
-            }),
-        })),
+      ledger: () => ({
+        title: `${def.name}弟子名冊`,
+        columns: ['位階', '姓名', '職司', '近況', '交情'],
+        rows: groups.flatMap((g) =>
+          g.members.map((m, i) => {
+            const rel = m.person ? world.relations[m.person] : undefined;
+            return {
+              key: m.name,
+              mark: m.me,
+              muted: !!m.note,
+              cells: [
+                // 同一位階只在第一列寫，像書上的排法
+                i === 0 ? g.rank : '',
+                m.me ? `${m.name}（你）` : m.name,
+                m.me ? (s.master ? `${PEOPLE[s.master]?.name}門下` : '—') : (m.role ?? '—'),
+                m.note ?? '在山上',
+                rel ? `${STAGES[stageOf(rel.aff)].name}（${rel.aff}）` : m.person ? '還沒說過話' : '',
+              ],
+            };
+          }),
+        ),
+        note: '記名弟子另有十來人，名冊上不一一列出。',
+      }),
       detail: () => (
         <>
           <h3>弟子名冊</h3>
