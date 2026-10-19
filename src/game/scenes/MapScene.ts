@@ -323,9 +323,9 @@ export class MapScene extends Phaser.Scene {
     this.shade = this.add.rectangle(cam.width / 2, cam.height / 2, big, big, 0x000000, 0).setScrollFactor(0).setDepth(900000);
     this.fog = this.add.rectangle(cam.width / 2, cam.height / 2, big, big, 0xd8dee6, 0).setScrollFactor(0).setDepth(900002);
     if (!this.textures.exists('raindrop')) {
-      const [c, ctx] = makeCanvas(1, 4);
+      const [c, ctx] = makeCanvas(1, 5);
       ctx.fillStyle = '#c8d8f0';
-      ctx.fillRect(0, 0, 1, 4);
+      ctx.fillRect(0, 0, 1, 5);
       this.textures.addCanvas('raindrop', c);
     }
     this.rain = null;
@@ -337,7 +337,8 @@ export class MapScene extends Phaser.Scene {
     const outdoor = !this.def.theme;
     // 室內點了燈，夜裡沒有室外那麼暗
     const SHADE: Record<Period, [number, number, number]> = {
-      dawn: [0x405890, 0.2, 0.08],
+      // 早晨就是白天的樣子（起霧是天氣，不是時段）
+      dawn: [0x000000, 0, 0],
       day: [0x000000, 0, 0],
       dusk: [0xd06a28, 0.3, 0.12],
       night: [0x0a1238, 0.6, 0.25],
@@ -352,7 +353,7 @@ export class MapScene extends Phaser.Scene {
     }
     // setFillStyle 不給透明度會變成不透明，要帶上目前的值
     this.shade.setFillStyle(tint, this.shade.fillAlpha);
-    const fogAlpha = outdoor && weather === 'fog' ? 0.32 : 0;
+    const fogAlpha = outdoor && weather === 'fog' ? 0.24 : 0;
     if (animate) {
       this.tweens.add({ targets: this.shade, fillAlpha: alpha, duration: 600 });
       this.tweens.add({ targets: this.fog, fillAlpha: fogAlpha, duration: 600 });
@@ -370,25 +371,23 @@ export class MapScene extends Phaser.Scene {
     }
   }
 
-  /** 雨絲：從畫面上方斜斜落下 */
+  /** 雨絲：在鏡頭看得到的範圍上方生成，斜斜落下（用地圖座標，每幀跟著鏡頭移動生成的位置） */
   private makeRain() {
+    // 剛建好場景時鏡頭的 worldView 還沒算出來，可視範圍改用畫面尺寸 ÷ 縮放倍率
     const cam = this.cameras.main;
     const vw = cam.width / cam.zoom;
     const vh = cam.height / cam.zoom;
-    const left = cam.width / 2 - vw / 2;
-    const top = cam.height / 2 - vh / 2;
     return this.add
-      .particles(0, 0, 'raindrop', {
-        x: { min: left - 40, max: left + vw + 40 },
-        y: top - 8,
-        speedY: { min: 260, max: 340 },
-        speedX: { min: -50, max: -30 },
-        lifespan: (vh / 260) * 1000,
-        quantity: 2,
-        frequency: 25,
-        alpha: { start: 0.7, end: 0.4 },
+      .particles(cam.worldView.x, cam.worldView.y, 'raindrop', {
+        x: { min: -30, max: vw + 30 },
+        y: { min: -12, max: vh * 0.6 },
+        speedY: { min: 200, max: 260 },
+        speedX: { min: -40, max: -25 },
+        lifespan: { min: 400, max: 900 },
+        quantity: 3,
+        frequency: 16,
+        alpha: { start: 0.75, end: 0.25 },
       })
-      .setScrollFactor(0)
       .setDepth(900001);
   }
 
@@ -672,6 +671,7 @@ export class MapScene extends Phaser.Scene {
   update(time: number) {
     const k = this.keys;
     if (this.leaving) return;
+    if (this.rain) this.rain.setPosition(this.cameras.main.worldView.x, this.cameras.main.worldView.y);
 
     if (uiBlocking()) {
       this.queued = null;

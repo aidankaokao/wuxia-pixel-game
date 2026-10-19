@@ -111,9 +111,14 @@ function npcHours(name: string): [number, number] {
 }
 
 /** 這個 NPC 現在在不在（outdoor：這張地圖是不是室外） */
-export function npcPresent(n: { name: string; encounter?: string; allDay?: boolean; work?: boolean; night?: boolean }, outdoor: boolean, time: number) {
+export function npcPresent(
+  n: { name: string; encounter?: string; allDay?: boolean; work?: boolean; night?: boolean; out?: number },
+  outdoor: boolean,
+  time: number,
+) {
   if (n.encounter || n.allDay) return true;
-  const [out, home] = npcHours(n.name);
+  const [hashedOut, home] = npcHours(n.name);
+  const out = n.out ?? hashedOut;
   const awake = time >= out && time < home;
   if (n.night) return !awake;
   if (outdoor || n.work) return awake;
