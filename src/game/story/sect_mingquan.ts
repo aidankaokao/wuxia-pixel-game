@@ -138,6 +138,7 @@ export const MINGQUAN: SectDef = {
 registerSect(MINGQUAN);
 
 const member = () => inSect(st().world, SECT);
+export const isMember = member;
 const sect = () => st().world.sect!;
 const day = () => st().world.day;
 

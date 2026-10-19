@@ -1,5 +1,6 @@
-import { armoryTalk, cellBed, choreAt, cookTalk, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, kitchenStove, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, cellBed, choreAt, cookTalk, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, isMember, keeperTalk, kitchenStove, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
+import { readingShelf } from '../story/reading';
 import type { MapDef, PropDef } from './types';
 
 /**
@@ -171,7 +172,7 @@ export const mqLib: MapDef = {
   theme: 'scholar',
   buildings: [],
   props: [
-    { sprite: 'f_shelf_scholar_3', x: 1, y: 1, w: 2, lines: [{ text: '經史子集。練劍之餘也要讀書，這是祖師定下的規矩。' }] },
+    { sprite: 'f_shelf_scholar_3', x: 1, y: 1, w: 2, script: readingShelf('經史子集。練劍之餘也要讀書，這是祖師定下的規矩。', isMember), label: '讀書' },
     { sprite: 'f_shelf_scholar_3', x: 4, y: 1, w: 2, script: libShelf, label: '研讀' },
     { sprite: 'f_shelf_scholar_3', x: 7, y: 1, w: 2, script: choreAt('books', [{ text: '各門各派的掌故與江湖見聞。' }]) },
     { sprite: 'f_table_scholar_1', x: 3, y: 4, w: 2, lines: [{ text: '書案上攤著一本《鳴泉劍譜》的抄本，墨跡還沒乾。' }] },

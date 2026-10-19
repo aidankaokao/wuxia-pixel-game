@@ -27,7 +27,10 @@ export const CRAFTS: CraftDef[] = [
     howTo: '跟鳴泉劍派廚房的卜大勺學菜（烹飪 2、4、6 級起能學中等、進階、拿手菜），在廚房大灶或家裡的灶台做菜。', open: true,
   },
   { id: 'weaving', name: '紡織', group: '生活', desc: '紡紗織布、裁製衣物，技藝越高做出來的衣物品級越好。', howTo: '之後開放。', open: false },
-  { id: 'learning', name: '學識', group: '學問', desc: '讀書明理。學識高，說話、講價、解題都更有把握。', howTo: '之後在書房讀經史子集。', open: false },
+  {
+    id: 'learning', name: '學識', group: '學問', desc: '讀書明理。每一級買東西便宜 1%（最多一成），研讀武功時領悟也多 1 點。',
+    howTo: '在鳴泉劍派書房的「經史子集」書架讀書，從三字經、千字文、弟子規讀起；學識越高，讀得懂的書越多。', open: true,
+  },
   { id: 'qin', name: '琴', group: '雅藝', desc: '撫琴怡情，也能結交同好。', howTo: '之後開放。', open: false },
   { id: 'chess', name: '棋', group: '雅藝', desc: '黑白對弈，磨練心思。', howTo: '之後開放。', open: false },
   { id: 'calligraphy', name: '書', group: '雅藝', desc: '寫得一手好字。', howTo: '之後開放。', open: false },

@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { ATTRS, attrParts, Character, derive, equipGear, GEAR_SLOTS, gearStats, ITEMS, slotsFor, unequipGear } from '../game/character';
 import { GearSlotId, GRADE_CLASS, GRADES } from '../game/gear';
+import { bookOf, BOOKS, READ_STAGES } from '../game/books';
 import { DISH_TIERS, DISHES, dishItem, knowsDish, needsText, STEW, TIER_LEVEL } from '../game/cooking';
 import { CRAFTS, craftExpToNext, CRAFT_MAX, craftOf, craftTitle, WORK_MAX, workExpToNext, workOf } from '../game/crafts';
 import { rankName, sectDef } from '../game/sect';
@@ -141,7 +142,7 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
             label: c.name,
             muted: !c.open,
             tag: c.open ? `${p.level} 級・${craftTitle(p.level)}` : '未開放',
-            children: c.id === 'cooking' ? () => dishList(hero) : undefined,
+            children: c.id === 'cooking' ? () => dishList(hero) : c.id === 'learning' ? () => bookList(hero) : undefined,
             detail: () => (
               <>
                 <h3>
@@ -262,4 +263,35 @@ function gearSlot(hero: Character, slot: GearSlotId, name: string): BrowseItem {
     children: () => (children.length ? children : [{ key: 'none', label: '行囊裡沒有能穿在這裡的東西', muted: true }]),
     detail: () => (now ? info(now) : <p className="small muted">{name}沒有穿戴東西。{options.length ? `行囊裡有 ${options.length} 件可以穿。` : ''}</p>),
   };
+}
+
+/** 技能 › 學識：書目與熟讀程度 */
+function bookList(hero: Character): BrowseItem[] {
+  const lv = craftOf(hero, 'learning').level;
+  return BOOKS.map((b) => {
+    const p = bookOf(hero, b.id);
+    return {
+      key: b.id,
+      label: `《${b.name}》`,
+      muted: !p,
+      tag: p ? READ_STAGES[p.level] : lv >= b.level ? '還沒讀' : `學識 ${b.level} 級起`,
+      detail: () => (
+        <>
+          <h3>
+            《{b.name}》　<small>{b.shelf}</small>
+          </h3>
+          <p className="small">{b.desc}</p>
+          <dl className="kv">
+            <dt>門檻</dt>
+            <dd>學識 {b.level} 級</dd>
+            <dt>熟讀</dt>
+            <dd>
+              {p ? `${READ_STAGES[p.level]}（${p.level}/${WORK_MAX}）${p.level < WORK_MAX ? `　${p.exp}/${workExpToNext(p.level)}` : ''}` : '還沒讀過'}
+            </dd>
+          </dl>
+          <p className="small muted">在鳴泉劍派書房的「經史子集」書架讀。讀到精通時，學識會多長一截。</p>
+        </>
+      ),
+    };
+  });
 }

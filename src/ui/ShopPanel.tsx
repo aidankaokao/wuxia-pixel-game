@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { holdable, ITEMS, sellPrice } from '../game/character';
+import { learningDiscount } from '../game/books';
 import { itemIconUrl } from '../game/art/items';
 import { discountOf, tradeAffinity } from '../game/story/social';
 import { useGame } from '../state/store';
@@ -29,7 +30,8 @@ export function ShopPanel() {
   const person = panel?.kind === 'shop' ? panel.person : undefined;
   const flags = useGame((s) => s.flags);
   // 熟客打折
-  const discount = person ? discountOf(person) : 0;
+  // 熟客打折，學識高的人也會講價
+  const discount = Math.min(0.3, (person ? discountOf(person) : 0) + learningDiscount(hero));
   const buyPrice = (id: string) => Math.ceil(ITEMS[id].price! * (1 - discount));
   const list =
     tab === 'buy'
@@ -97,7 +99,7 @@ export function ShopPanel() {
     <div className="menu-backdrop">
       <div className="panel pixel-frame">
         <h2>
-          {(panel?.kind === 'shop' && panel.title) || '貨郎攤子'}　<small>銀兩 {hero.silver}{discount ? `　熟客 ${Math.round((1 - discount) * 10)} 折` : ''}</small>
+          {(panel?.kind === 'shop' && panel.title) || '貨郎攤子'}　<small>銀兩 {hero.silver}{discount ? `　打 ${((1 - discount) * 10).toFixed(1).replace(/\.0$/, '')} 折` : ''}</small>
         </h2>
         <div className="panel-tabs">
           <span className={tab === 'buy' ? 'active' : ''} onClick={() => (setTab('buy'), setCursor(0))}>

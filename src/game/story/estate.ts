@@ -1,4 +1,5 @@
 import { cookAt } from './cooking';
+import { learningBonus } from '../books';
 import { Character, derive, gainInsight, gainSkill, giveItem, isEquipped, nextMove, restoreAll, skillCap, skillDef, slotOf } from '../character';
 import { MOVES } from '../battle/moves';
 import type { EventCtx, Script } from '../events';
@@ -192,7 +193,8 @@ const shelf =
 export function studyInsight(h: Character, id: string, amount: number): (string | null)[] {
   const name = skillDef({ id }).name;
   const before = h.skills.find((s) => s.id === id)!.level;
-  const learned = gainInsight(h, id, amount);
+  // 學識高，讀武功典籍也領悟得多一些
+  const learned = gainInsight(h, id, amount + learningBonus(h));
   const s = h.skills.find((k) => k.id === id)!;
   if (!learned) return [`對「${name}」的下一招又多了幾分體會（領悟 ${s.insight}%）。`];
   return [`靈光一閃！你從「${name}」中悟出了「${MOVES[learned].name}」！`, s.level > before ? `「${name}」隨之精進至第 ${s.level} 重！` : null];
