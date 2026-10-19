@@ -248,6 +248,17 @@ export const BUILDINGS: Record<string, BuildingStyle> = {
   smithy: { w: 5, h: 4, door: 2, roof: '#4a4248', roofDark: '#302a2e', roofLight: '#625860', wall: '#c9bda6', chimney: true },
   house: { w: 5, h: 4, door: 2, roof: '#4a5568', roofDark: '#323a4a', roofLight: '#64708a' },
   house2: { w: 5, h: 4, door: 2, roof: '#6a4a3a', roofDark: '#4a3226', roofLight: '#86624e' },
+  // 門派（鳴泉劍派：青綠屋頂、白牆）
+  sect_hall: { w: 9, h: 6, door: 4, roof: '#3e6656', roofDark: '#284638', roofLight: '#56826f', timber: '#8a2e26', lanterns: true, plaque: true },
+  sect_master: { w: 6, h: 4, door: 2, roof: '#3e6656', roofDark: '#284638', roofLight: '#56826f', plaque: true },
+  sect_dorm: { w: 9, h: 4, door: 4, roof: '#5a6a6a', roofDark: '#3e4a4a', roofLight: '#768686' },
+  sect_room: { w: 5, h: 4, door: 2, roof: '#4a6a62', roofDark: '#324a44', roofLight: '#64867c' },
+  sect_cell: { w: 4, h: 3, door: 1, roof: '#4a6a62', roofDark: '#324a44', roofLight: '#64867c' },
+  sect_train: { w: 7, h: 5, door: 3, roof: '#3a4a52', roofDark: '#283238', roofLight: '#52646e', timber: '#5a2a1e', banner: true },
+  sect_lib: { w: 6, h: 4, door: 2, roof: '#3e6656', roofDark: '#284638', roofLight: '#56826f', plaque: true },
+  sect_armory: { w: 5, h: 4, door: 2, roof: '#4a4248', roofDark: '#302a2e', roofLight: '#625860', wall: '#b8b0a0' },
+  sect_med: { w: 5, h: 4, door: 2, roof: '#5a7a4a', roofDark: '#3e5a32', roofLight: '#769664' },
+  sect_kitchen: { w: 6, h: 4, door: 2, roof: '#5a5250', roofDark: '#3e3836', roofLight: '#766e6a', wall: '#c9bda6', chimney: true },
   // 自宅的五個等級（home.ts 的 HOME_TIERS），佔地都不超過空地的 7×5
   home1: { w: 4, h: 3, door: 1, roof: '#b8944a', roofDark: '#8a6a30', roofLight: '#d4b066', wall: '#b8a07a' },
   home2: { w: 5, h: 4, door: 2, roof: '#a88a48', roofDark: '#7a6230', roofLight: '#c8a860', wall: '#d0c098' },

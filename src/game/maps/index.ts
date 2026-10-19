@@ -2,6 +2,8 @@ import { canglan } from './canglan';
 import { guandao } from './guandao';
 import { linjiang } from './linjiang';
 import { mingquan } from './mingquan';
+import { mqBack, mqSect } from './sect_mingquan';
+import { SECT_MINGQUAN_ROOMS } from './sect_mingquan_rooms';
 import { buildHomeMap, PlacedPlot, withPlots } from './home';
 import { qingzhu } from './qingzhu';
 import { qzLiu, qzSmithy, qzTea, qzWang } from './qingzhu_rooms';
@@ -16,6 +18,9 @@ export const MAPS: Record<string, MapDef> = {
   [guandao.id]: guandao,
   [linjiang.id]: linjiang,
   [mingquan.id]: mingquan,
+  [mqSect.id]: mqSect,
+  [mqBack.id]: mqBack,
+  ...Object.fromEntries(SECT_MINGQUAN_ROOMS.map((m) => [m.id, m])),
   [qzLiu.id]: qzLiu,
   [qzTea.id]: qzTea,
   [qzSmithy.id]: qzSmithy,

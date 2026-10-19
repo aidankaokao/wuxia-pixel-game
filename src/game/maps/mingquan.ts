@@ -2,7 +2,7 @@ import type { MapDef } from './types';
 
 /**
  * 鳴泉山道 —— 臨江城北門外，沿山路與石階而上，盡頭是鳴泉劍派的山門。
- * 山門以內（門派）尚待設計，目前由守門弟子擋著。
+ * 穿過山門往上就是門派院落（sect_mingquan.ts）。
  */
 export const mingquan: MapDef = {
   id: 'mingquan',
@@ -13,7 +13,7 @@ export const mingquan: MapDef = {
     '^^^^^^^.....EEEE....~~^^^^^^',
     '^^^^^^......SSSS....~~.^^^^^',
     '^^^^^.......SSSS....~~.^^^^^',
-    '^^^^^..====XX==XX====~.^^^^^',
+    '^^^^^..====X====X====~.^^^^^',
     '^^^^^..==============~^^^^^^',
     '^^^^^^.==============~^^^^^^',
     '^^^^^^.==============~^^^^^^',
@@ -57,18 +57,17 @@ export const mingquan: MapDef = {
   ],
   npcs: [
     {
-      id: 'mq_guard1', name: '守門弟子', sprite: 'disciple', x: 13, y: 3, facing: 'down',
+      id: 'mq_guard1', name: '守門弟子', sprite: 'disciple', x: 10, y: 4, facing: 'right',
       talks: [
         [
           { speaker: '守門弟子', text: '此處是鳴泉劍派山門。來者何人？' },
-          { speaker: '守門弟子', text: '……來拜師的？收徒之日還沒到，請在山下稍候。' },
-          { text: '（門派內容設計中，敬請期待）' },
+          { speaker: '守門弟子', text: '……來拜師的？收徒大典還有些日子，進去看看無妨，只是別亂闖禁地。' },
         ],
       ],
     },
     {
-      id: 'mq_guard2', name: '守門弟子', sprite: 'disciple', x: 14, y: 3, facing: 'down',
-      talks: [[{ speaker: '守門弟子', text: '山門重地，閒人止步。' }, { text: '（門派內容設計中，敬請期待）' }]],
+      id: 'mq_guard2', name: '守門弟子', sprite: 'disciple', x: 17, y: 4, facing: 'left',
+      talks: [[{ speaker: '守門弟子', text: '山門重地，進去之後請守規矩。' }]],
     },
     {
       id: 'mq_woodcutter', name: '樵夫', sprite: 'farmer', x: 9, y: 22, wander: 2,
@@ -82,6 +81,6 @@ export const mingquan: MapDef = {
   ],
   exits: [
     { tiles: [[16, 35], [17, 35]], to: 'linjiang', spawn: { x: 27, y: 1, facing: 'down' } },
-    { tiles: [[12, 0], [13, 0], [14, 0], [15, 0]], lines: [{ text: '（門派內容設計中，敬請期待）' }] },
+    { tiles: [[12, 0], [13, 0], [14, 0], [15, 0]], to: 'mq_sect', spawn: { x: 23, y: 44, facing: 'up' } },
   ],
 };

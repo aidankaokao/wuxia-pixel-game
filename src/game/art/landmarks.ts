@@ -49,8 +49,129 @@ function boat(): PropArt {
   return { canvas: c };
 }
 
+const done = (c: HTMLCanvasElement, ctx: CanvasRenderingContext2D): PropArt => {
+  outline(ctx, 0, 0, c.width, c.height, OUTLINE);
+  return { canvas: c };
+};
+
+/** 涼亭：四根柱子、攢尖頂 */
+function pavilion(): PropArt {
+  const [c, ctx] = makeCanvas(48, 52);
+  px(ctx, 2, 44, 44, 7, '#a8a296');
+  hline(ctx, 2, 45, 44, '#c8c2b6');
+  for (const x of [6, 39]) px(ctx, x, 22, 4, 22, '#8a2e26');
+  // 屋頂
+  for (let i = 0; i < 16; i++) hline(ctx, Math.round(23 - i * 1.4), Math.round(24 + i * 1.4), 6 + i, i % 3 === 0 ? '#284638' : '#3e6656');
+  px(ctx, 0, 21, 48, 3, '#284638');
+  px(ctx, 22, 1, 4, 6, '#c8a050');
+  // 石桌
+  px(ctx, 18, 36, 12, 4, '#8a8478');
+  vline(ctx, 23, 40, 43, '#6e695e');
+  return done(c, ctx);
+}
+
+/** 銅鼎：香爐，冒著煙 */
+function ding(): PropArt {
+  const [c, ctx] = makeCanvas(32, 30);
+  for (const x of [8, 22]) px(ctx, x, 22, 3, 7, '#6a5a3a');
+  px(ctx, 4, 10, 24, 13, '#8a7a4a');
+  hline(ctx, 4, 27, 10, '#b09a60');
+  px(ctx, 2, 8, 28, 3, '#6a5a3a');
+  for (const x of [4, 24]) px(ctx, x, 3, 4, 6, '#6a5a3a');
+  for (let x = 8; x < 26; x += 5) px(ctx, x, 14, 3, 3, '#5a4a2a');
+  vline(ctx, 15, 0, 6, '#d8d8e0');
+  vline(ctx, 17, 1, 5, '#d8d8e0');
+  return done(c, ctx);
+}
+
+/** 試劍石：一塊大石，上面滿是劍痕 */
+function swordRock(): PropArt {
+  const [c, ctx] = makeCanvas(32, 28);
+  for (let y = 4; y < 27; y++) {
+    const w = 12 + Math.round(Math.sin((y / 26) * Math.PI) * 4);
+    hline(ctx, 16 - w, 15 + w, y, y < 10 ? '#9a9488' : '#8a8478');
+  }
+  for (const [x, y, l] of [[8, 9, 10], [12, 14, 12], [18, 8, 8], [10, 20, 14]] as const)
+    for (let i = 0; i < l; i++) px(ctx, x + i, y + Math.round(i * 0.4), 1, 1, '#4a4640');
+  return done(c, ctx);
+}
+
+/** 劍塚：土堆上插著一把劍 */
+function swordGrave(): PropArt {
+  const [c, ctx] = makeCanvas(16, 26);
+  for (let y = 18; y < 25; y++) hline(ctx, 8 - (y - 17), 7 + (y - 17), y, '#7a6a52');
+  vline(ctx, 8, 2, 20, '#c8ccd4');
+  vline(ctx, 7, 3, 19, '#9aa0a8');
+  px(ctx, 4, 8, 8, 2, '#8a6a46');
+  px(ctx, 7, 0, 2, 3, '#5a4a3a');
+  return done(c, ctx);
+}
+
+/** 山壁上的洞口 */
+function cave(): PropArt {
+  const [c, ctx] = makeCanvas(32, 30);
+  px(ctx, 0, 4, 32, 26, '#7a7262');
+  for (let y = 10; y < 30; y++) {
+    const w = Math.round(9 * Math.sqrt(1 - ((y - 30) / 20) ** 2));
+    hline(ctx, 16 - w, 15 + w, y, '#14121a');
+  }
+  hline(ctx, 0, 31, 4, '#5c5649');
+  return done(c, ctx);
+}
+
+/** 門派旗幟：青底白邊 */
+function sectFlag(): PropArt {
+  const [c, ctx] = makeCanvas(16, 34);
+  vline(ctx, 3, 1, 33, '#5e3b1d');
+  px(ctx, 4, 3, 10, 14, '#3e6656');
+  px(ctx, 4, 3, 10, 2, '#e8eef0');
+  px(ctx, 8, 7, 3, 7, '#e8eef0');
+  return done(c, ctx);
+}
+
+/** 蒲團 */
+function cushion(): PropArt {
+  const [c, ctx] = makeCanvas(16, 10);
+  for (let y = 1; y < 9; y++) hline(ctx, 8 - Math.round(Math.sqrt(16 - (y - 5) ** 2) * 1.6), 7 + Math.round(Math.sqrt(16 - (y - 5) ** 2) * 1.6), y, y % 2 ? '#c8a050' : '#a8803a');
+  return done(c, ctx);
+}
+
+/** 晾藥材的架子 */
+function dryingRack(): PropArt {
+  const [c, ctx] = makeCanvas(32, 24);
+  for (const x of [2, 29]) vline(ctx, x, 2, 23, '#6a4428');
+  for (const y of [5, 13]) hline(ctx, 2, 29, y, '#8a5a32');
+  for (let x = 5; x < 28; x += 4) {
+    px(ctx, x, 6, 2, 5, x % 8 ? '#6aaa40' : '#a8804a');
+    px(ctx, x + 1, 14, 2, 4, x % 8 ? '#c8a050' : '#5a8a3a');
+  }
+  return done(c, ctx);
+}
+
+/** 祖師畫像（掛在牆上） */
+function portrait(): PropArt {
+  const [c, ctx] = makeCanvas(32, 18);
+  px(ctx, 6, 0, 20, 17, '#f1e7cf');
+  hline(ctx, 4, 27, 0, '#5a4a3a');
+  hline(ctx, 4, 27, 16, '#5a4a3a');
+  px(ctx, 13, 3, 6, 5, '#e8c8a0');
+  px(ctx, 12, 2, 8, 2, '#3a3a40');
+  px(ctx, 11, 8, 10, 7, '#5a6a7a');
+  px(ctx, 15, 8, 2, 4, '#c8ccd4');
+  return done(c, ctx);
+}
+
 export function landmarkProps(): Record<string, PropArt> {
   return {
+    pavilion: pavilion(),
+    ding: ding(),
+    sword_rock: swordRock(),
+    sword_grave: swordGrave(),
+    cave: cave(),
+    sect_flag: sectFlag(),
+    cushion: cushion(),
+    drying_rack: dryingRack(),
+    portrait: portrait(),
     paifang_city: paifang('#8a2e26', '#5a1a14', '#3f4a5e', '#2a3242', '#2a3242'),
     paifang_sect: paifang('#b8b2a4', '#8a8478', '#3e6656', '#284638', '#284638'),
     boat: boat(),

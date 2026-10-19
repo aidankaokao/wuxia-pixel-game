@@ -1,23 +1,10 @@
-import type { Line, MapDef } from './types';
+import { by, exitTo, room } from './rooms';
+import type { MapDef } from './types';
 
 /**
  * 青竹村各屋的室內：柳家大宅、竹風茶寮、石家鐵鋪、王家。
  * 出口回到村裡該屋的門口（qingzhu.ts 的 buildings 用 enter 連過來）。
  */
-
-const by = (speaker: string) => (...texts: string[]): Line[] => texts.map((text) => ({ speaker, text }));
-
-const room = (w: number, h: number, exitX: number): string[] => [
-  'W'.repeat(w),
-  ...Array.from({ length: h - 2 }, () => `W${'_'.repeat(w - 2)}W`),
-  'W'.repeat(exitX) + 'E' + 'W'.repeat(w - exitX - 1),
-];
-
-const exitTo = (map: MapDef['id'], x: number, y: number, exitX: number, h: number) => ({
-  tiles: [[exitX, h - 1]] as [number, number][],
-  to: map,
-  spawn: { x, y, facing: 'down' as const },
-});
 
 // ── 柳家大宅 ────────────────────────────────────────────
 
