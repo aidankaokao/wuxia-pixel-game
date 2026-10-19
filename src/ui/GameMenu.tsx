@@ -40,7 +40,7 @@ import { loadGame, toTitle } from '../game/session';
 import { fameTitle, stageOf, STAGES } from '../game/social';
 import { usedToday } from '../game/home';
 import { PEOPLE } from '../game/story/people';
-import { choreKey, leaveRuleText, nextStipendDay, promotionChecks, recruitText, sectDef, STIPEND_DAYS } from '../game/sect';
+import { choreKey, leaveRuleText, nextStipendDay, promotionChecks, recruitText, roster, sectDef, STIPEND_DAYS } from '../game/sect';
 import { Settings, useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
@@ -739,6 +739,31 @@ function SectPage() {
             );
           })}
         </ul>
+      </div>
+
+      <div className="skill">
+        <div className="skill-head">
+          <span className="skill-name">弟子名冊</span>
+          <span className="muted small">記名弟子另有十來人，不一一列出</span>
+        </div>
+        {roster(def, s, hero.name).map((g) => (
+          <div key={g.rank} className="roster-group">
+            <div className="roster-rank small">{g.rank}</div>
+            <ul className="sect-list small">
+              {g.members.map((m) => {
+                const rel = m.person && world.relations[m.person];
+                return (
+                  <li key={m.name} className={m.me ? 'good' : ''}>
+                    {m.name}
+                    {m.me ? '（你）' : m.role && <span className="muted">　{m.role}</span>}
+                    {m.note && <span className="muted">（{m.note}）</span>}
+                    {rel && <span className="tag muted-tag roster-tag">{STAGES[stageOf(rel.aff)].name}</span>}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
       </div>
 
       <div className="skill">

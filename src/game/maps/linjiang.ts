@@ -1,4 +1,4 @@
-import { huichunDelivery } from '../story/sect_mingquan';
+import { huichunDelivery, MQ } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -106,13 +106,13 @@ export const linjiang: MapDef = {
       talks: [[{ speaker: '守城兵', text: '出北門往上走就是鳴泉山。' }, { speaker: '守城兵', text: '最近上山的年輕人特別多，都是去拜師的。' }]],
     },
     {
-      id: 'lj_disciple', name: '鳴泉弟子', sprite: 'disciple', x: 28, y: 14, facing: 'down',
+      id: 'lj_disciple', name: MQ.wei, sprite: 'disciple', x: 28, y: 14, facing: 'down',
       talks: [
         [
-          { speaker: '鳴泉弟子', text: '在下鳴泉劍派弟子，奉師命下山採買。' },
-          { speaker: '鳴泉弟子', text: '本派正開山收徒，不拘時日。閣下若有意，出北門沿山道往上走，山門就在鳴泉旁。' },
+          { speaker: MQ.wei, text: '在下鳴泉劍派弟子韋季安，奉師命下山採買。' },
+          { speaker: MQ.wei, text: '本派正開山收徒，不拘時日。閣下若有意，出北門沿山道往上走，山門就在鳴泉旁。' },
         ],
-        [{ speaker: '鳴泉弟子', text: '鳴泉山上有一眼泉水，水擊山石，其聲如鳴，本派因此得名。' }],
+        [{ speaker: MQ.wei, text: '鳴泉山上有一眼泉水，水擊山石，其聲如鳴，本派因此得名。' }],
       ],
     },
     {

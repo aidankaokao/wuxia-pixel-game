@@ -1,4 +1,4 @@
-import { cookTalk, greeterTalk, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
+import { cookTalk, greeterTalk, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -65,7 +65,7 @@ export const mqSect: MapDef = {
 
   buildings: [
     { style: 'sect_hall', x: 19, y: 4, name: '大殿', door: [], enter: { to: 'mq_hall', spawn: { x: 7, y: 7, facing: 'up' } } },
-    { style: 'sect_master', x: 31, y: 3, name: '掌門居', door: [{ text: '門上懸著「靜修」二字，門關著。' }, { speaker: '值守弟子', text: '掌門居所，沒有傳喚不得擅入。' }] },
+    { style: 'sect_master', x: 31, y: 3, name: '掌門居', door: [{ text: '門上懸著「靜修」二字，門關著。' }, { text: '（掌門居所，沒有傳喚不得擅入）' }] },
     { style: 'sect_dorm', x: 2, y: 10, name: '大通鋪', door: [], enter: { to: 'mq_dorm', spawn: { x: 7, y: 5, facing: 'up' } } },
     { style: 'sect_room', x: 2, y: 17, name: '弟子房・甲', door: [], enter: { to: 'mq_room_a', spawn: { x: 4, y: 4, facing: 'up' } } },
     { style: 'sect_room', x: 7, y: 17, name: '弟子房・乙', door: [], enter: { to: 'mq_room_b', spawn: { x: 4, y: 4, facing: 'up' } } },
@@ -99,26 +99,32 @@ export const mqSect: MapDef = {
   ],
 
   npcs: [
-    { id: 'mqs_greeter', name: '知客弟子', sprite: 'disciple', x: 25, y: 40, facing: 'down', script: greeterTalk },
+    { id: 'mqs_greeter', name: MQ.fang, sprite: 'disciple', x: 25, y: 40, facing: 'down', script: greeterTalk },
     { id: 'mqs_lu', name: '陸鳴川', sprite: 'sect_senior', x: 22, y: 21, facing: 'down', person: 'lu' },
     { id: 'mqs_xiaoman', name: '顧小滿', sprite: 'disciple_girl', x: 18, y: 26, facing: 'up', wander: 1, person: 'xiaoman' },
     {
-      id: 'mqs_trainee1', name: '練劍弟子', sprite: 'disciple', x: 25, y: 23, facing: 'left', wander: 1,
-      talks: [[{ speaker: '練劍弟子', text: '喝！哈！……別看我，師兄說一套劍沒練滿一百遍不許停。' }]],
+      id: 'mqs_trainee1', name: MQ.bao, sprite: 'disciple', x: 25, y: 23, facing: 'left', wander: 1,
+      talks: [
+        [{ speaker: MQ.bao, text: '我叫包小川，跟秋生同一天入門的。他練得比我快……我才不服！' }],
+        [{ speaker: MQ.bao, text: '喝！哈！……別看我，師兄說一套劍沒練滿一百遍不許停。' }],
+      ],
     },
     {
-      id: 'mqs_trainee2', name: '練劍弟子', sprite: 'disciple', x: 28, y: 25, facing: 'up', wander: 1,
-      talks: [[{ speaker: '練劍弟子', text: '本派劍法講究「快而不亂，如泉不絕」。說起來簡單，練起來可難了。' }]],
+      id: 'mqs_trainee2', name: MQ.tang, sprite: 'disciple', x: 28, y: 25, facing: 'up', wander: 1,
+      talks: [
+        [{ speaker: MQ.tang, text: '在下唐秋生。小川老說要贏我，可他每天晨課都睡過頭。' }],
+        [{ speaker: MQ.tang, text: '本派劍法講究「快而不亂，如泉不絕」。說起來簡單，練起來可難了。' }],
+      ],
     },
     {
-      id: 'mqs_sweeper', name: '掃地弟子', sprite: 'disciple', x: 17, y: 12, wander: 2, script: sweeperTalk,
+      id: 'mqs_sweeper', name: MQ.cao, sprite: 'disciple', x: 17, y: 12, wander: 2, script: sweeperTalk,
     },
     {
-      id: 'mqs_outer', name: '記名弟子', sprite: 'farmer', x: 6, y: 15, wander: 2,
-      talks: [[{ speaker: '記名弟子', text: '大通鋪住了十幾個人，晚上打呼聲此起彼落……' }, { speaker: '記名弟子', text: '等我成了正式弟子，就能住兩人一間的房了！' }]],
+      id: 'mqs_outer', name: MQ.zheng, sprite: 'farmer', x: 6, y: 15, wander: 2,
+      talks: [[{ speaker: MQ.zheng, text: '俺叫鄭大壯，山下種田的。大通鋪住了十幾個人，晚上打呼聲此起彼落……' }, { speaker: MQ.zheng, text: '等俺成了正式弟子，就能住兩人一間的房了！' }]],
     },
     {
-      id: 'mqs_cook', name: '伙房師傅', sprite: 'smith', x: 42, y: 29, facing: 'down', script: cookTalk,
+      id: 'mqs_cook', name: MQ.bu, sprite: 'smith', x: 42, y: 29, facing: 'down', script: cookTalk,
     },
   ],
 
