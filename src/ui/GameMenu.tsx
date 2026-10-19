@@ -21,7 +21,6 @@ import {
   swapItems,
   skillCap,
   skillDef,
-  SKILLS,
   SKILL_SLOT_NAME,
   Slot,
   slotOf,
@@ -37,12 +36,11 @@ import { MOVES } from '../game/battle/moves';
 import { QUESTS } from '../game/story/quests';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
-import { fameTitle, stageOf, STAGES } from '../game/social';
-import { usedToday } from '../game/home';
-import { PEOPLE } from '../game/story/people';
-import { choreKey, leaveRuleText, nextStipendDay, promotionChecks, recruitText, roster, sectDef, STIPEND_DAYS } from '../game/sect';
+import { fameTitle } from '../game/social';
 import { Settings, useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
+import { PeoplePage } from './PeoplePage';
+import { SectPage } from './SectPage';
 
 const TABS = ['人物', '武功', '行囊', '門派', '交遊', '江湖事', '系統'] as const;
 type Tab = (typeof TABS)[number];
@@ -64,7 +62,7 @@ export function GameMenu() {
   const setMenu = useGame((s) => s.setMenu);
   const [tab, setTab] = useState<Tab>('人物');
   const [inBody, setInBody] = useState(false);
-  const hasBody = tab === '武功' || tab === '系統' || tab === '行囊';
+  const hasBody = tab === '武功' || tab === '系統' || tab === '行囊' || tab === '門派' || tab === '交遊';
   useEffect(() => {
     if (!open) setInBody(false);
   }, [open]);
@@ -95,8 +93,8 @@ export function GameMenu() {
           {tab === '人物' && <CharacterPage />}
           {tab === '武功' && <SkillsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
           {tab === '行囊' && <ItemsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
-          {tab === '門派' && <SectPage />}
-          {tab === '交遊' && <PeoplePage />}
+          {tab === '門派' && <SectPage active={inBody} onExit={exit} />}
+          {tab === '交遊' && <PeoplePage active={inBody} onExit={exit} />}
           {tab === '江湖事' && <QuestsPage />}
           {tab === '系統' && <SystemPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
         </div>
@@ -661,166 +659,6 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-/** 門派：身分、貢獻、晉升條件、本門武功與門規 */
-function SectPage() {
-  const world = useGame((s) => s.world);
-  const hero = useGame((s) => s.hero);
-  const s = world.sect;
-  const def = s && sectDef(s.id);
-  if (!s || !def) {
-    const left = (world.leftSects ?? []).map((id) => sectDef(id)?.name).filter(Boolean);
-    return (
-      <div>
-        <h2>門派</h2>
-        <p className="muted placeholder">尚未拜入任何門派。</p>
-        <p className="muted small">
-          江湖上一個人只能拜一個門派。記名弟子通常可以自由離開；成了正式弟子以後，就要照各派的門規——交罰金、闖陣，有的門派甚至不准離開。
-        </p>
-        {left.length > 0 && <p className="small">曾經離開：{left.join('、')}（不能再回去拜師）</p>}
-      </div>
-    );
-  }
-  const rank = def.ranks[s.rank];
-  const next = def.ranks[s.rank + 1];
-  const level = (id: string) => hero.skills.find((k) => k.id === id)?.level ?? 0;
-  const checks = promotionChecks(s, world.day, level, (id) => SKILLS[id].name);
-  return (
-    <div>
-      <h2>
-        {def.name}　<small>{def.size}門派・{rank.name}</small>
-      </h2>
-      <div className="derived">
-        <span>入門 {world.day - s.joinedDay} 天</span>
-        <span>門派貢獻 {s.contrib}</span>
-        <span>累計功績 {s.merit}</span>
-        {s.master && <span>師父 {PEOPLE[s.master]?.name}</span>}
-      </div>
-      <p className="small">
-        住處：{rank.dorm}　月例：每 {STIPEND_DAYS} 天 {rank.stipend.silver} 兩
-        {Object.entries(rank.stipend.items ?? {}).map(([id, n]) => `、${ITEMS[id].name}×${n}`)}（第 {nextStipendDay(s)} 日起可領）
-      </p>
-      <p className="small muted">可以做的事：{rank.perks.join('；')}</p>
-      <p className="small">
-        今日雜務 {usedToday(world, choreKey(s.id))}/{def.choresPerDay} 件
-        {s.chore && `　手上：${def.chores.find((c) => c.id === s.chore)?.name}（${def.chores.find((c) => c.id === s.chore)?.where}）`}
-      </p>
-
-      {next && checks && (
-        <div className="skill">
-          <div className="skill-head">
-            <span className="skill-name">晉升{next.name}</span>
-          </div>
-          <ul className="sect-list small">
-            {checks.map((c) => (
-              <li key={c.label} className={c.ok ? 'good' : 'muted'}>
-                {c.ok ? '✔' : '・'} {c.label}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="skill">
-        <div className="skill-head">
-          <span className="skill-name">本門武功</span>
-          <span className="muted small">在書房找管書弟子用貢獻抄錄</span>
-        </div>
-        <ul className="sect-list small">
-          {def.skills.map((k) => {
-            const learned = hero.skills.some((h) => h.id === k.id);
-            return (
-              <li key={k.id} className={learned ? 'muted' : ''}>
-                {SKILLS[k.id].name}（{SKILLS[k.id].tier}{SKILLS[k.id].kind}）　{def.ranks[k.rank].name}起・
-                {learned ? '已學會' : k.cost ? `${k.cost} 貢獻` : '入門傳授'}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
-      <div className="skill">
-        <div className="skill-head">
-          <span className="skill-name">弟子名冊</span>
-          <span className="muted small">記名弟子另有十來人，不一一列出</span>
-        </div>
-        {roster(def, s, hero.name).map((g) => (
-          <div key={g.rank} className="roster-group">
-            <div className="roster-rank small">{g.rank}</div>
-            <ul className="sect-list small">
-              {g.members.map((m) => {
-                const rel = m.person && world.relations[m.person];
-                return (
-                  <li key={m.name} className={m.me ? 'good' : ''}>
-                    {m.name}
-                    {m.me ? '（你）' : m.role && <span className="muted">　{m.role}</span>}
-                    {m.note && <span className="muted">（{m.note}）</span>}
-                    {rel && <span className="tag muted-tag roster-tag">{STAGES[stageOf(rel.aff)].name}</span>}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      <div className="skill">
-        <div className="skill-head">
-          <span className="skill-name">門規</span>
-        </div>
-        <ul className="sect-list small">
-          {def.rules.map((r, i) => (
-            <li key={r.name}>
-              {'一二三四五六七八九十'[i]}、{r.name}　<span className="muted">{r.desc}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <p className="small muted">
-        {recruitText(def.recruit)}。傳授兵器：{def.weapons.join('、')}。以{rank.name}的身分離開師門：{rank.leave.map(leaveRuleText).join('，或')}。
-      </p>
-    </div>
-  );
-}
-
-/** 交遊：認識的人、熟悉度、知道的喜好 */
-function PeoplePage() {
-  const relations = useGame((s) => s.world.relations);
-  const ids = Object.keys(relations).filter((id) => PEOPLE[id]);
-  return (
-    <div>
-      <h2>交遊</h2>
-      <p className="muted small">每個人增進感情的方式不同：有人愛聊天、有人看重買賣、有人收禮、有人只認名聲。熟悉度越高，能做的事越多。</p>
-      {ids.length === 0 && <p className="muted placeholder">還沒有認識什麼人。</p>}
-      {ids.map((id) => {
-        const r = relations[id];
-        const p = PEOPLE[id];
-        const s = stageOf(r.aff);
-        const next = STAGES[s + 1];
-        const pct = next ? ((r.aff - STAGES[s].min) / (next.min - STAGES[s].min)) * 100 : 100;
-        return (
-          <div key={id} className="skill">
-            <div className="skill-head">
-              <span className="skill-name">{p.name}</span>
-              <span className={`tag ${r.aff < 0 ? 'danger' : ''}`}>{STAGES[s].name}</span>
-              <span className="muted small">熟悉度 {r.aff}</span>
-            </div>
-            <div className="exp-track">
-              <div className={`exp-fill ${r.aff < 0 ? 'bad' : ''}`} style={{ width: `${Math.max(0, pct)}%` }} />
-            </div>
-            <p className="muted small">
-              {r.known.length
-                ? `喜好：${r.known.map((k) => `${ITEMS[k].name}${p.gift?.likes[k] ? '（喜歡）' : '（不喜歡）'}`).join('、')}`
-                : p.gift
-                  ? '喜好：還不清楚（送過東西才知道）'
-                  : '不收禮'}
-            </p>
-          </div>
-        );
-      })}
     </div>
   );
 }

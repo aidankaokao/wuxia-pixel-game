@@ -51,6 +51,14 @@ export function personTitle(id: string) {
   return `${p.name}（${STAGES[stageOf(relOf(id).aff)].name}）`;
 }
 
+/** 對方現在怎麼稱呼你（選單顯示用） */
+export function addressOf(id: string): string {
+  const p = PEOPLE[id];
+  const hero = st().hero;
+  const surname = hero.surname || hero.given;
+  return p.address(stageOf(relOf(id).aff), hero.fame).replace('{姓}', surname).replace('{名}', hero.given);
+}
+
 /** 對方怎麼稱呼你，並代入台詞裡的 {稱}、{姓}、{名} */
 function formatter(p: PersonDef) {
   const hero = st().hero;
