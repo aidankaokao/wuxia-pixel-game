@@ -55,6 +55,7 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   trial_xiaoman: { enemies: ['xiaoman'], background: 'mountain', intro: '顧小滿抽出木劍，抱拳道：「鳴泉記名弟子顧小滿，請賜教！」', canFlee: true, silver: 0, growth: 0.6, points: 2, spar: true },
   spar_xiaoman: { enemies: ['xiaoman'], background: 'mountain', intro: '顧小滿揚起木劍：「這次我可不會手下留情！」', canFlee: true, silver: 0, growth: 0.6, points: 1, spar: true },
   spar_lu: { enemies: ['lumingchuan'], background: 'mountain', intro: '陸鳴川長劍斜指地面：「師弟，出招吧。」', canFlee: true, silver: 0, growth: 0.8, points: 2, spar: true },
+  mq_path_dogs: { enemies: ['dog', 'dog', 'dog'], background: 'mountain', intro: '三隻野狗堵在山道上，齜牙低吼！', canFlee: true, silver: 0, growth: 0.5, points: 3 },
   camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 

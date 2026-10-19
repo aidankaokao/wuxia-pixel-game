@@ -1,8 +1,8 @@
-import { addFame, attrs, Character, gainSkill, giveItem, isEquipped, learnSkill, restoreAll, skillCap, skillDef, SKILLS, slotOf } from '../character';
+import { addFame, attrs, Character, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, restoreAll, skillCap, skillDef, SKILLS, slotOf } from '../character';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
-import { addContrib, inSect, leaveRuleText, nextStipendDay, newSectState, rankName, registerSect, SectDef, STIPEND_DAYS } from '../sect';
+import { addContrib, choreKey, inSect, leaveRuleText, nextStipendDay, newSectState, rankName, registerSect, SectDef, STIPEND_DAYS } from '../sect';
 import { clampAff, newRelation, STAGE } from '../social';
 import { useGame } from '../../state/store';
 import { sleep, studyable, studyInsight, useDaily } from './estate';
@@ -19,6 +19,8 @@ import type { PersonDef } from './people';
  *   mq_heart      問心的結果：1 守正 / 2 謙和 / 3 好勝
  *   mq_join       1 是鳴泉弟子（身分在 world.sect）
  *   mq_left       1 離開了鳴泉劍派（不能再回來拜師）
+ *   mq_c_path     下山委託「清理山道」：1 接下 / 2 打跑了野狗群 / 3 已覆命
+ *   mq_c_med      下山委託「回春堂送藥」：1 接下（身上帶著藥包） / 2 送到了 / 3 已覆命
  */
 
 const SECT = 'mingquan';
@@ -44,18 +46,18 @@ export const MINGQUAN: SectDef = {
     {
       name: '記名弟子',
       dorm: '大通鋪',
-      perks: ['跟大師兄做晨課、在廣場的木樁練樁', '書房研讀、抄錄入門武功', '練功房的蒲團打坐', `每 ${STIPEND_DAYS} 天到大殿領月例`],
+      perks: ['跟大師兄做晨課、在廣場的木樁練樁', '書房研讀、抄錄入門武功', '練功房的蒲團打坐', '任務榜的雜務與簡單的下山委託', `每 ${STIPEND_DAYS} 天到大殿領月例`],
       stipend: { silver: 5, items: { jinchuang: 1 } },
       leave: [{ kind: 'free' }],
-      promote: { days: 30, merit: 90, skills: [{ id: 'mingquan', level: 4 }], test: '正式弟子考核' },
+      promote: { days: 30, merit: 150, skills: [{ id: 'mingquan', level: 4 }], test: '正式弟子考核' },
     },
     {
       name: '正式弟子',
       dorm: '弟子房（兩人一間）',
-      perks: ['練功房的鐵木人樁', '書房抄錄「踏石步」', '下山委託'],
+      perks: ['練功房的鐵木人樁', '書房抄錄「踏石步」', '更多下山委託'],
       stipend: { silver: 12, items: { jinchuang: 2 } },
       leave: [{ kind: 'fine', silver: 500 }, { kind: 'trial', name: '泉音劍陣', encounter: 'mq_array' }],
-      promote: { days: 60, merit: 300, skills: [{ id: 'mingquan', level: 8 }, { id: 'chengquan', level: 5 }], test: '真傳拜師試煉' },
+      promote: { days: 60, merit: 600, skills: [{ id: 'mingquan', level: 8 }, { id: 'chengquan', level: 5 }], test: '真傳拜師試煉' },
     },
     {
       name: '真傳弟子',
@@ -77,6 +79,14 @@ export const MINGQUAN: SectDef = {
     { id: 'chengquan', rank: 0, cost: 30 },
     { id: 'tashi', rank: 1, cost: 60 },
   ],
+  chores: [
+    { id: 'water', name: '挑水', where: '廚房的水缸' },
+    { id: 'sweep', name: '掃殿前', where: '大殿前找掃地弟子' },
+    { id: 'herbs', name: '翻曬草藥', where: '藥房的晾藥架' },
+    { id: 'books', name: '整理書房', where: '書房的掌故書架' },
+    { id: 'garden', name: '照顧菜圃', where: '菜圃旁找伙房師傅' },
+  ],
+  choresPerDay: 2,
 };
 registerSect(MINGQUAN);
 
@@ -536,6 +546,247 @@ export const greeterTalk: Script = async (ctx) => {
   );
 };
 
+// ── 任務榜：門內雜務、下山委託 ───────────────────────────
+
+const CHORE_REWARD = 3;
+const choreDef = (id: string) => MINGQUAN.chores.find((c) => c.id === id)!;
+
+/** 今天任務榜上貼出的雜務：每天輪換三件 */
+export const todaysChores = (d: number) => [0, 2, 4].map((i) => MINGQUAN.chores[(d + i) % MINGQUAN.chores.length]);
+
+/** 做雜務時的情景與額外的小獎勵 */
+const CHORE_DONE: Record<string, { lines: (Line | string)[]; bonus?: [string, number] }> = {
+  water: { lines: ['你挑起扁擔，在山泉與廚房之間來回了十幾趟，總算把水缸挑滿了。', '肩膀火辣辣地疼，腳步倒是越走越穩。'] },
+  sweep: {
+    lines: [{ speaker: '掃地弟子', text: '太好了！今天換你掃！' }, '你接過掃帚，把大殿前的平台從東掃到西，連石縫裡的落葉都掃乾淨了。'],
+  },
+  herbs: { lines: ['你把晾藥架上的草藥一一翻面、攤開曬勻。', { speaker: '管藥弟子', text: '辛苦了，這株止血草你拿去。' }], bonus: ['herb', 1] },
+  books: { lines: ['你把散亂的書冊照年代排好，順手翻了幾頁江湖掌故。', '書上說，百年前江湖上有個劍客，一劍斷江……多半是說書人的誇張。'] },
+  garden: {
+    lines: ['你提著水桶替菜圃澆水、拔草，還抓走了好幾條菜蟲。', { speaker: '伙房師傅', text: '不錯不錯！這碗燉肉拿去，算是賞你的。' }],
+    bonus: ['stew', 1],
+  },
+};
+
+async function doChore(ctx: EventCtx, id: string) {
+  const d = CHORE_DONE[id];
+  await ctx.say(...d.lines);
+  st().updateWorld((w) => {
+    delete w.sect!.chore;
+    for (const key of [choreKey(SECT), `${choreKey(SECT)}:${id}`]) w.daily[key] = { day: w.day, n: usedToday(w, key) + 1 };
+  });
+  if (d.bonus) await ctx.hero((h) => giveItem(h, d.bonus![0], d.bonus![1]));
+  await contrib(ctx, CHORE_REWARD);
+}
+
+/** 雜務的地點：手上有這件雜務就去做，否則照常查看或交談 */
+export const choreAt =
+  (id: string, otherwise: Line[] | Script): Script =>
+  async (ctx) => {
+    if (member() && sect().chore === id) return doChore(ctx, id);
+    if (typeof otherwise === 'function') return otherwise(ctx);
+    await ctx.say(...otherwise);
+  };
+
+async function choreBoard(ctx: EventCtx) {
+  const s = sect();
+  const per = MINGQUAN.choresPerDay;
+  if (s.chore) {
+    const d = choreDef(s.chore);
+    const c = await ctx.ask(`你手上還有「${d.name}」沒做完（${d.where}）。`, ['這就去', '放棄這件']);
+    if (c === 1) {
+      st().updateWorld((w) => delete w.sect!.chore);
+      await ctx.say(`你把「${d.name}」的籤條掛回任務榜上。`);
+    }
+    return;
+  }
+  const done = usedToday(st().world, choreKey(SECT));
+  if (done >= per) {
+    await ctx.say(`今天已經做了 ${per} 件雜務，剩下的留給師兄弟吧。\n（明天再來。在床上睡一覺就是新的一天）`);
+    return;
+  }
+  const list = todaysChores(day()).filter((c) => !usedToday(st().world, `${choreKey(SECT)}:${c.id}`));
+  const i = await ctx.ask(`今天的雜務（已做 ${done}/${per} 件，每件門派貢獻 +${CHORE_REWARD}）`, [...list.map((c) => `${c.name}（${c.where}）`), '算了']);
+  if (i >= list.length) return;
+  st().updateWorld((w) => (w.sect!.chore = list[i].id));
+  await ctx.say(`你揭下「${list[i].name}」的籤條。\n（地點：${list[i].where}）`);
+}
+
+interface Commission {
+  flag: string;
+  title: string;
+  /** 幾級身分才能接 */
+  rank: number;
+  brief: string;
+  /** 進行中時的提示 */
+  hint: string;
+  reward: { contrib: number; fame: number };
+  onAccept?: (ctx: EventCtx) => Promise<void>;
+}
+
+const COMMISSIONS: Commission[] = [
+  {
+    flag: 'mq_c_path',
+    title: '清理山道',
+    rank: 0,
+    brief: '鳴泉山道上來了一群野狗，驚擾上山的香客與樵夫。下山把牠們趕走。',
+    hint: '野狗群在鳴泉山道的半山腰。',
+    reward: { contrib: 10, fame: 3 },
+  },
+  {
+    flag: 'mq_c_med',
+    title: '回春堂送藥',
+    rank: 1,
+    brief: '藥房配好了一包金創藥，要送到臨江城的回春堂。回春堂的掌櫃會在店門口等。',
+    hint: '把藥包送到臨江城的回春堂。',
+    reward: { contrib: 15, fame: 2 },
+    onAccept: async (ctx) => {
+      await ctx.say({ speaker: '管藥弟子', text: '藥包在這兒，路上小心，別淋濕了。' });
+      await ctx.hero((h) => giveItem(h, 'mq_medpack'));
+    },
+  },
+];
+
+async function commissionBoard(ctx: EventCtx) {
+  const list = COMMISSIONS.filter((c) => ctx.flag(c.flag) < 3);
+  if (!list.length) {
+    await ctx.say('目前沒有新的下山委託。');
+    return;
+  }
+  const status = (c: Commission) =>
+    sect().rank < c.rank ? `${MINGQUAN.ranks[c.rank].name}起` : ['可接', '進行中', '可覆命'][ctx.flag(c.flag)];
+  const i = await ctx.ask('下山委託', [...list.map((c) => `${c.title}（${status(c)}）`), '算了']);
+  if (i >= list.length) return;
+  const c = list[i];
+  const f = ctx.flag(c.flag);
+  if (sect().rank < c.rank) {
+    await ctx.say(`「${c.title}」：${c.brief}\n（${MINGQUAN.ranks[c.rank].name}才能接）`);
+    return;
+  }
+  if (f === 1) {
+    await ctx.say(`「${c.title}」還沒辦完。\n（${c.hint}）`);
+    return;
+  }
+  if (f === 2) {
+    ctx.setFlag(c.flag, 3);
+    await ctx.say(`你在任務榜上記下「${c.title}」已經辦妥。`);
+    await ctx.hero((h) => addFame(h, c.reward.fame));
+    await contrib(ctx, c.reward.contrib);
+    return;
+  }
+  const ok = await ctx.ask(`「${c.title}」：${c.brief}\n（門派貢獻 +${c.reward.contrib}、名聲 +${c.reward.fame}）`, ['接下', '算了']);
+  if (ok !== 0) return;
+  ctx.setFlag(c.flag, 1);
+  await ctx.say(`你揭下「${c.title}」的籤條。`);
+  await c.onAccept?.(ctx);
+}
+
+/** 演武廣場的任務榜 */
+export const taskBoard: Script = async (ctx) => {
+  if (!member()) {
+    await ctx.say('鳴泉劍派的任務榜，貼著門內的雜務與下山委託。\n（本門弟子才能接）');
+    return;
+  }
+  const c = await ctx.ask('鳴泉劍派任務榜。做雜務、辦委託都能攢門派貢獻。', ['門內雜務', '下山委託', '算了']);
+  if (c === 0) await choreBoard(ctx);
+  else if (c === 1) await commissionBoard(ctx);
+};
+
+/** 委託「清理山道」：山道上的野狗群 */
+export const pathDogs: Script = async (ctx) => {
+  const o = await ctx.battle('mq_path_dogs');
+  if (o !== 'win') return;
+  ctx.setFlag('mq_c_path', 2);
+  ctx.refresh();
+  await ctx.say('野狗群夾著尾巴逃下山去了。', { speaker: '樵夫', text: '多謝鳴泉的少俠！這下總算能安心砍柴了。' }, '（回門派的任務榜覆命）');
+};
+
+/** 委託「回春堂送藥」：回春堂掌櫃在店門口等藥 */
+export const huichunDelivery: Script = async (ctx) => {
+  const g = by('回春堂掌櫃');
+  await ctx.say(...g('可把鳴泉的藥盼來了！最近城裡跌打損傷的人多，金創藥一下就賣光了。'), '你把藥包交給掌櫃。');
+  await ctx.hero((h) => {
+    delete h.items.mq_medpack;
+    h.silver += 10;
+    return '掌櫃塞給你 10 兩跑腿錢。';
+  });
+  ctx.setFlag('mq_c_med', 2);
+  ctx.refresh();
+  await ctx.say(...g('替我向聞掌門問好。'), '（回門派的任務榜覆命）');
+};
+
+const commissionQuest = (c: Commission) => ({
+  id: c.flag,
+  title: `鳴泉委託・${c.title}`,
+  status(f: Record<string, number>): { text: string; done: boolean } | null {
+    if (f[c.flag] === 3) return { text: `${c.brief}——已經辦妥。`, done: true };
+    if (f[c.flag] === 2) return { text: '事情辦完了。回鳴泉劍派的任務榜覆命。', done: false };
+    if (f[c.flag] === 1) return { text: `${c.brief}\n${c.hint}`, done: false };
+    return null;
+  },
+});
+export const COMMISSION_QUESTS = COMMISSIONS.map(commissionQuest);
+
+// ── 繳納：把打獵、採藥得來的東西交給門裡 ─────────────────
+
+/** 每天每種東西收一次；交了回傳 true */
+async function donate(ctx: EventCtx, who: string, item: string, n: number, reward: number, thanks: string): Promise<boolean> {
+  const key = `mq:give:${item}`;
+  const have = st().hero.items[item] ?? 0;
+  if (usedToday(st().world, key)) {
+    await ctx.say(...by(who)('今天的已經收過了，明天再說吧。'));
+    return false;
+  }
+  if (have < n) {
+    await ctx.say(...by(who)(`要 ${n} 份「${ITEMS[item].name}」才收。你身上只有 ${have} 份。`));
+    return false;
+  }
+  st().updateWorld((w) => (w.daily[key] = { day: w.day, n: 1 }));
+  await ctx.hero((h) => {
+    h.items[item] -= n;
+    if (!h.items[item]) delete h.items[item];
+  });
+  await ctx.say(...by(who)(thanks));
+  await contrib(ctx, reward);
+  return true;
+}
+
+/** 有繳納可做的人：弟子可以選繳納或閒聊；其他人只閒聊 */
+const giver =
+  (who: string, item: string, n: number, reward: number, thanks: string, talks: Line[][]): Script => {
+    let k = 0;
+    return async (ctx) => {
+      const chat = () => ctx.say(...talks[k++ % talks.length]);
+      if (!member()) return chat();
+      const c = await ctx.ask(by(who)('有什麼事？')[0], [`繳納${ITEMS[item].name}（${n} 份，貢獻 +${reward}）`, '閒聊']);
+      if (c === 0) await donate(ctx, who, item, n, reward, thanks);
+      else await chat();
+    };
+  };
+
+export const herbalistTalk = giver('管藥弟子', 'herb', 3, 4, '止血草收下了，正好拿來配金創藥。', [
+  by('管藥弟子')('練武難免受傷，傷了就來藥房，別硬撐。', '後山有不少草藥，有空可以幫忙採一些。'),
+  by('管藥弟子')('我們的金創藥，可比山下回春堂的還好用。'),
+]);
+
+export const cookTalk = choreAt(
+  'garden',
+  giver('伙房師傅', 'boar_meat', 1, 4, '好大一塊山豬肉！今晚加菜！', [
+    by('伙房師傅')('練武的人吃得多，一頓飯要煮三大鍋！', '後頭菜圃的菜都是我種的，誰敢踩，我拿鍋鏟敲他。'),
+    by('伙房師傅')('打到山豬就拿來，我替大夥兒燉一鍋。'),
+  ]),
+);
+
+export const armoryTalk = giver('管武器的師兄', 'dog_pelt', 2, 3, '狗皮正好拿來做劍鞘的襯裡。', [
+  by('管武器的師兄')('本門以劍為主，拳腳是根基，兩樣都得練。', '刀槍棍棒擺在這兒，是讓你們見識見識各家兵器的，不教。'),
+  by('管武器的師兄')('劍鞘磨破了就拿來換，野狗皮硝過之後，做襯裡最好。'),
+]);
+
+export const sweeperTalk = choreAt('sweep', [
+  { speaker: '掃地弟子', text: '我是記名弟子，每天得把大殿前掃三遍。' },
+  { speaker: '掃地弟子', text: '師兄說，掃地也是練功……我怎麼覺得只是在掃地。' },
+]);
+
 // ── 人物 ────────────────────────────────────────────────
 
 /** 本門弟子怎麼稱呼你 */
@@ -633,7 +884,7 @@ export const mingquanQuest = {
   title: '拜入鳴泉',
   status(f: Record<string, number>): { text: string; done: boolean } | null {
     if (f.mq_left) return { text: '離開了鳴泉劍派。', done: true };
-    if (f.mq_join) return { text: '拜入鳴泉劍派，成為記名弟子。身分、貢獻與晉升條件可以在選單「門派」裡查看。', done: true };
+    if (f.mq_join) return { text: '拜入了鳴泉劍派。身分、貢獻與晉升條件可以在選單「門派」裡查看；任務榜在演武廣場。', done: true };
     if (f.mq_trial === 2) return { text: '通過了入門考驗。到鳴泉劍派的大殿拜見掌門聞松年。', done: false };
     if (f.mq_trial === 1) return { text: '過了問心、觀骨兩關，還差試劍：再去演武廣場找大師兄陸鳴川，與顧小滿比試。', done: false };
     if (f.mq_seek) return { text: '鳴泉劍派收徒不拘時日。到演武廣場找大師兄陸鳴川，接受入門考驗。', done: false };

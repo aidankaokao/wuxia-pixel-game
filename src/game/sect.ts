@@ -66,6 +66,14 @@ export interface SectRule {
   desc: string;
 }
 
+/** 門內雜務：在任務榜接下，到指定地點做完就得貢獻 */
+export interface SectChore {
+  id: string;
+  name: string;
+  /** 要去哪裡做（顯示用） */
+  where: string;
+}
+
 export interface SectDef {
   id: string;
   name: string;
@@ -77,6 +85,9 @@ export interface SectDef {
   weapons: SkillKind[];
   rules: SectRule[];
   skills: SectSkill[];
+  chores: SectChore[];
+  /** 每天最多做幾件雜務 */
+  choresPerDay: number;
 }
 
 /** 玩家在門派裡的狀態（存在 world.sect） */
@@ -94,7 +105,12 @@ export interface SectState {
   merit: number;
   /** 上次領月例是哪一天（0 表示還沒領過） */
   stipendDay: number;
+  /** 手上接了、還沒做完的雜務 id */
+  chore?: string;
 }
+
+/** 今天做了幾件雜務記在 world.daily 的這個 key */
+export const choreKey = (sectId: string) => `${sectId}:chore`;
 
 /** 月例幾天領一次 */
 export const STIPEND_DAYS = 7;

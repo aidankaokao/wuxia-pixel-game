@@ -1,4 +1,4 @@
-import { greeterTalk, yardStake } from '../story/sect_mingquan';
+import { cookTalk, greeterTalk, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -93,6 +93,7 @@ export const mqSect: MapDef = {
     { sprite: 'stele', x: 6, y: 31, lines: [{ text: '「洗劍池」' }, { text: '相傳開派祖師每練完一套劍，便在此池中洗劍，池水因此終年清冽，不生青苔。' }] },
     { sprite: 'sign', x: 22, y: 43, lines: [{ text: '「鳴泉劍派」\n北 ── 大殿・演武廣場\n西 ── 弟子居所\n東 ── 練功房・書房・藥房・武器房・廚房' }] },
     { sprite: 'sign', x: 14, y: 18, lines: [{ text: '弟子居所\n記名弟子住大通鋪，成了正式弟子兩人一間，真傳弟子各有一間。' }] },
+    { sprite: 'bulletin', x: 26, y: 21, script: taskBoard, label: '任務榜' },
     { sprite: 'sign', x: 14, y: 21, lines: [{ text: '「木樁林」\n本門弟子每天在此練樁，一日一回，貴在不輟。' }] },
     { sprite: 'sign', x: 39, y: 29, lines: [{ text: '膳房菜圃。\n（伙房師傅：「誰踩壞了我的菜，晚飯就別吃了！」）' }] },
   ],
@@ -110,16 +111,14 @@ export const mqSect: MapDef = {
       talks: [[{ speaker: '練劍弟子', text: '本派劍法講究「快而不亂，如泉不絕」。說起來簡單，練起來可難了。' }]],
     },
     {
-      id: 'mqs_sweeper', name: '掃地弟子', sprite: 'disciple', x: 17, y: 12, wander: 2,
-      talks: [[{ speaker: '掃地弟子', text: '我是記名弟子，每天得把大殿前掃三遍。' }, { speaker: '掃地弟子', text: '師兄說，掃地也是練功……我怎麼覺得只是在掃地。' }]],
+      id: 'mqs_sweeper', name: '掃地弟子', sprite: 'disciple', x: 17, y: 12, wander: 2, script: sweeperTalk,
     },
     {
       id: 'mqs_outer', name: '記名弟子', sprite: 'farmer', x: 6, y: 15, wander: 2,
       talks: [[{ speaker: '記名弟子', text: '大通鋪住了十幾個人，晚上打呼聲此起彼落……' }, { speaker: '記名弟子', text: '等我成了正式弟子，就能住兩人一間的房了！' }]],
     },
     {
-      id: 'mqs_cook', name: '伙房師傅', sprite: 'smith', x: 42, y: 29, facing: 'down',
-      talks: [[{ speaker: '伙房師傅', text: '練武的人吃得多，一頓飯要煮三大鍋！' }, { speaker: '伙房師傅', text: '後頭菜圃的菜都是我種的，誰敢踩，我拿鍋鏟敲他。' }]],
+      id: 'mqs_cook', name: '伙房師傅', sprite: 'smith', x: 42, y: 29, facing: 'down', script: cookTalk,
     },
   ],
 

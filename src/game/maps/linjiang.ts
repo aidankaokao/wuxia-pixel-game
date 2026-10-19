@@ -1,3 +1,4 @@
+import { huichunDelivery } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -90,6 +91,8 @@ export const linjiang: MapDef = {
   ],
 
   npcs: [
+    // 鳴泉委託「回春堂送藥」：掌櫃在店門口等藥
+    { id: 'lj_huichun', name: '回春堂掌櫃', sprite: 'storyteller', x: 8, y: 16, facing: 'down', script: huichunDelivery, when: (f) => f.mq_c_med === 1 },
     {
       id: 'lj_guard_w', name: '守城兵', sprite: 'guard', x: 4, y: 15, facing: 'down',
       talks: [[{ speaker: '守城兵', text: '臨江城到了。進城守規矩，別在城裡動刀動槍。' }]],

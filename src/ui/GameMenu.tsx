@@ -38,8 +38,9 @@ import { QUESTS } from '../game/story/quests';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
 import { fameTitle, stageOf, STAGES } from '../game/social';
+import { usedToday } from '../game/home';
 import { PEOPLE } from '../game/story/people';
-import { leaveRuleText, nextStipendDay, promotionChecks, recruitText, sectDef, STIPEND_DAYS } from '../game/sect';
+import { choreKey, leaveRuleText, nextStipendDay, promotionChecks, recruitText, sectDef, STIPEND_DAYS } from '../game/sect';
 import { Settings, useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
@@ -702,6 +703,10 @@ function SectPage() {
         {Object.entries(rank.stipend.items ?? {}).map(([id, n]) => `、${ITEMS[id].name}×${n}`)}（第 {nextStipendDay(s)} 日起可領）
       </p>
       <p className="small muted">可以做的事：{rank.perks.join('；')}</p>
+      <p className="small">
+        今日雜務 {usedToday(world, choreKey(s.id))}/{def.choresPerDay} 件
+        {s.chore && `　手上：${def.chores.find((c) => c.id === s.chore)?.name}（${def.chores.find((c) => c.id === s.chore)?.where}）`}
+      </p>
 
       {next && checks && (
         <div className="skill">
