@@ -1,5 +1,6 @@
 import { addFame, giveItem } from '../character';
 import type { ArtId } from '../arts';
+import { zhongFestival } from './festival';
 import type { EventCtx, Script } from '../events';
 import type { Line } from '../maps/types';
 import { STAGE } from '../social';
@@ -190,7 +191,7 @@ const zhongP: PersonDef = {
   place: '青竹村',
   role: '村口茶攤的老闆娘',
   address: (s, fame) => (fame >= 80 ? '{姓}大俠' : s >= STAGE.FAMILIAR ? '小{姓}' : s >= STAGE.NOD ? '小哥' : '客官'),
-  story: zhongStory,
+  story: async (ctx) => (await zhongFestival(ctx)) || zhongStory(ctx),
   talk: { gain: 3, perDay: 2, after: 'chat' },
   lines: {
     [STAGE.STRANGER]: [zhong('我家這茶，用的是雲水河上游的水，別處喝不到的。')],

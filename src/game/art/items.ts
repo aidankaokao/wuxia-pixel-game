@@ -10,7 +10,9 @@ export type ItemIcon =
   | 'rice' | 'noodle' | 'soup' | 'sweet'
   // 服飾
   | 'hat' | 'robe' | 'robe_gray' | 'robe_white' | 'robe_blue' | 'pants' | 'shoes' | 'bracer' | 'pouch'
-  | 'painting';
+  | 'painting'
+  // 節令點心
+  | 'dumpling' | 'qingtuan' | 'zongzi' | 'mooncake' | 'shoutao';
 
 const OUTLINE = '#1a1218';
 
@@ -290,6 +292,48 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     px(ctx, 9, 8, 3, 4, '#6a8a7a');
     hline(ctx, 3, 12, 12, '#8ab0c0');
     px(ctx, 10, 4, 1, 1, '#c4483c');
+  },
+  // ── 節令點心 ──
+  // 餃子／包子：盤子上兩個白胖的餃子
+  dumpling(ctx) {
+    ellipse(ctx, 8, 12, 7, 2, '#e8e0cc');
+    hline(ctx, 2, 13, 13, '#b8b0a0');
+    for (const x of [5, 11]) {
+      ellipse(ctx, x, 9, 3, 2, '#f8f4ec');
+      for (let i = -2; i <= 2; i += 2) px(ctx, x + i, 7, 1, 1, '#d8d0bc');
+    }
+  },
+  // 青團：綠色的圓糰
+  qingtuan(ctx) {
+    ellipse(ctx, 8, 12, 7, 2, '#e8e0cc');
+    for (const [x, y] of [[5, 9], [11, 9], [8, 6]] as const) {
+      ellipse(ctx, x, y, 3, 3, '#5a8a3a');
+      px(ctx, x - 1, y - 2, 2, 1, '#8aba5a');
+    }
+  },
+  // 粽子：竹葉包的三角粽，綁著線
+  zongzi(ctx) {
+    for (let i = 0; i < 9; i++) hline(ctx, 8 - Math.floor(i * 0.6), 8 + Math.floor(i * 0.6), 4 + i, '#4a7a3a');
+    hline(ctx, 3, 13, 13, '#3a6a2a');
+    hline(ctx, 4, 12, 9, '#c4483c');
+    vline(ctx, 8, 4, 13, '#3a6a2a');
+    px(ctx, 6, 7, 1, 2, '#6a9a4a');
+  },
+  // 月餅：圓餅，印著花紋
+  mooncake(ctx) {
+    ellipse(ctx, 8, 9, 6, 5, '#c88a40');
+    ellipse(ctx, 8, 9, 4, 3, '#e0a858');
+    px(ctx, 7, 8, 3, 3, '#a86a2a');
+    hline(ctx, 3, 12, 13, '#8a5a28');
+  },
+  // 壽桃：桃形饅頭，桃尖一點紅
+  shoutao(ctx) {
+    ellipse(ctx, 8, 9, 5, 5, '#f4e8dc');
+    px(ctx, 7, 3, 2, 2, '#f4e8dc');
+    px(ctx, 7, 3, 2, 3, '#e87a7a');
+    vline(ctx, 8, 6, 13, '#e0d0c0');
+    px(ctx, 3, 12, 3, 2, '#5a9a3a');
+    px(ctx, 10, 12, 3, 2, '#5a9a3a');
   },
 };
 

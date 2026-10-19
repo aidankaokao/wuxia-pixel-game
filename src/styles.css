@@ -137,6 +137,8 @@ kbd {
 .status-foot {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
+  white-space: nowrap;
   margin-top: 8px;
   font-size: 13px;
   color: var(--muted);

@@ -1,5 +1,7 @@
 import { greeterTalk, herbAt, mushroomAt, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import { practiceAt } from '../story/arts';
+import { LANTERN_DAYS } from '../festival';
+import { graveAt, moonAt, poolAt } from '../story/festival';
 import type { MapDef } from './types';
 
 /**
@@ -80,6 +82,9 @@ export const mqSect: MapDef = {
   ],
 
   props: [
+    // 過年、元宵、中秋掛燈籠
+    { sprite: 'lantern_post', x: 21, y: 10, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '大殿前掛起了紅燈籠，燈下垂著紙條。' }] },
+    { sprite: 'lantern_post', x: 25, y: 10, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '紅燈籠在風裡輕輕搖晃。' }] },
     { sprite: 'ding', x: 23, y: 19, w: 2, lines: [{ text: '一座青銅大鼎，鼎中香火不斷。' }, { text: '鼎身鑄著四個字：「劍鳴如泉」。' }] },
     { sprite: 'sect_flag', x: 20, y: 16, lines: [{ text: '鳴泉劍派的旗幟，青底白紋，像一道泉水。' }] },
     { sprite: 'sect_flag', x: 27, y: 16, lines: [{ text: '鳴泉劍派的旗幟，青底白紋，像一道泉水。' }] },
@@ -91,7 +96,7 @@ export const mqSect: MapDef = {
     { sprite: 'f_dummy_martial_1', x: 20, y: 24, script: yardStake, label: '練樁' },
     { sprite: 'f_deco_martial_1', x: 30, y: 24, w: 2, lines: [{ text: '廣場邊的兵器架，木劍、竹劍擺得整整齊齊。' }] },
     { sprite: 'pavilion', x: 10, y: 35, w: 3, script: practiceAt('chess', '聽劍亭。亭柱上刻著一副對聯：「洗劍池邊聽泉語，鳴泉山上看劍心」。'), label: '打譜' },
-    { sprite: 'stele', x: 6, y: 31, lines: [{ text: '「洗劍池」' }, { text: '相傳開派祖師每練完一套劍，便在此池中洗劍，池水因此終年清冽，不生青苔。' }] },
+    { sprite: 'stele', x: 6, y: 31, script: poolAt([{ text: '「洗劍池」' }, { text: '相傳開派祖師每練完一套劍，便在此池中洗劍，池水因此終年清冽，不生青苔。' }]) },
     { sprite: 'sign', x: 22, y: 43, lines: [{ text: '「鳴泉劍派」\n北 ── 大殿・演武廣場\n西 ── 弟子居所\n東 ── 練功房・書房・藥房・武器房・廚房' }] },
     { sprite: 'sign', x: 14, y: 18, lines: [{ text: '弟子居所\n記名弟子住大通鋪，成了正式弟子兩人一間，真傳弟子各有一間。' }] },
     { sprite: 'bulletin', x: 26, y: 21, script: taskBoard, label: '任務榜' },
@@ -176,15 +181,15 @@ export const mqBack: MapDef = {
     { sprite: 'cave', x: 6, y: 3, w: 2, lines: [{ text: '山壁上一個幽深的洞口，洞前立著木牌：「思過崖・禁地」。' }, { text: '洞裡吹出一陣涼風，隱約聽得見滴水聲。' }] },
     { sprite: 'sign', x: 9, y: 7, lines: [{ text: '「思過崖」\n犯了門規的弟子在此面壁思過。未經許可，不得擅入。' }] },
     { sprite: 'sword_rock', x: 12, y: 4, w: 2, lines: [{ text: '試劍石。石上縱橫交錯，全是劍痕。' }, { text: '有幾道劍痕深達寸許，不知是哪位前輩留下的。' }] },
-    { sprite: 'pavilion', x: 17, y: 8, w: 3, script: practiceAt('qin', '聽泉亭。坐在亭中，泉水聲叮咚不絕，讓人心思澄靜。'), label: '撫琴' },
+    { sprite: 'pavilion', x: 17, y: 8, w: 3, script: moonAt(practiceAt('qin', '聽泉亭。坐在亭中，泉水聲叮咚不絕，讓人心思澄靜。')), label: '撫琴' },
     { sprite: 'stele', x: 19, y: 13, lines: [{ text: '「鳴泉」源頭' }, { text: '泉水自山石間湧出，擊石作響，聲如鳴佩。本派因此得名。' }] },
-    { sprite: 'sword_grave', x: 4, y: 14, lines: [{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }] },
-    { sprite: 'sword_grave', x: 6, y: 14, lines: [{ text: '劍柄上纏著褪色的劍穗。' }] },
-    { sprite: 'sword_grave', x: 8, y: 14, lines: [{ text: '劍身已經鏽了，卻依然筆直。' }] },
-    { sprite: 'sword_grave', x: 10, y: 14, lines: [{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }] },
-    { sprite: 'sword_grave', x: 5, y: 16, lines: [{ text: '墓前的石碑字跡模糊，只認得出一個「沈」字。' }] },
-    { sprite: 'sword_grave', x: 7, y: 16, lines: [{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }] },
-    { sprite: 'sword_grave', x: 9, y: 16, lines: [{ text: '一把斷劍，只剩半截劍身。' }] },
+    { sprite: 'sword_grave', x: 4, y: 14, script: graveAt([{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }]) },
+    { sprite: 'sword_grave', x: 6, y: 14, script: graveAt([{ text: '劍柄上纏著褪色的劍穗。' }]) },
+    { sprite: 'sword_grave', x: 8, y: 14, script: graveAt([{ text: '劍身已經鏽了，卻依然筆直。' }]) },
+    { sprite: 'sword_grave', x: 10, y: 14, script: graveAt([{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }]) },
+    { sprite: 'sword_grave', x: 5, y: 16, script: graveAt([{ text: '墓前的石碑字跡模糊，只認得出一個「沈」字。' }]) },
+    { sprite: 'sword_grave', x: 7, y: 16, script: graveAt([{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }]) },
+    { sprite: 'sword_grave', x: 9, y: 16, script: graveAt([{ text: '一把斷劍，只剩半截劍身。' }]) },
     // 蘇芷蘅的拜師試煉：要採的三味藥
     { sprite: 'wild_herb', x: 21, y: 12, script: herbAt('quanxin'), label: '採藥', when: herbVisible('quanxin') },
     { sprite: 'wild_herb', x: 12, y: 16, script: herbAt('tiegu'), label: '採藥', when: herbVisible('tiegu') },

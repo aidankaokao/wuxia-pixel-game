@@ -8,6 +8,7 @@ import { useGame } from '../../state/store';
 import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estate';
 import { cookAt, teachDishes } from './cooking';
 import { dailyMeal } from '../cooking';
+import { festivalMeal, luFestival, wenFestival } from './festival';
 import { craftOf } from '../crafts';
 import { MQ_UNIFORMS } from '../gear';
 import { heroUnit } from '../battle/moves';
@@ -1229,6 +1230,7 @@ let cookChat = 0;
 async function dailyMealAt(ctx: EventCtx) {
   const b = by(MQ.bu);
   const d = dailyMeal(st().world.day);
+  const fest = festivalMeal();
   if (usedToday(st().world, MEAL_KEY)) {
     await ctx.say(...b('今天的份你領過啦！明天再來，明天換別的菜。'));
     return;
@@ -1238,6 +1240,11 @@ async function dailyMealAt(ctx: EventCtx) {
     return;
   }
   st().updateWorld((w) => (w.daily[MEAL_KEY] = { day: w.day, n: 1 }));
+  if (fest) {
+    await ctx.say(...b(fest.line));
+    await ctx.hero((h) => giveItem(h, fest.id, fest.n));
+    return;
+  }
   await ctx.say(...b(`今天是${d.name}！趁熱吃。`));
   await ctx.hero((h) => giveItem(h, d.id));
 }
@@ -1256,7 +1263,7 @@ async function payContrib(ctx: EventCtx, n: number): Promise<boolean> {
 export const cookTalk = choreAt('garden', async (ctx) => {
   const chat = () => ctx.say(...cookChats[cookChat++ % cookChats.length]);
   if (!member()) return chat();
-  const meal = dailyMeal(st().world.day);
+  const meal = festivalMeal() ? ITEMS[festivalMeal()!.id] : dailyMeal(st().world.day);
   const c = await ctx.ask(by(MQ.bu)('餓了吧？')[0], [
     `領今天的飯（${meal.name}）`,
     '學做菜',
@@ -1320,7 +1327,7 @@ const wenP: PersonDef = {
   place: '鳴泉劍派',
   role: '掌門',
   address: () => (inSect(st().world, SECT) ? '{名}' : '年輕人'),
-  story: wenStory,
+  story: async (ctx) => (await wenFestival(ctx)) || wenStory(ctx),
   talk: { gain: 2, perDay: 1, after: 'busy' },
   lines: {
     [STAGE.STRANGER]: [
@@ -1342,7 +1349,7 @@ const luP: PersonDef = {
   place: '鳴泉劍派',
   role: '大師兄，主持晨課',
   address: (s) => fellow(s),
-  story: luStory,
+  story: async (ctx) => (await luFestival(ctx)) || luStory(ctx),
   talk: { gain: 2, perDay: 1, after: 'chat' },
   lines: {
     [STAGE.STRANGER]: [lu('{稱}，劍要握穩，手腕要活。', '本派劍法講究「快而不亂，如泉不絕」，先求不亂，再求快。')],

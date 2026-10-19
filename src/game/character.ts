@@ -11,6 +11,7 @@ import type { ItemIcon } from './art/items';
 import type { CraftId, Progress } from './crafts';
 import { FOOD_ITEMS } from './cooking';
 import { ART_ITEMS } from './arts';
+import { FEST_ITEMS } from './festival';
 import { GEAR_ITEMS, GearInfo, GearSlotId, kindOfSlot } from './gear';
 
 export type AttrKey = 'strength' | 'agility' | 'constitution' | 'energy' | 'insight';
@@ -97,6 +98,7 @@ export const ITEMS: Record<string, ItemDef> = {
   ...FOOD_ITEMS,
   ...GEAR_ITEMS,
   ...ART_ITEMS,
+  ...FEST_ITEMS,
   manual_zhuying: {
     name: '竹影劍痕拓本', category: '秘笈', icon: 'scroll', manual: 'zhuying',
     desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。',

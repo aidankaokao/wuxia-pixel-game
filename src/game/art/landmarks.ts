@@ -208,8 +208,27 @@ function mushrooms(): PropArt {
   return done(c, ctx);
 }
 
+/** 節慶的燈籠架：木桿上掛兩盞紅燈籠 */
+function lanternPost(): PropArt {
+  const [c, ctx] = makeCanvas(16, 32);
+  vline(ctx, 7, 2, 31, '#5a3a20');
+  vline(ctx, 8, 2, 31, '#7a5232');
+  hline(ctx, 2, 13, 3, '#5a3a20');
+  for (const x of [3, 12]) {
+    vline(ctx, x, 4, 5, '#3a2a20');
+    px(ctx, x - 2, 6, 5, 7, '#c8342c');
+    px(ctx, x - 1, 6, 3, 7, '#e85a40');
+    hline(ctx, x - 2, x + 2, 6, '#f0b830');
+    hline(ctx, x - 2, x + 2, 12, '#f0b830');
+    vline(ctx, x, 13, 15, '#f0b830');
+  }
+  px(ctx, 5, 29, 6, 3, '#4a3a30');
+  return done(c, ctx);
+}
+
 export function landmarkProps(): Record<string, PropArt> {
   return {
+    lantern_post: lanternPost(),
     wild_herb: wildHerb(),
     mushrooms: mushrooms(),
     carriage: carriage(),

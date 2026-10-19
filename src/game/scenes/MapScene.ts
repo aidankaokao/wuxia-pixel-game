@@ -1,3 +1,4 @@
+import { festivalIndex } from '../festival';
 import Phaser from 'phaser';
 import { Dir, NPC_WALK_MS, RUN_MS, TILE, VIEW_TILES_H, VIEW_TILES_W, WALK_MS } from '../constants';
 import { tileArt } from '../art/tiles';
@@ -299,7 +300,9 @@ export class MapScene extends Phaser.Scene {
    * 照作息出門、回房的人（不是剛進場景時）會從門口走進來、走到門口才消失，而不是突然出現或不見。
    */
   private refresh(initial = false) {
-    const { flags: f, respawnAt, world } = useGame.getState();
+    const { flags, respawnAt, world } = useGame.getState();
+    // 節慶擺設看的條件旗標：今天是第幾個節慶
+    const f = { ...flags, festival: festivalIndex(world.day) };
     const now = Date.now();
     const outdoor = !this.def.theme;
     for (const n of this.npcs) {
