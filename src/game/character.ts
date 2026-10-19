@@ -66,6 +66,8 @@ export interface ItemDef {
   manual?: string;
   /** 價錢（銀兩）：商店照這個價賣，收購時給一半；沒有就是不能買賣 */
   price?: number;
+  /** 身分憑證之類：不能送人 */
+  bound?: boolean;
 }
 
 /** 商店收購價 */
@@ -87,6 +89,10 @@ export const ITEMS: Record<string, ItemDef> = {
   manual_qingzhu: {
     name: '青竹步手札', category: '秘笈', icon: 'book', manual: 'qingzhu',
     desc: '柳承安年輕時寫下的步法心得。持有時可突破「青竹步」的等級上限。',
+  },
+  mq_token: {
+    name: '鳴泉腰牌', category: '雜物', icon: 'token', bound: true,
+    desc: '刻著「鳴泉」二字的木腰牌，是鳴泉劍派弟子的身分憑證。',
   },
 };
 
@@ -199,6 +205,36 @@ export const SKILLS: Record<string, SkillDef> = {
     moves: [
       { id: 'taye', level: 0 },
       { id: 'fanzhu', level: 3, bonus: { agility: 1 } },
+    ],
+  },
+  // ── 鳴泉劍派 ──
+  mingquan: {
+    id: 'mingquan', name: '鳴泉劍法', kind: '劍法', tier: '中品',
+    desc: '鳴泉劍派的入門劍法，祖師聽泉悟劍而創。劍勢綿綿不絕，講究「快而不亂，如泉不絕」，攻守兼備。',
+    equip: { strength: 0.7, agility: 0.5, constitution: 0.2 }, grow: { strength: 0.4, constitution: 0.3, agility: 0.2 }, vital: { hp: 3, stamina: 1 },
+    moves: [
+      { id: 'quanyong', level: 0 },
+      { id: 'feipu', level: 2, bonus: { strength: 1 } },
+      { id: 'shiliu', level: 4, bonus: { agility: 1 } },
+      { id: 'wanhe', level: 6, bonus: { strength: 0.5, constitution: 0.5 } },
+    ],
+  },
+  chengquan: {
+    id: 'chengquan', name: '澄泉心法', kind: '內功', tier: '中品',
+    desc: '鳴泉劍派的內功根基。心如止水、氣似泉流，運轉起來內息綿長，出劍更穩。',
+    equip: { energy: 1, constitution: 0.3 }, grow: { energy: 0.5, constitution: 0.3, insight: 0.1 }, vital: { qi: 4, hp: 2 },
+    moves: [
+      { id: 'quansheng', level: 0 },
+      { id: 'chengtan', level: 3, bonus: { energy: 1 } },
+    ],
+  },
+  tashi: {
+    id: 'tashi', name: '踏石步', kind: '輕功', tier: '中品',
+    desc: '鳴泉弟子每日在溪石間往返練成的步法，落足穩、轉身快。',
+    equip: { agility: 1, constitution: 0.2 }, grow: { agility: 0.5, constitution: 0.3 }, vital: { stamina: 5 },
+    moves: [
+      { id: 'dianshi', level: 0 },
+      { id: 'zhulang', level: 3, bonus: { agility: 1 } },
     ],
   },
 };

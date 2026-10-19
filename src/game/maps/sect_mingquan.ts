@@ -1,10 +1,11 @@
+import { greeterTalk, yardStake } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
  * 鳴泉劍派 —— 門派院落。從山門進來，正中是大殿，殿前是演武廣場（銅鼎、木樁林），
- * 西側是宿舍區（外門大通鋪 → 內門弟子房 → 親傳弟子的個人房），
+ * 西側是宿舍區（記名弟子的大通鋪 → 正式弟子的弟子房 → 真傳弟子的個人房），
  * 東側是練功房、書房、武器房、藥房、廚房與菜圃；西南有洗劍池與涼亭；大殿西側小路上後山。
- * 各建築的室內在 sect_mingquan_rooms.ts。弟子、拜師、學藝等系統之後再設計。
+ * 各建築的室內在 sect_mingquan_rooms.ts；入門考驗、拜師、學藝等劇情在 story/sect_mingquan.ts。
  */
 export const mqSect: MapDef = {
   id: 'mq_sect',
@@ -65,11 +66,11 @@ export const mqSect: MapDef = {
   buildings: [
     { style: 'sect_hall', x: 19, y: 4, name: '大殿', door: [], enter: { to: 'mq_hall', spawn: { x: 7, y: 7, facing: 'up' } } },
     { style: 'sect_master', x: 31, y: 3, name: '掌門居', door: [{ text: '門上懸著「靜修」二字，門關著。' }, { speaker: '值守弟子', text: '掌門居所，沒有傳喚不得擅入。' }] },
-    { style: 'sect_dorm', x: 2, y: 10, name: '外門大通鋪', door: [], enter: { to: 'mq_dorm', spawn: { x: 7, y: 5, facing: 'up' } } },
-    { style: 'sect_room', x: 2, y: 17, name: '內門弟子房・甲', door: [], enter: { to: 'mq_room_a', spawn: { x: 4, y: 4, facing: 'up' } } },
-    { style: 'sect_room', x: 7, y: 17, name: '內門弟子房・乙', door: [], enter: { to: 'mq_room_b', spawn: { x: 4, y: 4, facing: 'up' } } },
-    { style: 'sect_cell', x: 2, y: 23, name: '親傳弟子房・一', door: [], enter: { to: 'mq_cell_1', spawn: { x: 3, y: 3, facing: 'up' } } },
-    { style: 'sect_cell', x: 7, y: 23, name: '親傳弟子房・二', door: [], enter: { to: 'mq_cell_2', spawn: { x: 3, y: 3, facing: 'up' } } },
+    { style: 'sect_dorm', x: 2, y: 10, name: '大通鋪', door: [], enter: { to: 'mq_dorm', spawn: { x: 7, y: 5, facing: 'up' } } },
+    { style: 'sect_room', x: 2, y: 17, name: '弟子房・甲', door: [], enter: { to: 'mq_room_a', spawn: { x: 4, y: 4, facing: 'up' } } },
+    { style: 'sect_room', x: 7, y: 17, name: '弟子房・乙', door: [], enter: { to: 'mq_room_b', spawn: { x: 4, y: 4, facing: 'up' } } },
+    { style: 'sect_cell', x: 2, y: 23, name: '真傳弟子房・一', door: [], enter: { to: 'mq_cell_1', spawn: { x: 3, y: 3, facing: 'up' } } },
+    { style: 'sect_cell', x: 7, y: 23, name: '真傳弟子房・二', door: [], enter: { to: 'mq_cell_2', spawn: { x: 3, y: 3, facing: 'up' } } },
     { style: 'sect_train', x: 37, y: 9, name: '練功房', door: [], enter: { to: 'mq_train', spawn: { x: 6, y: 7, facing: 'up' } } },
     { style: 'sect_lib', x: 36, y: 16, name: '書房', door: [], enter: { to: 'mq_lib', spawn: { x: 5, y: 5, facing: 'up' } } },
     { style: 'sect_armory', x: 42, y: 16, name: '武器房', door: [], enter: { to: 'mq_armory', spawn: { x: 4, y: 4, facing: 'up' } } },
@@ -81,31 +82,25 @@ export const mqSect: MapDef = {
     { sprite: 'ding', x: 23, y: 19, w: 2, lines: [{ text: '一座青銅大鼎，鼎中香火不斷。' }, { text: '鼎身鑄著四個字：「劍鳴如泉」。' }] },
     { sprite: 'sect_flag', x: 20, y: 16, lines: [{ text: '鳴泉劍派的旗幟，青底白紋，像一道泉水。' }] },
     { sprite: 'sect_flag', x: 27, y: 16, lines: [{ text: '鳴泉劍派的旗幟，青底白紋，像一道泉水。' }] },
-    { sprite: 'f_dummy_martial_2', x: 16, y: 22, lines: [{ text: '木樁林：弟子們每天清晨在這裡練樁。' }] },
-    { sprite: 'f_dummy_martial_2', x: 18, y: 22, lines: [{ text: '木樁上滿是劍痕。' }] },
-    { sprite: 'f_dummy_martial_2', x: 20, y: 22, lines: [{ text: '木樁上滿是劍痕。' }] },
-    { sprite: 'f_dummy_martial_1', x: 16, y: 24, lines: [{ text: '一根新立的木樁，還沒什麼痕跡。' }] },
-    { sprite: 'f_dummy_martial_1', x: 18, y: 24, lines: [{ text: '一根新立的木樁，還沒什麼痕跡。' }] },
-    { sprite: 'f_dummy_martial_1', x: 20, y: 24, lines: [{ text: '一根新立的木樁，還沒什麼痕跡。' }] },
+    { sprite: 'f_dummy_martial_2', x: 16, y: 22, script: yardStake, label: '練樁' },
+    { sprite: 'f_dummy_martial_2', x: 18, y: 22, script: yardStake, label: '練樁' },
+    { sprite: 'f_dummy_martial_2', x: 20, y: 22, script: yardStake, label: '練樁' },
+    { sprite: 'f_dummy_martial_1', x: 16, y: 24, script: yardStake, label: '練樁' },
+    { sprite: 'f_dummy_martial_1', x: 18, y: 24, script: yardStake, label: '練樁' },
+    { sprite: 'f_dummy_martial_1', x: 20, y: 24, script: yardStake, label: '練樁' },
     { sprite: 'f_deco_martial_1', x: 30, y: 24, w: 2, lines: [{ text: '廣場邊的兵器架，木劍、竹劍擺得整整齊齊。' }] },
     { sprite: 'pavilion', x: 10, y: 35, w: 3, lines: [{ text: '聽劍亭。亭柱上刻著一副對聯：「洗劍池邊聽泉語，鳴泉山上看劍心」。' }] },
     { sprite: 'stele', x: 6, y: 31, lines: [{ text: '「洗劍池」' }, { text: '相傳開派祖師每練完一套劍，便在此池中洗劍，池水因此終年清冽，不生青苔。' }] },
     { sprite: 'sign', x: 22, y: 43, lines: [{ text: '「鳴泉劍派」\n北 ── 大殿・演武廣場\n西 ── 弟子居所\n東 ── 練功房・書房・藥房・武器房・廚房' }] },
-    { sprite: 'sign', x: 14, y: 18, lines: [{ text: '弟子居所\n外門弟子住大通鋪，入了內門兩人一間，親傳弟子各有一間。' }] },
+    { sprite: 'sign', x: 14, y: 18, lines: [{ text: '弟子居所\n記名弟子住大通鋪，成了正式弟子兩人一間，真傳弟子各有一間。' }] },
+    { sprite: 'sign', x: 14, y: 21, lines: [{ text: '「木樁林」\n本門弟子每天在此練樁，一日一回，貴在不輟。' }] },
     { sprite: 'sign', x: 39, y: 29, lines: [{ text: '膳房菜圃。\n（伙房師傅：「誰踩壞了我的菜，晚飯就別吃了！」）' }] },
   ],
 
   npcs: [
-    {
-      id: 'mqs_greeter', name: '知客弟子', sprite: 'disciple', x: 25, y: 40, facing: 'down',
-      talks: [
-        [
-          { speaker: '知客弟子', text: '這位朋友是來拜師的吧？收徒大典還有些日子。' },
-          { speaker: '知客弟子', text: '掌門有令，大典之前可以四處看看，熟悉環境。只是掌門居與後山的思過崖不可擅入。' },
-        ],
-        [{ speaker: '知客弟子', text: '大殿在正北，宿舍在西，練功房、書房、藥房那些在東邊。' }],
-      ],
-    },
+    { id: 'mqs_greeter', name: '知客弟子', sprite: 'disciple', x: 25, y: 40, facing: 'down', script: greeterTalk },
+    { id: 'mqs_lu', name: '陸鳴川', sprite: 'sect_senior', x: 22, y: 21, facing: 'down', person: 'lu' },
+    { id: 'mqs_xiaoman', name: '顧小滿', sprite: 'disciple_girl', x: 18, y: 26, facing: 'up', wander: 1, person: 'xiaoman' },
     {
       id: 'mqs_trainee1', name: '練劍弟子', sprite: 'disciple', x: 25, y: 23, facing: 'left', wander: 1,
       talks: [[{ speaker: '練劍弟子', text: '喝！哈！……別看我，師兄說一套劍沒練滿一百遍不許停。' }]],
@@ -116,11 +111,11 @@ export const mqSect: MapDef = {
     },
     {
       id: 'mqs_sweeper', name: '掃地弟子', sprite: 'disciple', x: 17, y: 12, wander: 2,
-      talks: [[{ speaker: '掃地弟子', text: '我是外門弟子，每天得把大殿前掃三遍。' }, { speaker: '掃地弟子', text: '師兄說，掃地也是練功……我怎麼覺得只是在掃地。' }]],
+      talks: [[{ speaker: '掃地弟子', text: '我是記名弟子，每天得把大殿前掃三遍。' }, { speaker: '掃地弟子', text: '師兄說，掃地也是練功……我怎麼覺得只是在掃地。' }]],
     },
     {
-      id: 'mqs_outer', name: '外門弟子', sprite: 'farmer', x: 6, y: 15, wander: 2,
-      talks: [[{ speaker: '外門弟子', text: '大通鋪住了十幾個人，晚上打呼聲此起彼落……' }, { speaker: '外門弟子', text: '等我進了內門，就能住兩人一間的房了！' }]],
+      id: 'mqs_outer', name: '記名弟子', sprite: 'farmer', x: 6, y: 15, wander: 2,
+      talks: [[{ speaker: '記名弟子', text: '大通鋪住了十幾個人，晚上打呼聲此起彼落……' }, { speaker: '記名弟子', text: '等我成了正式弟子，就能住兩人一間的房了！' }]],
     },
     {
       id: 'mqs_cook', name: '伙房師傅', sprite: 'smith', x: 42, y: 29, facing: 'down',

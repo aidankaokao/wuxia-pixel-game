@@ -23,6 +23,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
   // 切磋的對手
   qinghe: { name: '柳青禾', sprite: 'girl', hp: 80, atk: 13, def: 2, spd: 15, eva: 0.12, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   shiyue: { name: '石岳', sprite: 'smith', hp: 210, atk: 19, def: 7, spd: 8, eva: 0.02, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  xiaoman: { name: '顧小滿', sprite: 'disciple_girl', hp: 180, atk: 28, def: 4, spd: 16, eva: 0.1, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  lumingchuan: { name: '陸鳴川', sprite: 'sect_senior', hp: 650, atk: 50, def: 10, spd: 20, eva: 0.08, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   boss: { name: '祁三刀', sprite: 'boss', hp: 240, atk: 22, def: 6, spd: 12, eva: 0.06, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
 };
 
@@ -50,6 +52,9 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   scouts: { enemies: ['grunt', 'grunt'], background: 'mountain', intro: '斷崖寨的嘍囉攔住了去路！', canFlee: true, silver: 8, points: 3 },
   spar_qinghe: { enemies: ['qinghe'], background: 'mountain', intro: '柳青禾抱拳一禮：「請賜教！」', canFlee: true, silver: 0, growth: 0.6, points: 1, spar: true },
   spar_shiyue: { enemies: ['shiyue'], background: 'mountain', intro: '石岳捲起袖子：「來，讓我看看你的斤兩。」', canFlee: true, silver: 0, growth: 0.8, points: 2, spar: true },
+  trial_xiaoman: { enemies: ['xiaoman'], background: 'mountain', intro: '顧小滿抽出木劍，抱拳道：「鳴泉記名弟子顧小滿，請賜教！」', canFlee: true, silver: 0, growth: 0.6, points: 2, spar: true },
+  spar_xiaoman: { enemies: ['xiaoman'], background: 'mountain', intro: '顧小滿揚起木劍：「這次我可不會手下留情！」', canFlee: true, silver: 0, growth: 0.6, points: 1, spar: true },
+  spar_lu: { enemies: ['lumingchuan'], background: 'mountain', intro: '陸鳴川長劍斜指地面：「師弟，出招吧。」', canFlee: true, silver: 0, growth: 0.8, points: 2, spar: true },
   camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 

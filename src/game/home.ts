@@ -8,6 +8,7 @@
  * 同一套配置之後也能拿來產生 NPC 的家。
  */
 
+import type { SectState } from './sect';
 import type { Relation } from './social';
 
 export type HomeStyle = 'plain' | 'scholar' | 'martial';
@@ -39,6 +40,10 @@ export interface World {
   daily: Record<string, { day: number; n: number }>;
   /** 人際關係：人物 id → 熟悉度等（見 social.ts） */
   relations: Record<string, Relation>;
+  /** 拜入的門派（只能有一個；沒拜師就沒有這個欄位，見 sect.ts） */
+  sect?: SectState;
+  /** 離開過的門派：不能再回去拜師 */
+  leftSects?: string[];
 }
 
 export const newWorld = (): World => ({ day: 1, estates: {}, daily: {}, relations: {} });

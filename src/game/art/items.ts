@@ -2,7 +2,7 @@ import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
 
 /** 物品圖示：16×16，給 React 的物品欄用（轉成 data URL 放進 <img>）。 */
 
-export type ItemIcon = 'salve' | 'tea' | 'book' | 'scroll' | 'stew' | 'herb' | 'meat' | 'tusk' | 'pelt';
+export type ItemIcon = 'salve' | 'tea' | 'book' | 'scroll' | 'stew' | 'herb' | 'meat' | 'tusk' | 'pelt' | 'token';
 
 const OUTLINE = '#1a1218';
 
@@ -93,6 +93,21 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     px(ctx, 12, 10, 2, 3, '#8a6a46');
     px(ctx, 6, 6, 4, 5, '#a8865a');
     px(ctx, 7, 13, 2, 2, '#8a6a46');
+  },
+  // 腰牌：木牌刻字，上頭繫著青色穗子
+  token(ctx) {
+    vline(ctx, 8, 1, 3, '#3e6656');
+    px(ctx, 4, 4, 8, 10, '#b08a5a');
+    px(ctx, 5, 5, 6, 8, '#c8a070');
+    hline(ctx, 4, 11, 13, '#8a6a40');
+    vline(ctx, 11, 4, 13, '#8a6a40');
+    // 直刻的「鳴泉」
+    vline(ctx, 8, 6, 7, '#5a3a20');
+    px(ctx, 7, 7, 3, 1, '#5a3a20');
+    vline(ctx, 8, 9, 11, '#5a3a20');
+    px(ctx, 7, 10, 3, 1, '#5a3a20');
+    px(ctx, 6, 14, 1, 2, '#3e6656');
+    px(ctx, 9, 14, 1, 2, '#3e6656');
   },
 };
 
