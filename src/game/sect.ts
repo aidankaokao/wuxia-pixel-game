@@ -66,6 +66,27 @@ export interface SectRule {
   desc: string;
 }
 
+/** 弟子名冊上的一個人 */
+export interface SectMember {
+  name: string;
+  /** 位階：掌門、長老、各級弟子（RankDef 的 name）、雜役 */
+  rank: string;
+  /** 職司 */
+  role?: string;
+  /** 備註（例如下山歷練、不在山上） */
+  note?: string;
+  /** 有人物檔案的人（名冊上顯示熟悉度） */
+  person?: string;
+}
+
+/** 門內雜務：在任務榜接下，到指定地點做完就得貢獻 */
+export interface SectChore {
+  id: string;
+  name: string;
+  /** 要去哪裡做（顯示用） */
+  where: string;
+}
+
 export interface SectDef {
   id: string;
   name: string;
@@ -77,6 +98,11 @@ export interface SectDef {
   weapons: SkillKind[];
   rules: SectRule[];
   skills: SectSkill[];
+  chores: SectChore[];
+  /** 每天最多做幾件雜務 */
+  choresPerDay: number;
+  /** 弟子名冊（主角不寫在裡面，依目前身分自動排進去） */
+  members: SectMember[];
 }
 
 /** 玩家在門派裡的狀態（存在 world.sect） */
@@ -94,7 +120,12 @@ export interface SectState {
   merit: number;
   /** 上次領月例是哪一天（0 表示還沒領過） */
   stipendDay: number;
+  /** 手上接了、還沒做完的雜務 id */
+  chore?: string;
 }
+
+/** 今天做了幾件雜務記在 world.daily 的這個 key */
+export const choreKey = (sectId: string) => `${sectId}:chore`;
 
 /** 月例幾天領一次 */
 export const STIPEND_DAYS = 7;
@@ -117,6 +148,18 @@ export const newSectState = (id: string, day: number): SectState => ({
 export const inSect = (w: World, id: string) => w.sect?.id === id;
 
 export const rankName = (s: SectState) => SECTS[s.id]?.ranks[s.rank]?.name ?? '';
+
+/** 弟子名冊：掌門、長老在前，弟子依身分由高到低，雜役在最後；主角排進自己的身分 */
+export function roster(def: SectDef, s: SectState | undefined, me: string) {
+  const order = ['掌門', '長老', ...def.ranks.map((r) => r.name).reverse(), '雜役'];
+  return order
+    .map((rank) => {
+      const members: (SectMember & { me?: boolean })[] = def.members.filter((m) => m.rank === rank);
+      if (s?.id === def.id && def.ranks[s.rank].name === rank) members.push({ name: me, rank, role: '你', me: true });
+      return { rank, members };
+    })
+    .filter((g) => g.members.length);
+}
 
 /** 增加貢獻（同時累計功績）；回傳提示文字 */
 export function addContrib(w: World, n: number): string {

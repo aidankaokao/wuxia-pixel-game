@@ -564,6 +564,22 @@ kbd {
   padding: 3px 0;
 }
 
+.roster-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.roster-rank {
+  flex: 0 0 64px;
+  padding-top: 3px;
+  color: var(--gold);
+}
+
+.roster-tag {
+  margin-left: 8px;
+}
+
 .quest.done .skill-name {
   color: var(--muted);
 }

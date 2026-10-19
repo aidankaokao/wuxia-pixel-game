@@ -1,4 +1,4 @@
-import { cushion, dormBed, dutyTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, choreAt, MQ, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
 import type { MapDef, PropDef } from './types';
 
@@ -37,7 +37,7 @@ export const mqHall: MapDef = {
   ],
   npcs: [
     { id: 'mqh_wen', name: '聞松年', sprite: 'sect_master', x: 7, y: 4, facing: 'down', person: 'wen' },
-    { id: 'mqh_duty', name: '值殿弟子', sprite: 'disciple', x: 10, y: 2, facing: 'down', script: dutyTalk },
+    { id: 'mqh_duty', name: MQ.ke, sprite: 'disciple', x: 10, y: 2, facing: 'down', script: dutyTalk },
   ],
   exits: [back(23, 10, 7, 9)],
 };
@@ -61,10 +61,10 @@ export const mqDorm: MapDef = {
   ],
   npcs: [
     {
-      id: 'mqd_outer', name: '記名弟子', sprite: 'farmer', x: 6, y: 3, wander: 2,
+      id: 'mqd_outer', name: MQ.hou, sprite: 'farmer', x: 6, y: 3, wander: 2,
       talks: [
-        by('記名弟子')('記名弟子都住這裡，一人一個床位。最裡頭那張空鋪，是留給上山應考的人借住的。', '想搬去弟子房，得先通過正式弟子的考核。'),
-        by('記名弟子')('天還沒亮就要起來挑水、劈柴、掃地，練劍反倒是排在最後。'),
+        by(MQ.hou)('我是侯三郎，家裡排行老三。記名弟子都住這裡，一人一個床位。', '最裡頭那張空鋪，是留給上山應考的人借住的。想搬去弟子房，得先通過正式弟子的考核。'),
+        by(MQ.hou)('天還沒亮就要起來挑水、劈柴、掃地，練劍反倒是排在最後。'),
       ],
     },
   ],
@@ -109,8 +109,8 @@ const cell = (id: string, name: string, door: [number, number], desk: string): M
   npcs: [],
   exits: [back(door[0], door[1], 3, 5)],
 });
-export const mqCell1 = cell('mq_cell_1', '真傳弟子房・一', [3, 26], '書案上擺著筆墨與一卷劍譜，譜上的字跡工整秀麗。');
-export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '書案上空空的，主人似乎很久沒回來了。');
+export const mqCell1 = cell('mq_cell_1', '真傳弟子房・一', [3, 26], '陸鳴川的書案。案上擺著筆墨與一卷劍譜，譜上的字跡工整，邊角寫滿了晨課要教的重點。');
+export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。');
 
 // ── 練功、書房、武器、藥房、廚房 ─────────────────────────
 
@@ -134,10 +134,10 @@ export const mqTrain: MapDef = {
   ],
   npcs: [
     {
-      id: 'mqt_coach', name: '教習師兄', sprite: 'disciple', x: 7, y: 4, facing: 'down',
+      id: 'mqt_coach', name: MQ.qi, sprite: 'disciple', x: 7, y: 4, facing: 'down',
       talks: [
-        by('教習師兄')('我負責教記名弟子的基本功。', '劍法再精妙，馬步不穩、手腕不活，一樣是花架子。'),
-        by('教習師兄')('練功房裡的木人樁是包了鐵皮的，給正式弟子練。記名弟子可以用蒲團打坐。'),
+        by(MQ.qi)('我是齊振遠，負責教記名弟子的基本功。', '劍法再精妙，馬步不穩、手腕不活，一樣是花架子。'),
+        by(MQ.qi)('練功房裡的木人樁是包了鐵皮的，給正式弟子練。記名弟子可以用蒲團打坐。'),
       ],
     },
     { id: 'mqt_han', name: '韓靖秋', sprite: 'sect_elder', x: 10, y: 4, facing: 'left', person: 'han' },
@@ -156,12 +156,12 @@ export const mqLib: MapDef = {
   props: [
     { sprite: 'f_shelf_scholar_3', x: 1, y: 1, w: 2, lines: [{ text: '經史子集。練劍之餘也要讀書，這是祖師定下的規矩。' }] },
     { sprite: 'f_shelf_scholar_3', x: 4, y: 1, w: 2, script: libShelf, label: '研讀' },
-    { sprite: 'f_shelf_scholar_3', x: 7, y: 1, w: 2, lines: [{ text: '各門各派的掌故與江湖見聞。' }] },
+    { sprite: 'f_shelf_scholar_3', x: 7, y: 1, w: 2, script: choreAt('books', [{ text: '各門各派的掌故與江湖見聞。' }]) },
     { sprite: 'f_table_scholar_1', x: 3, y: 4, w: 2, lines: [{ text: '書案上攤著一本《鳴泉劍譜》的抄本，墨跡還沒乾。' }] },
     { sprite: 'f_deco_plain_1', x: 9, y: 5, lines: [{ text: '一盆文竹。' }] },
   ],
   npcs: [
-    { id: 'mql_keeper', name: '管書弟子', sprite: 'scholar', x: 8, y: 4, facing: 'left', script: keeperTalk },
+    { id: 'mql_keeper', name: MQ.song, sprite: 'scholar', x: 8, y: 4, facing: 'left', script: keeperTalk },
   ],
   exits: [back(38, 20, 5, 7)],
 };
@@ -181,7 +181,7 @@ export const mqArmory: MapDef = {
     { sprite: 'anvil', x: 1, y: 3, lines: [{ text: '磨劍、修劍用的鐵砧。' }] },
     { sprite: 'chest', x: 7, y: 3, lines: [{ text: '上了鎖的木箱，裡頭似乎是貴重的兵器。' }] },
   ],
-  npcs: [],
+  npcs: [{ id: 'mqa_keeper', name: MQ.meng, sprite: 'disciple', x: 4, y: 3, facing: 'down', script: armoryTalk }],
   exits: [back(44, 20, 4, 6)],
 };
 
@@ -197,17 +197,11 @@ export const mqMed: MapDef = {
     { sprite: 'jars', x: 1, y: 1, w: 2, lines: [{ text: '藥櫃，一格格寫著藥名：當歸、川芎、三七、止血草……' }] },
     { sprite: 'jars', x: 4, y: 1, w: 2, lines: [{ text: '藥櫃最上層幾格貼著紅紙，寫著「非師命不得取用」。' }] },
     { sprite: 'f_furnace_plain_2', x: 8, y: 1, lines: [{ text: '藥爐正熬著藥，苦味瀰漫了整個屋子。' }] },
-    { sprite: 'drying_rack', x: 1, y: 4, w: 2, lines: [{ text: '架上晾著剛採回來的草藥。' }] },
-    { sprite: 'drying_rack', x: 8, y: 4, w: 2, lines: [{ text: '架上晾著剛採回來的草藥。' }] },
+    { sprite: 'drying_rack', x: 1, y: 4, w: 2, script: choreAt('herbs', [{ text: '架上晾著剛採回來的草藥。' }]) },
+    { sprite: 'drying_rack', x: 8, y: 4, w: 2, script: choreAt('herbs', [{ text: '架上晾著剛採回來的草藥。' }]) },
   ],
   npcs: [
-    {
-      id: 'mqm_herbalist', name: '管藥弟子', sprite: 'lady', x: 6, y: 3, facing: 'down', wander: 1,
-      talks: [
-        by('管藥弟子')('練武難免受傷，傷了就來藥房，別硬撐。', '後山有不少草藥，有空可以幫忙採一些。'),
-        by('管藥弟子')('我們的金創藥，可比山下回春堂的還好用。'),
-      ],
-    },
+    { id: 'mqm_herbalist', name: MQ.miao, sprite: 'lady', x: 6, y: 3, facing: 'down', wander: 1, script: herbalistTalk },
   ],
   exits: [back(38, 27, 5, 7)],
 };
@@ -223,7 +217,7 @@ export const mqKitchen: MapDef = {
   props: [
     { sprite: 'f_stove_plain_3', x: 1, y: 1, w: 2, lines: [{ text: '大灶上的鍋子比人還寬，正冒著熱氣。' }] },
     { sprite: 'f_stove_plain_2', x: 4, y: 1, w: 2, lines: [{ text: '另一口灶，燉著一鍋肉湯。' }] },
-    { sprite: 'vat', x: 8, y: 1, lines: [{ text: '水缸。每天早上記名弟子要把它挑滿。' }] },
+    { sprite: 'vat', x: 8, y: 1, script: choreAt('water', [{ text: '水缸。每天早上記名弟子要把它挑滿。' }]) },
     { sprite: 'jars', x: 8, y: 4, w: 2, lines: [{ text: '架上是醃菜、米糧和油鹽醬醋。' }] },
     { sprite: 'f_table_plain_1', x: 1, y: 4, w: 2, lines: [{ text: '案板上切了一半的蘿蔔。' }] },
   ],

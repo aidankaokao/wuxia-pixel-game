@@ -1,3 +1,4 @@
+import { MQ, pathDogs } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -57,18 +58,20 @@ export const mingquan: MapDef = {
   ],
   npcs: [
     {
-      id: 'mq_guard1', name: '守門弟子', sprite: 'disciple', x: 10, y: 4, facing: 'right',
+      id: 'mq_guard1', name: MQ.he, sprite: 'disciple', x: 10, y: 4, facing: 'right',
       talks: [
         [
-          { speaker: '守門弟子', text: '此處是鳴泉劍派山門。來者何人？' },
-          { speaker: '守門弟子', text: '……來拜師的？本派收徒不拘時日，進去找知客師兄就是。只是別亂闖禁地。' },
+          { speaker: MQ.he, text: '此處是鳴泉劍派山門，在下何守一。來者何人？' },
+          { speaker: MQ.he, text: '……來拜師的？本派收徒不拘時日，進去找知客的方師兄就是。只是別亂闖禁地。' },
         ],
       ],
     },
     {
-      id: 'mq_guard2', name: '守門弟子', sprite: 'disciple', x: 17, y: 4, facing: 'left',
-      talks: [[{ speaker: '守門弟子', text: '山門重地，進去之後請守規矩。' }]],
+      id: 'mq_guard2', name: MQ.qiao, sprite: 'disciple', x: 17, y: 4, facing: 'left',
+      talks: [[{ speaker: MQ.qiao, text: '我是喬木生，才入門半年，跟何師兄學守山門。' }, { speaker: MQ.qiao, text: '山門重地，進去之後請守規矩。' }], [{ speaker: MQ.qiao, text: '站一整天，腿都直了……' }]],
     },
+    // 委託「清理山道」：接下之後才出現
+    { id: 'mq_path_dogs', name: '野狗群', sprite: 'dog', x: 10, y: 17, wander: 2, script: pathDogs, when: (f) => f.mq_c_path === 1 },
     {
       id: 'mq_woodcutter', name: '樵夫', sprite: 'farmer', x: 9, y: 22, wander: 2,
       talks: [

@@ -94,6 +94,10 @@ export const ITEMS: Record<string, ItemDef> = {
     name: '鳴泉腰牌', category: '雜物', icon: 'token', bound: true,
     desc: '刻著「鳴泉」二字的木腰牌，是鳴泉劍派弟子的身分憑證。',
   },
+  mq_medpack: {
+    name: '鳴泉藥包', category: '雜物', icon: 'salve', bound: true,
+    desc: '鳴泉藥房配好的一包金創藥，要送到臨江城的回春堂。',
+  },
 };
 
 // 物品欄的順序就是 items 物件的鍵順序（存檔時 JSON 會保留），新拿到的物品排在最後。
