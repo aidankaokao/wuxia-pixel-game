@@ -1,4 +1,4 @@
-import { addFame, attrs, Character, derive, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
+import { addFame, attrs, canHold, Character, derive, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
@@ -6,6 +6,9 @@ import { addContrib, choreKey, inSect, promote, promotionChecks, roster, SectMem
 import { clampAff, newRelation, STAGE } from '../social';
 import { useGame } from '../../state/store';
 import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estate';
+import { cookAt, teachDishes } from './cooking';
+import { dailyMeal } from '../cooking';
+import { craftOf } from '../crafts';
 import { heroUnit } from '../battle/moves';
 import { setupDrill } from '../battle/enemies';
 import { dateText, inShichen, keUntilDawn, shichenStart, SHICHEN_INDEX, timeText } from '../time';
@@ -126,7 +129,7 @@ export const MINGQUAN: SectDef = {
     { id: 'sweep', name: '掃殿前', where: `大殿前找${MQ.cao}` },
     { id: 'herbs', name: '翻曬草藥', where: '藥房的晾藥架' },
     { id: 'books', name: '整理書房', where: '書房的掌故書架' },
-    { id: 'garden', name: '照顧菜圃', where: `菜圃旁找伙房的${MQ.bu}` },
+    { id: 'garden', name: '照顧菜圃', where: `廚房找伙房的${MQ.bu}` },
   ],
   choresPerDay: 3,
   members: Object.values(MQ_MEMBERS),
@@ -955,8 +958,8 @@ const CHORE_DONE: Record<string, { lines: (Line | string)[]; bonus?: [string, nu
   herbs: { lines: ['你把晾藥架上的草藥一一翻面、攤開曬勻。', { speaker: MQ.miao, text: '辛苦了，這株止血草你拿去。' }], bonus: ['herb', 1] },
   books: { lines: ['你把散亂的書冊照年代排好，順手翻了幾頁江湖掌故。', '書上說，百年前江湖上有個劍客，一劍斷江……多半是說書人的誇張。'] },
   garden: {
-    lines: ['你提著水桶替菜圃澆水、拔草，還抓走了好幾條菜蟲。', { speaker: MQ.bu, text: '不錯不錯！這碗燉肉拿去，算是賞你的。' }],
-    bonus: ['stew', 1],
+    lines: ['你提著水桶到後頭菜圃澆水、拔草，還抓走了好幾條菜蟲。', { speaker: MQ.bu, text: '不錯不錯！這幾把青菜拿去，算是賞你的。' }],
+    bonus: ['greens', 3],
   },
 };
 
@@ -1157,13 +1160,84 @@ export const herbalistTalk = giver(MQ.miao, 'herb', 3, 4, '止血草收下了，
   by(MQ.miao)('我姑姑蘇長老下山行醫去了，藥房暫時由我照看。', '我們的金創藥，可比山下回春堂的還好用。'),
 ]);
 
-export const cookTalk = choreAt(
-  'garden',
-  giver(MQ.bu, 'boar_meat', 1, 4, '好大一塊山豬肉！今晚加菜！', [
-    by(MQ.bu)('我是伙房的卜大勺。練武的人吃得多，一頓飯要煮三大鍋！', '後頭菜圃的菜都是我種的，誰敢踩，我拿鍋鏟敲他。'),
-    by(MQ.bu)('打到山豬就拿來，我替大夥兒燉一鍋。'),
-  ]),
-);
+// ── 廚房：卜大勺發飯、教做菜、賣食材 ─────────────────────
+
+/** 廚房賣的食材（野菌要自己上後山採） */
+export const KITCHEN_STOCK = ['rice', 'flour', 'egg', 'tofu', 'greens', 'radish', 'chicken', 'redbean', 'sugar', 'osmanthus', 'sesame', 'almond'];
+const MEAL_KEY = 'mq_meal';
+
+const cookChats = [
+  by(MQ.bu)('我是伙房的卜大勺。練武的人吃得多，一頓飯要煮三大鍋！', '後頭菜圃的菜都是我種的，誰敢踩，我拿鍋鏟敲他。'),
+  by(MQ.bu)('打到山豬就拿來，我替大夥兒燉一鍋。'),
+  by(MQ.bu)('做菜跟練劍一樣，火候到了，味道自然就出來了。', '想學就跟我說，先從白米飯煮起。'),
+];
+let cookChat = 0;
+
+/** 每天的大鍋飯：弟子一天領一份，行囊滿了領不了 */
+async function dailyMealAt(ctx: EventCtx) {
+  const b = by(MQ.bu);
+  const d = dailyMeal(st().world.day);
+  if (usedToday(st().world, MEAL_KEY)) {
+    await ctx.say(...b('今天的份你領過啦！明天再來，明天換別的菜。'));
+    return;
+  }
+  if (!canHold(st().hero, d.id)) {
+    await ctx.say(...b(`今天是${d.name}——欸，你身上塞得滿滿的，碗往哪兒擺？騰出點地方再來。`), '（行囊滿了，先賣掉或用掉一些吧）');
+    return;
+  }
+  st().updateWorld((w) => (w.daily[MEAL_KEY] = { day: w.day, n: 1 }));
+  await ctx.say(...b(`今天是${d.name}！趁熱吃。`));
+  await ctx.hero((h) => giveItem(h, d.id));
+}
+
+/** 學做菜的學費：門派貢獻 */
+async function payContrib(ctx: EventCtx, n: number): Promise<boolean> {
+  if (!n) return true;
+  if (sect().contrib < n) {
+    await ctx.say(...by(MQ.bu)(`這道菜得花 ${n} 點門派貢獻，你現在只有 ${sect().contrib} 點。多做點雜務再來。`));
+    return false;
+  }
+  st().updateWorld((w) => (w.sect!.contrib -= n));
+  return true;
+}
+
+export const cookTalk = choreAt('garden', async (ctx) => {
+  const chat = () => ctx.say(...cookChats[cookChat++ % cookChats.length]);
+  if (!member()) return chat();
+  const meal = dailyMeal(st().world.day);
+  const c = await ctx.ask(by(MQ.bu)('餓了吧？')[0], [
+    `領今天的飯（${meal.name}）`,
+    '學做菜',
+    '買食材',
+    '繳納山豬肉（1 份，貢獻 +4）',
+    '閒聊',
+  ]);
+  if (c === 0) await dailyMealAt(ctx);
+  else if (c === 1) await teachDishes(ctx, MQ.bu, (n) => payContrib(ctx, n), () => craftOf(st().hero, 'cooking').level);
+  else if (c === 2) await ctx.panel({ kind: 'shop', title: '伙房的食材', stock: KITCHEN_STOCK });
+  else if (c === 3) await donate(ctx, MQ.bu, 'boar_meat', 1, 4, '好大一塊山豬肉！今晚加菜！');
+  else await chat();
+});
+
+/** 後山的野菌：一處一天採一次，誰都能採 */
+export const mushroomAt =
+  (spot: string): Script =>
+  async (ctx) => {
+    if (!(await useDaily(ctx, `mq_mush:${spot}`, 1, '這一叢野菌已經採過了，新的還沒冒出來。'))) return;
+    ctx.pass(1);
+    const n = 1 + Math.floor(Math.random() * 3);
+    await ctx.say('你撥開落葉，把肥嫩的野菌一朵朵摘了下來。');
+    await ctx.hero((h) => giveItem(h, 'mushroom', n));
+  };
+
+/** 廚房的大灶：有鳴泉的泉水，做得了泉水涼麵、鳴泉清燉 */
+export const kitchenStove: Script = async (ctx) => {
+  if (!member()) {
+    await ctx.say('大灶上的鍋子比人還寬，正冒著熱氣。');
+    return;
+  }
+  await cookAt({ level: 3, spring: true, idle: '大灶上的鍋子比人還寬，正冒著熱氣。' })(ctx);
+};
 
 export const armoryTalk = giver(MQ.meng, 'dog_pelt', 2, 3, '狗皮正好拿來做劍鞘的襯裡。', [
   by(MQ.meng)('我是管武器房的孟鐸。本門以劍為主，拳腳是根基，兩樣都得練。', '刀槍棍棒擺在這兒，是讓你們見識見識各家兵器的，不教。'),

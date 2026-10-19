@@ -109,7 +109,7 @@ export const FURNITURE: FurnitureDef[] = [
   { id: 'table', name: '桌椅', tier: 2, maxLevel: 1, costs: [], effect: () => '吃飯、喝茶的地方。' },
   {
     id: 'stove', name: '灶台', tier: 2, maxLevel: 3, costs: [50, 120],
-    effect: (lv, st) => `把一塊山豬肉燉成 ${lv + (st === 'plain' ? 1 : 0)} 份燉山豬肉（回復氣血 150）。`,
+    effect: (lv, st) => `做學會的菜，灶台越好越容易做出好菜；一塊山豬肉燉成 ${lv + (st === 'plain' ? 1 : 0)} 份燉山豬肉。`,
   },
   {
     id: 'shelf', name: '書架', tier: 3, maxLevel: 3, costs: [80, 180],

@@ -1,4 +1,4 @@
-import { armoryTalk, cellBed, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, cellBed, choreAt, cookTalk, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, kitchenStove, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
 import type { MapDef, PropDef } from './types';
 
@@ -234,13 +234,16 @@ export const mqKitchen: MapDef = {
   theme: 'stone',
   buildings: [],
   props: [
-    { sprite: 'f_stove_plain_3', x: 1, y: 1, w: 2, lines: [{ text: '大灶上的鍋子比人還寬，正冒著熱氣。' }] },
+    { sprite: 'f_stove_plain_3', x: 1, y: 1, w: 2, script: kitchenStove, label: '做菜' },
     { sprite: 'f_stove_plain_2', x: 4, y: 1, w: 2, lines: [{ text: '另一口灶，燉著一鍋肉湯。' }] },
     { sprite: 'vat', x: 8, y: 1, script: choreAt('water', [{ text: '水缸。每天早上記名弟子要把它挑滿。' }]) },
     { sprite: 'jars', x: 8, y: 4, w: 2, lines: [{ text: '架上是醃菜、米糧和油鹽醬醋。' }] },
     { sprite: 'f_table_plain_1', x: 1, y: 4, w: 2, lines: [{ text: '案板上切了一半的蘿蔔。' }] },
   ],
-  npcs: [],
+  npcs: [
+    // 伙房師傅起得早，卯時就在廚房
+    { id: 'mqk_cook', work: true, out: 18, name: MQ.bu, sprite: 'smith', x: 5, y: 3, facing: 'down', script: cookTalk },
+  ],
   exits: [back(43, 27, 5, 7)],
 };
 

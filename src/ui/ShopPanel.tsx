@@ -6,7 +6,7 @@ import { useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
 /** 貨郎賣的東西；熟了之後多賣雲霧茶（旗標 tao_stock） */
-const STOCK = ['jinchuang', 'tea', 'herb'];
+const STOCK = ['jinchuang', 'tea', 'herb', 'rice', 'flour', 'egg', 'greens', 'sugar'];
 const EXTRA_STOCK = ['yunwu'];
 
 /** 等待確認的交易 */
@@ -33,7 +33,7 @@ export function ShopPanel() {
   const buyPrice = (id: string) => Math.ceil(ITEMS[id].price! * (1 - discount));
   const list =
     tab === 'buy'
-      ? [...STOCK, ...(flags.tao_stock ? EXTRA_STOCK : [])]
+      ? (panel?.kind === 'shop' && panel.stock) || [...STOCK, ...(flags.tao_stock ? EXTRA_STOCK : [])]
       : Object.keys(hero.items).filter((id) => hero.items[id] > 0 && sellPrice(id) > 0 && !ITEMS[id].manual);
   const cur = Math.min(cursor, Math.max(0, list.length - 1));
 
@@ -97,7 +97,7 @@ export function ShopPanel() {
     <div className="menu-backdrop">
       <div className="panel pixel-frame">
         <h2>
-          貨郎攤子　<small>銀兩 {hero.silver}{discount ? `　熟客 ${Math.round((1 - discount) * 10)} 折` : ''}</small>
+          {(panel?.kind === 'shop' && panel.title) || '貨郎攤子'}　<small>銀兩 {hero.silver}{discount ? `　熟客 ${Math.round((1 - discount) * 10)} 折` : ''}</small>
         </h2>
         <div className="panel-tabs">
           <span className={tab === 'buy' ? 'active' : ''} onClick={() => (setTab('buy'), setCursor(0))}>

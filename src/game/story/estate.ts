@@ -1,3 +1,4 @@
+import { cookAt } from './cooking';
 import { Character, derive, gainInsight, gainSkill, giveItem, isEquipped, nextMove, restoreAll, skillCap, skillDef, slotOf } from '../character';
 import { MOVES } from '../battle/moves';
 import type { EventCtx, Script } from '../events';
@@ -158,26 +159,13 @@ async function nap(ctx: EventCtx, n: number) {
   await ctx.say(`你小睡了${'一兩三'[n - 1]}個時辰。\n——${timeText(st().world.time)}`, '（恢復了一些氣血、內力與體力）');
 }
 
+/** 灶台：做學會的菜；燉山豬肉每塊肉燉成幾份看灶台等級（樸素風格多一份） */
 const stove =
   (plot: string): Script =>
   async (ctx) => {
-    const meat = st().hero.items.boar_meat ?? 0;
-    if (!meat) {
-      await ctx.say('灶台收拾得乾乾淨淨。\n（有山豬肉的話，可以在這裡燉來吃。山豬肉要到山道上打山豬才有）');
-      return;
-    }
     const e = estateOf(plot);
-    const per = furnitureLevel(e, 'stove') + (e.style === 'plain' ? 1 : 0);
-    const c = await ctx.ask(`有 ${meat} 塊山豬肉。每塊可以燉成 ${per} 份燉山豬肉。`, ['燉一塊', '全部燉了', '算了']);
-    if (c === 2) return;
-    const n = c === 0 ? 1 : meat;
-    ctx.pass(4);
-    await ctx.say('柴火劈啪作響，肉香慢慢飄滿了屋子……\n（花了半個時辰）');
-    await ctx.hero((h) => {
-      h.items.boar_meat -= n;
-      if (!h.items.boar_meat) delete h.items.boar_meat;
-      return giveItem(h, 'stew', n * per);
-    });
+    const lv = furnitureLevel(e, 'stove');
+    await cookAt({ level: lv, stewPer: lv + (e.style === 'plain' ? 1 : 0), idle: '灶台收拾得乾乾淨淨。' })(ctx);
   };
 
 const shelf =
@@ -284,7 +272,7 @@ export function furnitureScript(plot: string, id: string): { script: Script; lab
     case 'bed':
       return { script: bed(plot), label: '睡覺' };
     case 'stove':
-      return { script: stove(plot), label: '燉肉' };
+      return { script: stove(plot), label: '做菜' };
     case 'shelf':
       return { script: shelf(plot), label: '研讀' };
     case 'dummy':

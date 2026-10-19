@@ -195,9 +195,23 @@ function wildHerb(): PropArt {
   return done(c, ctx);
 }
 
+/** 野菌：樹根旁一叢褐色的菇 */
+function mushrooms(): PropArt {
+  const [c, ctx] = makeCanvas(16, 12);
+  for (const [x, y, r, cap] of [[4, 6, 3, '#8a5a3a'], [10, 5, 4, '#a86a40'], [8, 9, 2, '#7a4a2e']] as const) {
+    px(ctx, x - 1, y, 2, 12 - y, '#e8dcc0');
+    px(ctx, x - r, y - 2, r * 2, 2, cap);
+    px(ctx, x - r + 1, y - 3, r * 2 - 2, 1, cap);
+    px(ctx, x - r + 1, y - 2, 1, 1, '#d8a878');
+  }
+  px(ctx, 1, 11, 14, 1, '#3e6a28');
+  return done(c, ctx);
+}
+
 export function landmarkProps(): Record<string, PropArt> {
   return {
     wild_herb: wildHerb(),
+    mushrooms: mushrooms(),
     carriage: carriage(),
     pavilion: pavilion(),
     ding: ding(),

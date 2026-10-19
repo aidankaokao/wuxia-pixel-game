@@ -28,6 +28,8 @@ import {
   tryBreakthrough,
   unequip,
   consumeItem,
+  usable,
+  usableInBattle,
   bagCapacity,
   bagUsed,
 } from '../game/character';
@@ -443,7 +445,7 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
 
   const actRows: Row[] = selected
     ? [
-        ...(ITEMS[selected].hp || ITEMS[selected].qi
+        ...(usable(selected)
           ? [
               {
                 label: '使用',
@@ -604,7 +606,7 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
                 </div>
                 <p className="muted small">
                   {ITEMS[focus].desc}
-                  {ITEMS[focus].hp || ITEMS[focus].qi ? '（戰鬥中或行囊裡都能使用）' : ''}
+                  {usableInBattle(focus) ? '（戰鬥中或行囊裡都能使用）' : usable(focus) ? '（在行囊裡使用，戰鬥中不能吃）' : ''}
                 </p>
                 {layer === 'act' && <RowList rows={actRows} cursor={act} onPick={(i) => actRows[i].run()} />}
               </>

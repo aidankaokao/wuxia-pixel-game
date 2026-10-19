@@ -22,7 +22,10 @@ export interface CraftDef {
 }
 
 export const CRAFTS: CraftDef[] = [
-  { id: 'cooking', name: '烹飪', group: '生活', desc: '學菜、練菜，做出好吃又補身的菜餚。', howTo: '之後在廚房或家裡的灶台學菜、練菜。', open: false },
+  {
+    id: 'cooking', name: '烹飪', group: '生活', desc: '學菜、練菜，做出好吃又補身的菜餚。等級越高，越不會失手、越容易做出上品與精品。',
+    howTo: '跟鳴泉劍派廚房的卜大勺學菜（烹飪 2、4、6 級起能學中等、進階、拿手菜），在廚房大灶或家裡的灶台做菜。', open: true,
+  },
   { id: 'weaving', name: '紡織', group: '生活', desc: '紡紗織布、裁製衣物，技藝越高做出來的衣物品級越好。', howTo: '之後開放。', open: false },
   { id: 'learning', name: '學識', group: '學問', desc: '讀書明理。學識高，說話、講價、解題都更有把握。', howTo: '之後在書房讀經史子集。', open: false },
   { id: 'qin', name: '琴', group: '雅藝', desc: '撫琴怡情，也能結交同好。', howTo: '之後開放。', open: false },

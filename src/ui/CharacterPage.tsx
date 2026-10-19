@@ -1,5 +1,6 @@
-import { ATTRS, attrParts, derive, GEAR_SLOTS } from '../game/character';
-import { CRAFTS, craftExpToNext, CRAFT_MAX, craftOf, craftTitle } from '../game/crafts';
+import { ATTRS, attrParts, Character, derive, GEAR_SLOTS, ITEMS } from '../game/character';
+import { DISH_TIERS, DISHES, dishItem, knowsDish, needsText, STEW, TIER_LEVEL } from '../game/cooking';
+import { CRAFTS, craftExpToNext, CRAFT_MAX, craftOf, craftTitle, WORK_MAX, workExpToNext, workOf } from '../game/crafts';
 import { rankName, sectDef } from '../game/sect';
 import { fameTitle } from '../game/social';
 import { useGame } from '../state/store';
@@ -133,6 +134,7 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
             label: c.name,
             muted: !c.open,
             tag: c.open ? `${p.level} 級・${craftTitle(p.level)}` : '未開放',
+            children: c.id === 'cooking' ? () => dishList(hero) : undefined,
             detail: () => (
               <>
                 <h3>
@@ -167,4 +169,48 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
     },
   ];
   return <Browser title={hero.name} items={items} active={active} onExit={onExit} />;
+}
+
+/** 技能 › 烹飪：學會的菜與熟練度，沒學的菜列出幾級能學 */
+function dishList(hero: Character): BrowseItem[] {
+  const name = (id: string) => ITEMS[id].name;
+  return [STEW, ...DISHES].map((d) => {
+    const known = knowsDish(hero, d.id);
+    const w = workOf(hero, 'cooking', d.id);
+    return {
+      key: d.id,
+      label: d.name,
+      muted: !known,
+      tag: !known ? (craftOf(hero, 'cooking').level >= TIER_LEVEL[d.tier] ? '可以學' : `烹飪 ${TIER_LEVEL[d.tier]} 級起`) : w ? `熟練 ${w.level}` : '家常',
+      detail: () => (
+        <>
+          <h3>
+            {d.name}　<small>
+              {d.kind}・{DISH_TIERS[d.tier]}
+            </small>
+          </h3>
+          <p className="small">{ITEMS[dishItem(d.id)].desc}</p>
+          <dl className="kv">
+            <dt>食材</dt>
+            <dd>{needsText(d, name)}</dd>
+            {d.spring && (
+              <>
+                <dt>灶台</dt>
+                <dd>要用鳴泉的泉水，只能在鳴泉廚房做</dd>
+              </>
+            )}
+            <dt>熟練度</dt>
+            <dd>
+              {!known
+                ? '還沒學會（找鳴泉廚房的卜大勺學）'
+                : w
+                  ? `${w.level}/${WORK_MAX}${w.level < WORK_MAX ? `　${w.exp}/${workExpToNext(w.level)}` : '（爐火純青）'}`
+                  : '不用學，誰都會燉'}
+            </dd>
+          </dl>
+          <p className="small muted">做出來的品質有普通、上品、精品；烹飪等級與熟練度越高，越不會失手、越容易做出好菜。</p>
+        </>
+      ),
+    };
+  });
 }

@@ -9,6 +9,7 @@
 
 import type { ItemIcon } from './art/items';
 import type { CraftId, Progress } from './crafts';
+import { FOOD_ITEMS } from './cooking';
 
 export type AttrKey = 'strength' | 'agility' | 'constitution' | 'energy' | 'insight';
 export type Attrs = Record<AttrKey, number>;
@@ -52,9 +53,9 @@ export function rollName(rand: () => number = Math.random): { surname: string; g
 
 // ── 物品 ────────────────────────────────────────────────
 
-export type ItemCategory = '藥品' | '秘笈' | '雜物';
+export type ItemCategory = '藥品' | '菜餚' | '食材' | '秘笈' | '雜物';
 /** 物品欄的分類（也是「重新整理」排序的先後） */
-export const ITEM_CATEGORIES: ItemCategory[] = ['藥品', '秘笈', '雜物'];
+export const ITEM_CATEGORIES: ItemCategory[] = ['藥品', '菜餚', '食材', '秘笈', '雜物'];
 
 export interface ItemDef {
   name: string;
@@ -63,6 +64,12 @@ export interface ItemDef {
   icon: ItemIcon;
   hp?: number;
   qi?: number;
+  stamina?: number;
+  /** 甜品：接下來幾場戰鬥武功經驗加成 */
+  treat?: { battles: number; mult: number };
+  /** 菜餚：對應的菜（cooking.ts）與品質（0 普通、1 上品、2 精品） */
+  dish?: string;
+  quality?: number;
   /** 秘笈：對應的武功 id。持有時才能突破該武功的等級上限（不會消耗） */
   manual?: string;
   /** 價錢（銀兩）：商店照這個價賣，收購時給一半；沒有就是不能買賣 */
@@ -78,11 +85,12 @@ export const ITEMS: Record<string, ItemDef> = {
   jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80, price: 30 },
   tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30, price: 12 },
   yunwu: { name: '雲霧茶', category: '藥品', icon: 'tea', desc: '高山雲霧間採的好茶，入口回甘。回復內力 60。', qi: 60, price: 30 },
-  stew: { name: '燉山豬肉', category: '藥品', icon: 'stew', desc: '自家灶台燉的山豬肉，香氣撲鼻。回復氣血 150。', hp: 150, price: 40 },
   herb: { name: '止血草', category: '雜物', icon: 'herb', desc: '常見的草藥，可以拿到藥爐煉成金創藥。', price: 6 },
   boar_meat: { name: '山豬肉', category: '雜物', icon: 'meat', desc: '一大塊山豬肉。可以賣錢，也可以在自家灶台燉來吃。', price: 16 },
   boar_tusk: { name: '山豬獠牙', category: '雜物', icon: 'tusk', desc: '又長又硬的獠牙，貨郎說城裡有人收。', price: 30 },
   dog_pelt: { name: '野狗皮', category: '雜物', icon: 'pelt', desc: '粗硬的狗皮，硝過之後能做些皮件。', price: 12 },
+  // 食材與菜餚（含燉山豬肉）見 cooking.ts
+  ...FOOD_ITEMS,
   manual_zhuying: {
     name: '竹影劍痕拓本', category: '秘笈', icon: 'scroll', manual: 'zhuying',
     desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。',
@@ -124,20 +132,29 @@ export function swapItems(c: Character, a: string, b: string) {
 /** 在地圖上使用回復類物品；回傳提示文字 */
 export function consumeItem(c: Character, id: string): string {
   const def = ITEMS[id];
-  if (!c.items[id] || !(def.hp || def.qi)) return '這樣東西現在用不上。';
+  if (!c.items[id] || !usable(id)) return '這樣東西現在用不上。';
   const d = derive(c);
   const hp = Math.min(def.hp ?? 0, d.maxHp - c.hp);
   const qi = Math.min(def.qi ?? 0, d.maxQi - c.qi);
-  if (hp <= 0 && qi <= 0) return '現在用不著。';
+  const stamina = Math.min(def.stamina ?? 0, d.maxStamina - c.stamina);
+  if (hp <= 0 && qi <= 0 && stamina <= 0 && !def.treat) return '現在用不著。';
   c.hp += hp;
   c.qi += qi;
+  c.stamina += stamina;
+  // 甜品的加成不疊加，取效果比較好的那個
+  if (def.treat && (!c.treat || def.treat.mult * def.treat.battles >= c.treat.mult * c.treat.battles)) c.treat = { ...def.treat };
   c.items[id]--;
   if (!c.items[id]) delete c.items[id];
-  return `用了${def.name}。${hp ? `氣血 +${hp}` : ''}${hp && qi ? '　' : ''}${qi ? `內力 +${qi}` : ''}`;
+  const gains = [hp && `氣血 +${hp}`, qi && `內力 +${qi}`, stamina && `體力 +${stamina}`].filter(Boolean).join('　');
+  const verb = def.category === '菜餚' ? '吃了' : '用了';
+  return `${verb}${def.name}。${gains}${def.treat ? `${gains ? '\n' : ''}心情愉快：接下來 ${c.treat!.battles} 場戰鬥武功經驗 ×${c.treat!.mult}。` : ''}`;
 }
 
-/** 戰鬥中可以使用的物品（有回復效果的） */
-export const usableInBattle = (id: string) => !!(ITEMS[id]?.hp || ITEMS[id]?.qi);
+/** 行囊裡能「使用」的物品：有回復或加成效果的藥品、菜餚 */
+export const usable = (id: string) => !!(ITEMS[id]?.hp || ITEMS[id]?.qi || ITEMS[id]?.stamina || ITEMS[id]?.treat);
+
+/** 戰鬥中可以使用的物品：只有藥品（菜餚要坐下來吃） */
+export const usableInBattle = (id: string) => ITEMS[id]?.category === '藥品' && !!(ITEMS[id].hp || ITEMS[id].qi);
 
 // ── 武功 ────────────────────────────────────────────────
 
@@ -344,6 +361,8 @@ export interface Character {
   works?: Record<string, Progress>;
   /** 睡過好床後「精神飽滿」：接下來幾場戰鬥武功經驗加成 */
   rested?: { battles: number; mult: number };
+  /** 吃了甜品「心情愉快」：接下來幾場戰鬥武功經驗加成 */
+  treat?: { battles: number; mult: number };
   /** 目前值；上限由 derive() 算出 */
   hp: number;
   qi: number;

@@ -1,4 +1,4 @@
-import { cookTalk, greeterTalk, herbAt, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
+import { greeterTalk, herbAt, mushroomAt, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -124,9 +124,6 @@ export const mqSect: MapDef = {
       id: 'mqs_outer', name: MQ.zheng, sprite: 'farmer', x: 6, y: 15, wander: 2,
       talks: [[{ speaker: MQ.zheng, text: '俺叫鄭大壯，山下種田的。大通鋪住了十幾個人，晚上打呼聲此起彼落……' }, { speaker: MQ.zheng, text: '等俺成了正式弟子，就能住兩人一間的房了！' }]],
     },
-    {
-      id: 'mqs_cook', name: MQ.bu, sprite: 'smith', x: 42, y: 29, facing: 'down', script: cookTalk,
-    },
   ],
 
   exits: [
@@ -191,6 +188,9 @@ export const mqBack: MapDef = {
     { sprite: 'wild_herb', x: 21, y: 12, script: herbAt('quanxin'), label: '採藥', when: herbVisible('quanxin') },
     { sprite: 'wild_herb', x: 12, y: 16, script: herbAt('tiegu'), label: '採藥', when: herbVisible('tiegu') },
     { sprite: 'wild_herb', x: 26, y: 16, script: herbAt('yungen'), label: '採藥', when: herbVisible('yungen') },
+    // 野菌（一處一天採一次）
+    { sprite: 'mushrooms', x: 4, y: 22, script: mushroomAt('west'), label: '採菌' },
+    { sprite: 'mushrooms', x: 28, y: 13, script: mushroomAt('east'), label: '採菌' },
     { sprite: 'sign', x: 24, y: 17, lines: [{ text: '「望江台」' }, { text: '站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。' }] },
   ],
   npcs: [
