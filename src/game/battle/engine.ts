@@ -19,6 +19,8 @@ export interface BattleStats {
 
 export class Battle {
   stats: BattleStats = { outerHits: 0, dodges: 0, hitsTaken: 0, qiUsed: 0, skillUses: {} };
+  /** 不許用藥（例如門派考核）：物品照樣帶著，只是不能用 */
+  noItems = false;
 
   constructor(
     public units: Unit[],
@@ -115,6 +117,7 @@ export class Battle {
 
   private useItem(actor: Unit, itemId: string): BattleEvent[] {
     const def = ITEMS[itemId];
+    if (this.noItems) return [{ type: 'message', text: '這一場不許用藥！' }];
     if (!this.items[itemId]) return [{ type: 'message', text: '已經沒有了。' }];
     this.items[itemId]--;
     const hp = Math.min(def.hp ?? 0, actor.maxHp - actor.hp);

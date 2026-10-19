@@ -1,4 +1,4 @@
-import { armoryTalk, choreAt, MQ, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, keeperTalk, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
 import type { MapDef, PropDef } from './types';
 
@@ -71,8 +71,8 @@ export const mqDorm: MapDef = {
   exits: [back(6, 14, 7, 7)],
 };
 
-/** 弟子房：正式弟子兩人一間 */
-const innerRoom = (id: string, name: string, door: [number, number], extra: string): MapDef => ({
+/** 弟子房：正式弟子兩人一間。beds 是兩張床（左、右）的內容，不給就只是擺設 */
+const innerRoom = (id: string, name: string, door: [number, number], extra: string, beds: [Partial<PropDef>, Partial<PropDef>] = [{}, {}]): MapDef => ({
   id,
   name,
   subtitle: '鳴泉劍派・弟子居所',
@@ -81,15 +81,18 @@ const innerRoom = (id: string, name: string, door: [number, number], extra: stri
   theme: 'plain',
   buildings: [],
   props: [
-    bed(1, 1, 'plain', 2),
-    bed(6, 1, 'plain', 2),
+    { ...bed(1, 1, 'plain', 2), ...beds[0] },
+    { ...bed(6, 1, 'plain', 2), ...beds[1] },
     { sprite: 'f_table_plain_1', x: 1, y: 3, w: 2, lines: [{ text: extra }] },
     { sprite: 'f_shelf_plain_1', x: 6, y: 3, w: 2, lines: [{ text: '架上擺著幾本劍譜抄本，邊上寫滿了批註。' }] },
   ],
   npcs: [],
   exits: [back(door[0], door[1], 4, 6)],
 });
-export const mqRoomA = innerRoom('mq_room_a', '弟子房・甲', [4, 21], '桌上擺著兩副碗筷，還有一盤沒下完的棋。');
+export const mqRoomA = innerRoom('mq_room_a', '弟子房・甲', [4, 21], '桌上擺著兩副碗筷，還有一盤沒下完的棋。', [
+  { lines: [{ text: `${MQ.he}的床鋪，被子胡亂捲成一團。聽說他打呼比雷還響。` }] },
+  { lines: undefined, script: roomBed, label: '睡覺' },
+]);
 export const mqRoomB = innerRoom('mq_room_b', '弟子房・乙', [9, 21], '桌上攤著一封家書，寫到一半。');
 
 /** 真傳弟子房：一人一間 */

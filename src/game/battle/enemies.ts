@@ -25,6 +25,8 @@ export const ENEMIES: Record<string, EnemyDef> = {
   shiyue: { name: '石岳', sprite: 'smith', hp: 210, atk: 19, def: 7, spd: 8, eva: 0.02, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   xiaoman: { name: '顧小滿', sprite: 'disciple_girl', hp: 180, atk: 28, def: 4, spd: 16, eva: 0.1, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   lumingchuan: { name: '陸鳴川', sprite: 'sect_senior', hp: 650, atk: 50, def: 10, spd: 20, eva: 0.08, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  qizhenyuan: { name: '齊振遠', sprite: 'disciple', hp: 320, atk: 38, def: 7, spd: 17, eva: 0.08, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  mengduo: { name: '孟鐸', sprite: 'disciple', hp: 380, atk: 42, def: 9, spd: 13, eva: 0.04, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   boss: { name: '祁三刀', sprite: 'boss', hp: 240, atk: 22, def: 6, spd: 12, eva: 0.06, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
 };
 
@@ -43,6 +45,8 @@ export interface EncounterDef {
   boss?: boolean;
   /** 切磋：點到為止，輸了不會被送回村裡 */
   spar?: boolean;
+  /** 不許用藥（例如門派考核） */
+  noItems?: boolean;
 }
 
 export const ENCOUNTERS: Record<string, EncounterDef> = {
@@ -56,6 +60,8 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   spar_xiaoman: { enemies: ['xiaoman'], background: 'mountain', intro: '顧小滿揚起木劍：「這次我可不會手下留情！」', canFlee: true, silver: 0, growth: 0.6, points: 1, spar: true },
   spar_lu: { enemies: ['lumingchuan'], background: 'mountain', intro: '陸鳴川長劍斜指地面：「師弟，出招吧。」', canFlee: true, silver: 0, growth: 0.8, points: 2, spar: true },
   mq_path_dogs: { enemies: ['dog', 'dog', 'dog'], background: 'mountain', intro: '三隻野狗堵在山道上，齜牙低吼！', canFlee: true, silver: 0, growth: 0.5, points: 3 },
+  exam_qi: { enemies: ['qizhenyuan'], background: 'mountain', intro: '齊振遠抱劍一禮：「考核不講情面，也不許用藥。師弟小心了。」', canFlee: false, silver: 0, growth: 0.8, points: 3, spar: true, noItems: true },
+  exam_meng: { enemies: ['mengduo'], background: 'mountain', intro: '孟鐸活動了一下手腕：「連戰兩場，就看你撐不撐得住。」', canFlee: false, silver: 0, growth: 0.8, points: 3, spar: true, noItems: true },
   camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 

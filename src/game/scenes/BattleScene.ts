@@ -75,6 +75,7 @@ export class BattleScene extends Phaser.Scene {
     const st = useGame.getState();
     const hero = heroUnit(st.hero, derive(st.hero));
     this.battle = new Battle([hero, ...enemyUnits(this.enc)], { ...st.hero.items }, this.enc.canFlee);
+    this.battle.noItems = !!this.enc.noItems;
     this.reconcile();
     // 依設定選出手順序：回合制或半即時制（規則層共用）
     this.cmdInput = null;
@@ -223,7 +224,7 @@ export class BattleScene extends Phaser.Scene {
       return { id, name: m.name, desc: m.desc, qi: m.qi, target: m.target, usable: hero.qi >= m.qi };
     });
     const items = Object.entries(this.battle.items)
-      .filter(([id, n]) => n > 0 && usableInBattle(id))
+      .filter(([id, n]) => n > 0 && usableInBattle(id) && !this.battle.noItems)
       .map(([id, count]) => ({ id, count, name: ITEMS[id].name, desc: ITEMS[id].desc }));
 
     const close = () => {
