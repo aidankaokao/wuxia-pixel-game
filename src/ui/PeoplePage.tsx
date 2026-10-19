@@ -1,7 +1,9 @@
 import { ITEMS } from '../game/character';
+import { ART_ACTION } from '../game/arts';
+import { craftDef } from '../game/crafts';
 import { stageOf, STAGES } from '../game/social';
 import { PEOPLE, PersonDef } from '../game/story/people';
-import { ACTIONS, addressOf, availableActions } from '../game/story/social';
+import { actionName, addressOf, availableActions } from '../game/story/social';
 import { useGame } from '../state/store';
 import { BrowseItem, Browser } from './Browser';
 
@@ -51,17 +53,19 @@ function PersonDetail({ p, day }: { p: PersonDef; day: number }) {
   const next = STAGES[s + 1];
   const pct = next ? ((r.aff - STAGES[s].min) / (next.min - STAGES[s].min)) * 100 : 100;
   const talked = r.talk.day === day ? r.talk.n : 0;
-  const can = availableActions(p.id).map((a) => ACTIONS[a].name);
+  const can = availableActions(p.id).map((a) => actionName(p.id, a));
   // 還沒開放、熟了才有的互動
   const later = [
     p.spar && s < p.spar.stage && `切磋（${STAGES[p.spar.stage].name}）`,
     p.teach && s < p.teach.stage && `請教（${STAGES[p.teach.stage].name}）`,
+    p.hobby && s < p.hobby.stage && `${ART_ACTION[p.hobby.art]}（${STAGES[p.hobby.stage].name}）`,
   ].filter(Boolean);
   const today = [
     `交談 ${Math.min(talked, p.talk.perDay)}/${p.talk.perDay} 次${talked >= p.talk.perDay ? '（今天聊夠了）' : ''}`,
     p.gift && (r.giftDay === day ? '已送過禮' : '還沒送禮'),
     p.spar && s >= p.spar.stage && (r.sparDay === day ? '已切磋' : '還沒切磋'),
     p.teach && s >= p.teach.stage && (r.teachDay === day ? '已請教' : '還沒請教'),
+    p.hobby && s >= p.hobby.stage && (r.hobbyDay === day ? `已${ART_ACTION[p.hobby.art]}` : `還沒${ART_ACTION[p.hobby.art]}`),
   ].filter(Boolean);
   return (
     <>
@@ -90,6 +94,12 @@ function PersonDetail({ p, day }: { p: PersonDef; day: number }) {
         </dd>
         <dt>今天</dt>
         <dd>{today.join('，')}</dd>
+        {p.hobby && (
+          <>
+            <dt>嗜好</dt>
+            <dd>{craftDef(p.hobby.art).name}（{p.hobby.level >= 7 ? '名家' : p.hobby.level >= 5 ? '精通' : '熟手'}）</dd>
+          </>
+        )}
         <dt>喜好</dt>
         <dd>
           {r.known.length

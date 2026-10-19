@@ -1,4 +1,5 @@
 import { addFame, giveItem } from '../character';
+import type { ArtId } from '../arts';
 import type { EventCtx, Script } from '../events';
 import type { Line } from '../maps/types';
 import { STAGE } from '../social';
@@ -55,6 +56,11 @@ export interface PersonDef {
   spar?: { stage: number; encounter: string; win: number; lose: number };
   /** 請教：每天一次，替一門武功的下一招加領悟度 */
   teach?: { stage: number; insight: number };
+  /**
+   * 嗜好（琴棋書畫）：熟到 stage 起可以一起玩，每天一次。level 是對方的造詣（0–10）；
+   * 下棋的人有棋風 style（0 穩守、1 取勢、2 強攻）。
+   */
+  hobby?: { art: ArtId; level: number; stage: number; style?: number };
   /** 熟悉度到了某個值，下次交談時觸發 */
   events?: { id: string; at: number; script: Script }[];
 }
@@ -99,6 +105,8 @@ const liuP: PersonDef = {
   ],
   refuseGift: liu('老夫什麼都不缺，{稱}的心意領了。'),
   teach: { stage: STAGE.CLOSE, insight: 15 },
+  // 村長愛下棋，棋風沉穩
+  hobby: { art: 'chess', level: 5, stage: STAGE.NOD, style: 0 },
   events: [
     {
       id: 'liu_30',
@@ -147,7 +155,7 @@ const qingheP: PersonDef = {
     ],
   },
   idle: [],
-  gift: { likes: { tea: 8, stew: 6 }, dislikes: { dog_pelt: 5, boar_meat: 3 } },
+  gift: { likes: { tea: 8, stew: 6, painting_2: 8, painting_3: 15 }, dislikes: { dog_pelt: 5, boar_meat: 3 } },
   spar: { stage: STAGE.FAMILIAR, encounter: 'spar_qinghe', win: 5, lose: 3 },
   events: [
     {
@@ -169,6 +177,8 @@ const qingheP: PersonDef = {
       },
     },
   ],
+  // 柳青禾在家裡學琴
+  hobby: { art: 'qin', level: 4, stage: STAGE.NOD },
 };
 
 // ── 鍾嬸：茶寮老闆娘。愛聊天，收禮，知道很多傳聞 ──────────

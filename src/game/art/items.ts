@@ -9,7 +9,8 @@ export type ItemIcon =
   // 菜餚
   | 'rice' | 'noodle' | 'soup' | 'sweet'
   // 服飾
-  | 'hat' | 'robe' | 'robe_gray' | 'robe_white' | 'robe_blue' | 'pants' | 'shoes' | 'bracer' | 'pouch';
+  | 'hat' | 'robe' | 'robe_gray' | 'robe_white' | 'robe_blue' | 'pants' | 'shoes' | 'bracer' | 'pouch'
+  | 'painting';
 
 const OUTLINE = '#1a1218';
 
@@ -278,6 +279,17 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     px(ctx, 5, 5, 6, 3, '#3e6a5a');
     px(ctx, 7, 9, 2, 2, '#f0b830');
     px(ctx, 7, 14, 2, 2, '#c4483c');
+  },
+  // 畫作：捲起一半的畫軸，露出山水
+  painting(ctx) {
+    px(ctx, 3, 2, 10, 12, '#efe6cc');
+    hline(ctx, 2, 13, 1, '#6a4428');
+    hline(ctx, 2, 13, 14, '#6a4428');
+    px(ctx, 4, 9, 3, 3, '#5a7a6a');
+    px(ctx, 6, 6, 4, 6, '#4a6a5a');
+    px(ctx, 9, 8, 3, 4, '#6a8a7a');
+    hline(ctx, 3, 12, 12, '#8ab0c0');
+    px(ctx, 10, 4, 1, 1, '#c4483c');
   },
 };
 

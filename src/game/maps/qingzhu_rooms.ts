@@ -1,3 +1,4 @@
+import { practiceAt } from '../story/arts';
 import { by, exitTo, room } from './rooms';
 import type { MapDef } from './types';
 
@@ -67,7 +68,7 @@ export const qzTea: MapDef = {
     { sprite: 'counter', x: 1, y: 1, w: 3, lines: [{ text: '櫃台上擺著茶壺、茶碗，還有一罐鍾嬸醃的梅子。' }] },
     { sprite: 'jars', x: 8, y: 1, w: 2, lines: [{ text: '一格格的茶罐，寫著「竹葉」「雲霧」「老梅」。' }] },
     { sprite: 'f_table_plain_1', x: 2, y: 3, w: 2, lines: [{ text: '桌上還留著半碗沒喝完的茶。' }] },
-    { sprite: 'f_table_plain_1', x: 7, y: 3, w: 2, lines: [{ text: '桌上擱著一副象棋，殘局未完。' }] },
+    { sprite: 'f_table_plain_1', x: 7, y: 3, w: 2, script: practiceAt('chess', '桌上擱著一副棋，一盤殘局還沒下完。'), label: '打譜' },
     { sprite: 'f_deco_plain_1', x: 9, y: 5, lines: [{ text: '一盆青竹，跟茶寮的名字很相配。' }] },
   ],
   npcs: [

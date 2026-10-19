@@ -1332,6 +1332,8 @@ const wenP: PersonDef = {
   },
   idle: [],
   teach: { stage: STAGE.CLOSE, insight: 30 },
+  // 掌門寫得一手好字
+  hobby: { art: 'calligraphy', level: 7, stage: STAGE.NOD },
 };
 
 const luP: PersonDef = {
@@ -1415,6 +1417,8 @@ const hanP: PersonDef = {
   },
   idle: [],
   teach: { stage: STAGE.NOD, insight: 20 },
+  // 韓靖秋下棋跟出劍一樣凌厲
+  hobby: { art: 'chess', level: 6, stage: STAGE.NOD, style: 2 },
 };
 
 const yanP: PersonDef = {
@@ -1459,8 +1463,10 @@ const suP: PersonDef = {
     [STAGE.CLOSE]: [su('{稱}，疏桐下山前來找過我，要了幾帖藥……她說要去找一個人。')],
   },
   idle: [su('這幾味藥要曬足三天，急不得。'), su('臨江城這陣子跌打損傷的人特別多，不知道是不是漕幫又鬧事了。')],
-  gift: { likes: { herb: 3, yunwu: 5 }, dislikes: { dog_pelt: 2 } },
+  gift: { likes: { herb: 3, yunwu: 5, painting_2: 6, painting_3: 12 }, dislikes: { dog_pelt: 2 } },
   teach: { stage: STAGE.NOD, insight: 20 },
+  // 蘇芷蘅行醫各地，也愛畫山水
+  hobby: { art: 'painting', level: 5, stage: STAGE.NOD },
 };
 
 export const SECT_PEOPLE: PersonDef[] = [wenP, luP, xiaomanP, hanP, yanP, suP];

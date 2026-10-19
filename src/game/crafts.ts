@@ -31,10 +31,10 @@ export const CRAFTS: CraftDef[] = [
     id: 'learning', name: '學識', group: '學問', desc: '讀書明理。每一級買東西便宜 1%（最多一成），研讀武功時領悟也多 1 點。',
     howTo: '在鳴泉劍派書房的「經史子集」書架讀書，從三字經、千字文、弟子規讀起；學識越高，讀得懂的書越多。', open: true,
   },
-  { id: 'qin', name: '琴', group: '雅藝', desc: '撫琴怡情，也能結交同好。', howTo: '之後開放。', open: false },
-  { id: 'chess', name: '棋', group: '雅藝', desc: '黑白對弈，磨練心思。', howTo: '之後開放。', open: false },
-  { id: 'calligraphy', name: '書', group: '雅藝', desc: '寫得一手好字。', howTo: '之後開放。', open: false },
-  { id: 'painting', name: '畫', group: '雅藝', desc: '丹青寫意。', howTo: '之後開放。', open: false },
+  { id: 'qin', name: '琴', group: '雅藝', desc: '撫琴怡情。撫一曲回一些內力，琴藝越高回得越多。', howTo: '在鳴泉後山的聽泉亭撫琴；柳青禾也懂琴，熟了可以跟她論琴（按 H）。', open: true },
+  { id: 'chess', name: '棋', group: '雅藝', desc: '黑白對弈，磨練心思。跟愛下棋的人對弈，贏了交情長得更快。', howTo: '在鳴泉的聽劍亭、竹風茶寮打譜；柳承安、韓靖秋愛下棋，熟了可以對弈（按 H）。', open: true },
+  { id: 'calligraphy', name: '書', group: '雅藝', desc: '寫得一手好字。練字時順帶長一點學識。', howTo: '在鳴泉書房的書案練字；聞掌門寫得一手好字，熟了可以向他請益（按 H）。', open: true },
+  { id: 'painting', name: '畫', group: '雅藝', desc: '丹青寫意。寫生畫成的畫可以賣、可以送人，畫藝越高越常畫出佳作、名作。', howTo: '在鳴泉後山的望江台寫生；蘇芷蘅也愛畫，熟了可以一同賞畫（按 H）。', open: true },
 ];
 export const craftDef = (id: CraftId) => CRAFTS.find((c) => c.id === id)!;
 

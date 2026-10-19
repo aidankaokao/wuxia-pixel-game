@@ -1,4 +1,5 @@
 import { greeterTalk, herbAt, mushroomAt, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
+import { practiceAt } from '../story/arts';
 import type { MapDef } from './types';
 
 /**
@@ -89,7 +90,7 @@ export const mqSect: MapDef = {
     { sprite: 'f_dummy_martial_1', x: 18, y: 24, script: yardStake, label: '練樁' },
     { sprite: 'f_dummy_martial_1', x: 20, y: 24, script: yardStake, label: '練樁' },
     { sprite: 'f_deco_martial_1', x: 30, y: 24, w: 2, lines: [{ text: '廣場邊的兵器架，木劍、竹劍擺得整整齊齊。' }] },
-    { sprite: 'pavilion', x: 10, y: 35, w: 3, lines: [{ text: '聽劍亭。亭柱上刻著一副對聯：「洗劍池邊聽泉語，鳴泉山上看劍心」。' }] },
+    { sprite: 'pavilion', x: 10, y: 35, w: 3, script: practiceAt('chess', '聽劍亭。亭柱上刻著一副對聯：「洗劍池邊聽泉語，鳴泉山上看劍心」。'), label: '打譜' },
     { sprite: 'stele', x: 6, y: 31, lines: [{ text: '「洗劍池」' }, { text: '相傳開派祖師每練完一套劍，便在此池中洗劍，池水因此終年清冽，不生青苔。' }] },
     { sprite: 'sign', x: 22, y: 43, lines: [{ text: '「鳴泉劍派」\n北 ── 大殿・演武廣場\n西 ── 弟子居所\n東 ── 練功房・書房・藥房・武器房・廚房' }] },
     { sprite: 'sign', x: 14, y: 18, lines: [{ text: '弟子居所\n記名弟子住大通鋪，成了正式弟子兩人一間，真傳弟子各有一間。' }] },
@@ -175,7 +176,7 @@ export const mqBack: MapDef = {
     { sprite: 'cave', x: 6, y: 3, w: 2, lines: [{ text: '山壁上一個幽深的洞口，洞前立著木牌：「思過崖・禁地」。' }, { text: '洞裡吹出一陣涼風，隱約聽得見滴水聲。' }] },
     { sprite: 'sign', x: 9, y: 7, lines: [{ text: '「思過崖」\n犯了門規的弟子在此面壁思過。未經許可，不得擅入。' }] },
     { sprite: 'sword_rock', x: 12, y: 4, w: 2, lines: [{ text: '試劍石。石上縱橫交錯，全是劍痕。' }, { text: '有幾道劍痕深達寸許，不知是哪位前輩留下的。' }] },
-    { sprite: 'pavilion', x: 17, y: 8, w: 3, lines: [{ text: '聽泉亭。坐在亭中，泉水聲叮咚不絕，讓人心思澄靜。' }] },
+    { sprite: 'pavilion', x: 17, y: 8, w: 3, script: practiceAt('qin', '聽泉亭。坐在亭中，泉水聲叮咚不絕，讓人心思澄靜。'), label: '撫琴' },
     { sprite: 'stele', x: 19, y: 13, lines: [{ text: '「鳴泉」源頭' }, { text: '泉水自山石間湧出，擊石作響，聲如鳴佩。本派因此得名。' }] },
     { sprite: 'sword_grave', x: 4, y: 14, lines: [{ text: '劍塚。歷代前輩的佩劍葬在這裡。' }] },
     { sprite: 'sword_grave', x: 6, y: 14, lines: [{ text: '劍柄上纏著褪色的劍穗。' }] },
@@ -191,7 +192,7 @@ export const mqBack: MapDef = {
     // 野菌（一處一天採一次）
     { sprite: 'mushrooms', x: 4, y: 22, script: mushroomAt('west'), label: '採菌' },
     { sprite: 'mushrooms', x: 28, y: 13, script: mushroomAt('east'), label: '採菌' },
-    { sprite: 'sign', x: 24, y: 17, lines: [{ text: '「望江台」' }, { text: '站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。' }] },
+    { sprite: 'sign', x: 24, y: 17, script: practiceAt('painting', '「望江台」\n站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。'), label: '寫生' },
   ],
   npcs: [
     { id: 'mqb_yan', allDay: true, name: MQ.yan, sprite: 'sect_judge', x: 8, y: 4, facing: 'down', person: 'yan' },
