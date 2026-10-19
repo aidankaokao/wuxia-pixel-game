@@ -86,12 +86,12 @@ export const canglan: MapDef = {
     { id: 'dog2', name: '野狗', sprite: 'dog', x: 11, y: 35, wander: 2, encounter: 'dog', respawn: 45 },
     { id: 'dogs', name: '野狗群', sprite: 'dog', x: 17, y: 33, wander: 3, encounter: 'dogs', respawn: 60 },
     { id: 'boar', name: '山豬', sprite: 'boar', x: 20, y: 30, wander: 2, encounter: 'boar', respawn: 75 },
-    { id: 'scout1', name: '斷崖寨嘍囉', sprite: 'bandit', x: 19, y: 26, facing: 'down', script: scoutsFight, when: (f) => !f.bandit_scouts },
-    { id: 'scout2', name: '斷崖寨嘍囉', sprite: 'bandit', x: 20, y: 26, facing: 'down', script: scoutsFight, when: (f) => !f.bandit_scouts },
-    { id: 'qi', name: '祁三刀', sprite: 'boss', x: 15, y: 6, facing: 'down', script: bossFight, when: (f) => !f.bandit_boss },
-    { id: 'guard1', name: '斷崖寨嘍囉', sprite: 'bandit', x: 13, y: 7, facing: 'down', script: bossFight, when: (f) => !f.bandit_boss },
-    { id: 'guard2', name: '斷崖寨嘍囉', sprite: 'bandit', x: 18, y: 7, facing: 'down', script: bossFight, when: (f) => !f.bandit_boss },
-    { id: 'shen', name: '青衫客', sprite: 'swordsman', x: 16, y: 12, facing: 'up', when: (f) => !!f.bandit_boss && !f.stranger },
+    { id: 'scout1', allDay: true, name: '斷崖寨嘍囉', sprite: 'bandit', x: 19, y: 26, facing: 'down', script: scoutsFight, when: (f) => !f.bandit_scouts },
+    { id: 'scout2', allDay: true, name: '斷崖寨嘍囉', sprite: 'bandit', x: 20, y: 26, facing: 'down', script: scoutsFight, when: (f) => !f.bandit_scouts },
+    { id: 'qi', allDay: true, name: '祁三刀', sprite: 'boss', x: 15, y: 6, facing: 'down', script: bossFight, when: (f) => !f.bandit_boss },
+    { id: 'guard1', allDay: true, name: '斷崖寨嘍囉', sprite: 'bandit', x: 13, y: 7, facing: 'down', script: bossFight, when: (f) => !f.bandit_boss },
+    { id: 'guard2', allDay: true, name: '斷崖寨嘍囉', sprite: 'bandit', x: 18, y: 7, facing: 'down', script: bossFight, when: (f) => !f.bandit_boss },
+    { id: 'shen', allDay: true, name: '青衫客', sprite: 'swordsman', x: 16, y: 12, facing: 'up', when: (f) => !!f.bandit_boss && !f.stranger },
   ],
 
   triggers: [

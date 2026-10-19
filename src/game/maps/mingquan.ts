@@ -71,7 +71,7 @@ export const mingquan: MapDef = {
       talks: [[{ speaker: MQ.qiao, text: '我是喬木生，才入門半年，跟何師兄學守山門。' }, { speaker: MQ.qiao, text: '山門重地，進去之後請守規矩。' }], [{ speaker: MQ.qiao, text: '站一整天，腿都直了……' }]],
     },
     // 委託「清理山道」：接下之後才出現
-    { id: 'mq_path_dogs', name: '野狗群', sprite: 'dog', x: 10, y: 17, wander: 2, script: pathDogs, when: (f) => f.mq_c_path === 1 },
+    { id: 'mq_path_dogs', allDay: true, name: '野狗群', sprite: 'dog', x: 10, y: 17, wander: 2, script: pathDogs, when: (f) => f.mq_c_path === 1 },
     {
       id: 'mq_woodcutter', name: '樵夫', sprite: 'farmer', x: 9, y: 22, wander: 2,
       talks: [

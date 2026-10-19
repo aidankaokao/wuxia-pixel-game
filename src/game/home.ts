@@ -9,6 +9,7 @@
  */
 
 import type { SectState } from './sect';
+import { START_TIME, type Weather } from './time';
 import type { Relation } from './social';
 
 export type HomeStyle = 'plain' | 'scholar' | 'martial';
@@ -33,8 +34,11 @@ export interface Estate {
 
 /** 世界狀態（存檔）：日子、房產、每日次數 */
 export interface World {
-  /** 第幾天（在床上睡一覺就過一天） */
+  /** 第幾天（過了半夜就是新的一天） */
   day: number;
+  /** 今天的第幾刻（0–95，一刻 15 分鐘；見 time.ts） */
+  time: number;
+  weather: Weather;
   estates: Record<string, Estate>;
   /** 每天限定次數的事：key → 哪一天用了幾次 */
   daily: Record<string, { day: number; n: number }>;
@@ -46,7 +50,7 @@ export interface World {
   leftSects?: string[];
 }
 
-export const newWorld = (): World => ({ day: 1, estates: {}, daily: {}, relations: {} });
+export const newWorld = (): World => ({ day: 1, time: START_TIME, weather: 'clear', estates: {}, daily: {}, relations: {} });
 
 /** 今天已經用了幾次 */
 export const usedToday = (w: World, key: string) => (w.daily[key]?.day === w.day ? w.daily[key].n : 0);
@@ -68,7 +72,7 @@ export const HOME_TIERS: TierDef[] = [
   { name: '竹籬小屋', cost: 80, building: 'home2', desc: '屋子大了些，添上桌椅與灶台，可以自己燉肉。' },
   { name: '瓦頂小院', cost: 250, building: 'home3', desc: '換上瓦頂、圍出小院。屋裡放書架，院中立木人樁。' },
   { name: '青磚宅院', cost: 600, building: 'home4', desc: '青磚砌牆，隔出客房。添置藥爐，院裡闢一塊藥圃。' },
-  { name: '大宅', cost: 1500, building: 'home5', desc: '氣派的大宅，院中鋪設演武場、挖了一方池塘。木人樁每天可練兩回。' },
+  { name: '大宅', cost: 1500, building: 'home5', desc: '氣派的大宅，院中鋪設演武場、挖了一方池塘。在演武場練樁，經驗再多 10。' },
 ];
 export const MAX_TIER = HOME_TIERS.length;
 export const tierDef = (tier: number) => HOME_TIERS[tier - 1];
@@ -109,11 +113,11 @@ export const FURNITURE: FurnitureDef[] = [
   },
   {
     id: 'shelf', name: '書架', tier: 3, maxLevel: 3, costs: [80, 180],
-    effect: (lv, st) => `每天研讀一次，替一門武功的下一招增加領悟度 ${SHELF_INSIGHT[lv] + (st === 'scholar' ? 6 : 0)}%。`,
+    effect: (lv, st) => `研讀一次（兩刻、體力 10），替一門武功的下一招增加領悟度 ${SHELF_INSIGHT[lv] + (st === 'scholar' ? 6 : 0)}%。`,
   },
   {
     id: 'dummy', name: '木人樁', tier: 3, maxLevel: 3, costs: [80, 180],
-    effect: (lv, st) => `每天練一次，替一門裝備中的外功增加經驗 ${DUMMY_EXP[lv] + (st === 'martial' ? 15 : 0)}。`,
+    effect: (lv, st) => `練一次（兩刻、體力 20），替一門裝備中的外功增加經驗 ${DUMMY_EXP[lv] + (st === 'martial' ? 15 : 0)}。`,
   },
   {
     id: 'furnace', name: '藥爐', tier: 4, maxLevel: 3, costs: [100, 220],
@@ -267,5 +271,3 @@ export function parseLayout(grid: string[]) {
   return { tiles, anchors };
 }
 
-/** 大宅可以每天練兩回木人樁 */
-export const dummyPerDay = (e: Estate) => (e.tier >= 5 ? 2 : 1);

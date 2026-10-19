@@ -43,6 +43,8 @@ export class Actor {
   }
 
   stand() {
+    // 走到一半被移除（例如天黑回房）時，走路的補間結束後不要再動它
+    if (this.dead) return;
     this.sprite.anims.stop();
     this.sprite.setFrame(standFrame(this.facing));
   }
@@ -71,8 +73,11 @@ export class Actor {
   }
 
   destroy() {
+    this.dead = true;
+    this.scene.tweens.killTweensOf(this.sprite);
     this.sprite.destroy();
   }
+  private dead = false;
 }
 
 const standFrame = (dir: Dir) => DIR_ROW[dir] * 3 + 1;

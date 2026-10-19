@@ -25,6 +25,7 @@
 - 存檔在 `src/game/save.ts`（localStorage，即時存檔＋自動存檔＋三欄手動）；快捷鍵在 `session.ts` 的 `bindHotkeys`；開新遊戲／讀檔／回標題在 `src/game/session.ts`。角色資料結構有變動時，記得讓 `restoreHero` 能補上舊存檔缺的欄位，必要時遞增存檔 `VERSION` 並在 `migrate()` 裡轉換舊檔。
 - 房產在 `src/game/home.ts`（等級、家具、配置圖與風格）、`maps/home.ts`（依房產產生室內地圖與村裡的房子）、`story/estate.ts`（木牌、木匠、貨郎、家具腳本）。房產與日子存在 store 的 `world`。新增配置圖後要確認家具不重疊、都走得到。
 - 門派：共用核心在 `src/game/sect.ts`（`SectDef` 規矩：收徒、身分、脫離、兵器、門規、本門武功；玩家狀態在 `world.sect`），各門派的人物與劇情在 `story/sect_*.ts`，以 `registerSect` 註冊。一個人只能拜一個門派；規矩依門派大小而不同。門派裡的人都要有名字，記在 `SectDef.members`（弟子名冊），不要用「XX弟子」當 NPC 名字。
+- 時間：`src/game/time.ts`（刻、時辰、日夜、天氣、NPC 作息）。做事要花時間就在腳本裡呼叫 `ctx.pass(刻數)`，場景內走動與交談不花時間；練功類的事用 `exert()` 花體力，不要再加「每天一次」的限制（只有作物生長、晨課這種自然限制才用 `useDaily`）。NPC 作息用 `allDay`、`work`、`night`。
 - 人際關係：核心數值在 `src/game/social.ts`，人物檔案（提升方式、各階段台詞、稱呼、事件）在 `story/people.ts`，互動流程在 `story/social.ts`。NPC 加 `person` 就接上人際系統；台詞可用 {稱}、{姓}、{名}。
 - 沒有人物等級：五維 ＝ 擲骰底值 ＋ 武功的永久成長 ＋ 裝備中武功的加成，其他數值由五維與裝備的武功推算（`src/game/character.ts`，設計見 PLAN.md 第四節）。新增武功要填品階、裝備加成、永久成長；新增武功要寫招式表（第一招為初始招，其餘標重數門檻與悟出後的永久加成），招式名稱盡量四個字、意思貼近武功；新增物品要填分類與圖示（`art/items.ts`），秘笈是帶 `manual` 的物品。
 - 世界觀、人名、門派、武功名稱一律自創，不沿用既有武俠作品的名字。

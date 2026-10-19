@@ -1,11 +1,14 @@
-import { addFame, attrs, Character, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, restoreAll, skillCap, skillDef, SKILLS, slotOf } from '../character';
+import { addFame, attrs, Character, derive, gainSkill, giveItem, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
 import { addContrib, choreKey, inSect, promote, promotionChecks, roster, SectMember, leaveRuleText, nextStipendDay, newSectState, rankName, registerSect, SectDef, STIPEND_DAYS } from '../sect';
 import { clampAff, newRelation, STAGE } from '../social';
 import { useGame } from '../../state/store';
-import { sleep, studyable, studyInsight, useDaily } from './estate';
+import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estate';
+import { heroUnit } from '../battle/moves';
+import { setupDrill } from '../battle/enemies';
+import { inShichen, keUntilDawn, shichenStart, SHICHEN_INDEX, timeText } from '../time';
 import type { PersonDef } from './people';
 
 /**
@@ -125,7 +128,7 @@ export const MINGQUAN: SectDef = {
     { id: 'books', name: '整理書房', where: '書房的掌故書架' },
     { id: 'garden', name: '照顧菜圃', where: `菜圃旁找伙房的${MQ.bu}` },
   ],
-  choresPerDay: 2,
+  choresPerDay: 3,
   members: Object.values(MQ_MEMBERS),
 };
 registerSect(MINGQUAN);
@@ -252,17 +255,21 @@ async function luStory(ctx: EventCtx): Promise<boolean> {
     await swordTrial(ctx);
     return true;
   }
-  // 弟子：每天一次晨課
-  if (st().world.daily['mq:morning']?.day === day()) return false;
+  // 弟子：晨課在卯時到巳時之間，一天一回
+  if (!morningTime() || st().world.daily['mq:morning']?.day === day()) return false;
   const c = await ctx.ask({ speaker: '陸鳴川', text: '來得正好，今天的晨課要一起練嗎？' }, ['跟著練', '晚點再說']);
   if (c !== 0) return false;
   await morningDrill(ctx);
   return true;
 }
 
+/** 晨課的時間：卯時到巳時（早上 5 點到 11 點） */
+const morningTime = () => inShichen(st().world.time, SHICHEN_INDEX.卯, SHICHEN_INDEX.巳);
+
 async function morningDrill(ctx: EventCtx) {
   if (!(await useDaily(ctx, 'mq:morning', 1, '今天的晨課已經練過了。'))) return;
-  await ctx.say('你跟著陸鳴川和師兄弟們，在演武廣場上一招一式地練起鳴泉劍法。', '劍風與泉聲混在一起，迴盪在山間……');
+  ctx.pass(8);
+  await ctx.say('你跟著陸鳴川和師兄弟們，在演武廣場上一招一式地練起鳴泉劍法。', '劍風與泉聲混在一起，迴盪在山間……\n（晨課練了一個時辰）');
   await ctx.hero((h) => (h.skills.some((s) => s.id === 'mingquan') ? gainSkillText(h, 'mingquan', 30) : null));
   await contrib(ctx, 2);
 }
@@ -463,9 +470,7 @@ export const roomBed: Script = async (ctx) => {
     await ctx.say('正式弟子的床鋪，被褥比大通鋪的厚實多了。');
     return;
   }
-  const c = await ctx.ask('你在弟子房的床。要躺下休息嗎？', ['睡到天亮', '算了']);
-  if (c !== 0) return;
-  await sleep(ctx, 2);
+  await rest(ctx, 2, '你在弟子房的床。要躺下休息嗎？', wakeLines('room'));
 };
 
 // ── 真傳拜師試煉：三位長老各有試煉，通過一位就拜他為師 ─────────
@@ -574,12 +579,15 @@ const TRIALS: ((ctx: EventCtx) => Promise<void>)[] = [
   // 嚴守拙：思過崖前守三夜
   async (ctx) => {
     await ctx.say(...yan('崖上夜裡不太平。守住了，才知道你的心定不定。'), '你在思過崖前盤膝坐下。天色漸漸暗了……');
+    // 從現在坐到子時，夜裡有東西摸上崖來；打完坐到天亮，白天也不許下崖，再等到下一個子時
+    const untilMidnight = () => (shichenStart(SHICHEN_INDEX.子) - st().world.time + 96) % 96 || 96;
     for (const n of [1, 2, 3]) {
-      st().updateWorld((w) => w.day++);
+      ctx.pass(untilMidnight());
       if ((await ctx.battle(`trial_night${n}`)) !== 'win') return trialFail(ctx, 1, `第 ${n} 夜就撐不住了。心不定，掌就不穩。`);
+      ctx.pass(keUntilDawn(st().world.time));
       if (n < 3) await ctx.say(n === 1 ? '天亮了。你揉了揉發僵的腿，又坐回原處。' : '又一個天亮。你的手臂已經抬不太起來了。');
     }
-    await ctx.say('蒙面人退開幾步，扯下面巾——竟是嚴守拙。', ...yan('三夜都守住了，最後一夜還接得住我的掌。'), '——第 ' + day() + ' 日');
+    await ctx.say('蒙面人退開幾步，扯下面巾——竟是嚴守拙。', ...yan('三夜都守住了，最後一夜還接得住我的掌。'), `——第 ${day()} 日　${timeText(st().world.time)}`);
     await trialPass(ctx, 1);
   },
   // 蘇芷蘅：採三味藥（藥草在後山，見 herbAt）
@@ -639,9 +647,7 @@ export const cellBed: Script = async (ctx) => {
     await ctx.say('真傳弟子的床鋪，被褥是上好的棉布。');
     return;
   }
-  const c = await ctx.ask('你在真傳弟子房的床。要躺下休息嗎？', ['睡到天亮', '算了']);
-  if (c !== 0) return;
-  await sleep(ctx, 3);
+  await rest(ctx, 3, '你在真傳弟子房的床。要躺下休息嗎？', wakeLines('cell'));
 };
 
 // ── 離開師門 ────────────────────────────────────────────
@@ -772,20 +778,15 @@ export const keeperTalk: Script = async (ctx) => {
   const ok = await st().askConfirm(`花 ${k.cost} 點門派貢獻抄錄「${def.name}」？`, '抄錄');
   if (!ok) return;
   st().updateWorld((w) => (w.sect!.contrib -= k.cost));
-  await ctx.say(`你在書案前坐下，一筆一劃地把「${def.name}」抄了下來。\n${def.desc}`);
+  ctx.pass(8);
+  await ctx.say(`你在書案前坐下，一筆一劃地把「${def.name}」抄了下來，花了一個時辰。\n${def.desc}`);
   await ctx.hero((h) => learnSkill(h, k.id));
 };
 
-/** 本派劍譜的書架：每天研讀一次 */
+/** 本派劍譜的書架：研讀一次兩刻、體力 10 */
 export const libShelf: Script = async (ctx) => {
   if (!member()) {
     await ctx.say('本派的劍譜與心法抄本，按入門先後排列。', ...keeper('這位朋友，書房只給本派弟子用。'));
-    return;
-  }
-  const tired = '今天在書房讀了好一陣子，腦袋有些發脹。';
-  // 今天練過了就直接說，不必先選武功
-  if (usedToday(st().world, 'mq:study')) {
-    await useDaily(ctx, 'mq:study', 1, tired);
     return;
   }
   const ready = studyable(st().hero);
@@ -795,7 +796,8 @@ export const libShelf: Script = async (ctx) => {
   }
   const i = await ctx.ask('要對照哪一門武功研讀？（本門武功收穫更多）', [...ready.map((s) => `${skillDef(s).name}（領悟 ${s.insight}%）`), '算了']);
   if (i >= ready.length) return;
-  if (!(await useDaily(ctx, 'mq:study', 1, tired))) return;
+  if (!(await exert(ctx, STAMINA.study, '在書房讀了好一陣子，腦袋有些發脹。'))) return;
+  ctx.pass(2);
   const id = ready[i].id;
   const amount = isSectSkill(id) ? 24 : 15;
   await ctx.say(`你從架上取下抄本，對照著「${skillDef(ready[i]).name}」的招式反覆推敲……`);
@@ -813,13 +815,8 @@ function gainSkillText(h: Character, id: string, amount: number): (string | null
   return [`「${name}」經驗 +${gained}。`, gainSkill(h, id, gained, false)];
 }
 
-/** 練樁：選一門裝備中、還沒練到上限的外功 */
-async function practice(ctx: EventCtx, key: string, amount: number, tired: string) {
-  // 今天練過了就直接說，不必先選武功
-  if (usedToday(st().world, key)) {
-    await useDaily(ctx, key, 1, tired);
-    return;
-  }
+/** 練樁：選一門裝備中、還沒練到上限的外功；一次兩刻 */
+async function practice(ctx: EventCtx, amount: number, stamina: number) {
   const list = st().hero.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'outer' && s.level < skillCap(s));
   if (!list.length) {
     await ctx.say('（要裝備著還沒練到上限的外功，才能在這裡練）');
@@ -827,9 +824,10 @@ async function practice(ctx: EventCtx, key: string, amount: number, tired: strin
   }
   const i = await ctx.ask('要練哪一門？（本門武功收穫更多）', [...list.map((s) => `${skillDef(s).name}（第 ${s.level} 重）`), '算了']);
   if (i >= list.length) return;
-  if (!(await useDaily(ctx, key, 1, tired))) return;
+  if (!(await exert(ctx, stamina, '手臂都快抬不起來了，虎口也震得發麻。'))) return;
+  ctx.pass(2);
   const id = list[i].id;
-  await ctx.say('「啪、啪、啪——」你對著木樁一招一式地練了起來。');
+  await ctx.say('「啪、啪、啪——」你對著木樁一招一式地練了起來。'); 
   await ctx.hero((h) => gainSkillText(h, id, isSectSkill(id) ? amount + 10 : amount));
 }
 
@@ -838,15 +836,40 @@ export const yardStake: Script = async (ctx) => {
     await ctx.say('木樁上滿是劍痕。\n（這是鳴泉弟子練功用的木樁，拜入門下之後才能用）');
     return;
   }
-  await practice(ctx, 'mq:stake', 30, '今天已經在木樁上練過了，虎口有些發麻。');
+  const c = await ctx.ask('廣場上的木樁林。', [`練樁（兩刻・體力 ${STAMINA.dummy}）`, `找同門過招（一刻・體力 ${STAMINA.spar}）`, '算了']);
+  if (c === 0) await practice(ctx, 30, STAMINA.dummy);
+  else if (c === 1) await drill(ctx);
 };
+
+/** 找同門過招：從名冊上挑一位同級或高一級的師兄弟，強弱跟你差不多 */
+async function drill(ctx: EventCtx) {
+  const myRank = sect().rank;
+  const rankOf = (r: string) => MINGQUAN.ranks.findIndex((x) => x.name === r);
+  const pool = Object.entries(MQ_MEMBERS).filter(([, m]) => {
+    const r = rankOf(m.rank);
+    return r >= 0 && r <= myRank + 1 && !('note' in m);
+  });
+  const [id, m] = pool[Math.floor(Math.random() * pool.length)];
+  if (!(await exert(ctx, STAMINA.spar, '已經累得喘不過氣，這時候過招只會挨打。'))) return;
+  const sprite = { gu: 'disciple_girl', miao: 'lady', lu: 'sect_senior', zheng: 'farmer' }[id] ?? 'disciple';
+  // 身分越高的同門會的招式越多
+  const moves = ['e_slash', 'quanyong', ...(rankOf(m.rank) >= 1 ? ['feipu'] : []), ...(rankOf(m.rank) >= 2 ? ['shiliu'] : [])];
+  const h = st().hero;
+  await ctx.say(`${m.name}正好在一旁練劍，看見你走過來，收了劍勢。`);
+  const o = await ctx.battle(setupDrill(heroUnit(h, derive(h)), { name: m.name, sprite }, moves));
+  if (o === 'win') await ctx.say({ speaker: m.name, text: '好功夫！改天再來討教。' });
+  else if (o === 'lose') await ctx.say({ speaker: m.name, text: '承讓了。你的劍再穩一點就好。' });
+  else await ctx.say(`你收劍認輸，${m.name}笑著點了點頭。`);
+  const person = 'person' in m ? m.person : undefined;
+  if (person) addAff(person, o === 'win' ? 2 : 1);
+}
 
 export const ironStake: Script = async (ctx) => {
   if (!member() || sect().rank < 1) {
     await ctx.say('包了鐵皮的木人樁，比廣場上的木樁沉得多。', { speaker: MQ.qi, text: '鐵木樁是給正式弟子練的，記名弟子先在廣場上把基本功練紮實。' });
     return;
   }
-  await practice(ctx, 'mq:iron', 55, '今天已經練過鐵木樁了，手臂都快抬不起來了。');
+  await practice(ctx, 55, 25);
 };
 
 export const cushion: Script = async (ctx) => {
@@ -855,19 +878,16 @@ export const cushion: Script = async (ctx) => {
     return;
   }
   const list = st().hero.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'inner' && s.level < skillCap(s));
-  const tired = '今天已經打坐過了，再坐下去腿都麻了。';
-  // 今天練過了就直接說，不必先選武功
-  if (usedToday(st().world, 'mq:cushion')) {
-    await useDaily(ctx, 'mq:cushion', 1, tired);
-    return;
-  }
-  const c = await ctx.ask('要在蒲團上打坐嗎？', ['盤膝打坐', '算了']);
+  const c = await ctx.ask(`要在蒲團上打坐嗎？（兩刻・體力 ${STAMINA.sit}）`, ['盤膝打坐', '算了']);
   if (c !== 0) return;
-  if (!(await useDaily(ctx, 'mq:cushion', 1, tired))) return;
+  if (!(await exert(ctx, STAMINA.sit, '坐得腿都麻了，心也靜不下來。'))) return;
+  ctx.pass(2);
   await ctx.say('你盤膝坐下，閉目調息。泉聲從窗外隱隱傳來，心思漸漸沉靜……');
   await ctx.hero((h) => {
-    restoreAll(h);
-    const out: (string | null)[] = ['（氣血、內力、體力完全恢復）'];
+    const d = derive(h);
+    h.qi = d.maxQi;
+    h.hp = Math.min(d.maxHp, h.hp + Math.round(d.maxHp * 0.2));
+    const out: (string | null)[] = ['（內力完全恢復，氣血也恢復了一些）'];
     for (const s of list) out.push(...gainSkillText(h, s.id, isSectSkill(s.id) ? 30 : 20));
     if (!list.length) out.push('（裝備著還沒練到上限的內功，打坐時才會精進）');
     return out;
@@ -886,10 +906,19 @@ export const dormBed: Script = async (ctx) => {
     await ctx.say('一張空床鋪，已經不是你的鋪位了。');
     return;
   }
-  const c = await ctx.ask(mine ? '你的鋪位。要躺下休息嗎？' : '大通鋪最裡頭的空鋪，借給上山應考的人住。要躺下休息嗎？', ['睡到天亮', '算了']);
-  if (c !== 0) return;
-  await sleep(ctx, 1);
+  await rest(ctx, 1, mine ? '你的鋪位。要躺下休息嗎？' : '大通鋪最裡頭的空鋪，借給上山應考的人住。要躺下休息嗎？', mine ? wakeLines('dorm') : undefined);
 };
+
+/** 在門派宿舍睡到天亮：卯時被同門叫醒去晨課（跟顧小滿熟了，她會跑來叫你） */
+function wakeLines(where: 'dorm' | 'room' | 'cell'): (Line | string)[] | undefined {
+  if (!member()) return undefined;
+  const name = st().hero.given;
+  if (where !== 'cell' && (st().world.relations.xiaoman?.aff ?? 0) >= 30)
+    return ['門外傳來砰砰的敲門聲。', { speaker: MQ.gu, text: `${name}師兄！再不起來，晨課就要遲到啦！` }];
+  if (where === 'dorm') return [`${MQ.tang}把你搖醒。`, { speaker: MQ.tang, text: '該起了，大師兄已經在廣場上等著晨課了。' }];
+  if (where === 'room') return [`${MQ.he}一邊打哈欠，一邊踢了踢你的床腳。`, { speaker: MQ.he, text: '起了起了，晨課別遲到。' }];
+  return ['隔壁傳來陸鳴川的聲音。', { speaker: MQ.lu, text: '師弟，晨課了。' }];
+}
 
 /** 知客弟子方硯清：迎客、指路 */
 export const greeterTalk: Script = async (ctx) => {
@@ -933,7 +962,9 @@ const CHORE_DONE: Record<string, { lines: (Line | string)[]; bonus?: [string, nu
 
 async function doChore(ctx: EventCtx, id: string) {
   const d = CHORE_DONE[id];
-  await ctx.say(...d.lines);
+  if (!(await exert(ctx, STAMINA.chore, '累得手腳發軟，這活兒今天是幹不動了。'))) return;
+  ctx.pass(8);
+  await ctx.say(...d.lines, '（做了一個時辰）');
   st().updateWorld((w) => {
     delete w.sect!.chore;
     for (const key of [choreKey(SECT), `${choreKey(SECT)}:${id}`]) w.daily[key] = { day: w.day, n: usedToday(w, key) + 1 };
@@ -965,11 +996,11 @@ async function choreBoard(ctx: EventCtx) {
   }
   const done = usedToday(st().world, choreKey(SECT));
   if (done >= per) {
-    await ctx.say(`今天已經做了 ${per} 件雜務，剩下的留給師兄弟吧。\n（明天再來。在床上睡一覺就是新的一天）`);
+    await ctx.say(`今天貼出來的 ${per} 件雜務都做完了。\n（明天再來。過了半夜就是新的一天）`);
     return;
   }
   const list = todaysChores(day()).filter((c) => !usedToday(st().world, `${choreKey(SECT)}:${c.id}`));
-  const i = await ctx.ask(`今天的雜務（已做 ${done}/${per} 件，每件門派貢獻 +${CHORE_REWARD}）`, [...list.map((c) => `${c.name}（${c.where}）`), '算了']);
+  const i = await ctx.ask(`今天的雜務（已做 ${done}/${per} 件，每件一個時辰、體力 ${STAMINA.chore}，門派貢獻 +${CHORE_REWARD}）`, [...list.map((c) => `${c.name}（${c.where}）`), '算了']);
   if (i >= list.length) return;
   st().updateWorld((w) => (w.sect!.chore = list[i].id));
   await ctx.say(`你揭下「${list[i].name}」的籤條。\n（地點：${list[i].where}）`);
@@ -1092,19 +1123,13 @@ export const COMMISSION_QUESTS = COMMISSIONS.map(commissionQuest);
 
 // ── 繳納：把打獵、採藥得來的東西交給門裡 ─────────────────
 
-/** 每天每種東西收一次；交了回傳 true */
+/** 繳納：有東西就收，交了回傳 true */
 async function donate(ctx: EventCtx, who: string, item: string, n: number, reward: number, thanks: string): Promise<boolean> {
-  const key = `mq:give:${item}`;
   const have = st().hero.items[item] ?? 0;
-  if (usedToday(st().world, key)) {
-    await ctx.say(...by(who)('今天的已經收過了，明天再說吧。'));
-    return false;
-  }
   if (have < n) {
     await ctx.say(...by(who)(`要 ${n} 份「${ITEMS[item].name}」才收。你身上只有 ${have} 份。`));
     return false;
   }
-  st().updateWorld((w) => (w.daily[key] = { day: w.day, n: 1 }));
   await ctx.hero((h) => {
     h.items[item] -= n;
     if (!h.items[item]) delete h.items[item];

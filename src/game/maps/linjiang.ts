@@ -94,15 +94,15 @@ export const linjiang: MapDef = {
     // 鳴泉委託「回春堂送藥」：掌櫃在店門口等藥
     { id: 'lj_huichun', name: '回春堂掌櫃', sprite: 'storyteller', x: 8, y: 16, facing: 'down', script: huichunDelivery, when: (f) => f.mq_c_med === 1 },
     {
-      id: 'lj_guard_w', name: '守城兵', sprite: 'guard', x: 4, y: 15, facing: 'down',
+      id: 'lj_guard_w', allDay: true, name: '守城兵', sprite: 'guard', x: 4, y: 15, facing: 'down',
       talks: [[{ speaker: '守城兵', text: '臨江城到了。進城守規矩，別在城裡動刀動槍。' }]],
     },
     {
-      id: 'lj_guard_w2', name: '守城兵', sprite: 'guard', x: 4, y: 18, facing: 'up',
+      id: 'lj_guard_w2', allDay: true, name: '守城兵', sprite: 'guard', x: 4, y: 18, facing: 'up',
       talks: [[{ speaker: '守城兵', text: '東門？最近在修城牆，封了。要往東，得等些日子。' }]],
     },
     {
-      id: 'lj_guard_n', name: '守城兵', sprite: 'guard', x: 25, y: 4, facing: 'right',
+      id: 'lj_guard_n', allDay: true, name: '守城兵', sprite: 'guard', x: 25, y: 4, facing: 'right',
       talks: [[{ speaker: '守城兵', text: '出北門往上走就是鳴泉山。' }, { speaker: '守城兵', text: '最近上山的年輕人特別多，都是去拜師的。' }]],
     },
     {
@@ -153,7 +153,7 @@ export const linjiang: MapDef = {
       talks: [[{ speaker: '小販', text: '糖人兒——又甜又好看的糖人兒——' }]],
     },
     {
-      id: 'lj_beggar', name: '乞丐', sprite: 'beggar', x: 13, y: 26, facing: 'down',
+      id: 'lj_beggar', allDay: true, name: '乞丐', sprite: 'beggar', x: 13, y: 26, facing: 'down',
       talks: [
         [
           { speaker: '乞丐', text: '行行好，賞口飯吃吧……' },

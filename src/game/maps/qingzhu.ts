@@ -135,7 +135,7 @@ export const qingzhu: MapDef = {
       id: 'tao', name: '陶四', sprite: 'peddler', x: 32, y: 22, facing: 'left', person: 'tao',
     },
     {
-      id: 'stranger', name: '青衫客', sprite: 'swordsman', x: 27, y: 12, facing: 'up', script: strangerTalk,
+      id: 'stranger', allDay: true, name: '青衫客', sprite: 'swordsman', x: 27, y: 12, facing: 'up', script: strangerTalk,
       when: (f) => !f.stranger,
     },
   ],

@@ -193,9 +193,9 @@ export const mqBack: MapDef = {
     { sprite: 'sign', x: 24, y: 17, lines: [{ text: '「望江台」' }, { text: '站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。' }] },
   ],
   npcs: [
-    { id: 'mqb_yan', name: MQ.yan, sprite: 'sect_judge', x: 8, y: 4, facing: 'down', person: 'yan' },
+    { id: 'mqb_yan', allDay: true, name: MQ.yan, sprite: 'sect_judge', x: 8, y: 4, facing: 'down', person: 'yan' },
     {
-      id: 'mqb_elder', name: '守山老人', sprite: 'storyteller', x: 22, y: 20, facing: 'left', wander: 1,
+      id: 'mqb_elder', allDay: true, name: '守山老人', sprite: 'storyteller', x: 22, y: 20, facing: 'left', wander: 1,
       talks: [
         [
           { speaker: '守山老人', text: '年輕人，爬到後山來看風景？' },

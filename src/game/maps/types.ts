@@ -91,6 +91,13 @@ export interface NpcDef {
   encounter?: string;
   /** 野獸被打倒後，幾秒後重新出現 */
   respawn?: number;
+  /**
+   * 作息（見 npcPresent）：室外的人、還有 work 的人白天才在，天黑後陸續回房、天亮後陸續出門；
+   * 室內的人（在家）一直都在。allDay 一直都在（守衛、野獸）；night 只有夜裡在（白天在別處的人晚上回到這裡）。
+   */
+  allDay?: boolean;
+  work?: boolean;
+  night?: boolean;
 }
 
 export interface ExitDef {

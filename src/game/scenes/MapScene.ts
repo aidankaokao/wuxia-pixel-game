@@ -12,6 +12,7 @@ import { derive } from '../character';
 import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { autosave, setPositionProvider } from '../save';
+import { npcPresent, periodOf, type Period } from '../time';
 import { flag, uiBlocking, useGame } from '../../state/store';
 
 interface Npc {
@@ -63,6 +64,10 @@ export class MapScene extends Phaser.Scene {
   private queued: 'interact' | 'menu' | Action | null = null;
   /** 正在離開這張地圖（淡出中），不再處理任何操作 */
   private leaving = false;
+  /** 日夜的染色、霧、雨 */
+  private shade!: Phaser.GameObjects.Rectangle;
+  private fog!: Phaser.GameObjects.Rectangle;
+  private rain: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
   constructor() {
     super('map');
@@ -106,6 +111,14 @@ export class MapScene extends Phaser.Scene {
     cam.startFollow(this.player.sprite, true, 1, 1, 0, TILE / 2);
     cam.setRoundPixels(true);
     this.fitZoom();
+    this.buildAtmosphere();
+    // 時辰、天氣一變：NPC 陸續出門或回房，畫面跟著換顏色
+    const unsub = useGame.subscribe((s, prev) => {
+      if (this.leaving || (s.world.time === prev.world.time && s.world.weather === prev.world.weather)) return;
+      this.refresh();
+      this.updateAtmosphere(true);
+    });
+    this.events.once('shutdown', unsub);
     this.scale.on('resize', this.fitZoom, this);
     this.events.once('shutdown', () => this.scale.off('resize', this.fitZoom, this));
 
@@ -275,15 +288,17 @@ export class MapScene extends Phaser.Scene {
     }
   }
 
-  /** 依目前的劇情旗標，決定哪些 NPC、物件存在，以及物件的外觀。 */
+  /** 依目前的劇情旗標與時辰，決定哪些 NPC、物件存在，以及物件的外觀。 */
   private refresh() {
-    const { flags: f, respawnAt } = useGame.getState();
+    const { flags: f, respawnAt, world } = useGame.getState();
     const now = Date.now();
+    const outdoor = !this.def.theme;
     for (const n of this.npcs) {
       const down = (respawnAt[`${this.def.id}:${n.def.id}`] ?? 0) > now;
-      // 重生時若主角剛好站在那一格，等下次再說
+      // 出現時若主角剛好站在那一格，等下次再說
       const occupied = !n.actor && this.player && this.player.tx === n.def.x && this.player.ty === n.def.y;
-      const show = (!n.def.when || n.def.when(f)) && !down && !(occupied && n.def.encounter);
+      const here = npcPresent(n.def, outdoor, world.time);
+      const show = (!n.def.when || n.def.when(f)) && here && !down && !occupied;
       if (show && !n.actor) {
         n.actor = new Actor(this, n.def.sprite, n.def.x, n.def.y, n.def.facing ?? 'down');
         n.nextWander = this.time.now + 1500 + Math.random() * 3000;
@@ -297,6 +312,84 @@ export class MapScene extends Phaser.Scene {
       p.image.setVisible(p.visible);
       if (typeof p.def.sprite === 'function') p.image.setTexture(p.def.sprite(f));
     }
+  }
+
+  // ── 日夜與天氣 ───────────────────────────────────────────
+
+  /** 蓋在整個畫面上的染色層與霧，還有雨絲（只在室外） */
+  private buildAtmosphere() {
+    const cam = this.cameras.main;
+    const big = 8000;
+    this.shade = this.add.rectangle(cam.width / 2, cam.height / 2, big, big, 0x000000, 0).setScrollFactor(0).setDepth(900000);
+    this.fog = this.add.rectangle(cam.width / 2, cam.height / 2, big, big, 0xd8dee6, 0).setScrollFactor(0).setDepth(900002);
+    if (!this.textures.exists('raindrop')) {
+      const [c, ctx] = makeCanvas(1, 4);
+      ctx.fillStyle = '#c8d8f0';
+      ctx.fillRect(0, 0, 1, 4);
+      this.textures.addCanvas('raindrop', c);
+    }
+    this.rain = null;
+    this.updateAtmosphere(false);
+  }
+
+  private updateAtmosphere(animate: boolean) {
+    const { time, weather } = useGame.getState().world;
+    const outdoor = !this.def.theme;
+    // 室內點了燈，夜裡沒有室外那麼暗
+    const SHADE: Record<Period, [number, number, number]> = {
+      dawn: [0x405890, 0.2, 0.08],
+      day: [0x000000, 0, 0],
+      dusk: [0xd06a28, 0.3, 0.12],
+      night: [0x0a1238, 0.6, 0.25],
+    };
+    const [color, outAlpha, inAlpha] = SHADE[periodOf(time)];
+    let alpha = outdoor ? outAlpha : inAlpha;
+    let tint = color;
+    // 陰天、雨天：室外再暗一點、偏灰
+    if (outdoor && (weather === 'cloudy' || weather === 'rain') && alpha < 0.2) {
+      tint = alpha ? color : 0x505a68;
+      alpha = Math.max(alpha, weather === 'rain' ? 0.2 : 0.12);
+    }
+    // setFillStyle 不給透明度會變成不透明，要帶上目前的值
+    this.shade.setFillStyle(tint, this.shade.fillAlpha);
+    const fogAlpha = outdoor && weather === 'fog' ? 0.32 : 0;
+    if (animate) {
+      this.tweens.add({ targets: this.shade, fillAlpha: alpha, duration: 600 });
+      this.tweens.add({ targets: this.fog, fillAlpha: fogAlpha, duration: 600 });
+    } else {
+      this.shade.fillAlpha = alpha;
+      this.fog.fillAlpha = fogAlpha;
+    }
+    const raining = outdoor && weather === 'rain';
+    if (raining && !this.rain) this.rain = this.makeRain();
+    else if (!raining && this.rain) {
+      this.rain.stop();
+      const r = this.rain;
+      this.time.delayedCall(1500, () => r.destroy());
+      this.rain = null;
+    }
+  }
+
+  /** 雨絲：從畫面上方斜斜落下 */
+  private makeRain() {
+    const cam = this.cameras.main;
+    const vw = cam.width / cam.zoom;
+    const vh = cam.height / cam.zoom;
+    const left = cam.width / 2 - vw / 2;
+    const top = cam.height / 2 - vh / 2;
+    return this.add
+      .particles(0, 0, 'raindrop', {
+        x: { min: left - 40, max: left + vw + 40 },
+        y: top - 8,
+        speedY: { min: 260, max: 340 },
+        speedX: { min: -50, max: -30 },
+        lifespan: (vh / 260) * 1000,
+        quantity: 2,
+        frequency: 25,
+        alpha: { start: 0.7, end: 0.4 },
+      })
+      .setScrollFactor(0)
+      .setDepth(900001);
   }
 
   /** 煙囪冒煙：小方塊往上飄、變大、淡出。 */
@@ -431,6 +524,8 @@ export class MapScene extends Phaser.Scene {
     const exit = this.def.exits.find((e) => e.tiles.some(([x, y]) => x === tx && y === ty));
     if (exit) {
       this.player.stand();
+      // 在室外地圖之間移動花一刻；進出屋子不花時間（室內地圖都有 theme）
+      if (exit.to && !this.def.theme && !getMap(exit.to)?.theme) useGame.getState().passTime(1);
       if (exit.to) this.warp(exit.to, exit.spawn);
       else if (exit.lines) this.runScript((ctx) => ctx.say(...exit.lines!));
       return;
@@ -517,6 +612,7 @@ export class MapScene extends Phaser.Scene {
         a.face(OPPOSITE[dir]);
       },
       wait: (ms) => new Promise((done) => this.time.delayedCall(ms, done)),
+      pass: (ke) => void st().passTime(ke),
       refresh: () => this.refresh(),
       reload: (arrive) => this.warp(this.def.id, { x: this.player.tx, y: this.player.ty, facing: this.player.facing }, arrive),
       panel: (p) => st().openPanel(p),
@@ -544,6 +640,8 @@ export class MapScene extends Phaser.Scene {
         this.scene.pause();
       });
     }).then((o) => {
+      // 打一場花一刻
+      useGame.getState().passTime(1);
       if (o === 'lose' && ENCOUNTERS[encounter]?.spar) {
         // 切磋輸了：點到為止，留一成氣血
         useGame.getState().updateHero((c) => {

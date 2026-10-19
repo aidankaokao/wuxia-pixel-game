@@ -1,5 +1,6 @@
 import { derive } from '../game/character';
 import { fameTitle } from '../game/social';
+import { timeText, WEATHER_NAME } from '../game/time';
 import { useGame } from '../state/store';
 
 function Bar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
@@ -21,6 +22,8 @@ export function Hud() {
   const hero = useGame((s) => s.hero);
   const mapName = useGame((s) => s.mapName);
   const day = useGame((s) => s.world.day);
+  const time = useGame((s) => s.world.time);
+  const weather = useGame((s) => s.world.weather);
   const prompt = useGame((s) => s.prompt);
   const blocking = useGame((s) => s.dialog !== null || s.menuOpen || s.eventRunning);
   const inBattle = useGame((s) => s.battle !== null || s.screen !== 'game');
@@ -38,10 +41,14 @@ export function Hud() {
         <Bar label="內力" value={hero.qi} max={d.maxQi} color="#4a8ad8" />
         <Bar label="體力" value={hero.stamina} max={d.maxStamina} color="#e0b040" />
         <div className="status-foot">
-          <span>
-            ◆ {mapName}　第 {day} 日
-          </span>
+          <span>◆ {mapName}</span>
           <span className="silver">銀兩 {hero.silver}</span>
+        </div>
+        <div className="status-foot status-time">
+          <span>
+            第 {day} 日　{timeText(time)}
+          </span>
+          <span>{WEATHER_NAME[weather]}</span>
         </div>
       </div>
 

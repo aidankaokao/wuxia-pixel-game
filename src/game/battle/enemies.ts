@@ -13,6 +13,8 @@ interface EnemyDef {
   ai: Unit['ai'];
   /** 打倒後可能掉落的物品：物品 id 與機率 */
   drops?: { item: string; chance: number }[];
+  /** 內力（會用武功招式的對手才需要） */
+  qi?: number;
 }
 
 export const ENEMIES: Record<string, EnemyDef> = {
@@ -74,6 +76,44 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 
+/**
+ * 同門過招：照主角目前的戰鬥數值，產生一個差不多強的對手（強弱在 85%–110% 之間浮動），
+ * 用的是本門武功的招式。寫進 ENEMIES / ENCOUNTERS 的 'drill'，回傳遭遇戰 id。
+ */
+export function setupDrill(
+  hero: { maxHp: number; atk: number; def: number; spd: number; eva: number },
+  who: { name: string; sprite: string },
+  moves: string[],
+  rand: () => number = Math.random,
+): string {
+  const r = 0.85 + rand() * 0.25;
+  ENEMIES.drill = {
+    name: who.name,
+    sprite: who.sprite,
+    hp: Math.round(hero.maxHp * r * DRILL.hp),
+    atk: Math.round(hero.atk * r * DRILL.atk),
+    def: Math.round(hero.def * r),
+    spd: Math.round(hero.spd * (0.9 + rand() * 0.2)),
+    eva: Math.min(0.2, hero.eva * r),
+    moves,
+    qi: 80,
+    ai: 'grunt',
+  };
+  ENCOUNTERS.drill = {
+    enemies: ['drill'],
+    background: 'mountain',
+    intro: `${who.name}抱拳一禮：「請賜教！」`,
+    canFlee: true,
+    silver: 0,
+    growth: 0.9,
+    points: 1,
+    spar: true,
+  };
+  return 'drill';
+}
+/** 過招對手的攻擊力倍率（用模擬校準：勢均力敵，勝率大約六成） */
+export const DRILL = { hp: 1.5, atk: 1.15 };
+
 const SUFFIX = ['甲', '乙', '丙', '丁'];
 
 export function enemyUnits(e: EncounterDef): Unit[] {
@@ -90,8 +130,8 @@ export function enemyUnits(e: EncounterDef): Unit[] {
       sprite: d.sprite,
       maxHp: d.hp,
       hp: d.hp,
-      maxQi: 0,
-      qi: 0,
+      maxQi: d.qi ?? 0,
+      qi: d.qi ?? 0,
       atk: d.atk,
       ipow: 0,
       def: d.def,

@@ -33,6 +33,10 @@ export const qzLiu: MapDef = {
   ],
   npcs: [
     {
+      // 天黑後柳村長回到家裡
+      id: 'liu_night', name: '柳承安', sprite: 'elder', x: 5, y: 3, facing: 'down', person: 'liu', night: true,
+    },
+    {
       id: 'fu', name: '老福', sprite: 'servant', x: 7, y: 4, facing: 'left', wander: 1,
       talks: [
         fu('客人請坐。老爺平時都在外頭廣場上跟鄉親們說話，難得回屋。'),
@@ -68,7 +72,10 @@ export const qzTea: MapDef = {
   ],
   npcs: [
     {
-      id: 'ge', name: '葛先生', sprite: 'storyteller', x: 5, y: 2, facing: 'down',
+      id: 'zhong_night', name: '鍾嬸', sprite: 'aunt', x: 5, y: 3, facing: 'down', person: 'zhong', night: true,
+    },
+    {
+      id: 'ge', work: true, name: '葛先生', sprite: 'storyteller', x: 5, y: 2, facing: 'down',
       talks: [
         ge(
           '（醒木一拍）話說四十年前，雲水河上游有座「聽濤閣」，',
@@ -95,7 +102,7 @@ export const qzTea: MapDef = {
       ],
     },
     {
-      id: 'teaguest1', name: '茶客', sprite: 'peddler', x: 2, y: 4, facing: 'up',
+      id: 'teaguest1', work: true, name: '茶客', sprite: 'peddler', x: 2, y: 4, facing: 'up',
       talks: [
         [
           { speaker: '茶客', text: '我是從臨江城過來收山貨的。' },
@@ -105,7 +112,7 @@ export const qzTea: MapDef = {
       ],
     },
     {
-      id: 'teaguest2', name: '茶客', sprite: 'farmer', x: 8, y: 4, facing: 'up',
+      id: 'teaguest2', work: true, name: '茶客', sprite: 'farmer', x: 8, y: 4, facing: 'up',
       talks: [
         [
           { speaker: '茶客', text: '斷崖寨的山賊被打跑了？那可好，我明兒就上山砍柴去。' },
@@ -135,6 +142,9 @@ export const qzSmithy: MapDef = {
     { sprite: 'vat', x: 7, y: 5, lines: [{ text: '淬火用的水缸，水面上浮著一層鐵灰。' }] },
   ],
   npcs: [
+    {
+      id: 'shi_night', name: '石岳', sprite: 'smith', x: 5, y: 5, facing: 'up', person: 'shi', night: true,
+    },
     {
       id: 'xiaohu', name: '石小虎', sprite: 'apprentice', x: 5, y: 3, facing: 'down', wander: 1, person: 'xiaohu',
     },
