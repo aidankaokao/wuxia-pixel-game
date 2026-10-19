@@ -169,6 +169,13 @@ export function addContrib(w: World, n: number): string {
   return `門派貢獻 +${n}。`;
 }
 
+/** 升一級身分（考核由各門派的劇情負責） */
+export function promote(w: World) {
+  if (!w.sect) return;
+  w.sect.rank++;
+  w.sect.rankDay = w.day;
+}
+
 /** 下一次能領月例是第幾天 */
 export const nextStipendDay = (s: SectState) => (s.stipendDay ? s.stipendDay + STIPEND_DAYS : s.joinedDay);
 
