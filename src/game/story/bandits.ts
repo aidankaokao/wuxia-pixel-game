@@ -103,11 +103,14 @@ export const liuStory = async (ctx: EventCtx): Promise<boolean> => {
   return true;
 };
 
+/** 井邊歇一會兒：打水喝、洗把臉，全回復，但要花半個時辰（村裡、鳴泉院子裡的井共用） */
 export const wellUse: Script = async (ctx) => {
-  await ctx.say('一口老井，井水清涼。');
-  await ctx.hero((c) => {
-    restoreAll(c);
-    return '你掬起一捧喝了，精神為之一振。\n（氣血、內力、體力完全恢復）';
+  const c = await ctx.ask('一口老井，井水清涼。要在井邊歇一會兒嗎？', ['打水歇歇（半個時辰）', '算了']);
+  if (c !== 0) return;
+  ctx.pass(4);
+  await ctx.hero((h) => {
+    restoreAll(h);
+    return '你打起一桶水，掬起一捧喝了，又洗了把臉，在井邊坐著歇了一會兒。\n（氣血、內力、體力完全恢復。歇了半個時辰）';
   });
 };
 

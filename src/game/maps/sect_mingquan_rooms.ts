@@ -1,4 +1,4 @@
-import { armoryTalk, cellBed, choreAt, cookTalk, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, isMember, keeperTalk, kitchenStove, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, cellBed, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, isMember, keeperTalk, kitchenStove, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
 import { readingShelf } from '../story/reading';
 import { practiceAt } from '../story/arts';
@@ -244,7 +244,7 @@ export const mqKitchen: MapDef = {
   ],
   npcs: [
     // 伙房師傅起得早，卯時就在廚房
-    { id: 'mqk_cook', work: true, out: 18, name: MQ.bu, sprite: 'smith', x: 5, y: 3, facing: 'down', script: cookTalk },
+    { id: 'mqk_cook', work: true, out: 18, name: MQ.bu, sprite: 'smith', x: 5, y: 3, facing: 'down', person: 'bu' },
   ],
   exits: [back(43, 27, 5, 7)],
 };

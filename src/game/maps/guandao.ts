@@ -38,11 +38,11 @@ export const guandao: MapDef = {
     { id: 'g_dog1', name: '野狗', sprite: 'dog', x: 8, y: 11, wander: 3, encounter: 'dog', respawn: 45 },
     { id: 'g_dogs', name: '野狗群', sprite: 'dog', x: 33, y: 4, wander: 3, encounter: 'dogs', respawn: 60 },
     {
-      id: 'g_traveler', name: '趕路的商人', sprite: 'peddler', x: 14, y: 9, facing: 'right',
+      id: 'g_traveler', name: '余福來', sprite: 'peddler', x: 14, y: 9, facing: 'right',
       talks: [
         [
-          { speaker: '趕路的商人', text: '再走一段就是臨江城了。' },
-          { speaker: '趕路的商人', text: '進城記得看緊荷包，碼頭那邊龍蛇混雜的。' },
+          { speaker: '余福來', text: '再走一段就是臨江城了。' },
+          { speaker: '余福來', text: '進城記得看緊荷包，碼頭那邊龍蛇混雜的。' },
         ],
       ],
     },

@@ -92,18 +92,18 @@ export const linjiang: MapDef = {
 
   npcs: [
     // 鳴泉委託「回春堂送藥」：掌櫃在店門口等藥
-    { id: 'lj_huichun', name: '回春堂掌櫃', sprite: 'storyteller', x: 8, y: 16, facing: 'down', script: huichunDelivery, when: (f) => f.mq_c_med === 1 },
+    { id: 'lj_huichun', name: '白濟仁', sprite: 'storyteller', x: 8, y: 16, facing: 'down', script: huichunDelivery, when: (f) => f.mq_c_med === 1 },
     {
-      id: 'lj_guard_w', allDay: true, name: '守城兵', sprite: 'guard', x: 4, y: 15, facing: 'down',
-      talks: [[{ speaker: '守城兵', text: '臨江城到了。進城守規矩，別在城裡動刀動槍。' }]],
+      id: 'lj_guard_w', allDay: true, name: '馮順', sprite: 'guard', x: 4, y: 15, facing: 'down',
+      talks: [[{ speaker: '馮順', text: '臨江城到了。進城守規矩，別在城裡動刀動槍。' }]],
     },
     {
-      id: 'lj_guard_w2', allDay: true, name: '守城兵', sprite: 'guard', x: 4, y: 18, facing: 'up',
-      talks: [[{ speaker: '守城兵', text: '東門？最近在修城牆，封了。要往東，得等些日子。' }]],
+      id: 'lj_guard_w2', allDay: true, name: '魏大牛', sprite: 'guard', x: 4, y: 18, facing: 'up',
+      talks: [[{ speaker: '魏大牛', text: '東門？最近在修城牆，封了。要往東，得等些日子。' }]],
     },
     {
-      id: 'lj_guard_n', allDay: true, name: '守城兵', sprite: 'guard', x: 25, y: 4, facing: 'right',
-      talks: [[{ speaker: '守城兵', text: '出北門往上走就是鳴泉山。' }, { speaker: '守城兵', text: '最近上山的年輕人特別多，都是去拜師的。' }]],
+      id: 'lj_guard_n', allDay: true, name: '朱八斤', sprite: 'guard', x: 25, y: 4, facing: 'right',
+      talks: [[{ speaker: '朱八斤', text: '出北門往上走就是鳴泉山。' }, { speaker: '朱八斤', text: '最近上山的年輕人特別多，都是去拜師的。' }]],
     },
     {
       id: 'lj_disciple', name: MQ.wei, sprite: 'disciple', x: 28, y: 14, facing: 'down',
@@ -127,47 +127,47 @@ export const linjiang: MapDef = {
       ],
     },
     {
-      id: 'lj_boatman', name: '漕幫幫眾', sprite: 'boatman', x: 26, y: 30, facing: 'up', wander: 2,
+      id: 'lj_boatman', name: '閻水生', sprite: 'boatman', x: 26, y: 30, facing: 'up', wander: 2,
       talks: [
         [
-          { speaker: '漕幫幫眾', text: '看什麼看？碼頭是漕幫的地盤，閒人別在這兒晃。' },
-          { speaker: '漕幫幫眾', text: '……鏢局的人？哼，他們自己的船貨不清不楚，扣下來查查又怎樣。' },
+          { speaker: '閻水生', text: '看什麼看？碼頭是漕幫的地盤，閒人別在這兒晃。' },
+          { speaker: '閻水生', text: '……鏢局的人？哼，他們自己的船貨不清不楚，扣下來查查又怎樣。' },
         ],
       ],
     },
     {
-      id: 'lj_ferry', name: '船家', sprite: 'fisher', x: 19, y: 31, facing: 'down',
-      talks: [[{ speaker: '船家', text: '要過江？今天風大，不開船囉。（尚未開放）' }]],
+      id: 'lj_ferry', name: '董阿七', sprite: 'fisher', x: 19, y: 31, facing: 'down',
+      talks: [[{ speaker: '董阿七', text: '要過江？今天風大，不開船囉。（尚未開放）' }]],
     },
     {
-      id: 'lj_scholar', name: '書生', sprite: 'scholar', x: 24, y: 20, wander: 2,
+      id: 'lj_scholar', name: '蕭子墨', sprite: 'scholar', x: 24, y: 20, wander: 2,
       talks: [
         [
-          { speaker: '書生', text: '小生進城趕考，盤纏卻在路上丟了大半……' },
-          { speaker: '書生', text: '聽說望江樓的掌櫃愛才，或許能讓小生題幾句詩，換頓飯吃。' },
+          { speaker: '蕭子墨', text: '小生進城趕考，盤纏卻在路上丟了大半……' },
+          { speaker: '蕭子墨', text: '聽說望江樓的掌櫃愛才，或許能讓小生題幾句詩，換頓飯吃。' },
         ],
       ],
     },
     {
-      id: 'lj_vendor', name: '小販', sprite: 'farmer', x: 17, y: 26, facing: 'up',
-      talks: [[{ speaker: '小販', text: '糖人兒——又甜又好看的糖人兒——' }]],
+      id: 'lj_vendor', name: '胡來喜', sprite: 'farmer', x: 17, y: 26, facing: 'up',
+      talks: [[{ speaker: '胡來喜', text: '糖人兒——又甜又好看的糖人兒——' }]],
     },
     {
-      id: 'lj_beggar', allDay: true, name: '乞丐', sprite: 'beggar', x: 13, y: 26, facing: 'down',
+      id: 'lj_beggar', allDay: true, name: '何六', sprite: 'beggar', x: 13, y: 26, facing: 'down',
       talks: [
         [
-          { speaker: '乞丐', text: '行行好，賞口飯吃吧……' },
-          { speaker: '乞丐', text: '……小子，看你腳步虛浮，下盤不穩。要上鳴泉山，可得多練練。' },
+          { speaker: '何六', text: '行行好，賞口飯吃吧……' },
+          { speaker: '何六', text: '……小子，看你腳步虛浮，下盤不穩。要上鳴泉山，可得多練練。' },
         ],
       ],
     },
     {
-      id: 'lj_woman', name: '婦人', sprite: 'lady', x: 45, y: 24, wander: 3,
-      talks: [[{ speaker: '婦人', text: '布莊的料子又漲價了，這日子怎麼過喲。' }]],
+      id: 'lj_woman', name: '孫大娘', sprite: 'lady', x: 45, y: 24, wander: 3,
+      talks: [[{ speaker: '孫大娘', text: '布莊的料子又漲價了，這日子怎麼過喲。' }]],
     },
     {
-      id: 'lj_kid', name: '孩童', sprite: 'child', x: 10, y: 24, wander: 2,
-      talks: [[{ speaker: '孩童', text: '我長大了要上鳴泉山學劍！' }, { speaker: '孩童', text: '可是我娘說，山上的師父很兇……' }]],
+      id: 'lj_kid', name: '阿寶', sprite: 'child', x: 10, y: 24, wander: 2,
+      talks: [[{ speaker: '阿寶', text: '我長大了要上鳴泉山學劍！' }, { speaker: '阿寶', text: '可是我娘說，山上的師父很兇……' }]],
     },
   ],
 

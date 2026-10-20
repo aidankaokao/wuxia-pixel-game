@@ -681,10 +681,17 @@ kbd {
 }
 
 .title-sub {
-  margin: 4px 0 36px;
+  margin: 4px 0 6px;
   font-size: 20px;
   letter-spacing: 0.4em;
   color: var(--gold);
+}
+
+.title-tag {
+  margin: 0 0 36px;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: var(--muted);
 }
 
 .title-menu {
@@ -1536,3 +1543,40 @@ table.charter td {
 .grade2 { color: #8fd18a; }
 .grade3 { color: #7ab8f0; }
 .grade4 { color: #f0c060; }
+
+/* 做事的過場動畫 */
+.work-anim {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  padding: 12px 16px 14px;
+  text-align: center;
+  z-index: 40;
+}
+.work-anim img {
+  display: block;
+  width: 256px;
+  height: 160px;
+  image-rendering: pixelated;
+}
+.work-caption {
+  margin-top: 8px;
+  font-size: 15px;
+}
+.work-bar {
+  margin-top: 8px;
+  height: 6px;
+  background: #2a2228;
+}
+.work-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--gold);
+  transform-origin: left;
+  animation: work-fill linear forwards;
+}
+@keyframes work-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}

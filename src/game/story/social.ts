@@ -125,16 +125,32 @@ const talk =
     const r = relOf(p.id);
     const today = r.talk.day === day ? r.talk.n : 0;
     if (today < p.talk.perDay) {
-      // 今天還能增進感情：說目前階段的話
       const stage = stageOf(r.aff);
-      const tier = Math.max(...Object.keys(p.lines).map(Number).filter((s) => s <= stage), -1);
-      const pool = (p.lines[tier] ?? []).filter(usable);
-      const idx = r.lineIdx % Math.max(1, pool.length);
       updateRel(p.id, (x) => {
         x.talk = { day, n: today + 1 };
         x.lineIdx++;
       });
-      if (pool.length) await ctx.say(...fmt(linesOf(pool[idx])));
+      // 偶爾換對方問你問題
+      const ask = (p.asks ?? []).find((a) => (a.stage ?? 0) <= stage && !(r.asked ?? []).includes(a.id));
+      if (ask && Math.random() < 0.4) {
+        updateRel(p.id, (x) => (x.asked = [...(x.asked ?? []), ask.id]));
+        const [q] = fmt([{ speaker: p.name, text: ask.q }]);
+        const c = await ctx.ask(q, ask.answers.map((a) => fmt([{ text: a.say }])[0].text));
+        const a = ask.answers[c];
+        await ctx.say(...fmt([{ speaker: p.name, text: a.reply }]));
+        await addAffinity(ctx, p, p.talk.gain + a.aff);
+        return;
+      }
+      // 說目前這一階（以及之前各階）的話，隨機挑一句，不跟上一次重複；這一階的話機會比較大
+      const tiers = Object.keys(p.lines).map(Number).filter((s) => s <= stage).sort((a, b) => b - a);
+      const pool = tiers.flatMap((t, i) => (p.lines[t] ?? []).filter(usable).flatMap((_, j) => Array(i === 0 ? 2 : 1).fill(`${t}:${j}`)));
+      const fresh = pool.filter((k) => k !== r.lastLine);
+      const key = (fresh.length ? fresh : pool)[Math.floor(Math.random() * Math.max(1, (fresh.length ? fresh : pool).length))];
+      if (key) {
+        const [t, j] = key.split(':').map(Number);
+        updateRel(p.id, (x) => (x.lastLine = key));
+        await ctx.say(...fmt(linesOf((p.lines[t] ?? []).filter(usable)[j])));
+      }
       await addAffinity(ctx, p, p.talk.gain);
       return;
     }

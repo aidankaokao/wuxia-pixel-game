@@ -36,6 +36,7 @@ async function read(ctx: EventCtx, b: BookDef) {
     return;
   }
   if (!(await exert(ctx, STAMINA.study, '讀了好一陣子，眼睛酸澀，字都在紙上跳。'))) return;
+  await ctx.work('read', `讀《${b.name}》中……`);
   ctx.pass(4);
   const p = bookOf(st().hero, b.id);
   // 每讀一回換一句

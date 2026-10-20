@@ -1,3 +1,4 @@
+import type { WorkKind } from '../game/art/work';
 import { create } from 'zustand';
 import { Character, newHero } from '../game/character';
 import { newWorld, World } from '../game/home';
@@ -58,6 +59,8 @@ interface GameState {
   panel: (Panel & { close: () => void }) | null;
   /** 確認選單（例如讀檔前），選完 resolve(true/false) */
   confirm: { text: string; ok: string; resolve: (yes: boolean) => void } | null;
+  /** 做事的過場動畫（掃地、做菜……），播完自動消失 */
+  work: { id: number; kind: WorkKind; text: string; ms: number } | null;
   settings: Settings;
   mapName: string;
   mapSubtitle?: string;
@@ -104,6 +107,7 @@ interface GameState {
   closePanel: () => void;
   /** 跳出「確定／取消」選單 */
   askConfirm: (text: string, ok?: string) => Promise<boolean>;
+  playWork: (kind: WorkKind, text: string, ms?: number) => Promise<void>;
   setSettings: (s: Partial<Settings>) => void;
   showToast: (text: string) => void;
   /** 回到全新的遊戲狀態（開新遊戲、讀檔、回標題前呼叫） */
@@ -119,6 +123,7 @@ export const useGame = create<GameState>((set, get) => ({
   world: newWorld(),
   panel: null,
   confirm: null,
+  work: null,
   settings: { ...DEFAULT_SETTINGS },
   mapName: '',
   bannerKey: 0,
@@ -186,6 +191,15 @@ export const useGame = create<GameState>((set, get) => ({
     }),
   closePanel: () => get().panel?.close(),
 
+  playWork: (kind, text, ms = 1600) =>
+    new Promise((resolve) => {
+      const id = Date.now();
+      set({ work: { id, kind, text, ms } });
+      setTimeout(() => {
+        if (get().work?.id === id) set({ work: null });
+        resolve();
+      }, ms);
+    }),
   askConfirm: (text, ok = '確定') =>
     new Promise((resolve) => {
       set({
