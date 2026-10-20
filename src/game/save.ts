@@ -167,7 +167,7 @@ export function restoreHero(saved: Character): Character {
     items: saved.items ?? {},
     bagExtra: saved.bagExtra ?? 0,
     crafts: saved.crafts ?? {},
-    works: saved.works ?? {}, gear: saved.gear ?? {},
+    works: saved.works ?? {}, gear: saved.gear ?? {}, mount: saved.mount, riding: saved.riding,
   };
   c.name = c.surname + c.given;
   clampVitals(c);

@@ -12,7 +12,9 @@ export type ItemIcon =
   | 'hat' | 'robe' | 'robe_gray' | 'robe_white' | 'robe_blue' | 'pants' | 'shoes' | 'bracer' | 'pouch'
   | 'painting'
   // 節令點心
-  | 'dumpling' | 'qingtuan' | 'zongzi' | 'mooncake' | 'shoutao';
+  | 'dumpling' | 'qingtuan' | 'zongzi' | 'mooncake' | 'shoutao'
+  // 紡織材料
+  | 'thread' | 'silk';
 
 const OUTLINE = '#1a1218';
 
@@ -335,7 +337,20 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     px(ctx, 3, 12, 3, 2, '#5a9a3a');
     px(ctx, 10, 12, 3, 2, '#5a9a3a');
   },
+  // 棉線：一綑白線
+  thread: (ctx) => spool(ctx, '#ece6d6', '#c8bca4'),
+  // 絲線：一綑紅色絲線
+  silk: (ctx) => spool(ctx, '#d8483c', '#a83028'),
 };
+
+/** 線軸：木軸纏著線 */
+function spool(ctx: CanvasRenderingContext2D, color: string, dark: string) {
+  px(ctx, 4, 2, 8, 2, '#8a5a32');
+  px(ctx, 4, 12, 8, 2, '#8a5a32');
+  px(ctx, 5, 4, 6, 8, color);
+  for (const y of [5, 7, 9]) hline(ctx, 5, 10, y, dark);
+  px(ctx, 11, 9, 3, 1, color);
+}
 
 /** 長衫、道袍：交領、寬袖，顏色不同 */
 function robeShape(ctx: CanvasRenderingContext2D, color: string, dark: string, trim: string) {

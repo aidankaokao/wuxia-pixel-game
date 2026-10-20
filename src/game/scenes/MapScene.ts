@@ -1,3 +1,4 @@
+import { mountDef } from '../mounts';
 import { festivalIndex } from '../festival';
 import Phaser from 'phaser';
 import { Dir, NPC_WALK_MS, RUN_MS, TILE, VIEW_TILES_H, VIEW_TILES_W, WALK_MS } from '../constants';
@@ -853,7 +854,11 @@ export class MapScene extends Phaser.Scene {
       return;
     }
     useGame.getState().setPrompt(null);
-    this.player.step(dir, k.shift.isDown ? RUN_MS : WALK_MS, () => this.afterPlayerStep());
+    // 騎著馬在室外走得比較快（室內照樣步行）
+    const hero = useGame.getState().hero;
+    const horse = !this.def.theme && hero.riding ? mountDef(hero.mount) : undefined;
+    const ms = (k.shift.isDown ? RUN_MS : WALK_MS) / (horse?.speed ?? 1);
+    this.player.step(dir, ms, () => this.afterPlayerStep());
   }
 
   private heldDir(): Dir | null {

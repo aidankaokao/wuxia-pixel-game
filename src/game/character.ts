@@ -12,6 +12,7 @@ import type { CraftId, Progress } from './crafts';
 import { FOOD_ITEMS } from './cooking';
 import { ART_ITEMS } from './arts';
 import { FEST_ITEMS } from './festival';
+import { WEAVE_MATERIALS, WOVEN_ITEMS } from './weaving';
 import { GEAR_ITEMS, GearInfo, GearSlotId, kindOfSlot } from './gear';
 
 export type AttrKey = 'strength' | 'agility' | 'constitution' | 'energy' | 'insight';
@@ -99,6 +100,8 @@ export const ITEMS: Record<string, ItemDef> = {
   ...GEAR_ITEMS,
   ...ART_ITEMS,
   ...FEST_ITEMS,
+  ...WEAVE_MATERIALS,
+  ...WOVEN_ITEMS,
   manual_zhuying: {
     name: '竹影劍痕拓本', category: '秘笈', icon: 'scroll', manual: 'zhuying',
     desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。',
@@ -370,6 +373,9 @@ export interface Character {
   works?: Record<string, Progress>;
   /** 穿戴中的服飾（欄位 → 物品 id），不佔行囊 */
   gear?: Partial<Record<GearSlotId, string>>;
+  /** 坐騎（mounts.ts 的 id）與是不是正騎著 */
+  mount?: string;
+  riding?: boolean;
   /** 睡過好床後「精神飽滿」：接下來幾場戰鬥武功經驗加成 */
   rested?: { battles: number; mult: number };
   /** 吃了甜品「心情愉快」：接下來幾場戰鬥武功經驗加成 */

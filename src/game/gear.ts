@@ -46,7 +46,7 @@ export function gearEffectText(g: GearInfo) {
   return parts.length ? parts.join('　') : '沒有加成';
 }
 
-function gear(
+export function gear(
   name: string,
   kind: GearKind,
   grade: number,

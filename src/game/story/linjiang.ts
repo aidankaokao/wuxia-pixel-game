@@ -1,10 +1,12 @@
 import { CLOTH_SHOP } from '../gear';
+import { WEAVE_SHOP } from '../weaving';
+import { teachPatterns } from './weaving';
 import type { Script } from '../events';
 import { by } from '../maps/rooms';
 
 /**
  * 臨江城裡的店家與人物。
- * 錦繡布莊：老闆娘魏錦娘賣帽子、衣褲、鞋子與飾品（品級從粗製到精良）。
+ * 錦繡布莊：老闆娘魏錦娘賣帽子、衣褲、鞋子與飾品（品級從粗製到精良），也賣棉線、絲線、教紡織；後頭有織機。
  */
 
 const jin = by('魏錦娘');
@@ -16,7 +18,9 @@ const clothChats = [
 let chat = 0;
 
 export const clothShopTalk: Script = async (ctx) => {
-  const c = await ctx.ask(jin('客官要看看什麼？')[0], ['看看衣物', '閒聊', '不用了']);
+  const c = await ctx.ask(jin('客官要看看什麼？')[0], ['看看衣物', '買紡織的材料', '學紡織', '閒聊', '不用了']);
   if (c === 0) await ctx.panel({ kind: 'shop', title: '錦繡布莊', stock: CLOTH_SHOP });
-  else if (c === 1) await ctx.say(...clothChats[chat++ % clothChats.length]);
+  else if (c === 1) await ctx.panel({ kind: 'shop', title: '錦繡布莊・絲線', stock: WEAVE_SHOP });
+  else if (c === 2) await teachPatterns(ctx, '魏錦娘');
+  else if (c === 3) await ctx.say(...clothChats[chat++ % clothChats.length]);
 };
