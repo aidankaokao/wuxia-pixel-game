@@ -1,9 +1,10 @@
+import type { WorkKind } from '../art/work';
 import { addFame, attrs, canHold, Character, derive, equipGear, gainSkill, giveItem, slotsFor, takeSectGear, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
 import { addContrib, choreKey, inSect, promote, promotionChecks, roster, SectMember, leaveRuleText, nextStipendDay, newSectState, rankName, registerSect, SectDef, STIPEND_DAYS } from '../sect';
-import { clampAff, newRelation, STAGE } from '../social';
+import { clampAff, newRelation, STAGE, stageOf } from '../social';
 import { useGame } from '../../state/store';
 import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estate';
 import { cookAt, teachDishes } from './cooking';
@@ -38,6 +39,7 @@ import type { PersonDef } from './people';
  *   mq_true       1 已成為真傳弟子
  *   mq_c_path     下山委託「清理山道」：1 接下 / 2 打跑了野狗群 / 3 已覆命
  *   mq_c_med      下山委託「回春堂送藥」：1 接下（身上帶著藥包） / 2 送到了 / 3 已覆命
+ *   mq_mush_west / mq_mush_east  後山野菌是第幾日採的（當天不再出現）
  */
 
 const SECT = 'mingquan';
@@ -69,7 +71,8 @@ export const MQ_MEMBERS = {
   cao: { name: '曹小豆', rank: '記名弟子', role: '掃殿前' },
   zheng: { name: '鄭大壯', rank: '記名弟子' },
   hou: { name: '侯三郎', rank: '記名弟子' },
-  bu: { name: '卜大勺', rank: '雜役', role: '伙房師傅，管廚房與菜圃' },
+  bu: { name: '卜大勺', rank: '雜役', role: '伙房師傅，管廚房與菜圃', person: 'bu' },
+  shao: { name: '邵長庚', rank: '雜役', role: '守山人，在後山守了四十年' },
 } satisfies Record<string, SectMember>;
 /** 名字：MQ.ke → 柯靜言 */
 export const MQ = Object.fromEntries(Object.entries(MQ_MEMBERS).map(([k, v]) => [k, v.name])) as Record<keyof typeof MQ_MEMBERS, string>;
@@ -1019,6 +1022,7 @@ const CHORE_DONE: Record<string, { lines: (Line | string)[]; bonus?: [string, nu
 async function doChore(ctx: EventCtx, id: string) {
   const d = CHORE_DONE[id];
   if (!(await exert(ctx, STAMINA.chore, '累得手腳發軟，這活兒今天是幹不動了。'))) return;
+  await ctx.work(id as WorkKind, `${choreDef(id).name}中……`);
   ctx.pass(8);
   await ctx.say(...d.lines, '（做了一個時辰）');
   st().updateWorld((w) => {
@@ -1153,7 +1157,7 @@ export const pathDogs: Script = async (ctx) => {
 
 /** 委託「回春堂送藥」：回春堂掌櫃在店門口等藥 */
 export const huichunDelivery: Script = async (ctx) => {
-  const g = by('回春堂掌櫃');
+  const g = by('白濟仁');
   await ctx.say(...g('可把鳴泉的藥盼來了！最近城裡跌打損傷的人多，金創藥一下就賣光了。'), '你把藥包交給掌櫃。');
   await ctx.hero((h) => {
     delete h.items.mq_medpack;
@@ -1219,12 +1223,6 @@ export const herbalistTalk = giver(MQ.miao, 'herb', 3, 4, '止血草收下了，
 export const KITCHEN_STOCK = ['rice', 'flour', 'egg', 'tofu', 'greens', 'radish', 'chicken', 'redbean', 'sugar', 'osmanthus', 'sesame', 'almond'];
 const MEAL_KEY = 'mq_meal';
 
-const cookChats = [
-  by(MQ.bu)('我是伙房的卜大勺。練武的人吃得多，一頓飯要煮三大鍋！', '後頭菜圃的菜都是我種的，誰敢踩，我拿鍋鏟敲他。'),
-  by(MQ.bu)('打到山豬就拿來，我替大夥兒燉一鍋。'),
-  by(MQ.bu)('做菜跟練劍一樣，火候到了，味道自然就出來了。', '想學就跟我說，先從白米飯煮起。'),
-];
-let cookChat = 0;
 
 /** 每天的大鍋飯：弟子一天領一份，行囊滿了領不了 */
 async function dailyMealAt(ctx: EventCtx) {
@@ -1260,39 +1258,56 @@ async function payContrib(ctx: EventCtx, n: number): Promise<boolean> {
   return true;
 }
 
-export const cookTalk = choreAt('garden', async (ctx) => {
-  const chat = () => ctx.say(...cookChats[cookChat++ % cookChats.length]);
-  if (!member()) return chat();
-  const meal = festivalMeal() ? ITEMS[festivalMeal()!.id] : dailyMeal(st().world.day);
-  const c = await ctx.ask(by(MQ.bu)('餓了吧？')[0], [
-    `領今天的飯（${meal.name}）`,
-    '學做菜',
-    '買食材',
-    '繳納山豬肉（1 份，貢獻 +4）',
-    '閒聊',
-  ]);
-  if (c === 0) await dailyMealAt(ctx);
-  else if (c === 1) await teachDishes(ctx, MQ.bu, (n) => payContrib(ctx, n), () => craftOf(st().hero, 'cooking').level);
-  else if (c === 2) await ctx.panel({ kind: 'shop', title: '伙房的食材', stock: KITCHEN_STOCK });
-  else if (c === 3) await donate(ctx, MQ.bu, 'boar_meat', 1, 4, '好大一塊山豬肉！今晚加菜！');
-  else await chat();
-});
+/** 跟卜大勺的交情：點頭之交起能用大灶、學入門與中等的菜，熟識學進階，知交學拿手菜 */
+const buStage = () => stageOf(st().world.relations.bu?.aff ?? 0);
+const BU_TIER = (s: number) => (s >= STAGE.CLOSE ? 3 : s >= STAGE.FAMILIAR ? 2 : s >= STAGE.NOD ? 1 : -1);
 
-/** 後山的野菌：一處一天採一次，誰都能採 */
+/** 卜大勺的劇情：菜圃雜務、弟子的選單；選「聊聊」就回 false，照一般交談（加熟悉度） */
+async function buStory(ctx: EventCtx): Promise<boolean> {
+  if (member() && sect().chore === 'garden') {
+    await doChore(ctx, 'garden');
+    return true;
+  }
+  if (!member()) return false;
+  const meal = festivalMeal() ? ITEMS[festivalMeal()!.id] : dailyMeal(st().world.day);
+  const c = await ctx.ask(by(MQ.bu)('餓了吧？')[0], [`領今天的飯（${meal.name}）`, '學做菜', '買食材', '繳納山豬肉（1 份，貢獻 +4）', '聊聊']);
+  if (c === 0) await dailyMealAt(ctx);
+  else if (c === 1) {
+    const max = BU_TIER(buStage());
+    if (max < 0) {
+      await ctx.say(...by(MQ.bu)('學做菜？嘿，我的手藝可不是隨便教人的。', '先常來陪我聊聊，讓我看看你是不是那塊料。'), '（跟卜大勺熟到「點頭之交」才肯教菜）');
+      return true;
+    }
+    const hint = max < 3 ? `跟卜大勺再熟一些（${max < 2 ? '熟識' : '知交'}），他才肯教更拿手的菜` : '';
+    await teachDishes(ctx, MQ.bu, (n) => payContrib(ctx, n), () => craftOf(st().hero, 'cooking').level, { maxTier: max, hint });
+  } else if (c === 2) await ctx.panel({ kind: 'shop', title: '伙房的食材', stock: KITCHEN_STOCK });
+  else if (c === 3) {
+    if (await donate(ctx, MQ.bu, 'boar_meat', 1, 4, '好大一塊山豬肉！今晚加菜！')) addAff('bu', 2);
+  } else return false;
+  return true;
+}
+
+/** 後山的野菌：採了就沒了，隔天才長出來（旗標 mq_mush_地點 記採的那一天）；誰都能採 */
+export const mushroomGrown = (spot: string) => (f: Record<string, number>) => f[`mq_mush_${spot}`] !== f.today;
 export const mushroomAt =
   (spot: string): Script =>
   async (ctx) => {
-    if (!(await useDaily(ctx, `mq_mush:${spot}`, 1, '這一叢野菌已經採過了，新的還沒冒出來。'))) return;
+    ctx.setFlag(`mq_mush_${spot}`, st().world.day);
+    ctx.refresh();
     ctx.pass(1);
     const n = 1 + Math.floor(Math.random() * 3);
     await ctx.say('你撥開落葉，把肥嫩的野菌一朵朵摘了下來。');
     await ctx.hero((h) => giveItem(h, 'mushroom', n));
   };
 
-/** 廚房的大灶：有鳴泉的泉水，做得了泉水涼麵、鳴泉清燉 */
+/** 廚房的大灶：有鳴泉的泉水，做得了泉水涼麵、鳴泉清燉；要跟卜大勺有點交情才讓用 */
 export const kitchenStove: Script = async (ctx) => {
   if (!member()) {
     await ctx.say('大灶上的鍋子比人還寬，正冒著熱氣。');
+    return;
+  }
+  if (buStage() < STAGE.NOD) {
+    await ctx.say('大灶上的鍋子比人還寬，正冒著熱氣。', ...by(MQ.bu)('欸欸欸，別亂碰！我的灶可不是誰都能用的。', '跟我熟一點再說。'), '（跟卜大勺熟到「點頭之交」才能用大灶）');
     return;
   }
   await cookAt({ level: 3, spring: true, idle: '大灶上的鍋子比人還寬，正冒著熱氣。' })(ctx);
@@ -1302,6 +1317,44 @@ export const armoryTalk = giver(MQ.meng, 'dog_pelt', 2, 3, '狗皮正好拿來�
   by(MQ.meng)('我是管武器房的孟鐸。本門以劍為主，拳腳是根基，兩樣都得練。', '刀槍棍棒擺在這兒，是讓你們見識見識各家兵器的，不教。'),
   by(MQ.meng)('劍鞘磨破了就拿來換，野狗皮硝過之後，做襯裡最好。'),
 ]);
+
+/** 守山門的何守一、喬木生：外人問來意，弟子打招呼，離開過的冷淡些 */
+const GATE_LINES: Record<'he' | 'qiao', { outsider: Line[][]; member: Line[][]; left: Line[] }> = {
+  he: {
+    outsider: [
+      by(MQ.he)('此處是鳴泉劍派山門，在下何守一。來者何人？', '……來拜師的？本派收徒不拘時日，進去找知客的方師兄就是。只是別亂闖禁地。'),
+      by(MQ.he)('山門內是本派重地，閒逛可以，別在院子裡動刀動劍。'),
+    ],
+    member: [
+      by(MQ.he)('{稱}回來了。山道上最近有野狗出沒，下山的時候小心些。'),
+      by(MQ.he)('要下山？臨江城北門的守城兵認得本派的腰牌，進出方便。'),
+      by(MQ.he)('守山門最要緊的是眼睛。誰上山、誰下山，我都記著。'),
+      by(MQ.he)('木生那小子又在打瞌睡了吧？{稱}幫我看著點。'),
+    ],
+    left: by(MQ.he)('……是你啊。進去看看無妨，只是別忘了，你已經不是本門弟子了。'),
+  },
+  qiao: {
+    outsider: [by(MQ.qiao)('我是喬木生，才入門半年，跟何師兄學守山門。', '山門重地，進去之後請守規矩。'), by(MQ.qiao)('站一整天，腿都直了……')],
+    member: [
+      by(MQ.qiao)('{稱}！今天的晨課你去了沒？我又睡過頭了……'),
+      by(MQ.qiao)('何師兄說守門也是修行。修了半年，我只修出一雙站不累的腿。'),
+      by(MQ.qiao)('{稱}下山的話，幫我從臨江城帶串糖葫蘆好不好？'),
+      by(MQ.qiao)('聽說卜師傅今天燉了好東西，換班了我第一個去！'),
+    ],
+    left: by(MQ.qiao)('啊……{稱}。何師兄說不能跟你多說話……你自己保重。'),
+  },
+};
+const gateIdx = { he: 0, qiao: 0 };
+export const gateTalk =
+  (who: 'he' | 'qiao'): Script =>
+  async (ctx) => {
+    const g = GATE_LINES[who];
+    // 同門之間叫師兄弟；稱呼依姓氏
+    const fill = (ls: Line[]) => ls.map((l) => ({ ...l, text: l.text.replace(/\{稱\}/g, `${st().hero.surname || st().hero.given}師${sect()?.rank ? '兄' : '弟'}`) }));
+    if (member()) return void (await ctx.say(...fill(g.member[gateIdx[who]++ % g.member.length])));
+    if (ctx.flag('mq_left')) return void (await ctx.say(...fill(g.left)));
+    await ctx.say(...g.outsider[gateIdx[who]++ % g.outsider.length]);
+  };
 
 export const sweeperTalk = choreAt('sweep', [
   { speaker: MQ.cao, text: '我是記名弟子曹小豆，每天得把大殿前掃三遍。' },
@@ -1331,16 +1384,38 @@ const wenP: PersonDef = {
   talk: { gain: 2, perDay: 1, after: 'busy' },
   lines: {
     [STAGE.STRANGER]: [
+      wen('山上的松樹，最老的一棵比本派還老。'),
       wen('練劍先練心。心不靜，劍就亂。'),
       wen('鳴泉這座山上，泉水流了幾千年，從來沒停過。', '練功也是這樣，貴在不停。'),
     ],
-    [STAGE.FAMILIAR]: [wen('{稱}，這些日子的晨課，鳴川都跟我說了。不錯。'), wen('本門人少，可每個人我都記得。祖師說過：「劍在人在，人在派在。」')],
+    [STAGE.FAMILIAR]: [
+      wen('{稱}，劍法的招式是死的，人是活的。別讓招式綁住了。'),wen('{稱}，這些日子的晨課，鳴川都跟我說了。不錯。'), wen('本門人少，可每個人我都記得。祖師說過：「劍在人在，人在派在。」')],
     [STAGE.CLOSE]: [wen('{稱}，你來得正好。陪我站一會兒，聽聽泉聲。')],
   },
   idle: [],
   teach: { stage: STAGE.CLOSE, insight: 30 },
   // 掌門寫得一手好字
   hobby: { art: 'calligraphy', level: 7, stage: STAGE.NOD },
+  asks: [
+    {
+      id: 'wen_why',
+      q: '{稱}，你為什麼想學劍？',
+      answers: [
+        { say: '想保護身邊的人。', reply: '好。記住這個念頭，劍才不會走偏。', aff: 3 },
+        { say: '想成為天下第一。', reply: '天下第一……鳴泉七代掌門，沒有一個是天下第一。', aff: 0 },
+        { say: '還沒想清楚。', reply: '想不清楚也無妨，練著練著就清楚了。', aff: 2 },
+      ],
+    },
+    {
+      id: 'wen_rule', stage: STAGE.NOD,
+      q: '本門門規第一條，你還記得是什麼嗎？',
+      answers: [
+        { say: '不得擅入禁地。', reply: '嗯，記得就好。後山的思過崖，沒有許可別去。', aff: 3 },
+        { say: '不得恃武欺人。', reply: '那是第三條。回去再讀一遍。', aff: 0 },
+        { say: '不記得了……', reply: '……去大殿找靜言，抄三遍。', aff: -1 },
+      ],
+    },
+  ],
 };
 
 const luP: PersonDef = {
@@ -1352,8 +1427,10 @@ const luP: PersonDef = {
   story: async (ctx) => (await luFestival(ctx)) || luStory(ctx),
   talk: { gain: 2, perDay: 1, after: 'chat' },
   lines: {
-    [STAGE.STRANGER]: [lu('{稱}，劍要握穩，手腕要活。', '本派劍法講究「快而不亂，如泉不絕」，先求不亂，再求快。')],
+    [STAGE.STRANGER]: [
+      lu('晨課的時候專心點。劍招可以慢，心不能散。'),lu('{稱}，劍要握穩，手腕要活。', '本派劍法講究「快而不亂，如泉不絕」，先求不亂，再求快。')],
     [STAGE.NOD]: [
+      lu('二師妹疏桐下山很久了……她的劍比我的好。'),
       { when: (f) => f.mq_exam === 2, lines: lu('{稱}，恭喜你成了正式弟子。', '往後下山辦事，記得你代表的是鳴泉。') },
       lu('{稱}的劍越來越穩了。', '再過些日子，就能去練功房試試鐵木樁。'),
       lu('師父年輕時一個人守過這座山門。那時候鳴泉劍派，只剩師父一個人。'),
@@ -1364,6 +1441,25 @@ const luP: PersonDef = {
   idle: [lu('晨課明天照常，別遲到。'), lu('記名弟子要入正式，得過考核。我當年考了兩次才過。'), lu('後山的試劍石，你去看過嗎？上頭的劍痕，有一道是師父留的。')],
   spar: { stage: STAGE.FAMILIAR, encounter: 'spar_lu', win: 6, lose: 3 },
   teach: { stage: STAGE.NOD, insight: 15 },
+  asks: [
+    {
+      id: 'lu_morning',
+      q: '{稱}，今天的晨課，你覺得哪一招最難？',
+      answers: [
+        { say: '起手式，最簡單也最難練好。', reply: '你看得出這一點，比很多人強。', aff: 3 },
+        { say: '收劍那一下，總是收不穩。', reply: '收得住，才放得開。多練。', aff: 2 },
+        { say: '都不難。', reply: '……那明天你來帶晨課。', aff: -1 },
+      ],
+    },
+    {
+      id: 'lu_xiaoman', stage: STAGE.NOD,
+      q: '小滿那丫頭老是想找你比劍，你嫌煩嗎？',
+      answers: [
+        { say: '不會，跟她過招也能長進。', reply: '你這麼想就好。她其實很佩服你。', aff: 3 },
+        { say: '有一點，她太好勝了。', reply: '她入門晚，急著證明自己。多擔待。', aff: 1 },
+      ],
+    },
+  ],
 };
 
 const xiaomanP: PersonDef = {
@@ -1375,10 +1471,12 @@ const xiaomanP: PersonDef = {
   talk: { gain: 3, perDay: 1, after: 'chat' },
   lines: {
     [STAGE.STRANGER]: [
+      xm('我才不怕晨課！……只是起不來而已。'),
       { when: (f) => !f.mq_join, lines: xm('你也是來拜師的？我上個月才入門，現在還是記名弟子。', '大師兄人很好，就是晨課起得太早了……') },
       xm('{稱}！雖然你比我晚入門，可是試劍那天我輸給你了……', '所以叫你師兄。哼，下次我一定贏回來！'),
     ],
     [STAGE.NOD]: [
+      xm('我爹開的布莊在臨江城，錦繡布莊旁邊那家小鋪子……不要跟他說你看見我！'),
       { when: (f) => f.mq_exam === 2, lines: xm('{稱}已經是正式弟子了……明明比我晚入門！', '哼，等著，我很快就追上你。') },
       xm('{稱}，今天晨課你偷懶了沒？我可是一招都沒少練。'),
       xm('我家在臨江城開布莊的。我爹本來要我嫁人，我偷偷跑上山來的。'),
@@ -1400,6 +1498,26 @@ const xiaomanP: PersonDef = {
       },
     },
   ],
+  asks: [
+    {
+      id: 'xm_win',
+      q: '{稱}！你覺得我們兩個誰的劍比較快？',
+      answers: [
+        { say: '妳快，可是我比較穩。', reply: '哼，穩有什麼用，打不到人！……不過你說得也有點道理。', aff: 3 },
+        { say: '當然是我。', reply: '哼！明天木樁林見，不來是小狗！', aff: 1 },
+        { say: '妳快。', reply: '嘿嘿，我就知道！', aff: 2 },
+      ],
+    },
+    {
+      id: 'xm_home', stage: STAGE.NOD,
+      q: '你說……我偷跑上山，我爹會不會很生氣？',
+      answers: [
+        { say: '一定很擔心，寫封信回家吧。', reply: '……嗯，好吧，我寫就是了。', aff: 3 },
+        { say: '等妳學成了，他就會以妳為傲。', reply: '對！我要讓他看看！', aff: 2 },
+        { say: '妳都跑了，現在才擔心？', reply: '你、你很討厭耶！', aff: -1 },
+      ],
+    },
+  ],
 };
 
 const hanP: PersonDef = {
@@ -1415,8 +1533,10 @@ const hanP: PersonDef = {
   },
   talk: { gain: 2, perDay: 1, after: 'busy' },
   lines: {
-    [STAGE.STRANGER]: [han('我是傳功長老韓靖秋。本門的武功，都經我的手傳下去。', '練不懂的地方，來問我。（熟一點之後，可以向他請教武學）')],
-    [STAGE.NOD]: [han('劍招是死的，人是活的。招式練熟了，就要忘掉招式。'), han('「萬壑爭鳴」這一招，記名弟子能練出來的，這些年沒幾個。')],
+    [STAGE.STRANGER]: [
+      han('出劍要狠，收劍要穩。兩樣都做不到，就別說你會劍。'),han('我是傳功長老韓靖秋。本門的武功，都經我的手傳下去。', '練不懂的地方，來問我。（熟一點之後，可以向他請教武學）')],
+    [STAGE.NOD]: [
+      han('你的步子太碎了。腳下不穩，劍再快也沒用。'),han('劍招是死的，人是活的。招式練熟了，就要忘掉招式。'), han('「萬壑爭鳴」這一招，記名弟子能練出來的，這些年沒幾個。')],
     [STAGE.FAMILIAR]: [
       { when: (f) => !f.mq_true, lines: han('{稱}，你的悟性不錯。好好練，將來真傳的位子，有你一個。') },
       { when: (f) => !!f.mq_true, lines: han('{稱}，成了真傳也別鬆懈。劍法這條路，越往上越窄。') },
@@ -1426,6 +1546,25 @@ const hanP: PersonDef = {
   teach: { stage: STAGE.NOD, insight: 20 },
   // 韓靖秋下棋跟出劍一樣凌厲
   hobby: { art: 'chess', level: 6, stage: STAGE.NOD, style: 2 },
+  asks: [
+    {
+      id: 'han_fight',
+      q: '{稱}，跟人動手的時候，你先想的是攻，還是守？',
+      answers: [
+        { say: '先守住，再找破綻。', reply: '嗯，穩是穩了，只是太被動。', aff: 1 },
+        { say: '先攻，逼對方露出破綻。', reply: '好！劍就該這樣用。', aff: 3 },
+        { say: '看對手是誰。', reply: '說得滑頭。不過……也對。', aff: 2 },
+      ],
+    },
+    {
+      id: 'han_spicy', stage: STAGE.NOD,
+      q: '卜大勺的辣子雞，你吃得慣嗎？',
+      answers: [
+        { say: '越辣越好！', reply: '哈哈！總算有個能吃辣的！', aff: 3 },
+        { say: '有點太辣了……', reply: '練劍的人，連這點辣都受不了？', aff: 0 },
+      ],
+    },
+  ],
 };
 
 const yanP: PersonDef = {
@@ -1441,14 +1580,27 @@ const yanP: PersonDef = {
   },
   talk: { gain: 2, perDay: 1, after: 'busy' },
   lines: {
-    [STAGE.STRANGER]: [yan('我是執法長老嚴守拙。門規是我在管。', '思過崖就在我身後。沒事別往這兒跑。')],
-    [STAGE.NOD]: [yan('{稱}，最近沒犯規矩吧？'), yan('練掌先練站。站不穩，掌就是空的。')],
+    [STAGE.STRANGER]: [
+      yan('思過崖的石壁，每一道刻痕都是一個犯過錯的人留下的。'),yan('我是執法長老嚴守拙。門規是我在管。', '思過崖就在我身後。沒事別往這兒跑。')],
+    [STAGE.NOD]: [
+      yan('門規不是用來嚇人的，是用來護著你們的。'),yan('{稱}，最近沒犯規矩吧？'), yan('練掌先練站。站不穩，掌就是空的。')],
     [STAGE.FAMILIAR]: [yan('{稱}，你比剛入門的時候穩重多了。', '我這一門斷流掌，傳得慢，因為肯在崖上熬的人少。')],
     [STAGE.CLOSE]: [yan('{稱}，掌門年輕的時候，也在這崖前守過三夜。這事他沒跟人說過吧？')],
   },
   idle: [],
   gift: { likes: { tea: 3, yunwu: 6 }, dislikes: { stew: 2 } },
   teach: { stage: STAGE.NOD, insight: 20 },
+  asks: [
+    {
+      id: 'yan_rule',
+      q: '{稱}，若是同門犯了門規，你會替他瞞著，還是報給執法？',
+      answers: [
+        { say: '勸他自己去認錯。', reply: '……嗯，這樣最好。', aff: 3 },
+        { say: '報給執法，門規就是門規。', reply: '公正。只是別忘了，人情也是門規護著的。', aff: 2 },
+        { say: '替他瞞著，同門要講義氣。', reply: '義氣用錯了地方，就是害他。', aff: -1 },
+      ],
+    },
+  ],
 };
 
 const suP: PersonDef = {
@@ -1465,7 +1617,8 @@ const suP: PersonDef = {
   talk: { gain: 3, perDay: 1, after: 'chat' },
   lines: {
     [STAGE.STRANGER]: [su('我是藥堂的蘇芷蘅。青苗是我姪女，平常藥房都是她在照看。', '我常下山行醫，這回總算能在山上待一陣子了。')],
-    [STAGE.NOD]: [su('{稱}，練功受了傷別硬撐，來藥房讓我看看。'), su('止血草要是有多的，拿來給青苗，她正缺。')],
+    [STAGE.NOD]: [
+      su('藥能救人，也能害人，差別只在分量。'),su('{稱}，練功受了傷別硬撐，來藥房讓我看看。'), su('止血草要是有多的，拿來給青苗，她正缺。')],
     [STAGE.FAMILIAR]: [su('{稱}，你的內息比以前綿長了。', '寒潭心經講究的是「靜」——心靜，氣才沉得下去。')],
     [STAGE.CLOSE]: [su('{稱}，疏桐下山前來找過我，要了幾帖藥……她說要去找一個人。')],
   },
@@ -1474,9 +1627,80 @@ const suP: PersonDef = {
   teach: { stage: STAGE.NOD, insight: 20 },
   // 蘇芷蘅行醫各地，也愛畫山水
   hobby: { art: 'painting', level: 5, stage: STAGE.NOD },
+  asks: [
+    {
+      id: 'su_wound',
+      q: '{稱}，上回練功受的傷，好了沒有？',
+      answers: [
+        { say: '好多了，多謝長老關心。', reply: '好了就好。下回別硬撐。', aff: 2 },
+        { say: '小傷而已，不礙事。', reply: '小傷不治，就成了大傷。', aff: 0 },
+        { say: '……其實還有點疼。', reply: '過來，我看看。……嗯，敷兩天藥就好。', aff: 3 },
+      ],
+    },
+    {
+      id: 'su_travel', stage: STAGE.NOD,
+      q: '我下山行醫，走過不少地方。你最想去哪裡看看？',
+      answers: [
+        { say: '南方的大城，聽說很繁華。', reply: '繁華是繁華，病人也多。', aff: 1 },
+        { say: '有名山大川的地方。', reply: '那你一定要去看看大江的源頭，那才叫壯闊。', aff: 3 },
+        { say: '哪裡都好，只要能見識。', reply: '這份心最難得。', aff: 2 },
+      ],
+    },
+  ],
 };
 
-export const SECT_PEOPLE: PersonDef[] = [wenP, luP, xiaomanP, hanP, yanP, suP];
+const bu = by(MQ.bu);
+const buP: PersonDef = {
+  id: 'bu',
+  name: MQ.bu,
+  place: '鳴泉劍派',
+  role: '伙房師傅',
+  address: (s) => (s >= STAGE.FAMILIAR ? '小{姓}' : inSect(st().world, SECT) ? '{姓}小兄弟' : '這位朋友'),
+  story: buStory,
+  talk: { gain: 3, perDay: 2, after: 'chat' },
+  lines: {
+    [STAGE.STRANGER]: [
+      bu('今天的米是新碾的，香得很。'),
+      bu('我是伙房的卜大勺。練武的人吃得多，一頓飯要煮三大鍋！', '後頭菜圃的菜都是我種的，誰敢踩，我拿鍋鏟敲他。'),
+      bu('打到山豬就拿來，我替大夥兒燉一鍋。'),
+    ],
+    [STAGE.NOD]: [
+      bu('韋季安下山採買，又忘了買花椒！韓長老今天要沒辣子吃了。'),
+      bu('{稱}，又來啦？鍋裡還有半碗湯，喝了再走。'),
+      bu('做菜跟練劍一樣，火候到了，味道自然就出來了。', '想學就跟我說，先從白米飯煮起。'),
+      bu('掌門吃得清淡，韓長老愛吃辣，顧小滿那丫頭什麼都吃——就是不吃蘿蔔。'),
+    ],
+    [STAGE.FAMILIAR]: [
+      bu('{稱}，跟你說個秘密：鳴泉清燉的湯頭，關鍵在泉水要現打的。', '隔了夜的水，就差那麼一口鮮。'),
+      bu('我年輕時也想學劍，祖師爺那一輩的老掌門看了我一眼，說：「你拿鍋鏟比拿劍穩。」', '哈哈，他說得沒錯。'),
+    ],
+    [STAGE.CLOSE]: [bu('{稱}，往後我老了，這廚房就交給你啦——開玩笑的，你是要當大俠的人。')],
+  },
+  idle: [bu('灶上燉著東西，我得顧著火。'), bu('去去去，別擋著我切菜。'), bu('菜圃的蘿蔔又被兔子啃了，氣死我了。')],
+  gift: { likes: { boar_meat: 5, mushroom: 4, chicken: 3, osmanthus: 3 }, dislikes: { dog_pelt: 4 } },
+  asks: [
+    {
+      id: 'bu_taste',
+      q: '{稱}，今天的飯菜，鹹淡怎麼樣？',
+      answers: [
+        { say: '剛剛好，卜師傅手藝真好。', reply: '哈哈！就愛聽這句！', aff: 3 },
+        { say: '稍微鹹了一點。', reply: '嗯……是嗎？我嚐嚐……還真是。你舌頭挺靈的。', aff: 2 },
+        { say: '不太好吃。', reply: '……下回你自己煮！', aff: -2 },
+      ],
+    },
+    {
+      id: 'bu_fav', stage: STAGE.NOD,
+      q: '你最愛吃什麼菜？下回我給你多盛一勺。',
+      answers: [
+        { say: '燉山豬肉。', reply: '好！打到山豬記得拿來。', aff: 2 },
+        { say: '桂花糕，甜的。', reply: '練武的人還愛吃甜的？行，我記下了。', aff: 2 },
+        { say: '只要是卜師傅煮的都愛吃。', reply: '你這張嘴喔，比糖還甜。', aff: 3 },
+      ],
+    },
+  ],
+};
+
+export const SECT_PEOPLE: PersonDef[] = [wenP, luP, xiaomanP, hanP, yanP, suP, buP];
 
 // ── 任務日誌 ────────────────────────────────────────────
 

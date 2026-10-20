@@ -302,8 +302,8 @@ export class MapScene extends Phaser.Scene {
    */
   private refresh(initial = false) {
     const { flags, respawnAt, world } = useGame.getState();
-    // 節慶擺設看的條件旗標：今天是第幾個節慶
-    const f = { ...flags, festival: festivalIndex(world.day) };
+    // 條件旗標另外加上 festival（今天是第幾個節慶）與 today（今天是第幾日），給節慶擺設、會再長出來的東西用
+    const f = { ...flags, festival: festivalIndex(world.day), today: world.day };
     const now = Date.now();
     const outdoor = !this.def.theme;
     for (const n of this.npcs) {
@@ -727,6 +727,7 @@ export class MapScene extends Phaser.Scene {
       },
       wait: (ms) => new Promise((done) => this.time.delayedCall(ms, done)),
       pass: (ke) => void st().passTime(ke),
+      work: (kind, text) => st().playWork(kind, text),
       refresh: () => this.refresh(),
       reload: (arrive) => this.warp(this.def.id, { x: this.player.tx, y: this.player.ty, facing: this.player.facing }, arrive),
       panel: (p) => st().openPanel(p),

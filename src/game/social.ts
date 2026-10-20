@@ -16,6 +16,10 @@ export interface Relation {
   teachDay: number;
   /** 哪一天一起玩過琴棋書畫（舊存檔沒有） */
   hobbyDay?: number;
+  /** 對方問過你的問題（PersonDef.asks 的 id；舊存檔沒有） */
+  asked?: string[];
+  /** 上一次交談說的是哪一句（避免連著說同一句；舊存檔沒有） */
+  lastLine?: string;
   /** 已經知道的喜好（送過才知道） */
   known: string[];
   /** 已經觸發過的熟悉度事件 */

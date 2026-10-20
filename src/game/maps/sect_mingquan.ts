@@ -1,4 +1,5 @@
-import { greeterTalk, herbAt, mushroomAt, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
+import { wellUse } from '../story/bandits';
+import { greeterTalk, herbAt, mushroomAt, mushroomGrown, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import { practiceAt } from '../story/arts';
 import { LANTERN_DAYS } from '../festival';
 import { graveAt, moonAt, poolAt } from '../story/festival';
@@ -101,6 +102,7 @@ export const mqSect: MapDef = {
     { sprite: 'sign', x: 14, y: 18, lines: [{ text: '弟子居所\n記名弟子住大通鋪，成了正式弟子兩人一間，真傳弟子各有一間。' }] },
     { sprite: 'bulletin', x: 26, y: 21, script: taskBoard, label: '任務榜' },
     { sprite: 'sign', x: 14, y: 21, lines: [{ text: '「木樁林」\n本門弟子每天在此練樁，一日一回，貴在不輟。' }] },
+    { sprite: 'well', x: 34, y: 29, script: wellUse, label: '打水' },
     { sprite: 'sign', x: 39, y: 29, lines: [{ text: '膳房菜圃。\n（伙房師傅：「誰踩壞了我的菜，晚飯就別吃了！」）' }] },
   ],
 
@@ -195,19 +197,19 @@ export const mqBack: MapDef = {
     { sprite: 'wild_herb', x: 12, y: 16, script: herbAt('tiegu'), label: '採藥', when: herbVisible('tiegu') },
     { sprite: 'wild_herb', x: 26, y: 16, script: herbAt('yungen'), label: '採藥', when: herbVisible('yungen') },
     // 野菌（一處一天採一次）
-    { sprite: 'mushrooms', x: 4, y: 22, script: mushroomAt('west'), label: '採菌' },
-    { sprite: 'mushrooms', x: 28, y: 13, script: mushroomAt('east'), label: '採菌' },
+    { sprite: 'mushrooms', x: 4, y: 22, script: mushroomAt('west'), label: '採菌', when: mushroomGrown('west') },
+    { sprite: 'mushrooms', x: 28, y: 13, script: mushroomAt('east'), label: '採菌', when: mushroomGrown('east') },
     { sprite: 'sign', x: 24, y: 17, script: practiceAt('painting', '「望江台」\n站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。'), label: '寫生' },
   ],
   npcs: [
     { id: 'mqb_yan', allDay: true, name: MQ.yan, sprite: 'sect_judge', x: 8, y: 4, facing: 'down', person: 'yan' },
     {
-      id: 'mqb_elder', allDay: true, name: '守山老人', sprite: 'storyteller', x: 22, y: 20, facing: 'left', wander: 1,
+      id: 'mqb_elder', allDay: true, name: '邵長庚', sprite: 'storyteller', x: 22, y: 20, facing: 'left', wander: 1,
       talks: [
         [
-          { speaker: '守山老人', text: '年輕人，爬到後山來看風景？' },
-          { speaker: '守山老人', text: '老頭子在這兒守了四十年的山，看著一代代弟子上山、下山。' },
-          { speaker: '守山老人', text: '能在劍塚留下一把劍的，沒幾個。' },
+          { speaker: '邵長庚', text: '年輕人，爬到後山來看風景？' },
+          { speaker: '邵長庚', text: '老頭子姓邵，邵長庚。在這兒守了四十年的山，看著一代代弟子上山、下山。' },
+          { speaker: '邵長庚', text: '能在劍塚留下一把劍的，沒幾個。' },
         ],
       ],
     },

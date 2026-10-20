@@ -80,6 +80,7 @@ async function weave(ctx: EventCtx, p: PatternDef) {
     return;
   }
   if (!(await exert(ctx, WEAVE_STAMINA, '手指都僵了，再織下去只會織錯。'))) return;
+  await ctx.work('weave', `織${p.name}中……`);
   ctx.pass(4);
   const ups = st().updateHero((c) => {
     for (const [m, n] of Object.entries(p.needs)) {

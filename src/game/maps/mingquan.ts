@@ -1,5 +1,5 @@
 import { coachmanTalk } from '../story/stable';
-import { MQ, pathDogs } from '../story/sect_mingquan';
+import { gateTalk, MQ, pathDogs } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -59,19 +59,8 @@ export const mingquan: MapDef = {
     { sprite: 'stele', x: 19, y: 9, lines: [{ text: '石上刻著兩個大字：「鳴泉」。' }, { text: '一旁的泉水從山石間奔流而下，叮咚作響，果然如同鳴聲。' }] },
   ],
   npcs: [
-    {
-      id: 'mq_guard1', name: MQ.he, sprite: 'disciple', x: 10, y: 4, facing: 'right',
-      talks: [
-        [
-          { speaker: MQ.he, text: '此處是鳴泉劍派山門，在下何守一。來者何人？' },
-          { speaker: MQ.he, text: '……來拜師的？本派收徒不拘時日，進去找知客的方師兄就是。只是別亂闖禁地。' },
-        ],
-      ],
-    },
-    {
-      id: 'mq_guard2', name: MQ.qiao, sprite: 'disciple', x: 17, y: 4, facing: 'left',
-      talks: [[{ speaker: MQ.qiao, text: '我是喬木生，才入門半年，跟何師兄學守山門。' }, { speaker: MQ.qiao, text: '山門重地，進去之後請守規矩。' }], [{ speaker: MQ.qiao, text: '站一整天，腿都直了……' }]],
-    },
+    { id: 'mq_guard1', name: MQ.he, sprite: 'disciple', x: 10, y: 4, facing: 'right', script: gateTalk('he') },
+    { id: 'mq_guard2', name: MQ.qiao, sprite: 'disciple', x: 17, y: 4, facing: 'left', script: gateTalk('qiao') },
     // 馬車行：之後有其他大城時，花錢就能直達
     {
       id: 'mq_coachman', name: '梁老四', sprite: 'peddler', x: 8, y: 10, facing: 'left', script: coachmanTalk,
@@ -79,11 +68,11 @@ export const mingquan: MapDef = {
     // 委託「清理山道」：接下之後才出現
     { id: 'mq_path_dogs', allDay: true, name: '野狗群', sprite: 'dog', x: 10, y: 17, wander: 2, script: pathDogs, when: (f) => f.mq_c_path === 1 },
     {
-      id: 'mq_woodcutter', name: '樵夫', sprite: 'farmer', x: 9, y: 22, wander: 2,
+      id: 'mq_woodcutter', name: '柴老根', sprite: 'farmer', x: 9, y: 22, wander: 2,
       talks: [
         [
-          { speaker: '樵夫', text: '這條山道我走了二十年，鳴泉劍派的道長們都認得我。' },
-          { speaker: '樵夫', text: '他們練劍的時候，整座山都聽得見劍嘯聲，跟泉水聲混在一起，好聽得很。' },
+          { speaker: '柴老根', text: '這條山道我走了二十年，鳴泉劍派的道長們都認得我。' },
+          { speaker: '柴老根', text: '他們練劍的時候，整座山都聽得見劍嘯聲，跟泉水聲混在一起，好聽得很。' },
         ],
       ],
     },

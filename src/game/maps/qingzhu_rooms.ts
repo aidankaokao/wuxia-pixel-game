@@ -103,21 +103,21 @@ export const qzTea: MapDef = {
       ],
     },
     {
-      id: 'teaguest1', work: true, name: '茶客', sprite: 'peddler', x: 2, y: 4, facing: 'up',
+      id: 'teaguest1', work: true, name: '包老三', sprite: 'peddler', x: 2, y: 4, facing: 'up',
       talks: [
         [
-          { speaker: '茶客', text: '我是從臨江城過來收山貨的。' },
-          { speaker: '茶客', text: '城裡最近可不太平：漕幫跟金刀鏢局為了碼頭的事，已經打了好幾架。' },
-          { speaker: '茶客', text: '聽說鏢局正在招人，有點身手的，去了不愁沒飯吃。' },
+          { speaker: '包老三', text: '我是從臨江城過來收山貨的。' },
+          { speaker: '包老三', text: '城裡最近可不太平：漕幫跟金刀鏢局為了碼頭的事，已經打了好幾架。' },
+          { speaker: '包老三', text: '聽說鏢局正在招人，有點身手的，去了不愁沒飯吃。' },
         ],
       ],
     },
     {
-      id: 'teaguest2', work: true, name: '茶客', sprite: 'farmer', x: 8, y: 4, facing: 'up',
+      id: 'teaguest2', work: true, name: '牛二根', sprite: 'farmer', x: 8, y: 4, facing: 'up',
       talks: [
         [
-          { speaker: '茶客', text: '斷崖寨的山賊被打跑了？那可好，我明兒就上山砍柴去。' },
-          { speaker: '茶客', text: '不過山道上的野狗、山豬還是多，得帶根棍子才行。' },
+          { speaker: '牛二根', text: '斷崖寨的山賊被打跑了？那可好，我明兒就上山砍柴去。' },
+          { speaker: '牛二根', text: '不過山道上的野狗、山豬還是多，得帶根棍子才行。' },
         ],
       ],
     },

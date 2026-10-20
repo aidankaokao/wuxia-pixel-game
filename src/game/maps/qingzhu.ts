@@ -84,7 +84,7 @@ export const qingzhu: MapDef = {
     // 過年、元宵、中秋掛燈籠
     { sprite: 'lantern_post', x: 21, y: 16, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '村裡掛起了紅燈籠，孩子們提著小燈跑來跑去。' }] },
     { sprite: 'lantern_post', x: 33, y: 16, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '燈籠紙上畫著福字。' }] },
-    { sprite: 'well', x: 23, y: 19, script: wellUse },
+    { sprite: 'well', x: 23, y: 19, script: wellUse, label: '打水' },
     {
       sprite: 'bulletin', x: 29, y: 17,
       lines: [

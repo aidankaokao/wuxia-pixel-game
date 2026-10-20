@@ -36,7 +36,10 @@
 - 學識：書目在 `src/game/books.ts`（`BOOKS`、`readBook`，熟讀程度是 `learning:書id` 項目），書架腳本 `story/reading.ts` 的 `readingShelf`；學識的好處用 `learningDiscount`（商店折扣）與 `learningBonus`（研讀領悟）。
 - 琴棋書畫：資料在 `src/game/arts.ts`，練習與對弈的腳本在 `story/arts.ts`（`practiceAt`、`playChess`）。NPC 的嗜好填在人物檔案的 `hobby`（哪一門、造詣、幾階起、棋風），互動是人際動作 `hobby`（按 H，名稱用 `actionName` 依嗜好顯示）。
 - 紡織：樣式與材料在 `src/game/weaving.ts`（織出的服飾是 `w_樣式_品級`，數值照 `gear.ts` 查表），腳本 `story/weaving.ts`（`teachPatterns`、`loomAt`）。坐騎在 `src/game/mounts.ts`（`hero.mount`、`hero.riding`），買賣在 `story/stable.ts`；騎馬加速在 `MapScene` 主角走路那裡。
-- 人際關係：核心數值在 `src/game/social.ts`，人物檔案（提升方式、各階段台詞、稱呼、事件）在 `story/people.ts`，互動流程在 `story/social.ts`。NPC 加 `person` 就接上人際系統；人物檔案要填 `place`（在哪認識，交遊頁依此分類）與 `role`（身分）；台詞可用 {稱}、{姓}、{名}。
+- 人際關係：核心數值在 `src/game/social.ts`，人物檔案（提升方式、各階段台詞、稱呼、事件）在 `story/people.ts`，互動流程在 `story/social.ts`。NPC 加 `person` 就接上人際系統；人物檔案要填 `place`（在哪認識，交遊頁依此分類）與 `role`（身分）；台詞可用 {稱}、{姓}、{名}。每個人物盡量填 `asks`（對方問你的問題，三選一、各有熟悉度增減），讓交談有來有往。
+- 所有 NPC 都要有名字（劇情上刻意隱藏身分的除外，例如青衫客），不要用「守城兵」「小販」這類稱呼當名字。
+- 做事（雜務、做菜、織布、讀書等）在扣完體力後播過場動畫：`await ctx.work(種類, 說明)`，動畫在 `art/work.ts`（新增種類就加一組 4 格的畫法）。
+- 地圖條件（`when`）除了劇情旗標，還能讀 `festival`（今天第幾個節慶）與 `today`（今天第幾日）；會再長出來的東西把採的日子記成旗標，`when: (f) => f.旗標 !== f.today`。
 - 沒有人物等級：五維 ＝ 擲骰底值 ＋ 武功的永久成長 ＋ 裝備中武功的加成，其他數值由五維與裝備的武功推算（`src/game/character.ts`，設計見 PLAN.md 第四節）。新增武功要填品階、裝備加成、永久成長；新增武功要寫招式表（第一招為初始招，其餘標重數門檻與悟出後的永久加成），招式名稱盡量四個字、意思貼近武功；新增物品要填分類與圖示（`art/items.ts`），秘笈是帶 `manual` 的物品。
 - 世界觀、人名、門派、武功名稱一律自創，不沿用既有武俠作品的名字。
 - 程式註解與介面文字使用繁體中文。

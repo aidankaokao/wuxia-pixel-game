@@ -10,6 +10,7 @@ import { LocationBanner } from './ui/LocationBanner';
 import { ShopPanel } from './ui/ShopPanel';
 import { TitleScreen } from './ui/TitleScreen';
 import { Toast } from './ui/Toast';
+import { WorkAnim } from './ui/WorkAnim';
 
 export function App() {
   return (
@@ -25,6 +26,7 @@ export function App() {
       <TitleScreen />
       <CreateScreen />
       <ConfirmDialog />
+      <WorkAnim />
       <Toast />
     </div>
   );

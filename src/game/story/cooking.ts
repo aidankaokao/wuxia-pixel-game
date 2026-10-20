@@ -73,6 +73,7 @@ async function cook(ctx: EventCtx, d: DishDef, opts: StoveOpts) {
   const n = c === 0 ? 1 : most > 1 && c === 1 ? most : 0;
   if (!n) return;
   if (!(await exert(ctx, COOK_STAMINA * n, '站在灶前手都抬不起來了，先歇一歇吧。'))) return;
+  await ctx.work('cook', `做${d.name}中……${n > 1 ? `（${n} 份）` : ''}`);
 
   const made = [0, 0, 0];
   let failed = 0;
@@ -128,7 +129,14 @@ export const TIER_COST = [0, 4, 8, 15];
  * 學做菜：列出還沒學的菜，烹飪等級夠了才教。
  * pay 付學費（門派貢獻），付不起回傳 false。
  */
-export async function teachDishes(ctx: EventCtx, who: string, pay: (n: number) => Promise<boolean>, levelOf: () => number) {
+export async function teachDishes(
+  ctx: EventCtx,
+  who: string,
+  pay: (n: number) => Promise<boolean>,
+  levelOf: () => number,
+  /** 交情夠教到第幾階（0 入門 … 3 拿手）；不夠時的提示 */
+  trust: { maxTier: number; hint: string } = { maxTier: 3, hint: '' },
+) {
   const say = (...t: string[]) => ctx.say(...t.map((text) => ({ speaker: who, text })));
   const left = DISHES.filter((d) => !knowsDish(st().hero, d.id));
   if (!left.length) {
@@ -136,9 +144,11 @@ export async function teachDishes(ctx: EventCtx, who: string, pay: (n: number) =
     return;
   }
   const lv = levelOf();
-  const can = left.filter((d) => lv >= tierLevel(d));
+  const can = left.filter((d) => lv >= tierLevel(d) && d.tier <= trust.maxTier);
   const locked = left.filter((d) => lv < tierLevel(d));
-  const hint = locked.length ? `\n（烹飪練到 ${Math.min(...locked.map(tierLevel))} 級，還能學更難的菜）` : '';
+  const guarded = left.some((d) => lv >= tierLevel(d) && d.tier > trust.maxTier);
+  const hint =
+    (locked.length ? `\n（烹飪練到 ${Math.min(...locked.map(tierLevel))} 級，還能學更難的菜）` : '') + (guarded && trust.hint ? `\n（${trust.hint}）` : '');
   if (!can.length) {
     await say('先把會的菜做熟了再說。手藝不到家，教你也學不會。', hint.trim());
     return;

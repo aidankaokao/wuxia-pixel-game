@@ -1,3 +1,4 @@
+import type { WorkKind } from './art/work';
 import type { Character } from './character';
 import type { Dir } from './constants';
 import type { Outcome } from './battle/types';
@@ -41,6 +42,8 @@ export interface EventCtx {
   wait(ms: number): Promise<void>;
   /** 做事花了幾刻（一刻 15 分鐘，見 time.ts）；過了半夜就換日 */
   pass(ke: number): void;
+  /** 做事的過場動畫（一兩秒），例如 `await ctx.work('sweep', '掃地中……')` */
+  work(kind: WorkKind, text: string): Promise<void>;
   /** 依目前旗標重新決定哪些 NPC、物件要出現 */
   refresh(): void;
   /** 重新載入目前的地圖（例如蓋好房子後要換上新建築），主角留在原地 */
