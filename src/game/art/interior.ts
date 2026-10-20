@@ -142,6 +142,21 @@ function clothRack(): PropArt {
   return done(c, ctx);
 }
 
+/** 織布機：木架、經線與捲好的布 */
+function loom(): PropArt {
+  const [c, ctx] = makeCanvas(32, 26);
+  for (const x of [3, 27]) px(ctx, x, 2, 3, 23, '#7a5232');
+  hline(ctx, 3, 29, 3, '#5a3a20');
+  px(ctx, 3, 14, 27, 3, '#8a6240');
+  // 經線
+  for (let x = 7; x < 26; x += 2) vline(ctx, x, 5, 13, '#e8e0cc');
+  px(ctx, 6, 9, 21, 2, '#a8584a');
+  // 前面捲好的布
+  px(ctx, 6, 18, 21, 4, '#d8cfb8');
+  hline(ctx, 6, 26, 20, '#b8ac94');
+  return done(c, ctx);
+}
+
 /** 衣架上的成衣：木架披著一件長衫 */
 function mannequin(): PropArt {
   const [c, ctx] = makeCanvas(16, 24);
@@ -170,5 +185,6 @@ export function interiorProps(): Record<string, PropArt> {
     door_locked: lockedDoor(),
     cloth_rack: clothRack(),
     mannequin: mannequin(),
+    loom: loom(),
   };
 }

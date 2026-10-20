@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 import { ATTRS, attrParts, Character, derive, equipGear, GEAR_SLOTS, gearStats, ITEMS, slotsFor, unequipGear } from '../game/character';
-import { GearSlotId, GRADE_CLASS, GRADES } from '../game/gear';
+import { gearKindName, GearSlotId, GRADE_CLASS, GRADES } from '../game/gear';
+import { mountDef } from '../game/mounts';
+import { PATTERNS } from '../game/weaving';
 import { bookOf, BOOKS, READ_STAGES } from '../game/books';
 import { DISH_TIERS, DISHES, dishItem, knowsDish, needsText, STEW, TIER_LEVEL } from '../game/cooking';
 import { CRAFTS, craftExpToNext, CRAFT_MAX, craftOf, craftTitle, WORK_MAX, workExpToNext, workOf } from '../game/crafts';
@@ -142,7 +144,7 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
             label: c.name,
             muted: !c.open,
             tag: c.open ? `${p.level} 級・${craftTitle(p.level)}` : '未開放',
-            children: c.id === 'cooking' ? () => dishList(hero) : c.id === 'learning' ? () => bookList(hero) : undefined,
+            children: c.id === 'cooking' ? () => dishList(hero) : c.id === 'learning' ? () => bookList(hero) : c.id === 'weaving' ? () => patternList(hero) : undefined,
             detail: () => (
               <>
                 <h3>
@@ -164,17 +166,7 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
           };
         }),
     },
-    {
-      key: 'mount',
-      label: '坐騎',
-      tag: '無',
-      detail: () => (
-        <>
-          <h3>坐騎</h3>
-          <p className="small muted">還沒有坐騎。之後可以買馬：平常走路變快，也能騎著走天下大地圖。</p>
-        </>
-      ),
-    },
+    mountItem(hero),
   ];
   return <Browser title={hero.name} items={items} active={active} onExit={onExit} />;
 }
@@ -290,6 +282,78 @@ function bookList(hero: Character): BrowseItem[] {
             </dd>
           </dl>
           <p className="small muted">在鳴泉劍派書房的「經史子集」書架讀。讀到精通時，學識會多長一截。</p>
+        </>
+      ),
+    };
+  });
+}
+
+/** 坐騎：有馬就能上馬、下馬 */
+function mountItem(hero: Character): BrowseItem {
+  const m = mountDef(hero.mount);
+  if (!m) {
+    return {
+      key: 'mount',
+      label: '坐騎',
+      tag: '無',
+      detail: () => (
+        <>
+          <h3>坐騎</h3>
+          <p className="small muted">還沒有坐騎。鳴泉山下的梁老四有馬可買：騎著馬在室外走得更快，之後也能騎著走天下大地圖。</p>
+        </>
+      ),
+    };
+  }
+  const toggle = () => {
+    const st = useGame.getState();
+    st.updateHero((c) => (c.riding = !c.riding));
+    st.showToast(useGame.getState().hero.riding ? `騎上了${m.name}。` : `從${m.name}背上下來，牽著走。`);
+  };
+  return {
+    key: 'mount',
+    label: '坐騎',
+    tag: `${m.name}・${hero.riding ? '騎乘中' : '牽著'}`,
+    action: toggle,
+    actionLabel: hero.riding ? '下馬' : '上馬',
+    detail: () => (
+      <>
+        <h3>
+          {m.name}　<small>{hero.riding ? '騎乘中' : '牽著走'}</small>
+        </h3>
+        <p className="small">{m.desc}</p>
+        <dl className="kv">
+          <dt>腳力</dt>
+          <dd>室外走路、奔跑快 {Math.round((m.speed - 1) * 100)}%（室內照樣步行）</dd>
+        </dl>
+        <p className="small muted">按 E {hero.riding ? '下馬' : '上馬'}。不要了可以賣回給梁老四（半價）。</p>
+      </>
+    ),
+  };
+}
+
+/** 技能 › 紡織：樣式與熟練度 */
+function patternList(hero: Character): BrowseItem[] {
+  const lv = craftOf(hero, 'weaving').level;
+  return PATTERNS.map((p) => {
+    const w = workOf(hero, 'weaving', p.id);
+    return {
+      key: p.id,
+      label: p.name,
+      muted: !w,
+      tag: w ? `熟練 ${w.level}` : lv >= p.level ? '可以學' : `紡織 ${p.level} 級起`,
+      detail: () => (
+        <>
+          <h3>
+            {p.name}　<small>{gearKindName(p.kind)}</small>
+          </h3>
+          <p className="small">{p.desc}</p>
+          <dl className="kv">
+            <dt>材料</dt>
+            <dd>{Object.entries(p.needs).map(([id, n]) => `${ITEMS[id].name}×${n}`).join('、')}</dd>
+            <dt>熟練度</dt>
+            <dd>{w ? `${w.level}/${WORK_MAX}${w.level < WORK_MAX ? `　${w.exp}/${workExpToNext(w.level)}` : ''}` : `還沒學（跟錦繡布莊的魏錦娘學，${p.cost ? `${p.cost} 兩` : '不收錢'}）`}</dd>
+          </dl>
+          <p className="small muted">織出來的品級從粗製到極品，紡織等級與熟練度越高越容易織出好東西。</p>
         </>
       ),
     };

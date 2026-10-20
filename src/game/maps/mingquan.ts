@@ -1,3 +1,4 @@
+import { coachmanTalk } from '../story/stable';
 import { MQ, pathDogs } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
@@ -73,14 +74,7 @@ export const mingquan: MapDef = {
     },
     // 馬車行：之後有其他大城時，花錢就能直達
     {
-      id: 'mq_coachman', name: '梁老四', sprite: 'peddler', x: 8, y: 10, facing: 'left',
-      talks: [
-        [
-          { speaker: '梁老四', text: '我是趕車的梁老四。山上的道長們下山辦事，常坐我的車。' },
-          { speaker: '梁老四', text: '往別的大城的大路還沒修通，等通了，坐我的車，幾個時辰就到，比走路快多了。' },
-        ],
-        [{ speaker: '梁老四', text: '馬兒是好馬，就是路不好。再等等吧。' }],
-      ],
+      id: 'mq_coachman', name: '梁老四', sprite: 'peddler', x: 8, y: 10, facing: 'left', script: coachmanTalk,
     },
     // 委託「清理山道」：接下之後才出現
     { id: 'mq_path_dogs', allDay: true, name: '野狗群', sprite: 'dog', x: 10, y: 17, wander: 2, script: pathDogs, when: (f) => f.mq_c_path === 1 },
