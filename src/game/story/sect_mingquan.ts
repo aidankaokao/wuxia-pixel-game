@@ -1,5 +1,5 @@
 import type { WorkKind } from '../art/work';
-import { addFame, attrs, canHold, Character, derive, equipGear, gainSkill, giveItem, slotsFor, takeSectGear, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
+import { addFame, attrs, canHold, Character, type Slot, derive, equipGear, gainSkill, giveItem, slotsFor, takeSectGear, isEquipped, ITEMS, learnSkill, skillCap, skillDef, SKILLS, slotOf } from '../character';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
@@ -10,7 +10,7 @@ import { exert, rest, STAMINA, studyable, studyInsight, useDaily } from './estat
 import { cookAt, teachDishes } from './cooking';
 import { dailyMeal } from '../cooking';
 import { festivalMeal, luFestival, wenFestival } from './festival';
-import { craftOf } from '../crafts';
+import { craftDef, craftOf, CraftId, gainCraft } from '../crafts';
 import { MQ_UNIFORMS } from '../gear';
 import { heroUnit } from '../battle/moves';
 import { setupDrill } from '../battle/enemies';
@@ -1006,25 +1006,58 @@ const choreDef = (id: string) => MINGQUAN.chores.find((c) => c.id === id)!;
 export const todaysChores = (d: number) => [0, 2, 4].map((i) => MINGQUAN.chores[(d + i) % MINGQUAN.chores.length]);
 
 /** 做雜務時的情景與額外的小獎勵 */
-const CHORE_DONE: Record<string, { lines: (Line | string)[]; bonus?: [string, number] }> = {
-  water: { lines: ['你挑起扁擔，在山泉與廚房之間來回了十幾趟，總算把水缸挑滿了。', '肩膀火辣辣地疼，腳步倒是越走越穩。'] },
-  sweep: {
-    lines: [{ speaker: MQ.cao, text: '太好了！今天換你掃！' }, '你接過掃帚，把大殿前的平台從東掃到西，連石縫裡的落葉都掃乾淨了。'],
+/**
+ * 做雜務時的情景：intro 是動畫之前說的話（例如交辦的人先打招呼），lines 是做完之後的情景；
+ * grow 是順帶練到的東西——武功（裝備中的哪一類）或生活技能，加得不多。
+ */
+const CHORE_DONE: Record<
+  string,
+  { intro?: Line[]; lines: (Line | string)[]; bonus?: [string, number]; grow: { slot: Slot; exp: number } | { craft: CraftId; exp: number } }
+> = {
+  water: {
+    lines: ['你挑起扁擔，在山泉與廚房之間來回了十幾趟，總算把水缸挑滿了。', '肩膀火辣辣地疼，腳步倒是越走越穩。'],
+    grow: { slot: 'light', exp: 10 },
   },
-  herbs: { lines: ['你把晾藥架上的草藥一一翻面、攤開曬勻。', { speaker: MQ.miao, text: '辛苦了，這株止血草你拿去。' }], bonus: ['herb', 1] },
-  books: { lines: ['你把散亂的書冊照年代排好，順手翻了幾頁江湖掌故。', '書上說，百年前江湖上有個劍客，一劍斷江……多半是說書人的誇張。'] },
+  sweep: {
+    intro: [{ speaker: MQ.cao, text: '太好了！今天換你掃！' }, { text: '曹小豆把掃帚塞進你手裡，一溜煙跑了。' }],
+    lines: ['你把大殿前的平台從東掃到西，連石縫裡的落葉都掃乾淨了。', '掃帚揮久了，手腕倒是越來越活。'],
+    grow: { slot: 'outer', exp: 10 },
+  },
+  herbs: {
+    lines: ['你把晾藥架上的草藥一一翻面、攤開曬勻，順便記住了好幾味藥的名字。', { speaker: MQ.miao, text: '辛苦了，這株止血草你拿去。' }],
+    bonus: ['herb', 1],
+    grow: { craft: 'learning', exp: 6 },
+  },
+  books: {
+    lines: ['你把散亂的書冊照年代排好，順手翻了幾頁江湖掌故。', '書上說，百年前江湖上有個劍客，一劍斷江……多半是說書人的誇張。'],
+    grow: { craft: 'learning', exp: 8 },
+  },
   garden: {
-    lines: ['你提著水桶到後頭菜圃澆水、拔草，還抓走了好幾條菜蟲。', { speaker: MQ.bu, text: '不錯不錯！這幾把青菜拿去，算是賞你的。' }],
+    lines: ['你提著水桶到後頭菜圃澆水、拔草，還抓走了好幾條菜蟲。', '哪些菜該摘、哪些還得等，你也看出了一點門道。', { speaker: MQ.bu, text: '不錯不錯！這幾把青菜拿去，算是賞你的。' }],
     bonus: ['greens', 3],
+    grow: { craft: 'cooking', exp: 6 },
   },
 };
+
+/** 雜務順帶的成長：武功挑裝備中、還沒到上限的那一門；生活技能直接加經驗 */
+function choreGrowth(h: Character, g: (typeof CHORE_DONE)[string]['grow']): (string | null)[] {
+  if ('craft' in g) {
+    const up = gainCraft(h, g.craft, g.exp);
+    return [`（${craftDef(g.craft).name}經驗 +${g.exp}）`, up];
+  }
+  const s = h.skills.find((k) => isEquipped(k) && slotOf(skillDef(k).kind) === g.slot && k.level < skillCap(k));
+  const kind = { outer: '外功', inner: '內功', light: '輕功' }[g.slot];
+  return s ? gainSkillText(h, s.id, g.exp) : [`（裝備著還沒練到上限的${kind}，做這件雜務也能順便練一練）`];
+}
 
 async function doChore(ctx: EventCtx, id: string) {
   const d = CHORE_DONE[id];
   if (!(await exert(ctx, STAMINA.chore, '累得手腳發軟，這活兒今天是幹不動了。'))) return;
+  if (d.intro) await ctx.say(...d.intro);
   await ctx.work(id as WorkKind, `${choreDef(id).name}中……`);
   ctx.pass(8);
   await ctx.say(...d.lines, '（做了一個時辰）');
+  await ctx.hero((h) => choreGrowth(h, d.grow));
   st().updateWorld((w) => {
     delete w.sect!.chore;
     for (const key of [choreKey(SECT), `${choreKey(SECT)}:${id}`]) w.daily[key] = { day: w.day, n: usedToday(w, key) + 1 };
