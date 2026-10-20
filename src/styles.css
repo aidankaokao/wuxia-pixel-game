@@ -681,10 +681,17 @@ kbd {
 }
 
 .title-sub {
-  margin: 4px 0 36px;
+  margin: 4px 0 6px;
   font-size: 20px;
   letter-spacing: 0.4em;
   color: var(--gold);
+}
+
+.title-tag {
+  margin: 0 0 36px;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: var(--muted);
 }
 
 .title-menu {

@@ -1,4 +1,4 @@
-# 江湖行（像素武俠 RPG）
+# 扶搖行：相忘江湖（像素武俠 RPG）
 
 整體規劃與里程碑見 `PLAN.md`，開始新階段前先讀它。
 
@@ -19,7 +19,7 @@
 ## 慣例
 
 - 技術：Phaser 3 負責地圖與人物，React 負責所有文字介面（對話、選單、HUD、戰鬥指令），兩邊透過 `src/state/store.ts`（Zustand）溝通。Phaser 裡不畫文字（戰鬥傷害數字用自己畫的像素數字）。
-- 美術全部在 `src/game/art/` 以程式逐像素繪製，不使用外部圖檔。瓦片 16px、人物 16×24，畫面只用整數倍放大。
+- 美術全部在 `src/game/art/` 以程式逐像素繪製，不使用外部圖檔（連分頁圖示也是，見 `art/favicon.ts`）。瓦片 16px、人物 16×24，畫面只用整數倍放大。
 - 地圖是字元陣列（格式見 `src/game/maps/types.ts`）。建築、告示、NPC、出入口另外列在地圖定義裡，不寫進字元。
 - 劇情一律寫成 async 腳本（`src/game/events.ts` 的 `Script`），放在 `src/game/story/`；劇情進度存成旗標（`flags`），NPC／物件用 `when` 依旗標出現或消失。旗標清單寫在該劇情檔開頭的註解。
 - 戰鬥分三層：規則 `battle/engine.ts`、出手順序 `battle/controller.ts`、畫面 `scenes/BattleScene.ts` + `ui/BattleUI.tsx`。之後的半即時制只新增一個控制器，規則層共用。自動戰鬥的選招在 `battle/auto.ts`。遭遇戰可設 `spar`（點到為止，輸了不送回村裡）、`noItems`（不許用藥，物品照帶）；同門過招的對手由 `setupDrill` 依主角數值產生。

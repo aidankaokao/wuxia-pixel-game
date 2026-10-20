@@ -57,8 +57,9 @@ export function TitleScreen() {
     <div className="title-screen">
       <div className="title-mountains" />
       <div className="title-box">
-        <h1 className="title-name">江湖行</h1>
-        <p className="title-sub">一劍一人，自在江湖</p>
+        <h1 className="title-name">扶搖行</h1>
+        <p className="title-sub">相忘江湖</p>
+        <p className="title-tag">一劍一人，自在江湖</p>
         {booted ? (
           <ul className={`title-menu ${mode === 'load' ? 'wide pixel-frame' : ''}`}>
             {items.map((it, i) => (
