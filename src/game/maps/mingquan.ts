@@ -53,6 +53,7 @@ export const mingquan: MapDef = {
   buildings: [],
   props: [
     { sprite: 'paifang_sect', x: 11, y: 3, w: 6, passable: true },
+    { sprite: 'carriage', x: 6, y: 9, w: 2, lines: [{ text: '一輛雙輪馬車，車廂上漆著「鳴泉車馬」四個字。' }, { text: '（往其他大城的大路還沒通，馬車之後開放）' }] },
     { sprite: 'sign', x: 18, y: 34, lines: [{ text: '「鳴泉山」\n山道陡峭，上山請循石階而行。' }] },
     { sprite: 'stele', x: 19, y: 9, lines: [{ text: '石上刻著兩個大字：「鳴泉」。' }, { text: '一旁的泉水從山石間奔流而下，叮咚作響，果然如同鳴聲。' }] },
   ],
@@ -69,6 +70,17 @@ export const mingquan: MapDef = {
     {
       id: 'mq_guard2', name: MQ.qiao, sprite: 'disciple', x: 17, y: 4, facing: 'left',
       talks: [[{ speaker: MQ.qiao, text: '我是喬木生，才入門半年，跟何師兄學守山門。' }, { speaker: MQ.qiao, text: '山門重地，進去之後請守規矩。' }], [{ speaker: MQ.qiao, text: '站一整天，腿都直了……' }]],
+    },
+    // 馬車行：之後有其他大城時，花錢就能直達
+    {
+      id: 'mq_coachman', name: '梁老四', sprite: 'peddler', x: 8, y: 10, facing: 'left',
+      talks: [
+        [
+          { speaker: '梁老四', text: '我是趕車的梁老四。山上的道長們下山辦事，常坐我的車。' },
+          { speaker: '梁老四', text: '往別的大城的大路還沒修通，等通了，坐我的車，幾個時辰就到，比走路快多了。' },
+        ],
+        [{ speaker: '梁老四', text: '馬兒是好馬，就是路不好。再等等吧。' }],
+      ],
     },
     // 委託「清理山道」：接下之後才出現
     { id: 'mq_path_dogs', allDay: true, name: '野狗群', sprite: 'dog', x: 10, y: 17, wander: 2, script: pathDogs, when: (f) => f.mq_c_path === 1 },

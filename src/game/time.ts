@@ -124,3 +124,55 @@ export function npcPresent(
   if (outdoor || n.work) return awake;
   return true;
 }
+
+// ── 曆法 ────────────────────────────────────────────────
+// 一年 12 個月、每月 30 天。遊戲的第 1 日是二月初一。
+
+const DAYS_PER_MONTH = 30;
+const MONTHS_PER_YEAR = 12;
+/** 第 1 日是一年中的第幾天（0 是正月初一） */
+const START_OFFSET = DAYS_PER_MONTH;
+const MONTH_NAMES = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '臘月'];
+const NUM = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+
+/** 第幾日 → 第幾年、幾月（0 起算）、初幾（1 起算） */
+export function dateOf(day: number) {
+  const n = day - 1 + START_OFFSET;
+  return {
+    year: Math.floor(n / (DAYS_PER_MONTH * MONTHS_PER_YEAR)) + 1,
+    month: Math.floor(n / DAYS_PER_MONTH) % MONTHS_PER_YEAR,
+    date: (n % DAYS_PER_MONTH) + 1,
+  };
+}
+
+/** 初一、初十、十五、廿三、三十 */
+function dateName(d: number) {
+  if (d <= 10) return `初${NUM[d]}`;
+  if (d < 20) return `十${NUM[d - 10]}`;
+  if (d === 20) return '二十';
+  if (d < 30) return `廿${NUM[d - 20]}`;
+  return '三十';
+}
+
+/** 例如「二月初三」；第二年起加上年份，例如「第二年正月十五」 */
+export function dateText(day: number): string {
+  const { year, month, date } = dateOf(day);
+  return `${year > 1 ? `第${year <= 10 ? NUM[year] : year}年` : ''}${MONTH_NAMES[month]}${dateName(date)}`;
+}
+
+/** 節慶（月份 0 起算）。節慶當天的活動在之後的「節慶」階段加上 */
+export const FESTIVALS: { name: string; month: number; date: number }[] = [
+  { name: '過年', month: 0, date: 1 },
+  { name: '元宵', month: 0, date: 15 },
+  { name: '清明', month: 2, date: 5 },
+  { name: '端午', month: 4, date: 5 },
+  { name: '中元', month: 6, date: 15 },
+  { name: '中秋', month: 7, date: 15 },
+  { name: '掌門壽辰', month: 9, date: 12 },
+];
+
+/** 今天是什麼節日（沒有就是 undefined） */
+export function festivalOf(day: number) {
+  const { month, date } = dateOf(day);
+  return FESTIVALS.find((f) => f.month === month && f.date === date)?.name;
+}

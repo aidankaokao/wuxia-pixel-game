@@ -161,6 +161,30 @@ function portrait(): PropArt {
   return done(c, ctx);
 }
 
+/** 馬車：木造車廂、兩個車輪、往前伸出的車轅（寬兩格） */
+function carriage(): PropArt {
+  const [c, ctx] = makeCanvas(32, 26);
+  // 車轅
+  px(ctx, 24, 15, 8, 2, '#6a4428');
+  // 車廂與車頂
+  px(ctx, 3, 4, 22, 13, '#8a5a32');
+  px(ctx, 2, 2, 24, 3, '#4a5a6a');
+  hline(ctx, 2, 25, 4, '#34404c');
+  px(ctx, 6, 7, 6, 5, '#e8d8b0');
+  px(ctx, 15, 7, 6, 5, '#e8d8b0');
+  vline(ctx, 9, 7, 11, '#8a5a32');
+  vline(ctx, 18, 7, 11, '#8a5a32');
+  hline(ctx, 3, 24, 16, '#5a3a20');
+  // 車輪
+  for (const x of [8, 20]) {
+    px(ctx, x - 4, 17, 9, 9, '#3a2a1a');
+    px(ctx, x - 3, 18, 7, 7, '#a07a48');
+    px(ctx, x - 1, 20, 3, 3, '#3a2a1a');
+  }
+  outline(ctx, 0, 0, 32, 26, OUTLINE);
+  return done(c, ctx);
+}
+
 /** 野生藥草：一叢葉子，頂上開著小花（後山採藥用） */
 function wildHerb(): PropArt {
   const [c, ctx] = makeCanvas(16, 14);
@@ -171,9 +195,43 @@ function wildHerb(): PropArt {
   return done(c, ctx);
 }
 
+/** 野菌：樹根旁一叢褐色的菇 */
+function mushrooms(): PropArt {
+  const [c, ctx] = makeCanvas(16, 12);
+  for (const [x, y, r, cap] of [[4, 6, 3, '#8a5a3a'], [10, 5, 4, '#a86a40'], [8, 9, 2, '#7a4a2e']] as const) {
+    px(ctx, x - 1, y, 2, 12 - y, '#e8dcc0');
+    px(ctx, x - r, y - 2, r * 2, 2, cap);
+    px(ctx, x - r + 1, y - 3, r * 2 - 2, 1, cap);
+    px(ctx, x - r + 1, y - 2, 1, 1, '#d8a878');
+  }
+  px(ctx, 1, 11, 14, 1, '#3e6a28');
+  return done(c, ctx);
+}
+
+/** 節慶的燈籠架：木桿上掛兩盞紅燈籠 */
+function lanternPost(): PropArt {
+  const [c, ctx] = makeCanvas(16, 32);
+  vline(ctx, 7, 2, 31, '#5a3a20');
+  vline(ctx, 8, 2, 31, '#7a5232');
+  hline(ctx, 2, 13, 3, '#5a3a20');
+  for (const x of [3, 12]) {
+    vline(ctx, x, 4, 5, '#3a2a20');
+    px(ctx, x - 2, 6, 5, 7, '#c8342c');
+    px(ctx, x - 1, 6, 3, 7, '#e85a40');
+    hline(ctx, x - 2, x + 2, 6, '#f0b830');
+    hline(ctx, x - 2, x + 2, 12, '#f0b830');
+    vline(ctx, x, 13, 15, '#f0b830');
+  }
+  px(ctx, 5, 29, 6, 3, '#4a3a30');
+  return done(c, ctx);
+}
+
 export function landmarkProps(): Record<string, PropArt> {
   return {
+    lantern_post: lanternPost(),
     wild_herb: wildHerb(),
+    mushrooms: mushrooms(),
+    carriage: carriage(),
     pavilion: pavilion(),
     ding: ding(),
     sword_rock: swordRock(),

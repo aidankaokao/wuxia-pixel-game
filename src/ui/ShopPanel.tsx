@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { ITEMS, sellPrice } from '../game/character';
+import { holdable, ITEMS, sellPrice } from '../game/character';
+import { learningDiscount } from '../game/books';
 import { itemIconUrl } from '../game/art/items';
 import { discountOf, tradeAffinity } from '../game/story/social';
 import { useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
 /** 貨郎賣的東西；熟了之後多賣雲霧茶（旗標 tao_stock） */
-const STOCK = ['jinchuang', 'tea', 'herb'];
+const STOCK = ['jinchuang', 'tea', 'herb', 'rice', 'flour', 'egg', 'greens', 'sugar'];
 const EXTRA_STOCK = ['yunwu'];
 
 /** 等待確認的交易 */
@@ -29,22 +30,23 @@ export function ShopPanel() {
   const person = panel?.kind === 'shop' ? panel.person : undefined;
   const flags = useGame((s) => s.flags);
   // 熟客打折
-  const discount = person ? discountOf(person) : 0;
+  // 熟客打折，學識高的人也會講價
+  const discount = Math.min(0.3, (person ? discountOf(person) : 0) + learningDiscount(hero));
   const buyPrice = (id: string) => Math.ceil(ITEMS[id].price! * (1 - discount));
   const list =
     tab === 'buy'
-      ? [...STOCK, ...(flags.tao_stock ? EXTRA_STOCK : [])]
+      ? (panel?.kind === 'shop' && panel.stock) || [...STOCK, ...(flags.tao_stock ? EXTRA_STOCK : [])]
       : Object.keys(hero.items).filter((id) => hero.items[id] > 0 && sellPrice(id) > 0 && !ITEMS[id].manual);
   const cur = Math.min(cursor, Math.max(0, list.length - 1));
 
   /** 這筆交易最多能買／賣幾個 */
   const maxQty = (mode: Pending['mode'], id: string) =>
-    mode === 'buy' ? Math.floor(st.hero.silver / buyPrice(id)) : st.hero.items[id] ?? 0;
+    mode === 'buy' ? Math.min(Math.floor(st.hero.silver / buyPrice(id)), holdable(st.hero, id)) : st.hero.items[id] ?? 0;
   const unit = (p: Pending) => (p.mode === 'buy' ? buyPrice(p.id) : sellPrice(p.id));
 
   const choose = (mode: Pending['mode'], id: string, all = false) => {
     const max = maxQty(mode, id);
-    if (max < 1) return st.showToast('銀兩不夠。');
+    if (max < 1) return st.showToast(mode === 'buy' && holdable(st.hero, id) < 1 ? '行囊滿了，拿不下了。' : '銀兩不夠。');
     setPending({ mode, id, qty: all ? max : 1 });
   };
   const commit = (p: Pending) => {
@@ -97,7 +99,7 @@ export function ShopPanel() {
     <div className="menu-backdrop">
       <div className="panel pixel-frame">
         <h2>
-          貨郎攤子　<small>銀兩 {hero.silver}{discount ? `　熟客 ${Math.round((1 - discount) * 10)} 折` : ''}</small>
+          {(panel?.kind === 'shop' && panel.title) || '貨郎攤子'}　<small>銀兩 {hero.silver}{discount ? `　打 ${((1 - discount) * 10).toFixed(1).replace(/\.0$/, '')} 折` : ''}</small>
         </h2>
         <div className="panel-tabs">
           <span className={tab === 'buy' ? 'active' : ''} onClick={() => (setTab('buy'), setCursor(0))}>

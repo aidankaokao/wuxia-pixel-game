@@ -41,7 +41,8 @@ export type Flags = Record<string, number>;
 export type Prompt = string | { title: string; actions: { key: string; label: string }[] };
 
 /** 劇情腳本打開的介面面板（商店、房屋），關閉時 resolve */
-export type Panel = { kind: 'shop'; person?: string } | { kind: 'home'; plot: string };
+/** 面板：商店（person 是交易的對象；stock、title 不給就是貨郎攤子）、房屋 */
+export type Panel = { kind: 'shop'; person?: string; stock?: string[]; title?: string } | { kind: 'home'; plot: string };
 
 interface GameState {
   /** 標題畫面、建立角色或遊戲中 */

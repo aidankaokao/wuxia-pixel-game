@@ -57,7 +57,7 @@ export const linjiang: MapDef = {
     { style: 'house', x: 5, y: 4, name: '和記當鋪', door: [{ text: '當鋪的櫃台很高，掌櫃從上頭探出半張臉。' }, { text: '（屋內尚未開放）' }] },
     { style: 'hall', x: 16, y: 4, name: '臨江縣衙', door: [{ text: '衙門口兩尊石獅，門前的鳴冤鼓蒙著一層灰。' }, { text: '（屋內尚未開放）' }] },
     { style: 'hall', x: 32, y: 4, name: '金刀鏢局', door: [{ text: '門楣上一把金漆大刀，院裡傳出鏢師操練的吆喝聲。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'house2', x: 45, y: 4, name: '錦繡布莊', door: [{ text: '架上的綢緞五顏六色，老闆娘正忙著招呼客人。' }, { text: '（屋內尚未開放）' }] },
+    { style: 'house2', x: 45, y: 4, name: '錦繡布莊', door: [], enter: { to: 'lj_cloth', spawn: { x: 4, y: 5, facing: 'up' } } },
     { style: 'house2', x: 5, y: 11, name: '回春堂', door: [{ text: '藥香撲鼻，櫃上一排排的抽屜貼滿了藥名。' }, { text: '（屋內尚未開放）' }] },
     { style: 'teahouse', x: 15, y: 11, name: '雲來客棧', door: [{ text: '門口掛著「雲來客棧」的燈籠，店小二正在擦桌子。' }, { text: '（屋內尚未開放）' }] },
     { style: 'teahouse', x: 34, y: 11, name: '望江樓', door: [{ text: '樓上傳來猜拳行令的笑鬧聲，酒香飄了半條街。' }, { text: '（屋內尚未開放）' }] },

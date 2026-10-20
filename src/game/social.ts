@@ -14,6 +14,8 @@ export interface Relation {
   giftDay: number;
   sparDay: number;
   teachDay: number;
+  /** 哪一天一起玩過琴棋書畫（舊存檔沒有） */
+  hobbyDay?: number;
   /** 已經知道的喜好（送過才知道） */
   known: string[];
   /** 已經觸發過的熟悉度事件 */

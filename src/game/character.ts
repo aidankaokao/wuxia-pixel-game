@@ -8,6 +8,11 @@
  */
 
 import type { ItemIcon } from './art/items';
+import type { CraftId, Progress } from './crafts';
+import { FOOD_ITEMS } from './cooking';
+import { ART_ITEMS } from './arts';
+import { FEST_ITEMS } from './festival';
+import { GEAR_ITEMS, GearInfo, GearSlotId, kindOfSlot } from './gear';
 
 export type AttrKey = 'strength' | 'agility' | 'constitution' | 'energy' | 'insight';
 export type Attrs = Record<AttrKey, number>;
@@ -51,9 +56,9 @@ export function rollName(rand: () => number = Math.random): { surname: string; g
 
 // ── 物品 ────────────────────────────────────────────────
 
-export type ItemCategory = '藥品' | '秘笈' | '雜物';
+export type ItemCategory = '藥品' | '菜餚' | '食材' | '服飾' | '秘笈' | '雜物';
 /** 物品欄的分類（也是「重新整理」排序的先後） */
-export const ITEM_CATEGORIES: ItemCategory[] = ['藥品', '秘笈', '雜物'];
+export const ITEM_CATEGORIES: ItemCategory[] = ['藥品', '菜餚', '食材', '服飾', '秘笈', '雜物'];
 
 export interface ItemDef {
   name: string;
@@ -62,6 +67,14 @@ export interface ItemDef {
   icon: ItemIcon;
   hp?: number;
   qi?: number;
+  stamina?: number;
+  /** 甜品：接下來幾場戰鬥武功經驗加成 */
+  treat?: { battles: number; mult: number };
+  /** 菜餚：對應的菜（cooking.ts）與品質（0 普通、1 上品、2 精品） */
+  dish?: string;
+  quality?: number;
+  /** 服飾：部位、品級、防禦與閃避（gear.ts） */
+  gear?: GearInfo;
   /** 秘笈：對應的武功 id。持有時才能突破該武功的等級上限（不會消耗） */
   manual?: string;
   /** 價錢（銀兩）：商店照這個價賣，收購時給一半；沒有就是不能買賣 */
@@ -77,11 +90,15 @@ export const ITEMS: Record<string, ItemDef> = {
   jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80, price: 30 },
   tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30, price: 12 },
   yunwu: { name: '雲霧茶', category: '藥品', icon: 'tea', desc: '高山雲霧間採的好茶，入口回甘。回復內力 60。', qi: 60, price: 30 },
-  stew: { name: '燉山豬肉', category: '藥品', icon: 'stew', desc: '自家灶台燉的山豬肉，香氣撲鼻。回復氣血 150。', hp: 150, price: 40 },
   herb: { name: '止血草', category: '雜物', icon: 'herb', desc: '常見的草藥，可以拿到藥爐煉成金創藥。', price: 6 },
   boar_meat: { name: '山豬肉', category: '雜物', icon: 'meat', desc: '一大塊山豬肉。可以賣錢，也可以在自家灶台燉來吃。', price: 16 },
   boar_tusk: { name: '山豬獠牙', category: '雜物', icon: 'tusk', desc: '又長又硬的獠牙，貨郎說城裡有人收。', price: 30 },
   dog_pelt: { name: '野狗皮', category: '雜物', icon: 'pelt', desc: '粗硬的狗皮，硝過之後能做些皮件。', price: 12 },
+  // 食材與菜餚（含燉山豬肉）見 cooking.ts；服飾見 gear.ts
+  ...FOOD_ITEMS,
+  ...GEAR_ITEMS,
+  ...ART_ITEMS,
+  ...FEST_ITEMS,
   manual_zhuying: {
     name: '竹影劍痕拓本', category: '秘笈', icon: 'scroll', manual: 'zhuying',
     desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。',
@@ -91,8 +108,9 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: '柳承安年輕時寫下的步法心得。持有時可突破「青竹步」的等級上限。',
   },
   mq_token: {
-    name: '鳴泉腰牌', category: '雜物', icon: 'token', bound: true,
-    desc: '刻著「鳴泉」二字的木腰牌，是鳴泉劍派弟子的身分憑證。',
+    name: '鳴泉腰牌', category: '服飾', icon: 'token', bound: true,
+    desc: '刻著「鳴泉」二字的木腰牌，是鳴泉劍派弟子的身分憑證。可以繫在頸上。（普通・頸上飾品，閃避 +1%）',
+    gear: { kind: 'neck', grade: 1, def: 0, eva: 0.01, sect: 'mingquan' },
   },
   mq_medpack: {
     name: '鳴泉藥包', category: '雜物', icon: 'salve', bound: true,
@@ -123,19 +141,28 @@ export function swapItems(c: Character, a: string, b: string) {
 /** 在地圖上使用回復類物品；回傳提示文字 */
 export function consumeItem(c: Character, id: string): string {
   const def = ITEMS[id];
-  if (!c.items[id] || !(def.hp || def.qi)) return '這樣東西現在用不上。';
+  if (!c.items[id] || !usable(id)) return '這樣東西現在用不上。';
   const d = derive(c);
   const hp = Math.min(def.hp ?? 0, d.maxHp - c.hp);
   const qi = Math.min(def.qi ?? 0, d.maxQi - c.qi);
-  if (hp <= 0 && qi <= 0) return '現在用不著。';
+  const stamina = Math.min(def.stamina ?? 0, d.maxStamina - c.stamina);
+  if (hp <= 0 && qi <= 0 && stamina <= 0 && !def.treat) return '現在用不著。';
   c.hp += hp;
   c.qi += qi;
+  c.stamina += stamina;
+  // 甜品的加成不疊加，取效果比較好的那個
+  if (def.treat && (!c.treat || def.treat.mult * def.treat.battles >= c.treat.mult * c.treat.battles)) c.treat = { ...def.treat };
   c.items[id]--;
   if (!c.items[id]) delete c.items[id];
-  return `用了${def.name}。${hp ? `氣血 +${hp}` : ''}${hp && qi ? '　' : ''}${qi ? `內力 +${qi}` : ''}`;
+  const gains = [hp && `氣血 +${hp}`, qi && `內力 +${qi}`, stamina && `體力 +${stamina}`].filter(Boolean).join('　');
+  const verb = def.category === '菜餚' ? '吃了' : '用了';
+  return `${verb}${def.name}。${gains}${def.treat ? `${gains ? '\n' : ''}心情愉快：接下來 ${c.treat!.battles} 場戰鬥武功經驗 ×${c.treat!.mult}。` : ''}`;
 }
 
-/** 戰鬥中可以使用的物品（有回復效果的） */
+/** 行囊裡能「使用」的物品：有回復或加成效果的藥品、菜餚 */
+export const usable = (id: string) => !!(ITEMS[id]?.hp || ITEMS[id]?.qi || ITEMS[id]?.stamina || ITEMS[id]?.treat);
+
+/** 戰鬥中可以使用的物品：藥品、菜餚都行，只要能回氣血或內力 */
 export const usableInBattle = (id: string) => !!(ITEMS[id]?.hp || ITEMS[id]?.qi);
 
 // ── 武功 ────────────────────────────────────────────────
@@ -335,8 +362,18 @@ export interface Character {
   points: number;
   /** 物品 id → 數量 */
   items: Record<string, number>;
+  /** 擴充行囊的道具多給的格數（見 bagCapacity） */
+  bagExtra: number;
+  /** 生活技能（烹飪、學識、琴棋書畫…，見 crafts.ts） */
+  crafts?: Partial<Record<CraftId, Progress>>;
+  /** 生活技能底下各項目的熟練度（例如每道菜），key 是「技能:項目」 */
+  works?: Record<string, Progress>;
+  /** 穿戴中的服飾（欄位 → 物品 id），不佔行囊 */
+  gear?: Partial<Record<GearSlotId, string>>;
   /** 睡過好床後「精神飽滿」：接下來幾場戰鬥武功經驗加成 */
   rested?: { battles: number; mult: number };
+  /** 吃了甜品「心情愉快」：接下來幾場戰鬥武功經驗加成 */
+  treat?: { battles: number; mult: number };
   /** 目前值；上限由 derive() 算出 */
   hp: number;
   qi: number;
@@ -535,7 +572,101 @@ export function addFame(c: Character, n: number): string {
   return `名聲 +${n}。`;
 }
 
+// ── 行囊容量 ────────────────────────────────────────────
+
+/** 裝備欄（武器之後再設計） */
+export const GEAR_SLOTS: readonly { id: GearSlotId; name: string }[] = [
+  { id: 'hat', name: '帽子' },
+  { id: 'top', name: '上衣' },
+  { id: 'bottom', name: '褲子' },
+  { id: 'shoes', name: '鞋子' },
+  { id: 'leftHand', name: '左手飾品' },
+  { id: 'rightHand', name: '右手飾品' },
+  { id: 'neck', name: '頸部飾品' },
+  { id: 'weapon', name: '武器' },
+];
+
+/** 身上服飾加總的防禦與閃避 */
+export function gearStats(c: Character) {
+  let def = 0;
+  let eva = 0;
+  for (const id of Object.values(c.gear ?? {})) {
+    const g = id && ITEMS[id]?.gear;
+    if (!g) continue;
+    def += g.def;
+    eva += g.eva;
+  }
+  return { def, eva };
+}
+
+/** 這件服飾能穿在哪幾個欄位 */
+export const slotsFor = (id: string): GearSlotId[] => GEAR_SLOTS.filter((s) => ITEMS[id]?.gear && kindOfSlot(s.id) === ITEMS[id].gear!.kind).map((s) => s.id);
+
+/** 穿上：從行囊拿出來穿到欄位上（沒指定欄位就挑空的那個），原本穿的放回行囊；回傳說明 */
+export function equipGear(c: Character, id: string, slot?: GearSlotId): string {
+  const slots = slotsFor(id);
+  if (!slots.length || !c.items[id]) return '這樣東西不能穿戴。';
+  const at = slot ?? slots.find((s) => !c.gear?.[s]) ?? slots[0];
+  c.gear ??= {};
+  const old = c.gear[at];
+  c.items[id]--;
+  if (!c.items[id]) delete c.items[id];
+  if (old && !canHold(c, old)) {
+    c.items[id] = (c.items[id] ?? 0) + 1;
+    return `行囊滿了，換下來的「${ITEMS[old].name}」沒地方放。`;
+  }
+  if (old) c.items[old] = (c.items[old] ?? 0) + 1;
+  c.gear[at] = id;
+  return `穿戴上「${ITEMS[id].name}」。${old ? `（換下了「${ITEMS[old].name}」）` : ''}`;
+}
+
+/** 卸下：放回行囊 */
+export function unequipGear(c: Character, slot: GearSlotId): string {
+  const id = c.gear?.[slot];
+  if (!id) return '這一欄沒有穿戴東西。';
+  if (!canHold(c, id)) return bagFullText(id);
+  delete c.gear![slot];
+  c.items[id] = (c.items[id] ?? 0) + 1;
+  return `卸下了「${ITEMS[id].name}」。`;
+}
+
+/** 收回門派發的服飾（離開門派、換新的弟子服時）：身上與行囊裡的都拿走 */
+export function takeSectGear(c: Character, sect: string, only?: string[]) {
+  const match = (id: string) => ITEMS[id]?.gear?.sect === sect && (!only || only.includes(id));
+  for (const [slot, id] of Object.entries(c.gear ?? {})) if (id && match(id)) delete c.gear![slot as GearSlotId];
+  for (const id of Object.keys(c.items)) if (match(id)) delete c.items[id];
+}
+
+/** 行囊一開始有幾格；同一種東西一格最多疊幾個 */
+export const BAG_BASE = 36;
+export const STACK = 99;
+
+export const bagCapacity = (c: Character) => BAG_BASE + (c.bagExtra ?? 0);
+/** 目前用了幾格 */
+export const bagUsed = (c: Character) => Object.values(c.items).reduce((s, n) => s + (n > 0 ? Math.ceil(n / STACK) : 0), 0);
+
+/** 再放 n 個 id 進行囊放不放得下（任務必需品、秘笈不佔格限制，一定收得下，免得劇情卡住） */
+export function canHold(c: Character, id: string, n = 1): boolean {
+  if (ITEMS[id].bound || ITEMS[id].manual) return true;
+  const have = c.items[id] ?? 0;
+  const more = Math.ceil((have + n) / STACK) - Math.ceil(have / STACK);
+  return bagUsed(c) + more <= bagCapacity(c);
+}
+
+/** 這種東西最多還能放幾個 */
+export function holdable(c: Character, id: string): number {
+  if (ITEMS[id].bound || ITEMS[id].manual) return Infinity;
+  const have = c.items[id] ?? 0;
+  const roomInStack = Math.ceil(have / STACK) * STACK - have;
+  return roomInStack + Math.max(0, bagCapacity(c) - bagUsed(c)) * STACK;
+}
+
+/** 行囊滿了時的說法 */
+export const bagFullText = (id: string) => `你手上東西太多，拿不下「${ITEMS[id].name}」了。（行囊滿了，先賣掉或用掉一些吧）`;
+
+/** 放進行囊；放不下就不給，回傳說明 */
 export function giveItem(c: Character, id: string, n = 1): string {
+  if (!canHold(c, id, n)) return bagFullText(id);
   c.items[id] = (c.items[id] ?? 0) + n;
   return `獲得「${ITEMS[id].name}」${ITEMS[id].manual ? '' : `×${n}`}。`;
 }
@@ -575,6 +706,7 @@ export function newHero(opts: { surname?: string; given?: string; base?: Attrs }
     ],
     points: 0,
     items: {},
+    bagExtra: 0,
     hp: 0,
     qi: 0,
     stamina: 0,

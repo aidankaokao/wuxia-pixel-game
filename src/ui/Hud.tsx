@@ -1,6 +1,6 @@
 import { derive } from '../game/character';
 import { fameTitle } from '../game/social';
-import { timeText, WEATHER_NAME } from '../game/time';
+import { dateText, festivalOf, timeText, WEATHER_NAME } from '../game/time';
 import { useGame } from '../state/store';
 
 function Bar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
@@ -46,9 +46,12 @@ export function Hud() {
         </div>
         <div className="status-foot status-time">
           <span>
-            第 {day} 日　{timeText(time)}
+            {dateText(day)}　{timeText(time)}
           </span>
-          <span>{WEATHER_NAME[weather]}</span>
+          <span>
+            {festivalOf(day) && <span className="festival">{festivalOf(day)}　</span>}
+            {WEATHER_NAME[weather]}
+          </span>
         </div>
       </div>
 

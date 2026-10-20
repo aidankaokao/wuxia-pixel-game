@@ -137,6 +137,8 @@ kbd {
 .status-foot {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
+  white-space: nowrap;
   margin-top: 8px;
   font-size: 13px;
   color: var(--muted);
@@ -1523,3 +1525,14 @@ table.charter td {
   font-size: 12px;
   color: #6a5030;
 }
+
+.festival {
+  color: var(--gold);
+}
+
+/* 服飾品級：粗製、普通、精良、上品、極品 */
+.grade0 { color: #9a948a; }
+.grade1 { color: inherit; }
+.grade2 { color: #8fd18a; }
+.grade3 { color: #7ab8f0; }
+.grade4 { color: #f0c060; }

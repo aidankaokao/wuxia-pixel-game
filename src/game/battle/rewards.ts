@@ -36,13 +36,19 @@ export function settle(c: Character, b: Battle, enc: EncounterDef, outcome: Outc
     for (const d of ENEMIES[id].drops ?? []) if (rand() < d.chance) drops[d.item] = (drops[d.item] ?? 0) + 1;
   for (const [id, n] of Object.entries(drops)) lines.push(giveItem(c, id, n));
 
-  // 悟性越高，練得越快；睡過好床「精神飽滿」時再加成
+  // 悟性越高，練得越快；睡過好床「精神飽滿」、吃了甜品「心情愉快」時再加成
   let g = (enc.growth ?? 1) * (1 + attrs(c).insight / 40);
   if (c.rested?.battles) {
     g *= c.rested.mult;
     c.rested.battles--;
     lines.push(`精神飽滿：武功經驗 ×${c.rested.mult}${c.rested.battles ? `（還有 ${c.rested.battles} 場）` : '（效果結束）'}`);
     if (!c.rested.battles) delete c.rested;
+  }
+  if (c.treat?.battles) {
+    g *= c.treat.mult;
+    c.treat.battles--;
+    lines.push(`心情愉快：武功經驗 ×${c.treat.mult}${c.treat.battles ? `（還有 ${c.treat.battles} 場）` : '（效果結束）'}`);
+    if (!c.treat.battles) delete c.treat;
   }
   const exp: Record<string, number> = {};
   for (const [id, n] of Object.entries(s.skillUses)) exp[id] = n * 6;

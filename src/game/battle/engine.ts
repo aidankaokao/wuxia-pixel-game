@@ -1,4 +1,4 @@
-import { ITEMS } from '../character';
+import { ITEMS, usableInBattle } from '../character';
 import { MOVES } from './moves';
 import { EFFECT_NAME, type BattleCommand, type BattleEvent, type Effect, type EffectKind, type Hit, type Move, type Outcome, type Unit } from './types';
 
@@ -119,6 +119,7 @@ export class Battle {
     const def = ITEMS[itemId];
     if (this.noItems) return [{ type: 'message', text: '這一場不許用藥！' }];
     if (!this.items[itemId]) return [{ type: 'message', text: '已經沒有了。' }];
+    if (!usableInBattle(itemId)) return [{ type: 'message', text: '戰鬥中用不了這個。' }];
     this.items[itemId]--;
     const hp = Math.min(def.hp ?? 0, actor.maxHp - actor.hp);
     const qi = Math.min(def.qi ?? 0, actor.maxQi - actor.qi);

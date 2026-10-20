@@ -1,4 +1,4 @@
-import { ITEMS } from '../character';
+import { ITEMS, usableInBattle } from '../character';
 import type { AutoTactic } from '../../state/store';
 import type { Battle } from './engine';
 import { MOVES } from './moves';
@@ -12,7 +12,7 @@ import type { BattleCommand, EffectKind, Unit } from './types';
 export function autoCommand(b: Battle, hero: Unit, tactic: AutoTactic, useItems: boolean): BattleCommand {
   const foes = b.alive('enemy');
   const steady = tactic === 'steady';
-  const has = (kind: 'hp' | 'qi') => (b.noItems ? undefined : Object.keys(b.items).find((id) => b.items[id] > 0 && ITEMS[id]?.[kind]));
+  const has = (kind: 'hp' | 'qi') => (b.noItems ? undefined : Object.keys(b.items).find((id) => b.items[id] > 0 && usableInBattle(id) && ITEMS[id][kind]));
 
   // 補血
   const healAt = steady ? 0.35 : 0.2;

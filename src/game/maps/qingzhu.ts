@@ -1,3 +1,4 @@
+import { LANTERN_DAYS } from '../festival';
 import { carpenterTalk } from '../story/estate';
 import { aniuTalk, kidTalk, steleRead, strangerTalk, wellUse } from '../story/bandits';
 import type { MapDef } from './types';
@@ -80,6 +81,9 @@ export const qingzhu: MapDef = {
   ],
 
   props: [
+    // 過年、元宵、中秋掛燈籠
+    { sprite: 'lantern_post', x: 21, y: 16, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '村裡掛起了紅燈籠，孩子們提著小燈跑來跑去。' }] },
+    { sprite: 'lantern_post', x: 33, y: 16, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '燈籠紙上畫著福字。' }] },
     { sprite: 'well', x: 23, y: 19, script: wellUse },
     {
       sprite: 'bulletin', x: 29, y: 17,

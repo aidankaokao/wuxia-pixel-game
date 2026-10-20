@@ -1,6 +1,7 @@
 import { canglan } from './canglan';
 import { guandao } from './guandao';
 import { linjiang } from './linjiang';
+import { LINJIANG_ROOMS } from './linjiang_rooms';
 import { mingquan } from './mingquan';
 import { mqBack, mqSect } from './sect_mingquan';
 import { SECT_MINGQUAN_ROOMS } from './sect_mingquan_rooms';
@@ -21,6 +22,7 @@ export const MAPS: Record<string, MapDef> = {
   [mqSect.id]: mqSect,
   [mqBack.id]: mqBack,
   ...Object.fromEntries(SECT_MINGQUAN_ROOMS.map((m) => [m.id, m])),
+  ...Object.fromEntries(LINJIANG_ROOMS.map((m) => [m.id, m])),
   [qzLiu.id]: qzLiu,
   [qzTea.id]: qzTea,
   [qzSmithy.id]: qzSmithy,

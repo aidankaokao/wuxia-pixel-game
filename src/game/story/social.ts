@@ -1,4 +1,7 @@
 import { gainInsight, ITEMS, nextMove, skillDef } from '../character';
+import { ART_ACTION } from '../arts';
+import { craftOf, gainCraft } from '../crafts';
+import { playChess } from './arts';
 import { MOVES } from '../battle/moves';
 import type { EventCtx, Script } from '../events';
 import type { Line } from '../maps/types';
@@ -11,16 +14,21 @@ import { Convo, PEOPLE, PersonDef } from './people';
  * 畫面列出目前能做的事（依熟悉度逐步開放），按對應的鍵執行。
  */
 
-export type Action = 'talk' | 'spar' | 'gift' | 'teach' | 'trade';
+export type Action = 'talk' | 'spar' | 'gift' | 'teach' | 'trade' | 'hobby';
 export const ACTIONS: Record<Action, { key: string; name: string }> = {
   talk: { key: 'E', name: '交談' },
   spar: { key: 'F', name: '切磋' },
   gift: { key: 'G', name: '贈禮' },
   teach: { key: 'R', name: '請教' },
   trade: { key: 'T', name: '交易' },
+  // 琴棋書畫：顯示的名稱依對方的嗜好（見 actionName）
+  hobby: { key: 'H', name: '雅趣' },
 };
+
+/** 動作在畫面上的名稱：雅趣依對方的嗜好叫論琴、對弈、品字、賞畫 */
+export const actionName = (id: string, a: Action) => (a === 'hobby' && PEOPLE[id]?.hobby ? ART_ACTION[PEOPLE[id].hobby!.art] : ACTIONS[a].name);
 /** 鍵盤按鍵 → 動作（E 由「互動」處理，不在這裡） */
-export const KEY_ACTION: Record<string, Action> = { f: 'spar', g: 'gift', r: 'teach', t: 'trade' };
+export const KEY_ACTION: Record<string, Action> = { f: 'spar', g: 'gift', r: 'teach', t: 'trade', h: 'hobby' };
 
 const st = () => useGame.getState();
 export const relOf = (id: string): Relation => st().world.relations[id] ?? newRelation();
@@ -42,6 +50,7 @@ export function availableActions(id: string): Action[] {
   if (p.gift) out.push('gift');
   if (p.teach && s >= p.teach.stage) out.push('teach');
   if (p.trade) out.push('trade');
+  if (p.hobby && s >= p.hobby.stage) out.push('hobby');
   return out;
 }
 
@@ -85,6 +94,7 @@ async function addAffinity(ctx: EventCtx, p: PersonDef, n: number) {
   if (after > before) {
     if (p.spar && before < p.spar.stage && after >= p.spar.stage) notes.push(`可以和${p.name}切磋了（按 F）`);
     if (p.teach && before < p.teach.stage && after >= p.teach.stage) notes.push(`可以向${p.name}請教武學了（按 R）`);
+    if (p.hobby && before < p.hobby.stage && after >= p.hobby.stage) notes.push(`可以和${p.name}${ART_ACTION[p.hobby.art]}了（按 H）`);
   }
   await ctx.say(`（你和${p.name}的關係變成了「${STAGES[after].name}」）${notes.length ? `\n${notes.join('\n')}` : ''}`);
 }
@@ -275,7 +285,48 @@ export function tradeAffinity(id: string, silver: number): number {
 /** 商家依熟悉度給的折扣 */
 export const discountOf = (id: string) => PEOPLE[id]?.trade?.discount[stageOf(relOf(id).aff)] ?? 0;
 
-const SCRIPTS: Record<Action, (p: PersonDef) => Script> = { talk, spar, gift, teach, trade };
+// ── 雅趣：琴棋書畫的同好 ─────────────────────────────────
+
+const hobby =
+  (p: PersonDef): Script =>
+  async (ctx) => {
+    const h = p.hobby!;
+    const art = h.art;
+    const day = st().world.day;
+    if (relOf(p.id).hobbyDay === day) {
+      await ctx.say(`${p.name}：「今天盡興了，改日再來。」`);
+      return;
+    }
+    const mine = craftOf(st().hero, art).level;
+    updateRel(p.id, (r) => (r.hobbyDay = day));
+    ctx.pass(4);
+    if (art === 'chess') {
+      const won = await playChess(ctx, p.name, h.level, h.style ?? 0);
+      await ctx.say(won ? `${p.name}投子認輸，哈哈一笑：「好棋！」` : `${p.name}收起棋子：「棋力還欠些火候，多下幾盤就好了。」`, '（下了一個時辰）');
+      await ctx.hero((c) => gainCraft(c, 'chess', won ? 25 : 15));
+      await addAffinity(ctx, p, won ? 4 : 2);
+      return;
+    }
+    // 琴、書、畫：造詣差不多就談得投機；還不會的話，對方教你入門
+    const verb = { qin: '撫琴論曲', calligraphy: '品評字帖', painting: '一同賞畫' }[art];
+    if (mine === 0) {
+      const skill = { qin: '琴', calligraphy: '書法', painting: '作畫' }[art];
+      await ctx.say(`${p.name}見你不懂${skill}，倒也不嫌，手把手教了你一些入門的功夫。
+（花了一個時辰）`);
+      await ctx.hero((c) => gainCraft(c, art, 40));
+      await addAffinity(ctx, p, 1);
+      return;
+    }
+    const close = mine >= h.level - 2;
+    await ctx.say(
+      `你和${p.name}${verb}，${close ? '談得十分投機，不知不覺一個時辰就過去了。' : '大多時候是你在聽，對方說的你只懂一半。'}
+（花了一個時辰）`,
+    );
+    await ctx.hero((c) => gainCraft(c, art, 15 + h.level * 2));
+    await addAffinity(ctx, p, close ? 3 : 1);
+  };
+
+const SCRIPTS: Record<Action, (p: PersonDef) => Script> = { talk, spar, gift, teach, trade, hobby };
 
 /** 對某人做某件事的腳本；這件事目前還不能做就回傳 null */
 export function personScript(id: string, action: Action): Script | null {
