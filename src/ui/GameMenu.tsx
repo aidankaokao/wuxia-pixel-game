@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   attrName,
   AttrKey,
@@ -669,44 +669,36 @@ function SystemPage({ active, onEnter, onExit }: { active: boolean; onEnter: () 
 
   const st = useGame.getState();
   const go = (l: SysLayer) => (setLayer(l), setCursor(0));
-  const summary = (slot: SlotId) => {
-    const d = readSave(slot);
-    return d ? describeSave(d) : '（空）';
-  };
   const setSetting = (s: Partial<Settings>) => st.setSettings(s);
+  const slotList: SlotId[] = layer === 'save' ? MANUAL_SLOTS : ['quick', 'auto', ...MANUAL_SLOTS];
+  // 存檔：先確認（已經有存檔的要確認覆蓋）
+  const saveTo = async (s: SlotId) => {
+    const d = readSave(s);
+    const ok = await st.askConfirm(d ? `要覆蓋「${SLOT_NAME[s]}」嗎？\n原本：${describeSave(d)}` : `要存到「${SLOT_NAME[s]}」嗎？`, d ? '覆蓋' : '存檔');
+    if (!ok) return;
+    st.showToast(writeSave(s) ? `已存檔至${SLOT_NAME[s]}` : '存檔失敗');
+    setVersion((v) => v + 1);
+  };
+  const loadFrom = async (s: SlotId) => {
+    const d = readSave(s);
+    if (!d) return st.showToast('這個檔案是空的');
+    const ok = await st.askConfirm(`要讀取「${SLOT_NAME[s]}」嗎？\n${describeSave(d)}\n\n目前還沒存檔的進度會遺失。`, '讀取');
+    if (!ok) return;
+    st.setMenu(false);
+    loadGame(d);
+    st.showToast(`已讀取${SLOT_NAME[s]}`);
+  };
 
   const rows: Row[] =
     layer === 'root'
       ? [
-          { label: '存檔', detail: '存到檔案一～三', run: () => go('save') },
+          { label: '存檔', detail: `存到檔案一～${SLOT_NAME[MANUAL_SLOTS[MANUAL_SLOTS.length - 1]].slice(2)}`, run: () => go('save') },
           { label: '讀檔', detail: '即時、自動或手動存檔', run: () => go('load') },
           { label: '遊戲設定', detail: '戰鬥模式、自動戰鬥', run: () => go('settings') },
           { label: '回到標題畫面', detail: '會先自動存檔', run: () => (st.setMenu(false), toTitle()) },
         ]
-      : layer === 'save'
-        ? MANUAL_SLOTS.map((s) => ({
-            label: SLOT_NAME[s],
-            detail: summary(s),
-            run: () => {
-              st.showToast(writeSave(s) ? `已存檔至${SLOT_NAME[s]}` : '存檔失敗');
-              setVersion((v) => v + 1);
-            },
-          }))
-        : layer === 'load'
-          ? (['quick', 'auto', ...MANUAL_SLOTS] as SlotId[]).map((s) => ({
-              label: SLOT_NAME[s],
-              detail: summary(s),
-              disabled: !readSave(s),
-              run: async () => {
-                const d = readSave(s);
-                if (!d) return st.showToast('這個檔案是空的');
-                const ok = await st.askConfirm(`要讀取「${SLOT_NAME[s]}」嗎？\n${describeSave(d)}\n\n目前還沒存檔的進度會遺失。`, '讀取');
-                if (!ok) return;
-                st.setMenu(false);
-                loadGame(d);
-                st.showToast(`已讀取${SLOT_NAME[s]}`);
-              },
-            }))
+      : layer === 'save' || layer === 'load'
+        ? slotList.map((s) => ({ label: SLOT_NAME[s], disabled: layer === 'load' && !readSave(s), run: () => (layer === 'save' ? saveTo(s) : loadFrom(s)) }))
           : [
               {
                 label: `戰鬥模式：${settings.battleMode === 'turn' ? '回合制' : '半即時制'}`,
@@ -759,9 +751,38 @@ function SystemPage({ active, onEnter, onExit }: { active: boolean; onEnter: () 
       <p className="muted small">
         {!active ? '按 E 或 → 開始選擇。' : layer === 'settings' ? '↑↓ 選擇，E 或 ←→ 切換，X 返回。' : '↑↓ 選擇，E 確定，X 返回。'}
         {layer === 'root' && '隨時可按 Ctrl+S（Mac 為 ⌘S）即時存檔、F9 讀取即時存檔。'}
+        {layer === 'save' && '選一個欄位存檔，已經有存檔的會先問要不要覆蓋。'}
         {layer === 'settings' && '戰鬥中按 Q 開關自動戰鬥。'}
       </p>
-      <RowList rows={rows} cursor={active ? cursor : -1} onPick={(i) => (onEnter(), setCursor(i), rows[i].run())} />
+      {layer === 'save' || layer === 'load' ? (
+        <SlotBars slots={slotList} cursor={active ? cursor : -1} mode={layer} onPick={(i) => (onEnter(), setCursor(i), rows[i].run())} />
+      ) : (
+        <RowList rows={rows} cursor={active ? cursor : -1} onPick={(i) => (onEnter(), setCursor(i), rows[i].run())} />
+      )}
     </div>
+  );
+}
+
+/** 存檔欄：一條一條的欄位，空的顯示「空白」；游標所在的捲到看得見 */
+function SlotBars({ slots, cursor, mode, onPick }: { slots: SlotId[]; cursor: number; mode: 'save' | 'load'; onPick: (i: number) => void }) {
+  const ref = useRef<HTMLUListElement>(null);
+  useEffect(() => {
+    ref.current?.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+  }, [cursor]);
+  return (
+    <ul className="save-slots" ref={ref}>
+      {slots.map((s, i) => {
+        const d = readSave(s);
+        return (
+          <li key={s} className={`save-slot pixel-frame ${i === cursor ? 'active' : ''} ${!d && mode === 'load' ? 'disabled' : ''}`} onClick={() => onPick(i)}>
+            <span className="save-slot-name">
+              {i === cursor ? '▶ ' : '　'}
+              {SLOT_NAME[s]}
+            </span>
+            {d ? <span className="save-slot-info">{describeSave(d)}</span> : <span className="save-slot-info muted">— 空白 —</span>}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

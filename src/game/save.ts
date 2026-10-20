@@ -8,14 +8,19 @@ import { Flags, Settings, useGame } from '../state/store';
 /**
  * 存檔：存在瀏覽器的 localStorage。
  * 一個自動存檔欄位（進入地圖、劇情或戰鬥結束、關閉頁面時寫入）、一個即時存檔欄位（Ctrl/Cmd+S），
- * 以及三個手動欄位。
+ * 以及十個手動欄位（選了欄位、確認之後才寫入）。
  */
 
-export type SlotId = 'quick' | 'auto' | '1' | '2' | '3';
-export const SLOTS: SlotId[] = ['quick', 'auto', '1', '2', '3'];
-export const SLOT_NAME: Record<SlotId, string> = { quick: '即時存檔', auto: '自動存檔', 1: '檔案一', 2: '檔案二', 3: '檔案三' };
-/** 可以手動存檔的欄位 */
-export const MANUAL_SLOTS: SlotId[] = ['1', '2', '3'];
+export type SlotId = 'quick' | 'auto' | `${number}`;
+/** 手動存檔的欄位數 */
+export const MANUAL_COUNT = 10;
+/** 可以手動存檔的欄位（'1'–'10'，跟舊版的三個欄位相容） */
+export const MANUAL_SLOTS: SlotId[] = Array.from({ length: MANUAL_COUNT }, (_, i) => `${i + 1}` as SlotId);
+export const SLOTS: SlotId[] = ['quick', 'auto', ...MANUAL_SLOTS];
+const NUM = '一二三四五六七八九十';
+export const SLOT_NAME: Record<SlotId, string> = Object.fromEntries(
+  SLOTS.map((s) => [s, s === 'quick' ? '即時存檔' : s === 'auto' ? '自動存檔' : `檔案${NUM[Number(s) - 1]}`]),
+) as Record<SlotId, string>;
 
 /** 存檔格式有不相容的改變時遞增；舊版本在 migrate() 裡轉換，無法轉換的舊檔會被忽略 */
 const VERSION = 6;
