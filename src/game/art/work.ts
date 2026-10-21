@@ -1,11 +1,11 @@
 import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
 
 /**
- * 做事的過場動畫：掃地、挑水、翻曬草藥、整理書冊、澆菜、做菜、織布、讀書、睡覺。
+ * 做事的過場動畫：掃地、挑水、翻曬草藥、整理書冊、澆菜、做菜、織布、讀書、睡覺、練劍、打坐、吃飯。
  * 每種 4 格，64×40，由介面放大顯示（見 ui/WorkAnim.tsx）。
  */
 
-export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read' | 'sleep';
+export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read' | 'sleep' | 'drill' | 'sit' | 'eat';
 export const WORK_W = 64;
 export const WORK_H = 40;
 export const WORK_FRAMES = 4;
@@ -144,10 +144,58 @@ const DRAW: Record<WorkKind, (ctx: Ctx, f: number) => void> = {
       hline(ctx, x, x + 2, y + 2, '#f4f0e4');
     }
   },
+  // 練劍：對著木樁劈、刺，劍光一閃
+  drill(ctx, f) {
+    ground(ctx, '#a8a090');
+    // 木樁
+    px(ctx, 42, 14, 5, 20, '#8a5a32');
+    hline(ctx, 42, 46, 14, '#a87a4a');
+    px(ctx, 40, 19, 9, 2, '#7a4a28');
+    px(ctx, 40, 26, 9, 2, '#7a4a28');
+    const lunge = [0, 2, 4, 1][f];
+    figure(ctx, 24 + lunge, 34, lunge > 2 ? 1 : 0);
+    // 劍：舉起、劈下、刺出、收回
+    const blade = [
+      [27, 12, 1, 7],
+      [28, 16, 8, 1],
+      [30, 22, 10, 1],
+      [26, 20, 7, 1],
+    ][f];
+    px(ctx, blade[0] + lunge, blade[1], blade[2], blade[3], '#e0e4ec');
+    if (f === 2) for (let i = 0; i < 3; i++) px(ctx, 41, 18 + i * 3, 1, 1, '#f8f0c8');
+  },
+  // 打坐：盤膝而坐，身邊氣息繞著打轉
+  sit(ctx, f) {
+    px(ctx, 0, 34, WORK_W, 6, '#6a4428');
+    ellipse(ctx, 32, 33, 9, 2, '#a83a32');
+    px(ctx, 26, 29, 13, 4, ROBE);
+    px(ctx, 29, 18, 7, 11, ROBE);
+    px(ctx, 30, 13, 5, 5, SKIN);
+    px(ctx, 30, 12, 5, 2, HAIR);
+    hline(ctx, 31, 34, 16, '#5a4040');
+    for (let i = 0; i < 4; i++) {
+      const a = ((f + i * 2) / 8) * Math.PI * 2;
+      px(ctx, 32 + Math.round(Math.cos(a) * 14), 20 + Math.round(Math.sin(a) * 6), 2, 1, '#a8d0f0');
+    }
+  },
+  // 吃飯：捧著碗扒飯，熱氣直冒
+  eat(ctx, f) {
+    px(ctx, 0, 34, WORK_W, 6, '#6a4428');
+    px(ctx, 12, 26, 40, 3, '#8a5a32');
+    vline(ctx, 15, 29, 33, '#6a4428');
+    vline(ctx, 48, 29, 33, '#6a4428');
+    figure(ctx, 32, 26);
+    const up = f % 2;
+    ellipse(ctx, 32, 17 + up, 4, 2, '#e8e0cc');
+    px(ctx, 29, 15 + up, 7, 2, '#f8f4e8');
+    vline(ctx, 36, 10 + up, 15 + up, '#c8a050');
+    vline(ctx, 37, 10 + up, 15 + up, '#c8a050');
+    for (const x of [28, 33]) vline(ctx, x + ((f + x) % 2), 7 + ((f + x) % 3), 11 + ((f + x) % 3), '#d8d8e0');
+  },
 };
 
 /** 在室外做的事（背景畫天空與遠山），其他的在室內（牆與窗） */
-const OUTDOOR: WorkKind[] = ['sweep', 'water', 'herbs', 'garden'];
+const OUTDOOR: WorkKind[] = ['sweep', 'water', 'herbs', 'garden', 'drill'];
 
 function backdrop(ctx: Ctx, outdoor: boolean, night = false) {
   if (outdoor) {

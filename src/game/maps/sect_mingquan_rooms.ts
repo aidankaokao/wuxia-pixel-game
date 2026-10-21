@@ -64,9 +64,9 @@ export const mqDorm: MapDef = {
   npcs: [
     // 天黑後回來睡覺的記名弟子
     { id: 'mqd_zheng', name: MQ.zheng, sprite: 'farmer', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.zheng)('呼……呼……（鄭大壯已經睡得打呼了）')] },
-    { id: 'mqd_bao', name: MQ.bao, sprite: 'disciple', x: 5, y: 2, facing: 'down', night: true, talks: [by(MQ.bao)('明天晨課一定不睡過頭……一定……')] },
-    { id: 'mqd_tang', name: MQ.tang, sprite: 'disciple', x: 8, y: 2, facing: 'down', night: true, talks: [by(MQ.tang)('噓，小川睡了。他說夢話會背劍訣，挺好笑的。')] },
-    { id: 'mqd_cao', name: MQ.cao, sprite: 'disciple', x: 11, y: 2, facing: 'down', night: true, talks: [by(MQ.cao)('掃了一整天的地，腰都直不起來了……')] },
+    { id: 'mqd_bao', name: MQ.bao, sprite: 'disciple', x: 5, y: 2, facing: 'down', night: true, meal: 'away', talks: [by(MQ.bao)('明天晨課一定不睡過頭……一定……')] },
+    { id: 'mqd_tang', name: MQ.tang, sprite: 'disciple', x: 8, y: 2, facing: 'down', night: true, meal: 'away', talks: [by(MQ.tang)('噓，小川睡了。他說夢話會背劍訣，挺好笑的。')] },
+    { id: 'mqd_cao', name: MQ.cao, sprite: 'disciple', x: 11, y: 2, facing: 'down', night: true, meal: 'away', talks: [by(MQ.cao)('掃了一整天的地，腰都直不起來了……')] },
     { id: 'mqd_qiao', name: MQ.qiao, sprite: 'disciple', x: 3, y: 5, facing: 'up', night: true, talks: [by(MQ.qiao)('站了一天山門，腿都是腫的。')] },
     {
       id: 'mqd_outer', name: MQ.hou, sprite: 'farmer', x: 6, y: 3, wander: 2,
@@ -106,7 +106,7 @@ export const mqRoomB = innerRoom('mq_room_b', '弟子房・乙', [9, 21], '桌�
 mqRoomA.npcs.push({ id: 'mqra_he', name: MQ.he, sprite: 'disciple', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.he)('守了一天山門，總算能躺一下了。', '先說好，我打呼你別嫌吵。')] });
 mqRoomB.npcs.push(
   { id: 'mqrb_miao', name: MQ.miao, sprite: 'lady', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.miao)('這麼晚了還沒睡？明天還要早起呢。')] },
-  { id: 'mqrb_gu', name: MQ.gu, sprite: 'disciple_girl', x: 7, y: 2, facing: 'down', night: true, person: 'xiaoman' },
+  { id: 'mqrb_gu', name: MQ.gu, sprite: 'disciple_girl', x: 7, y: 2, facing: 'down', night: true, person: 'xiaoman', meal: 'away' },
 );
 
 /** 真傳弟子房：一人一間 */
@@ -128,7 +128,7 @@ const cell = (id: string, name: string, door: [number, number], desk: string, mi
 });
 export const mqCell1 = cell('mq_cell_1', '真傳弟子房・一', [3, 26], '陸鳴川的書案。案上擺著筆墨與一卷劍譜，譜上的字跡工整，邊角寫滿了晨課要教的重點。');
 // 陸鳴川夜裡回到自己的房間
-mqCell1.npcs.push({ id: 'mqc_lu', name: MQ.lu, sprite: 'sect_senior', x: 1, y: 2, facing: 'down', night: true, person: 'lu', out: 19 });
+mqCell1.npcs.push({ id: 'mqc_lu', name: MQ.lu, sprite: 'sect_senior', x: 1, y: 2, facing: 'down', night: true, person: 'lu', out: 19, meal: 'away' });
 export const mqCell2 = cell('mq_cell_2', '真傳弟子房・二', [8, 26], '葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。', true);
 
 // ── 練功、書房、武器、藥房、廚房 ─────────────────────────
@@ -160,6 +160,16 @@ export const mqTrain: MapDef = {
       ],
     },
     { id: 'mqt_han', work: true, name: '韓靖秋', sprite: 'sect_elder', x: 10, y: 4, facing: 'left', person: 'han' },
+    // 下雨天，平常在廣場練劍的弟子都擠進練功房（廣場那一份這時不在）
+    { id: 'mqt_gu', work: true, meal: 'away', when: (f) => f.rain === 1, name: MQ.gu, sprite: 'disciple_girl', x: 1, y: 4, facing: 'right', person: 'xiaoman' },
+    {
+      id: 'mqt_bao', work: true, meal: 'away', when: (f) => f.rain === 1, name: MQ.bao, sprite: 'disciple', x: 4, y: 4, facing: 'right',
+      talks: [by(MQ.bao)('雨下成這樣，廣場上的樁都泡水了。'), by(MQ.bao)('練功房擠死了，我的劍都伸不直！')],
+    },
+    {
+      id: 'mqt_tang', work: true, meal: 'away', when: (f) => f.rain === 1, name: MQ.tang, sprite: 'disciple', x: 11, y: 6, facing: 'left',
+      talks: [by(MQ.tang)('下雨天也好，在屋裡打坐，心反而靜。'), by(MQ.tang)('小川，你的劍尖戳到我了。')],
+    },
   ],
   exits: [back(40, 14, 6, 9)],
 };
@@ -245,6 +255,21 @@ export const mqKitchen: MapDef = {
   npcs: [
     // 伙房師傅起得早，卯時就在廚房
     { id: 'mqk_cook', work: true, out: 18, name: MQ.bu, sprite: 'smith', x: 5, y: 3, facing: 'down', person: 'bu' },
+    // 午時、酉時，同門到廚房吃飯（平常在廣場、宿舍的那一份這時不在）
+    { id: 'mqk_lu', meal: 'eat', name: MQ.lu, sprite: 'sect_senior', x: 7, y: 2, facing: 'left', person: 'lu' },
+    { id: 'mqk_gu', meal: 'eat', name: MQ.gu, sprite: 'disciple_girl', x: 3, y: 2, facing: 'right', person: 'xiaoman' },
+    {
+      id: 'mqk_bao', meal: 'eat', name: MQ.bao, sprite: 'disciple', x: 3, y: 4, facing: 'right',
+      talks: [by(MQ.bao)('（嘴裡塞得滿滿的）唔……今天的菜……好吃！'), by(MQ.bao)('秋生又跟我搶最後一塊肉，你評評理！')],
+    },
+    {
+      id: 'mqk_tang', meal: 'eat', name: MQ.tang, sprite: 'disciple', x: 7, y: 4, facing: 'left',
+      talks: [by(MQ.tang)('吃飯要細嚼慢嚥，師父說的。……小川，你又噎著了。'), by(MQ.tang)('下午練樁前不能吃太飽，不然一蹲馬步就想睡。')],
+    },
+    {
+      id: 'mqk_cao', meal: 'eat', name: MQ.cao, sprite: 'disciple', x: 6, y: 4, facing: 'up',
+      talks: [by(MQ.cao)('掃了一上午的地，總算能歇口氣了。'), by(MQ.cao)('卜師傅的飯最好了，管飽！')],
+    },
   ],
   exits: [back(43, 27, 5, 7)],
 };

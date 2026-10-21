@@ -37,10 +37,18 @@
 - 琴棋書畫：資料在 `src/game/arts.ts`，練習與對弈的腳本在 `story/arts.ts`（`practiceAt`、`playChess`）。NPC 的嗜好填在人物檔案的 `hobby`（哪一門、造詣、幾階起、棋風），互動是人際動作 `hobby`（按 H，名稱用 `actionName` 依嗜好顯示）。
 - 紡織：樣式與材料在 `src/game/weaving.ts`（織出的服飾是 `w_樣式_品級`，數值照 `gear.ts` 查表），腳本 `story/weaving.ts`（`teachPatterns`、`loomAt`）。坐騎在 `src/game/mounts.ts`（`hero.mount`、`hero.riding`），買賣在 `story/stable.ts`；騎馬加速在 `MapScene` 主角走路那裡。
 - 人際關係：核心數值在 `src/game/social.ts`，人物檔案（提升方式、各階段台詞、稱呼、事件）在 `story/people.ts`，互動流程在 `story/social.ts`。NPC 加 `person` 就接上人際系統；人物檔案要填 `place`（在哪認識，交遊頁依此分類）與 `role`（身分）；台詞可用 {稱}、{姓}、{名}。每個人物盡量填 `asks`（對方問你的問題，三選一、各有熟悉度增減），讓交談有來有往。
+- 今日事：`src/game/daily.ts` 的 `registerDailyTasks` 註冊「今天能做／該做的事」（依狀態算，不存檔），早晨提要（`ui/MorningBrief.tsx`，開新遊戲、讀檔、睡到天亮時由 `showBrief()` 跳出）與選單「江湖事」的「今日」清單共用。新增每天一次的事（例如新的門派、新的作物）就順手註冊一個來源。
+- 想法泡泡：要花時間、體力的腳本用 `events.ts` 的 `withCost` 標上代價（面對時主角頭上冒出「兩刻・體力 20」），包一層的腳本（例如 `moonAt`）要把裡面的代價傳出來（`scriptCost`）；時間或體力到某個點的自言自語用 `thought.ts` 的 `registerReminder`。一個時辰是 8 刻，寫「花了多久」時照 `ctx.pass` 的刻數寫（4 刻是半個時辰，可以用 `keText`）。
+- 重複的事：練樁、打坐、研讀、讀書、練雅藝、織布這類可以連做的事，用 `estate.ts` 的 `askRounds` 問回數（一回／三回／做到體力剩三成），再依回數扣體力、過時間、加成長；結尾的說明用 `roundsNote`。
+- 日課表：`src/game/schedule.ts`。新門派或新的固定作息要能照表做，就 `registerActivity`（`run` 只結算並回傳總結的話，不要問話；體力與時間由 `runSchedule` 扣）；有人找用 `registerInterrupt`；日常小事用 `registerDayEvent`（`after` 填場合，聊天是 `chat`，`with` 限定人物），由 `story/schedule.ts` 的 `maybeDayEvent` 觸發——新的做事腳本做完時也呼叫它（做事、聊天各一天最多一件，不要每天都有）。
+- 用餐：午時、酉時（`isMealTime`）。要讓人到飯廳吃飯，就在飯廳加一份 `meal: 'eat'` 的 NPC，並把他平常那幾份標 `meal: 'away'`；人物檔案可填 `meal` 台詞，新的飯廳地圖加進 `story/social.ts` 的 `DINING`。
+- 天氣：地圖條件可讀 `rain`／`fog`／`clear`；雨天會重生的野獸約一半躲起來（`MapScene.refresh`）。做事受天氣影響時，代價（`withCost`）與日課表的體力（`stamina` 可以給函式）要一起算。
+- 生活技能訂單：`src/game/orders.ts`（下單的人 `GIVERS`、`newOrder`），腳本 `story/orders.ts` 的 `orderTalk`（人際系統的交談會自動呼叫；沒有人物檔案的人在自己的腳本開頭呼叫）。
+- 到處翻找：`src/game/loot.ts`。只有描述（`lines`）、沒有 `script` 的擺設，以及花叢、石頭，每天隨機藏東西；不想讓人翻的擺設把貼圖名加進 `SKIP`。
 - 所有 NPC 都要有名字（劇情上刻意隱藏身分的除外，例如青衫客），不要用「守城兵」「小販」這類稱呼當名字。
 - 雜務都要順帶一點成長（`CHORE_DONE` 的 `grow`：裝備中的某類武功或某項生活技能）；有人交辦的先說 `intro` 再播動畫。
 - 做事（雜務、做菜、織布、讀書等）在扣完體力後播過場動畫：`await ctx.work(種類, 說明)`，動畫在 `art/work.ts`（新增種類就加一組 4 格的畫法）。
-- 地圖條件（`when`）除了劇情旗標，還能讀 `festival`（今天第幾個節慶）與 `today`（今天第幾日）；會再長出來的東西把採的日子記成旗標，`when: (f) => f.旗標 !== f.today`。
+- 地圖條件（`when`）除了劇情旗標，還能讀 `festival`（今天第幾個節慶）、`today`（今天第幾日）與 `xunxiu`（旬休那天是 1；旬休是每月初十、二十、三十，`time.ts` 的 `isXunxiu`，門派不上晨課、臨江城趕集，見 `story/market.ts`）；會再長出來的東西把採的日子記成旗標，`when: (f) => f.旗標 !== f.today`。
 - 沒有人物等級：五維 ＝ 擲骰底值 ＋ 武功的永久成長 ＋ 裝備中武功的加成，其他數值由五維與裝備的武功推算（`src/game/character.ts`，設計見 PLAN.md 第四節）。新增武功要填品階、裝備加成、永久成長；新增武功要寫招式表（第一招為初始招，其餘標重數門檻與悟出後的永久加成），招式名稱盡量四個字、意思貼近武功；新增物品要填分類與圖示（`art/items.ts`），秘笈是帶 `manual` 的物品。
 - 世界觀、人名、門派、武功名稱一律自創，不沿用既有武俠作品的名字。
 - 程式註解與介面文字使用繁體中文。

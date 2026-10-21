@@ -1,7 +1,7 @@
 import { canHold, ITEMS } from '../character';
 import { cookExp, cookRoll, DISH_KINDS, DISH_TIERS, dishItem, DISHES, DishDef, knowsDish, missing, needsText, QUALITY, STEW, TIER_LEVEL } from '../cooking';
 import { learnWork, workOf } from '../crafts';
-import type { EventCtx, Script } from '../events';
+import { withCost, type EventCtx, type Script } from '../events';
 import { useGame } from '../../state/store';
 import { exert } from './estate';
 
@@ -29,7 +29,7 @@ export interface StoveOpts {
 
 export const cookAt =
   (opts: StoveOpts): Script =>
-  async (ctx) => {
+  withCost(() => ({ stamina: COOK_STAMINA, note: '每份' }), async (ctx) => {
     const h = st().hero;
     const known = [STEW, ...DISHES].filter((d) => knowsDish(h, d.id));
     const kinds = DISH_KINDS.filter((k) => known.some((d) => d.kind === k));
@@ -48,7 +48,7 @@ export const cookAt =
     const i = await ctx.ask('做哪一道？', [...list.map(label), '算了']);
     if (i >= list.length) return;
     await cook(ctx, list[i], opts);
-  };
+  });
 
 async function cook(ctx: EventCtx, d: DishDef, opts: StoveOpts) {
   const h = st().hero;
@@ -161,7 +161,7 @@ export async function teachDishes(
   ctx.pass(4);
   await ctx.say(
     { speaker: who, text: `看好了，「${d.name}」的要訣是……` },
-    `${who}一邊做一邊講，你在旁邊照著做了一遍。\n（花了一個時辰）`,
+    `${who}一邊做一邊講，你在旁邊照著做了一遍。\n（花了半個時辰）`,
     `學會了「${d.name}」！要用：${needsText(d, name)}。${d.spring ? '\n（要用鳴泉的泉水，只能在鳴泉廚房做）' : ''}`,
   );
   st().updateHero((c) => learnWork(c, 'cooking', d.id));

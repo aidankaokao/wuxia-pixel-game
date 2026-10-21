@@ -17,6 +17,21 @@ import type { Panel } from '../state/store';
  */
 export type Script = (ctx: EventCtx) => Promise<void>;
 
+/** 做一件事的代價：花幾刻、多少體力（note 是補充，例如「每份」） */
+export interface Cost {
+  ke?: number;
+  stamina?: number;
+  note?: string;
+}
+
+/**
+ * 替腳本標上代價：面對這件東西時，主角頭上會冒出想法泡泡寫出花費（見 ui/ThoughtBubble.tsx）。
+ * cost 依當下狀態計算，不適用時（例如還不是弟子）回傳 null 就不冒泡。
+ */
+export const withCost = (cost: () => Cost | null, s: Script): Script => Object.assign(s, { cost });
+
+export const scriptCost = (s?: Script): Cost | null => (s as (Script & { cost?: () => Cost | null }) | undefined)?.cost?.() ?? null;
+
 export interface EventCtx {
   /** 依序顯示幾句話；字串視為旁白 */
   say(...lines: (Line | string)[]): Promise<void>;

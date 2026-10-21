@@ -43,7 +43,7 @@ export type Prompt = string | { title: string; actions: { key: string; label: st
 
 /** 劇情腳本打開的介面面板（商店、房屋），關閉時 resolve */
 /** 面板：商店（person 是交易的對象；stock、title 不給就是貨郎攤子）、房屋 */
-export type Panel = { kind: 'shop'; person?: string; stock?: string[]; title?: string } | { kind: 'home'; plot: string };
+export type Panel = { kind: 'shop'; person?: string; stock?: string[]; title?: string } | { kind: 'home'; plot: string } | { kind: 'schedule' };
 
 interface GameState {
   /** 標題畫面、建立角色或遊戲中 */
@@ -61,6 +61,8 @@ interface GameState {
   confirm: { text: string; ok: string; resolve: (yes: boolean) => void } | null;
   /** 做事的過場動畫（掃地、做菜……），播完自動消失 */
   work: { id: number; kind: WorkKind; text: string; ms: number } | null;
+  /** 早晨提要（睡醒、讀檔、開新遊戲時跳出），關閉時 resolve */
+  brief: { resolve: () => void } | null;
   settings: Settings;
   mapName: string;
   mapSubtitle?: string;
@@ -72,6 +74,10 @@ interface GameState {
   eventRunning: boolean;
   /** 面前可互動的東西（顯示在畫面上的提示）：一句話，或人物的互動清單 */
   prompt: Prompt | null;
+  /** 主角頭上的想法泡泡：面對的東西要花的代價（持續顯示） */
+  hint: string | null;
+  /** 主角頭上的想法泡泡：一閃而過的提醒（例如天黑了），比 hint 優先 */
+  thought: { text: string; id: number } | null;
   /** 對話或選單剛關閉的時間，用來避免同一次按鍵又觸發互動 */
   uiClosedAt: number;
 
@@ -95,6 +101,9 @@ interface GameState {
   advance: (choice?: number) => void;
   setMenu: (open: boolean) => void;
   setPrompt: (p: Prompt | null) => void;
+  setHint: (h: string | null) => void;
+  /** 主角冒出一句想法（幾秒後消失） */
+  think: (text: string) => void;
   setFlag: (key: string, value: number) => void;
   /** 修改角色：傳入的函式拿到一份複本，可直接改 */
   updateHero: <T>(fn: (c: Character) => T) => T;
@@ -108,6 +117,8 @@ interface GameState {
   /** 跳出「確定／取消」選單 */
   askConfirm: (text: string, ok?: string) => Promise<boolean>;
   playWork: (kind: WorkKind, text: string, ms?: number) => Promise<void>;
+  /** 跳出早晨提要，關閉後 resolve */
+  showBrief: () => Promise<void>;
   setSettings: (s: Partial<Settings>) => void;
   showToast: (text: string) => void;
   /** 回到全新的遊戲狀態（開新遊戲、讀檔、回標題前呼叫） */
@@ -124,6 +135,7 @@ export const useGame = create<GameState>((set, get) => ({
   panel: null,
   confirm: null,
   work: null,
+  brief: null,
   settings: { ...DEFAULT_SETTINGS },
   mapName: '',
   bannerKey: 0,
@@ -131,6 +143,8 @@ export const useGame = create<GameState>((set, get) => ({
   menuOpen: false,
   eventRunning: false,
   prompt: null,
+  hint: null,
+  thought: null,
   uiClosedAt: 0,
   battle: null,
   battleInput: null,
@@ -167,6 +181,10 @@ export const useGame = create<GameState>((set, get) => ({
   setPrompt: (p) => {
     if (JSON.stringify(get().prompt) !== JSON.stringify(p)) set({ prompt: p });
   },
+  setHint: (h) => {
+    if (get().hint !== h) set({ hint: h });
+  },
+  think: (text) => set({ thought: { text, id: Date.now() } }),
   setFlag: (key, value) => set((s) => ({ flags: { ...s.flags, [key]: value } })),
 
   updateHero: (fn) => {
@@ -200,6 +218,10 @@ export const useGame = create<GameState>((set, get) => ({
         resolve();
       }, ms);
     }),
+  showBrief: () =>
+    new Promise((resolve) => {
+      set({ brief: { resolve: () => (set({ brief: null, uiClosedAt: performance.now() }), resolve()) } });
+    }),
   askConfirm: (text, ok = '確定') =>
     new Promise((resolve) => {
       set({
@@ -223,10 +245,13 @@ export const useGame = create<GameState>((set, get) => ({
       flags: {},
       world: newWorld(),
       panel: null,
+      brief: null,
       dialog: null,
       menuOpen: false,
       eventRunning: false,
       prompt: null,
+      hint: null,
+      thought: null,
       battle: null,
       battleInput: null,
       battleTarget: null,
@@ -240,5 +265,5 @@ export const flag = (key: string) => useGame.getState().flags[key] ?? 0;
 /** 介面是否擋住了地圖操作 */
 export const uiBlocking = () => {
   const s = useGame.getState();
-  return s.dialog !== null || s.menuOpen || s.eventRunning || s.battle !== null || s.panel !== null || s.confirm !== null;
+  return s.dialog !== null || s.menuOpen || s.eventRunning || s.battle !== null || s.panel !== null || s.confirm !== null || s.brief !== null;
 };

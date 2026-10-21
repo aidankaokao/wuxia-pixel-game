@@ -89,6 +89,7 @@ export const sellPrice = (id: string) => Math.floor((ITEMS[id]?.price ?? 0) / 2)
 
 export const ITEMS: Record<string, ItemDef> = {
   jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80, price: 30 },
+  yangqi_wan: { name: '養氣小丸', category: '藥品', icon: 'pill', desc: '門裡藥房自製的小藥丸，提神養氣。回復體力 30。', stamina: 30, price: 15 },
   tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30, price: 12 },
   yunwu: { name: '雲霧茶', category: '藥品', icon: 'tea', desc: '高山雲霧間採的好茶，入口回甘。回復內力 60。', qi: 60, price: 30 },
   herb: { name: '止血草', category: '雜物', icon: 'herb', desc: '常見的草藥，可以拿到藥爐煉成金創藥。', price: 6 },
@@ -105,6 +106,15 @@ export const ITEMS: Record<string, ItemDef> = {
   manual_zhuying: {
     name: '竹影劍痕拓本', category: '秘笈', icon: 'scroll', manual: 'zhuying',
     desc: '從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。',
+  },
+  // 旬休趕集時舊書攤才有的
+  manual_basic_fist: {
+    name: '粗淺拳譜（舊抄本）', category: '秘笈', icon: 'book', manual: 'basic-fist', price: 60,
+    desc: '舊書攤上翻出來的拳譜，邊角都捲了。持有時可突破「粗淺拳腳」的等級上限。',
+  },
+  manual_breathing: {
+    name: '吐納要訣（殘卷）', category: '秘笈', icon: 'scroll', manual: 'breathing', price: 80,
+    desc: '一卷殘缺的吐納口訣，字跡卻工整。持有時可突破「吐納心法」的等級上限。',
   },
   manual_qingzhu: {
     name: '青竹步手札', category: '秘笈', icon: 'book', manual: 'qingzhu',
@@ -450,6 +460,15 @@ export function gainSkill(c: Character, id: string, amount: number, useInsight =
   }
   if (s.level >= cap) s.exp = 0;
   return s.level > from ? `你的「${skillDef(s).name}」精進至第 ${s.level} 重！` : null;
+}
+
+/** 每回得 gained 點經驗（已算悟性），要幾回才練到正常上限（已到上限是 0） */
+export function roundsToCap(s: Skill, gained: number): number {
+  const cap = skillCap(s);
+  if (s.level >= cap || gained <= 0) return 0;
+  let need = -s.exp;
+  for (let l = s.level; l < cap; l++) need += expToNext(l);
+  return Math.ceil(need / gained);
 }
 
 /** 每點武學點數換成的經驗 */

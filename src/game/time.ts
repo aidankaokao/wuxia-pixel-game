@@ -110,13 +110,20 @@ function npcHours(name: string): [number, number] {
   return [20 + (h % 9), 68 + ((h >> 4) % 13)];
 }
 
+/** 用餐時段：午時、酉時（門派的人到廚房吃飯） */
+export const isMealTime = (time: number) => inShichen(time, SHICHEN_INDEX.午, SHICHEN_INDEX.午) || inShichen(time, SHICHEN_INDEX.酉, SHICHEN_INDEX.酉);
+
 /** 這個 NPC 現在在不在（outdoor：這張地圖是不是室外） */
 export function npcPresent(
-  n: { name: string; encounter?: string; allDay?: boolean; work?: boolean; night?: boolean; out?: number },
+  n: { name: string; encounter?: string; allDay?: boolean; work?: boolean; night?: boolean; out?: number; meal?: 'eat' | 'away' },
   outdoor: boolean,
   time: number,
 ) {
-  if (n.encounter || n.allDay) return true;
+  if (n.encounter) return true;
+  // 用餐：eat 是廚房裡吃飯的那一份（只在用餐時段），away 是平常的那一份（用餐時段不在）
+  if (n.meal === 'eat') return isMealTime(time);
+  if (n.meal === 'away' && isMealTime(time)) return false;
+  if (n.allDay) return true;
   const [hashedOut, home] = npcHours(n.name);
   const out = n.out ?? hashedOut;
   const awake = time >= out && time < home;
@@ -170,6 +177,9 @@ export const FESTIVALS: { name: string; month: number; date: number }[] = [
   { name: '中秋', month: 7, date: 15 },
   { name: '掌門壽辰', month: 9, date: 12 },
 ];
+
+/** 旬休：每月初十、二十、三十（每十天一次）。門派不上晨課，臨江城趕集 */
+export const isXunxiu = (day: number) => dateOf(day).date % 10 === 0;
 
 /** 今天是什麼節日（沒有就是 undefined） */
 export function festivalOf(day: number) {

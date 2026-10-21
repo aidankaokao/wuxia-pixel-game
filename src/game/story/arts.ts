@@ -1,9 +1,9 @@
 import { derive, giveItem } from '../character';
 import { ArtId, PAINTINGS, paintingRoll, qinQi } from '../arts';
 import { craftOf, gainCraft } from '../crafts';
-import type { EventCtx, Script } from '../events';
+import { withCost, type EventCtx, type Script } from '../events';
 import { useGame } from '../../state/store';
-import { exert } from './estate';
+import { askRounds, exert, roundsNote } from './estate';
 
 /**
  * 琴棋書畫：自己練（聽泉亭撫琴、聽劍亭打譜、書案練字、望江台寫生），
@@ -21,32 +21,32 @@ const PRACTICE: Record<ArtId, { ask: string; lines: string[] }> = {
   painting: { ask: '望江台上視野開闊。要畫一幅大江山水嗎？', lines: ['你鋪開紙，對著江上的白帆與遠山落筆。', '雲氣一層層暈開，江面只留了一片白。'] },
 };
 
-/** 自己練一門雅藝：花體力與一個時辰，加技能經驗，各有一點小用處 */
+/** 自己練一門雅藝：花體力與半個時辰，加技能經驗，各有一點小用處 */
 export const practiceAt =
   (art: ArtId, idle: string): Script =>
-  async (ctx) => {
+  withCost(() => ({ ke: 4, stamina: PRACTICE_STAMINA }), async (ctx) => {
     const p = PRACTICE[art];
-    const c = await ctx.ask(`${idle}\n${p.ask}`, ['好', '算了']);
-    if (c !== 0) return;
-    if (!(await exert(ctx, PRACTICE_STAMINA, '累得提不起精神，靜不下心來。'))) return;
-    ctx.pass(4);
+    const n = await askRounds(ctx, PRACTICE_STAMINA, '練', 99, `${idle}\n${p.ask}`);
+    if (!n) return;
+    if (!(await exert(ctx, PRACTICE_STAMINA * n, '累得提不起精神，靜不下心來。'))) return;
+    ctx.pass(4 * n);
     const lv = craftOf(st().hero, art).level;
-    await ctx.say(`${p.lines.join('\n')}\n（花了一個時辰）`);
+    await ctx.say(`${p.lines.join('\n')}\n${roundsNote('練', n, 4) || '（花了半個時辰）'}`);
     await ctx.hero((h) => {
       const lines: (string | null)[] = [];
       if (art === 'qin') {
-        const qi = Math.max(0, Math.min(qinQi(lv), derive(h).maxQi - h.qi));
+        const qi = Math.max(0, Math.min(qinQi(lv) * n, derive(h).maxQi - h.qi));
         h.qi += qi;
         if (qi > 0) lines.push(`心境平和，內力 +${qi}。`);
       } else if (art === 'calligraphy') {
-        lines.push(gainCraft(h, 'learning', 3));
+        lines.push(gainCraft(h, 'learning', 3 * n));
       } else if (art === 'painting') {
-        lines.push(giveItem(h, PAINTINGS[paintingRoll(lv)]));
+        for (let i = 0; i < n; i++) lines.push(giveItem(h, PAINTINGS[paintingRoll(lv)]));
       }
-      lines.push(gainCraft(h, art, PRACTICE_EXP));
+      lines.push(gainCraft(h, art, PRACTICE_EXP * n));
       return lines;
     });
-  };
+  });
 
 // ── 對弈 ────────────────────────────────────────────────
 

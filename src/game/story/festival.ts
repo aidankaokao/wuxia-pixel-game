@@ -3,7 +3,7 @@ import { heroUnit } from '../battle/moves';
 import { setupDrill } from '../battle/enemies';
 import { learningLevel } from '../books';
 import { gainCraft } from '../crafts';
-import type { EventCtx, Script } from '../events';
+import { scriptCost, withCost, type EventCtx, type Script } from '../events';
 import { FEST_FOOD, FestivalName } from '../festival';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
@@ -200,7 +200,7 @@ export const graveAt =
     ctx.pass(4);
     await ctx.say(
       '你拔去墓前的雜草，擦淨每一座劍塚的石碑，又在墓前插上幾枝新柳。',
-      '一陣山風吹過，劍塚間的鏽劍輕輕作響，彷彿前輩們還在這裡練劍。\n（花了一個時辰）',
+      '一陣山風吹過，劍塚間的鏽劍輕輕作響，彷彿前輩們還在這裡練劍。\n（花了半個時辰）',
     );
     if (member()) await contrib(ctx, 5);
     const ready = studyable(st().hero);
@@ -285,7 +285,7 @@ const MOON_FRIENDS = ['wen', 'lu', 'xiaoman', 'han', 'yan', 'su'];
 /** 聽泉亭：中秋入夜可以賞月；其他時候照常撫琴 */
 export const moonAt =
   (otherwise: Script): Script =>
-  async (ctx) => {
+  withCost(() => scriptCost(otherwise), async (ctx) => {
     if (today() !== '中秋' || !member() || doneToday('zhongqiu') || !night()) return otherwise(ctx);
     once('zhongqiu');
     ctx.pass(4);
@@ -293,7 +293,7 @@ export const moonAt =
       '一輪明月從山後升起，照得泉水一片銀白。',
       ...wen('一年就這麼一個晚上，大夥兒都在。'),
       '同門們圍坐在亭裡分月餅、說笑，陸鳴川難得多喝了兩杯，顧小滿吵著要比誰的劍影映得最清楚。',
-      '（賞月到深夜。花了一個時辰）',
+      '（賞月到深夜。花了半個時辰）',
     );
     const known = MOON_FRIENDS.filter((id) => st().world.relations[id]);
     known.forEach((id) => addAff(id, 3));
@@ -303,4 +303,4 @@ export const moonAt =
       h.qi = d.maxQi;
       return [giveItem(h, 'f_yuebing', 2), known.length ? '（同門的熟悉度都 +3）' : null];
     });
-  };
+  });

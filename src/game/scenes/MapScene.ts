@@ -8,13 +8,15 @@ import { hash, makeCanvas } from '../art/pixel';
 import { Actor } from '../entities/Actor';
 import { getMap } from '../maps';
 import { BLOCKING, BuildingDef, Line, MapDef, NpcDef, PropDef } from '../maps/types';
-import { EventCtx, Script, ScriptAbort } from '../events';
+import { EventCtx, Script, ScriptAbort, scriptCost } from '../events';
+import { looted, lootKey, lootToday, SEARCH_TEXT, SEARCH_TILES, searchableProp, type Loot, type Spot } from '../loot';
+import { costText } from '../thought';
 import { Action, actionName, ACTIONS, availableActions, KEY_ACTION, personScript, personTitle } from '../story/social';
-import { derive } from '../character';
+import { canHold, derive, giveItem, ITEMS } from '../character';
 import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { autosave, setPositionProvider } from '../save';
-import { npcPresent, periodOf, shichenStart, SHICHEN_INDEX, type Period } from '../time';
+import { isXunxiu, npcPresent, periodOf, shichenStart, SHICHEN_INDEX, type Period } from '../time';
 import { flag, uiBlocking, useGame } from '../../state/store';
 
 interface Npc {
@@ -303,12 +305,23 @@ export class MapScene extends Phaser.Scene {
   private refresh(initial = false) {
     const { flags, respawnAt, world } = useGame.getState();
     // 條件旗標另外加上 festival（今天是第幾個節慶）與 today（今天是第幾日），給節慶擺設、會再長出來的東西用
-    const f = { ...flags, festival: festivalIndex(world.day), today: world.day };
+    const f = {
+      ...flags,
+      festival: festivalIndex(world.day),
+      today: world.day,
+      xunxiu: isXunxiu(world.day) ? 1 : 0,
+      // 天氣：雨、霧、晴（給練功房下雨人多、霧裡的奇事之類用）
+      rain: world.weather === 'rain' ? 1 : 0,
+      fog: world.weather === 'fog' ? 1 : 0,
+      clear: world.weather === 'clear' ? 1 : 0,
+    };
     const now = Date.now();
     const outdoor = !this.def.theme;
     for (const n of this.npcs) {
       const down = (respawnAt[`${this.def.id}:${n.def.id}`] ?? 0) > now;
-      const allowed = (!n.def.when || n.def.when(f)) && !down;
+      // 下雨天野獸少：會重生的野獸約有一半躲起來
+      const sheltering = world.weather === 'rain' && !!n.def.respawn && hashText(n.def.id) % 2 === 0;
+      const allowed = (!n.def.when || n.def.when(f)) && !down && !sheltering;
       const here = npcPresent(n.def, outdoor, world.time);
       // 出現時若主角剛好站在那一格，等下次再說
       const occupied = !n.actor && this.player && this.player.tx === n.def.x && this.player.ty === n.def.y;
@@ -584,12 +597,59 @@ export class MapScene extends Phaser.Scene {
     if (prop) {
       const { script, lines } = prop.def;
       if (script) this.runScript(script);
-      else if (lines) this.runScript((ctx) => ctx.say(...lines));
+      else if (lines)
+        this.runScript(async (ctx) => {
+          await ctx.say(...lines);
+          // 沒有劇情的擺設：今天剛好藏著東西就翻到（見 loot.ts）
+          if (searchableProp(prop.def)) await this.search(ctx, { key: `p${prop.def.x},${prop.def.y}`, kind: 'prop' });
+        });
       return;
     }
     const door = this.inBounds(f.x, f.y) ? this.doors.get(this.idx(f.x, f.y)) : undefined;
     if (door?.enter) this.warp(door.enter.to, door.enter.spawn);
     else if (door) this.runScript((ctx) => ctx.say(...door.lines));
+    else if (this.inBounds(f.x, f.y) && SEARCH_TILES[this.def.tiles[f.y][f.x]]) {
+      // 花叢、石頭：有東西就翻到，沒有就只冒個泡泡
+      const spot: Spot = { key: `${f.x},${f.y}`, kind: SEARCH_TILES[this.def.tiles[f.y][f.x]] as Spot['kind'] };
+      if (this.lootAt(spot.key)) this.runScript((ctx) => this.search(ctx, spot));
+      else useGame.getState().think(spot.kind === 'flower' ? '花叢裡什麼也沒有。' : '石頭底下什麼也沒有。');
+    }
+  }
+
+  /** 能翻找的地方（今天藏東西的由 loot.ts 依日子決定） */
+  private spots(): Spot[] {
+    const out: Spot[] = this.def.props.filter(searchableProp).map((p) => ({ key: `p${p.x},${p.y}`, kind: 'prop' as const }));
+    this.def.tiles.forEach((row, y) =>
+      [...row].forEach((c, x) => SEARCH_TILES[c] && out.push({ key: `${x},${y}`, kind: SEARCH_TILES[c] as Spot['kind'] })),
+    );
+    return out;
+  }
+
+  /** 這裡今天藏的東西（已經翻走的不算） */
+  private lootAt(key: string): Loot | undefined {
+    const world = useGame.getState().world;
+    if (looted(world, this.def.id, key)) return undefined;
+    return lootToday(world, this.def, this.spots()).get(key);
+  }
+
+  /** 翻找：有東西就拿（行囊滿了就先留著） */
+  private async search(ctx: EventCtx, spot: Spot) {
+    const loot = this.lootAt(spot.key);
+    if (!loot) return;
+    const st = useGame.getState();
+    if (loot.item && !canHold(st.hero, loot.item, loot.n)) {
+      await ctx.say(`${SEARCH_TEXT[spot.kind]}裡頭好像有東西，可是行囊滿了，拿不下。`);
+      return;
+    }
+    st.updateWorld((w) => (w.daily[lootKey(this.def.id, spot.key)] = { day: w.day, n: 1 }));
+    await ctx.say(`${SEARCH_TEXT[spot.kind]}發現了${loot.silver ? ` ${loot.silver} 兩碎銀` : `「${ITEMS[loot.item!].name}」`}！`);
+    await ctx.hero((h) => {
+      if (loot.silver) {
+        h.silver += loot.silver;
+        return `銀兩 +${loot.silver}。`;
+      }
+      return giveItem(h, loot.item!, loot.n);
+    });
   }
 
   /** 跟野獸開打；打贏後牠消失，過一陣子才重生 */
@@ -610,6 +670,10 @@ export class MapScene extends Phaser.Scene {
     const prop = this.propAt(f.x, f.y);
     const door = this.inBounds(f.x, f.y) ? this.doors.get(this.idx(f.x, f.y)) : undefined;
     const talkable = npc && (npc.def.script || npc.def.talks?.length);
+    // 要花時間、體力的事：主角頭上冒出代價的想法泡泡
+    const cost = scriptCost(npc?.actor ? npc.def.script : prop?.def.script);
+    const st = useGame.getState();
+    st.setHint(cost ? costText(cost, st) : null);
     if (npc?.def.person) {
       const id = npc.def.person;
       useGame.getState().setPrompt({
@@ -659,6 +723,7 @@ export class MapScene extends Phaser.Scene {
     if (this.leaving) return;
     this.leaving = true;
     useGame.getState().setPrompt(null);
+    useGame.getState().setHint(null);
     this.cameras.main.fadeOut(300, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart({ mapId, spawn, arrive }));
   }
@@ -784,10 +849,22 @@ export class MapScene extends Phaser.Scene {
 
   // ── 每幀更新 ─────────────────────────────────────────────
 
+  /** 想法泡泡（React 畫的）跟著主角的頭頂走 */
+  private placeThought() {
+    const el = document.getElementById('thought');
+    if (!el) return;
+    const cam = this.cameras.main;
+    const s = this.player.sprite;
+    el.style.left = `${Math.round((s.x - cam.worldView.x) * cam.zoom)}px`;
+    el.style.top = `${Math.round((s.y - 24 - cam.worldView.y) * cam.zoom)}px`;
+  }
+
+
   update(time: number) {
     const k = this.keys;
     if (this.leaving) return;
     if (this.rain) this.rain.setPosition(this.cameras.main.worldView.x, this.cameras.main.worldView.y);
+    this.placeThought();
 
     if (uiBlocking()) {
       this.queued = null;
@@ -855,6 +932,7 @@ export class MapScene extends Phaser.Scene {
       return;
     }
     useGame.getState().setPrompt(null);
+    useGame.getState().setHint(null);
     // 騎著馬在室外走得比較快（室內照樣步行）
     const hero = useGame.getState().hero;
     const horse = !this.def.theme && hero.riding ? mountDef(hero.mount) : undefined;
@@ -900,4 +978,11 @@ export class MapScene extends Phaser.Scene {
       a.step(dir, NPC_WALK_MS, () => a.stand());
     }
   }
+}
+
+/** 字串的簡單雜湊（決定哪些野獸下雨天躲起來） */
+function hashText(text: string) {
+  let h = 0;
+  for (const ch of text) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h;
 }

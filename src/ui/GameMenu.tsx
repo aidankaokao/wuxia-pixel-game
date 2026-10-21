@@ -37,6 +37,8 @@ import {
 import { itemIconUrl } from '../game/art/items';
 import { MOVES } from '../game/battle/moves';
 import { QUESTS } from '../game/story/quests';
+import { todayTasks } from '../game/daily';
+import { TaskList } from './MorningBrief';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
 import { Settings, useGame } from '../state/store';
@@ -635,10 +637,18 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
 
 function QuestsPage() {
   const flags = useGame((s) => s.flags);
-  const list = QUESTS.map((q) => ({ q, st: q.status(flags) })).filter((x) => x.st);
+  const hero = useGame((s) => s.hero);
+  const world = useGame((s) => s.world);
+  // 進行中的排前面
+  const list = QUESTS.map((q) => ({ q, st: q.status(flags) }))
+    .filter((x) => x.st)
+    .sort((a, b) => Number(a.st!.done) - Number(b.st!.done));
   return (
-    <div>
+    <div className="quests-page">
       <h2>江湖事</h2>
+      <h3>今日</h3>
+      <TaskList tasks={todayTasks({ hero, flags, world })} />
+      <h3>長期</h3>
       {list.length === 0 && <p className="muted placeholder">尚未接下任何委託。</p>}
       {list.map(({ q, st }) => (
         <div key={q.id} className={`quest ${st!.done ? 'done' : ''}`}>

@@ -81,6 +81,11 @@ export const GEAR_ITEMS: Record<string, ItemDef> = {
   g_sandals: gear('草鞋', 'shoes', 0, '稻草編的鞋，輕便，就是不經穿。', { price: 3 }),
   g_shoes: gear('千層布鞋', 'shoes', 1, '一層層納出來的鞋底，走山路也不磨腳。', { price: 14 }),
   g_boots: gear('薄底快靴', 'shoes', 2, '鞋底薄而軟，落地無聲，輕功好手最愛。', { price: 70 }),
+  // 旬休趕集時舊貨攤才有的
+  g_bamboo_hat: gear('青竹笠', 'hat', 2, '細竹篾編的斗笠，遮陽擋雨，邊上還壓著一圈藤。', { price: 45 }),
+  g_iron_bracer: gear('鐵護臂', 'hand', 3, '舊貨攤上淘來的鐵護臂，磨得發亮，不知擋過多少刀。', { price: 150 }),
+  g_jade_pendant: gear('青玉墜', 'neck', 3, '一塊溫潤的青玉，攤主說是從前大戶人家流出來的。', { price: 160 }),
+  g_cloud_boots: gear('雲紋靴', 'shoes', 3, '靴面繡著雲紋，鞋底輕軟，走起路來悄無聲息。', { price: 180 }),
   g_bracer: gear('皮護腕', 'hand', 2, '牛皮縫的護腕，擋得住刀劍擦過。', { price: 40 }),
   g_sachet: gear('繡花香囊', 'neck', 1, '繡著蘭草的香囊，戴在頸上，聞著神清氣爽。', { price: 18 }),
   // 鳴泉劍派發的弟子服（記名：灰布服；正式：月白道袍與布靴；真傳：青紋道袍）

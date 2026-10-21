@@ -1,4 +1,4 @@
-import { gainInsight, ITEMS, nextMove, skillDef } from '../character';
+import { gainInsight, giveItem, ITEMS, nextMove, skillDef } from '../character';
 import { ART_ACTION } from '../arts';
 import { craftOf, gainCraft } from '../crafts';
 import { playChess } from './arts';
@@ -6,6 +6,12 @@ import { MOVES } from '../battle/moves';
 import type { EventCtx, Script } from '../events';
 import type { Line } from '../maps/types';
 import { clampAff, newRelation, Relation, STAGES, stageOf } from '../social';
+import { maybeDayEvent } from './schedule';
+import { orderTalk } from './orders';
+import { GIVERS } from '../orders';
+import { isMealTime } from '../time';
+import { currentMapId } from '../save';
+import { registerDayEvent } from '../schedule';
 import { useGame } from '../../state/store';
 import { Convo, PEOPLE, PersonDef } from './people';
 
@@ -101,6 +107,12 @@ async function addAffinity(ctx: EventCtx, p: PersonDef, n: number) {
 
 // ── 交談 ────────────────────────────────────────────────
 
+/** 有人在這裡一起吃飯的地圖（飯廳、廚房） */
+const DINING = new Set(['mq_kitchen']);
+/** 同桌吃飯時聊天，熟悉度多加這麼多 */
+const MEAL_BONUS = 1;
+const atMeal = () => isMealTime(st().world.time) && DINING.has(currentMapId() ?? '');
+
 const talk =
   (p: PersonDef): Script =>
   async (ctx) => {
@@ -110,6 +122,8 @@ const talk =
       await ctx.say(...fmt(p.gate.refuse));
       return;
     }
+    // 生活技能訂單：過期、交貨、接新單（見 orders.ts）
+    if (GIVERS.some((g) => g.person === p.id) && (await orderTalk(withFormat(ctx, fmt), p.id, (n) => addAffinity(ctx, p, n)))) return;
     if (p.story && (await p.story(ctx))) return;
 
     // 熟悉度到了的事件，下次交談時觸發
@@ -130,6 +144,15 @@ const talk =
         x.talk = { day, n: today + 1 };
         x.lineIdx++;
       });
+      // 用餐時段在飯廳同桌吃飯：聊吃飯時的話題，熟悉度多加 1
+      if (atMeal()) {
+        const meal = (p.meal ?? []).filter(usable);
+        if (meal.length) await ctx.say(...fmt(linesOf(meal[Math.floor(Math.random() * meal.length)])));
+        else await ctx.say(`你端著碗坐到${p.name}旁邊，邊吃邊聊了幾句。`);
+        await addAffinity(ctx, p, p.talk.gain + MEAL_BONUS);
+        await maybeDayEvent(withFormat(ctx, fmt), 'chat', p.id);
+        return;
+      }
       // 偶爾換對方問你問題
       const ask = (p.asks ?? []).find((a) => (a.stage ?? 0) <= stage && !(r.asked ?? []).includes(a.id));
       if (ask && Math.random() < 0.4) {
@@ -139,6 +162,7 @@ const talk =
         const a = ask.answers[c];
         await ctx.say(...fmt([{ speaker: p.name, text: a.reply }]));
         await addAffinity(ctx, p, p.talk.gain + a.aff);
+        await maybeDayEvent(withFormat(ctx, fmt), 'chat', p.id);
         return;
       }
       // 說目前這一階（以及之前各階）的話，隨機挑一句，不跟上一次重複；這一階的話機會比較大
@@ -152,6 +176,8 @@ const talk =
         await ctx.say(...fmt(linesOf((p.lines[t] ?? []).filter(usable)[j])));
       }
       await addAffinity(ctx, p, p.talk.gain);
+      // 聊著聊著，偶爾發生一件小事（見 schedule.ts 的 DayEvent）
+      await maybeDayEvent(withFormat(ctx, fmt), 'chat', p.id);
       return;
     }
     // 今天聊夠了：說在忙，或輪流閒聊（不再加熟悉度）
@@ -172,6 +198,40 @@ function withFormat(ctx: EventCtx, fmt: (l: Line[]) => Line[]): EventCtx {
   const one = (l: Line | string): Line | string => (typeof l === 'string' ? fmt([{ text: l }])[0].text : fmt([l])[0]);
   return { ...ctx, say: (...lines) => ctx.say(...lines.map(one)), ask: (line, choices) => ctx.ask(one(line), choices) };
 }
+
+// ── 聊天時的小事（誰都可能碰上；跟特定的人才有的寫在各自的劇情檔）──────
+
+/** 加熟悉度（小事用，不跳階段提示） */
+function bump(id: string, n: number) {
+  updateRel(id, (r) => {
+    r.aff = clampAff(r.aff + n);
+  });
+  return `（${PEOPLE[id].name}的熟悉度 +${n}）`;
+}
+
+registerDayEvent({
+  id: 'rain_shelter',
+  after: ['chat'],
+  weight: 3,
+  when: (v) => v.world.weather === 'rain',
+  run: async (ctx, who) => {
+    if (!who) return;
+    ctx.pass(2);
+    await ctx.say(`雨越下越大，你和${PEOPLE[who].name}躲在屋簷下，一句接一句，不知不覺又聊了兩刻。`, bump(who, 2));
+  },
+});
+
+registerDayEvent({
+  id: 'small_gift',
+  after: ['chat'],
+  weight: 2,
+  when: (v, who) => !!who && (v.world.relations[who]?.aff ?? 0) >= 30,
+  run: async (ctx, who) => {
+    if (!who) return;
+    await ctx.say(`臨走前，${PEOPLE[who].name}往你手裡塞了一包東西：「自家的，別客氣。」`);
+    await ctx.hero((h) => giveItem(h, Math.random() < 0.5 ? 'tea' : 'jinchuang'));
+  },
+});
 
 // ── 贈禮 ────────────────────────────────────────────────
 
@@ -318,7 +378,7 @@ const hobby =
     ctx.pass(4);
     if (art === 'chess') {
       const won = await playChess(ctx, p.name, h.level, h.style ?? 0);
-      await ctx.say(won ? `${p.name}投子認輸，哈哈一笑：「好棋！」` : `${p.name}收起棋子：「棋力還欠些火候，多下幾盤就好了。」`, '（下了一個時辰）');
+      await ctx.say(won ? `${p.name}投子認輸，哈哈一笑：「好棋！」` : `${p.name}收起棋子：「棋力還欠些火候，多下幾盤就好了。」`, '（下了半個時辰）');
       await ctx.hero((c) => gainCraft(c, 'chess', won ? 25 : 15));
       await addAffinity(ctx, p, won ? 4 : 2);
       return;
@@ -328,15 +388,15 @@ const hobby =
     if (mine === 0) {
       const skill = { qin: '琴', calligraphy: '書法', painting: '作畫' }[art];
       await ctx.say(`${p.name}見你不懂${skill}，倒也不嫌，手把手教了你一些入門的功夫。
-（花了一個時辰）`);
+（花了半個時辰）`);
       await ctx.hero((c) => gainCraft(c, art, 40));
       await addAffinity(ctx, p, 1);
       return;
     }
     const close = mine >= h.level - 2;
     await ctx.say(
-      `你和${p.name}${verb}，${close ? '談得十分投機，不知不覺一個時辰就過去了。' : '大多時候是你在聽，對方說的你只懂一半。'}
-（花了一個時辰）`,
+      `你和${p.name}${verb}，${close ? '談得十分投機，不知不覺半個時辰就過去了。' : '大多時候是你在聽，對方說的你只懂一半。'}
+（花了半個時辰）`,
     );
     await ctx.hero((c) => gainCraft(c, art, 15 + h.level * 2));
     await addAffinity(ctx, p, close ? 3 : 1);

@@ -1,6 +1,6 @@
 import { derive } from '../game/character';
 import { fameTitle } from '../game/social';
-import { dateText, festivalOf, timeText, WEATHER_NAME } from '../game/time';
+import { dateText, festivalOf, isXunxiu, timeText, WEATHER_NAME } from '../game/time';
 import { useGame } from '../state/store';
 
 function Bar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
@@ -25,7 +25,7 @@ export function Hud() {
   const time = useGame((s) => s.world.time);
   const weather = useGame((s) => s.world.weather);
   const prompt = useGame((s) => s.prompt);
-  const blocking = useGame((s) => s.dialog !== null || s.menuOpen || s.eventRunning);
+  const blocking = useGame((s) => s.dialog !== null || s.menuOpen || s.eventRunning || s.brief !== null);
   const inBattle = useGame((s) => s.battle !== null || s.screen !== 'game');
   const d = derive(hero);
   if (inBattle) return null;
@@ -50,6 +50,7 @@ export function Hud() {
           </span>
           <span>
             {festivalOf(day) && <span className="festival">{festivalOf(day)}　</span>}
+            {isXunxiu(day) && <span className="festival">旬休　</span>}
             {WEATHER_NAME[weather]}
           </span>
         </div>

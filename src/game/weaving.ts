@@ -28,7 +28,13 @@ export interface PatternDef {
 export const WEAVE_MATERIALS: Record<string, ItemDef> = {
   cotton_thread: { name: '棉線', category: '雜物', icon: 'thread', desc: '一綑紡好的棉線，織布、縫衣都用得上。', price: 2 },
   silk_thread: { name: '絲線', category: '雜物', icon: 'silk', desc: '光滑柔亮的絲線，做香囊、繡花用。', price: 8 },
+  fine_silk: {
+    name: '上品絲線', category: '雜物', icon: 'silk', price: 30,
+    desc: '江南來的上品絲線。織東西時摻一綑，織出來的至少是「精良」。只有旬休趕集時買得到。',
+  },
 };
+/** 織布時摻上品絲線，品級至少到這一級（精良） */
+export const FINE_SILK_GRADE = 2;
 export const WEAVE_SHOP = ['cotton_thread', 'silk_thread'];
 
 export const PATTERNS: PatternDef[] = [
@@ -55,10 +61,13 @@ export const WOVEN_ITEMS: Record<string, ItemDef> = Object.fromEntries(
 export const knowsPattern = (c: Character, id: string) => !!workOf(c, 'weaving', id);
 
 /** 織一件：回傳品級 0–4（紡織等級、樣式熟練度越高越好，越難的樣式越難織好） */
-export function weaveRoll(c: Character, p: PatternDef, rand: () => number = Math.random): number {
+/** 晴天光線好、絲線乾爽，織得比較好（weaveRoll 的 bonus） */
+export const SUNNY_WEAVE = 0.1;
+
+export function weaveRoll(c: Character, p: PatternDef, rand: () => number = Math.random, bonus = 0): number {
   const lv = craftOf(c, 'weaving').level;
   const work = workOf(c, 'weaving', p.id)?.level ?? 1;
-  const q = rand() + lv * 0.09 + (work - 1) * 0.08 - p.level * 0.06;
+  const q = rand() + lv * 0.09 + (work - 1) * 0.08 - p.level * 0.06 + bonus;
   return q < 0.35 ? 0 : q < 0.85 ? 1 : q < 1.15 ? 2 : q < 1.45 ? 3 : 4;
 }
 

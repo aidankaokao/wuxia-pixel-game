@@ -1615,3 +1615,161 @@ table.charter td {
   max-height: 56vh;
   overflow-y: auto;
 }
+
+/* 早晨提要與今日事 */
+.brief {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 16px 22px 12px;
+  color: var(--paper);
+}
+
+.brief-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  border-bottom: 2px solid var(--gold-dim);
+  padding-bottom: 6px;
+}
+
+.brief-date {
+  font-size: 20px;
+  color: var(--gold);
+}
+
+.brief-weather {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.brief-line {
+  margin: 8px 0 4px;
+  font-size: 15px;
+}
+
+.brief h3,
+.quests-page h3 {
+  margin: 12px 0 4px;
+  font-size: 15px;
+  color: var(--gold);
+  font-weight: normal;
+}
+
+.brief-foot {
+  margin: 12px 0 0;
+  text-align: center;
+}
+
+.task-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+
+.task {
+  display: flex;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.task-mark {
+  color: var(--gold);
+  flex: none;
+}
+
+.task.done,
+.task.missed {
+  color: var(--muted);
+}
+
+.task.done .task-mark,
+.task.missed .task-mark {
+  color: var(--muted);
+}
+
+.task-note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* 主角頭上的想法泡泡（雲朵）：left/top 由 MapScene 擺在主角頭頂 */
+.thought-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.thought {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 240px;
+  padding: 6px 14px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  font-size: 15px;
+  line-height: 1.35;
+  text-align: center;
+  white-space: pre-line;
+  animation: thought-pop 0.18s ease-out;
+}
+
+.thought.remind {
+  background: #fff8e4;
+}
+
+.thought-dot {
+  position: absolute;
+  left: 50%;
+  bottom: -21px;
+  width: 6px;
+  height: 6px;
+  margin-left: 2px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+
+.thought-dot.big {
+  bottom: -13px;
+  width: 9px;
+  height: 9px;
+  margin-left: -6px;
+}
+
+@keyframes thought-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px) scale(0.85);
+  }
+}
+
+/* 日課表 */
+.schedule-rows li {
+  justify-content: flex-start;
+  padding: 4px;
+}
+
+.schedule-time {
+  width: 7em;
+  flex: none;
+  color: var(--muted);
+}
+
+.schedule-name {
+  width: 8em;
+  flex: none;
+}
+
+.schedule-warn {
+  color: var(--red);
+}

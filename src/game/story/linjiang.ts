@@ -1,6 +1,7 @@
 import { CLOTH_SHOP } from '../gear';
 import { WEAVE_SHOP } from '../weaving';
 import { teachPatterns } from './weaving';
+import { orderTalk } from './orders';
 import type { Script } from '../events';
 import { by } from '../maps/rooms';
 
@@ -18,6 +19,7 @@ const clothChats = [
 let chat = 0;
 
 export const clothShopTalk: Script = async (ctx) => {
+  if (await orderTalk(ctx, 'jin')) return;
   const c = await ctx.ask(jin('客官要看看什麼？')[0], ['看看衣物', '買紡織的材料', '學紡織', '閒聊', '不用了']);
   if (c === 0) await ctx.panel({ kind: 'shop', title: '錦繡布莊', stock: CLOTH_SHOP });
   else if (c === 1) await ctx.panel({ kind: 'shop', title: '錦繡布莊・絲線', stock: WEAVE_SHOP });

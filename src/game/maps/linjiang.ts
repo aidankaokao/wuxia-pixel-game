@@ -1,3 +1,4 @@
+import { STALLS, stallAt } from '../story/market';
 import { huichunDelivery, MQ } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
@@ -85,6 +86,11 @@ export const linjiang: MapDef = {
     { sprite: 'well', x: 6, y: 25, lines: [{ text: '城裡的公井，井沿被繩子磨出了一道道溝。' }] },
     { sprite: 'stall', x: 15, y: 25, w: 2, lines: [{ text: '攤子上擺著糖人、紙鳶和各色小玩意。' }] },
     { sprite: 'stall', x: 19, y: 25, w: 2, lines: [{ text: '賣菜的攤子，青菜蘿蔔堆得像小山。' }] },
+    // 旬休趕集：城南的四個攤子（見 story/market.ts）
+    { sprite: 'stall', x: 31, y: 25, w: 2, script: stallAt('food'), label: '田記山貨', when: (f) => f.xunxiu === 1 },
+    { sprite: 'stall', x: 34, y: 25, w: 2, script: stallAt('silk'), label: '江南絲行', when: (f) => f.xunxiu === 1 },
+    { sprite: 'stall', x: 38, y: 25, w: 2, script: stallAt('books'), label: '舊書攤', when: (f) => f.xunxiu === 1 },
+    { sprite: 'stall', x: 41, y: 25, w: 2, script: stallAt('goods'), label: '舊貨攤', when: (f) => f.xunxiu === 1 },
     { sprite: 'flag', x: 31, y: 7, lines: [{ text: '金刀鏢局的鏢旗，旗上一把金刀。' }] },
     { sprite: 'boat', x: 23, y: 33, w: 3, lines: [{ text: '漕幫的運糧船。' }] },
     { sprite: 'boat', x: 41, y: 34, w: 3, lines: [{ text: '一艘烏篷小船，船家正在補網。' }] },
@@ -164,6 +170,21 @@ export const linjiang: MapDef = {
     {
       id: 'lj_woman', name: '孫大娘', sprite: 'lady', x: 45, y: 24, wander: 3,
       talks: [[{ speaker: '孫大娘', text: '布莊的料子又漲價了，這日子怎麼過喲。' }]],
+    },
+    // 旬休趕集的攤主與逛市集的人
+    ...(['food', 'silk', 'books', 'goods'] as const).map((id, i) => ({
+      id: `lj_market_${id}`,
+      name: STALLS[id].vendor,
+      sprite: (['farmer', 'lady', 'scholar', 'escort'] as const)[i],
+      x: [31, 34, 38, 41][i],
+      y: 24,
+      facing: 'down' as const,
+      when: (f: Record<string, number>) => f.xunxiu === 1,
+      talks: [[{ speaker: STALLS[id].vendor, text: STALLS[id].greet }, { text: `（要買東西，走到攤子前面挑貨）` }]],
+    })),
+    {
+      id: 'lj_shopper', name: '余二嫂', sprite: 'lady', x: 36, y: 27, wander: 3, when: (f) => f.xunxiu === 1,
+      talks: [[{ speaker: '余二嫂', text: '一旬才一回集，不早點來，好東西都讓人挑走了！' }]],
     },
     {
       id: 'lj_kid', name: '阿寶', sprite: 'child', x: 10, y: 24, wander: 2,

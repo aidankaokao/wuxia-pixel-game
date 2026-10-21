@@ -56,6 +56,8 @@ export interface PersonDef {
   lines: Partial<Record<number, Convo[]>>;
   /** 今天聊夠了之後輪流說的話 */
   idle: Convo[];
+  /** 用餐時段在飯廳聊天說的話（同桌吃飯，熟悉度多加 1） */
+  meal?: Convo[];
   /** 收禮：喜歡的加多少、討厭的扣多少；沒寫 gift 表示不收禮 */
   gift?: { likes: Record<string, number>; dislikes?: Record<string, number> };
   refuseGift?: Line[];

@@ -3,7 +3,7 @@ import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
 /** 物品圖示：16×16，給 React 的物品欄用（轉成 data URL 放進 <img>）。 */
 
 export type ItemIcon =
-  | 'salve' | 'tea' | 'book' | 'scroll' | 'stew' | 'herb' | 'meat' | 'tusk' | 'pelt' | 'token'
+  | 'salve' | 'pill' | 'tea' | 'book' | 'scroll' | 'stew' | 'herb' | 'meat' | 'tusk' | 'pelt' | 'token'
   // 食材
   | 'sack' | 'flour' | 'egg' | 'tofu' | 'greens' | 'radish' | 'chicken' | 'mushroom' | 'beans' | 'sugar' | 'flower' | 'seeds' | 'nut'
   // 菜餚
@@ -30,6 +30,15 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     hline(ctx, 5, 10, 3, '#d86050');
     px(ctx, 6, 9, 4, 3, '#c4483c');
     px(ctx, 7, 10, 2, 1, '#f1e7cf');
+  },
+  // 小藥丸：油紙上三顆褐色丸子
+  pill(ctx) {
+    px(ctx, 2, 9, 12, 5, '#e8d8a8');
+    hline(ctx, 2, 13, 13, '#c8b888');
+    for (const [x, y] of [[4, 8], [8, 9], [6, 5]] as const) {
+      ellipse(ctx, x + 1, y + 1, 2, 2, '#7a4a2a');
+      px(ctx, x, y, 1, 1, '#b07a4a');
+    }
   },
   // 茶：青瓷茶盞，冒著熱氣
   tea(ctx) {

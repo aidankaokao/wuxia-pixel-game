@@ -47,6 +47,8 @@ let position: () => Position | null = () => null;
 export const setPositionProvider = (fn: () => Position | null) => {
   position = fn;
 };
+/** 主角目前在哪張地圖 */
+export const currentMapId = () => position()?.mapId;
 
 const key = (slot: SlotId) => `wuxia.save.${slot}`;
 

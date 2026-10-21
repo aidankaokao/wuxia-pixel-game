@@ -8,6 +8,7 @@
  * 同一套配置之後也能拿來產生 NPC 的家。
  */
 
+import type { Order } from './orders';
 import type { SectState } from './sect';
 import { START_TIME, type Weather } from './time';
 import type { Relation } from './social';
@@ -46,11 +47,19 @@ export interface World {
   relations: Record<string, Relation>;
   /** 拜入的門派（只能有一個；沒拜師就沒有這個欄位，見 sect.ts） */
   sect?: SectState;
+  /** 這份存檔的亂數種子（到處翻找時，哪裡藏東西由它與日子決定，見 loot.ts） */
+  seed?: number;
+  /** 生活技能訂單：下單的人 id → 訂單（見 orders.ts） */
+  orders?: Record<string, Order>;
+  /** 下單的人 id → 第幾天起才會再下單 */
+  orderNext?: Record<string, number>;
+  /** 日課表：活動 id 依序排（見 schedule.ts）；沒排過就用預設 */
+  schedule?: string[];
   /** 離開過的門派：不能再回去拜師 */
   leftSects?: string[];
 }
 
-export const newWorld = (): World => ({ day: 1, time: START_TIME, weather: 'clear', estates: {}, daily: {}, relations: {} });
+export const newWorld = (): World => ({ day: 1, time: START_TIME, weather: 'clear', estates: {}, daily: {}, relations: {}, seed: Math.floor(Math.random() * 2 ** 31) });
 
 /** 今天已經用了幾次 */
 export const usedToday = (w: World, key: string) => (w.daily[key]?.day === w.day ? w.daily[key].n : 0);

@@ -1,5 +1,5 @@
 import { wellUse } from '../story/bandits';
-import { greeterTalk, herbAt, mushroomAt, mushroomGrown, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
+import { fogElder, greeterTalk, herbAt, mushroomAt, mushroomGrown, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import { practiceAt } from '../story/arts';
 import { LANTERN_DAYS } from '../festival';
 import { graveAt, moonAt, poolAt } from '../story/festival';
@@ -109,24 +109,24 @@ export const mqSect: MapDef = {
   npcs: [
     { id: 'mqs_greeter', name: MQ.fang, sprite: 'disciple', x: 25, y: 40, facing: 'down', script: greeterTalk },
     // 陸鳴川要帶晨課，寅時末（卯時之前）就到廣場
-    { id: 'mqs_lu', name: '陸鳴川', sprite: 'sect_senior', x: 22, y: 21, facing: 'down', person: 'lu', out: 19 },
-    { id: 'mqs_xiaoman', name: '顧小滿', sprite: 'disciple_girl', x: 18, y: 26, facing: 'up', wander: 1, person: 'xiaoman' },
+    { id: 'mqs_lu', name: '陸鳴川', sprite: 'sect_senior', x: 22, y: 21, facing: 'down', person: 'lu', out: 19, meal: 'away' },
+    { id: 'mqs_xiaoman', name: '顧小滿', sprite: 'disciple_girl', x: 18, y: 26, facing: 'up', wander: 1, person: 'xiaoman', meal: 'away', when: (f) => !f.rain },
     {
-      id: 'mqs_trainee1', name: MQ.bao, sprite: 'disciple', x: 25, y: 23, facing: 'left', wander: 1,
+      id: 'mqs_trainee1', name: MQ.bao, sprite: 'disciple', x: 25, y: 23, facing: 'left', wander: 1, meal: 'away', when: (f) => !f.rain,
       talks: [
         [{ speaker: MQ.bao, text: '我叫包小川，跟秋生同一天入門的。他練得比我快……我才不服！' }],
         [{ speaker: MQ.bao, text: '喝！哈！……別看我，師兄說一套劍沒練滿一百遍不許停。' }],
       ],
     },
     {
-      id: 'mqs_trainee2', name: MQ.tang, sprite: 'disciple', x: 28, y: 25, facing: 'up', wander: 1,
+      id: 'mqs_trainee2', name: MQ.tang, sprite: 'disciple', x: 28, y: 25, facing: 'up', wander: 1, meal: 'away', when: (f) => !f.rain,
       talks: [
         [{ speaker: MQ.tang, text: '在下唐秋生。小川老說要贏我，可他每天晨課都睡過頭。' }],
         [{ speaker: MQ.tang, text: '本派劍法講究「快而不亂，如泉不絕」。說起來簡單，練起來可難了。' }],
       ],
     },
     {
-      id: 'mqs_sweeper', name: MQ.cao, sprite: 'disciple', x: 17, y: 12, wander: 2, script: sweeperTalk,
+      id: 'mqs_sweeper', name: MQ.cao, sprite: 'disciple', x: 17, y: 12, wander: 2, script: sweeperTalk, meal: 'away',
     },
     {
       id: 'mqs_outer', name: MQ.zheng, sprite: 'farmer', x: 6, y: 15, wander: 2,
@@ -203,6 +203,11 @@ export const mqBack: MapDef = {
   ],
   npcs: [
     { id: 'mqb_yan', allDay: true, name: MQ.yan, sprite: 'sect_judge', x: 8, y: 4, facing: 'down', person: 'yan' },
+    {
+      // 霧天的奇事：清晨起霧時才在泉源旁（見 fogElder）
+      id: 'mqb_fog', allDay: true, name: '霧中老人', sprite: 'scholar', x: 18, y: 13, facing: 'right', script: fogElder,
+      when: (f) => f.fog === 1 && f.mq_fog_old !== f.today,
+    },
     {
       id: 'mqb_elder', allDay: true, name: '邵長庚', sprite: 'storyteller', x: 22, y: 20, facing: 'left', wander: 1,
       talks: [

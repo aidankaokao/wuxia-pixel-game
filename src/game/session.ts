@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { autosave, canSave, describeSave, readSave, restoreHero, restoreWorld, SaveData, writeSave } from './save';
 import { useGame } from '../state/store';
 import { Attrs, newHero } from './character';
+import { resetReminders } from './thought';
 
 /** 遊戲流程：開新遊戲、讀檔、回到標題。由 React 介面呼叫。 */
 
@@ -19,9 +20,11 @@ function startMap(data: { mapId: string; spawn?: { x: number; y: number; facing:
 
 /** 開新遊戲：用建立角色畫面填好的姓名與擲出的五維 */
 export function newGame(profile: { surname: string; given: string; base: Attrs }) {
+  resetReminders();
   useGame.getState().resetGame();
   useGame.setState({ screen: 'game', hero: newHero(profile) });
   startMap({ mapId: 'qingzhu' });
+  useGame.getState().showBrief();
 }
 
 /** 進入建立角色畫面 */
@@ -32,6 +35,7 @@ export function toCreate() {
 }
 
 export function loadGame(d: SaveData) {
+  resetReminders();
   const st = useGame.getState();
   st.resetGame();
   useGame.setState({
@@ -42,6 +46,7 @@ export function loadGame(d: SaveData) {
     settings: { ...st.settings, ...d.settings },
   });
   startMap({ mapId: d.mapId, spawn: { x: d.x, y: d.y, facing: d.facing } });
+  useGame.getState().showBrief();
 }
 
 export function toTitle() {
