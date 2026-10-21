@@ -82,9 +82,13 @@ src/
     maps/       地圖資料
     scenes/     Phaser 場景（行走地圖、戰鬥）
     story/      劇情腳本與人物檔案
-    character.ts  五維與武功的成長模型
+    character.ts  五維與武功的成長模型、物品、行囊、穿戴
     sect.ts     門派系統
-    time.ts     時間、日夜、天氣、NPC 作息
+    time.ts     時間、日夜、天氣、NPC 作息、曆法與節慶
+    crafts.ts   生活技能（烹飪 cooking、紡織 weaving、學識 books、琴棋書畫 arts）
+    gear.ts     服飾部位與品級
+    festival.ts 節令點心與節慶擺設
+    mounts.ts   坐騎
   ui/           React 介面元件
   state/        共用狀態
 ```
