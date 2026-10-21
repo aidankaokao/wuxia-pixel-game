@@ -1580,3 +1580,38 @@ table.charter td {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
+
+/* 存檔欄：一條一條的欄位 */
+.save-slots {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 2px 4px 2px 0;
+  max-height: 440px;
+  overflow-y: auto;
+}
+.save-slot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  min-height: 22px;
+}
+.save-slot.active {
+  background: #3a2e22;
+}
+.save-slot.disabled {
+  opacity: 0.45;
+}
+.save-slot-name {
+  flex: 0 0 96px;
+  white-space: nowrap;
+}
+.save-slot-info {
+  font-size: 13px;
+}
+.title-menu.wide {
+  max-height: 56vh;
+  overflow-y: auto;
+}

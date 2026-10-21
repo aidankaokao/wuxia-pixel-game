@@ -132,6 +132,7 @@ export async function rest(ctx: EventCtx, lv: number, prompt = '要躺下休息�
 
 /** 睡到下一個卯時（早上 5 點）、全回復 */
 export async function sleep(ctx: EventCtx, lv: number, wake?: (Line | string)[]) {
+  await ctx.work('sleep', '睡覺中……', 1000);
   ctx.pass(keUntilDawn(st().world.time));
   const { day, time } = st().world;
   const bonus = BED_REST[lv];
@@ -149,6 +150,7 @@ export async function sleep(ctx: EventCtx, lv: number, wake?: (Line | string)[])
 
 /** 小睡幾個時辰：每個時辰恢復四分之一的氣血、內力，與三分之一的體力 */
 async function nap(ctx: EventCtx, n: number) {
+  await ctx.work('sleep', '小睡片刻……', 1000);
   ctx.pass(n * SHICHEN);
   await ctx.hero((h) => {
     const d = derive(h);

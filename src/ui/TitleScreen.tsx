@@ -18,7 +18,8 @@ export function TitleScreen() {
 
   const main = [
     { label: '繼續遊戲', enabled: !!latest, run: () => latest && loadGame(latest) },
-    { label: '讀取進度', enabled: saves.some((s) => s.data), run: () => (setMode('load'), setCursor(0)) },
+    // 進到讀取進度時，游標停在第一個有存檔的欄位
+    { label: '讀取進度', enabled: saves.some((s) => s.data), run: () => (setMode('load'), setCursor(Math.max(0, saves.findIndex((s) => s.data)))) },
     { label: '新的遊戲', enabled: true, run: toCreate },
   ];
   const items =
@@ -27,8 +28,18 @@ export function TitleScreen() {
       : saves.map((s) => ({
           label: `${SLOT_NAME[s.slot]}　${s.data ? describeSave(s.data) : '（空）'}`,
           enabled: !!s.data,
-          run: () => s.data && loadGame(s.data),
+          // 讀檔前先確認
+          run: async () => {
+            if (!s.data) return;
+            const ok = await useGame.getState().askConfirm(`要讀取「${SLOT_NAME[s.slot]}」嗎？\n${describeSave(s.data)}`, '讀取');
+            if (ok) loadGame(s.data);
+          },
         }));
+
+  // 讀取進度的清單很長：游標所在的捲到看得見
+  useEffect(() => {
+    document.querySelector('.title-menu .active')?.scrollIntoView({ block: 'nearest' });
+  }, [cursor, mode]);
 
   // 回到標題時，游標停在第一個可以選的項目（沒有存檔時就是「新的遊戲」）
   useEffect(() => {

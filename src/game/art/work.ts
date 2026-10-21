@@ -1,11 +1,11 @@
 import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
 
 /**
- * 做事的過場動畫：掃地、挑水、翻曬草藥、整理書冊、澆菜、做菜、織布、讀書。
+ * 做事的過場動畫：掃地、挑水、翻曬草藥、整理書冊、澆菜、做菜、織布、讀書、睡覺。
  * 每種 4 格，64×40，由介面放大顯示（見 ui/WorkAnim.tsx）。
  */
 
-export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read';
+export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read' | 'sleep';
 export const WORK_W = 64;
 export const WORK_H = 40;
 export const WORK_FRAMES = 4;
@@ -124,12 +124,32 @@ const DRAW: Record<WorkKind, (ctx: Ctx, f: number) => void> = {
     const w = [0, 6, 12, 0][f];
     if (w) px(ctx, 33 - (f === 2 ? 12 : 0), 14, w, 14, '#fffaf0');
   },
+  // 睡覺：蓋著被子，頭上飄著 Z，窗外一彎月亮
+  sleep(ctx, f) {
+    px(ctx, 0, 34, WORK_W, 6, '#4a3428');
+    px(ctx, 10, 24, 44, 10, '#6a4428');
+    px(ctx, 10, 21, 6, 13, '#5a3a20');
+    px(ctx, 14, 22, 8, 4, '#e8e0cc');
+    px(ctx, 16, 19 + (f % 2), 5, 4, SKIN);
+    px(ctx, 16, 18 + (f % 2), 5, 2, HAIR);
+    hline(ctx, 17, 18, 21 + (f % 2), '#5a4040');
+    px(ctx, 21, 22 + (f % 2), 32, 5, '#5a7a9a');
+    hline(ctx, 21, 52, 22 + (f % 2), '#7a9aba');
+    // 一個個往上飄的 Z
+    for (let i = 0; i < 3; i++) {
+      const y = 15 - ((f + i) % 4) * 3;
+      const x = 24 + i * 4 + ((f + i) % 4);
+      hline(ctx, x, x + 2, y, '#f4f0e4');
+      px(ctx, x + 1, y + 1, 1, 1, '#f4f0e4');
+      hline(ctx, x, x + 2, y + 2, '#f4f0e4');
+    }
+  },
 };
 
 /** 在室外做的事（背景畫天空與遠山），其他的在室內（牆與窗） */
 const OUTDOOR: WorkKind[] = ['sweep', 'water', 'herbs', 'garden'];
 
-function backdrop(ctx: Ctx, outdoor: boolean) {
+function backdrop(ctx: Ctx, outdoor: boolean, night = false) {
   if (outdoor) {
     px(ctx, 0, 0, WORK_W, WORK_H, '#a8cce4');
     for (let x = 0; x < WORK_W; x++) {
@@ -138,11 +158,15 @@ function backdrop(ctx: Ctx, outdoor: boolean) {
     }
     px(ctx, 50, 5, 5, 5, '#f8f0c8');
   } else {
-    px(ctx, 0, 0, WORK_W, WORK_H, '#c9bda6');
-    hline(ctx, 0, WORK_W - 1, 24, '#a89878');
-    px(ctx, 6, 5, 12, 10, '#5a6a7a');
-    vline(ctx, 12, 5, 14, '#c9bda6');
-    hline(ctx, 6, 17, 10, '#c9bda6');
+    px(ctx, 0, 0, WORK_W, WORK_H, night ? '#3a3448' : '#c9bda6');
+    hline(ctx, 0, WORK_W - 1, 24, night ? '#2e2a3a' : '#a89878');
+    px(ctx, 6, 5, 12, 10, night ? '#1a2238' : '#5a6a7a');
+    if (night) {
+      px(ctx, 13, 6, 3, 3, '#f0e0a0');
+      px(ctx, 14, 6, 2, 2, '#1a2238');
+    }
+    vline(ctx, 12, 5, 14, night ? '#3a3448' : '#c9bda6');
+    hline(ctx, 6, 17, 10, night ? '#3a3448' : '#c9bda6');
   }
 }
 
@@ -158,7 +182,7 @@ export function workFrame(kind: WorkKind, f: number): string {
     DRAW[kind](lctx, f);
     outline(lctx, 0, 0, WORK_W, WORK_H, OUTLINE);
     const [c, ctx] = makeCanvas(WORK_W, WORK_H);
-    backdrop(ctx, OUTDOOR.includes(kind));
+    backdrop(ctx, OUTDOOR.includes(kind), kind === 'sleep');
     ctx.drawImage(layer, 0, 0);
     url = c.toDataURL();
     cache.set(key, url);

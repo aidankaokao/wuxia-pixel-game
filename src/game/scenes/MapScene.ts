@@ -727,7 +727,7 @@ export class MapScene extends Phaser.Scene {
       },
       wait: (ms) => new Promise((done) => this.time.delayedCall(ms, done)),
       pass: (ke) => void st().passTime(ke),
-      work: (kind, text) => st().playWork(kind, text),
+      work: (kind, text, ms) => st().playWork(kind, text, ms),
       refresh: () => this.refresh(),
       reload: (arrive) => this.warp(this.def.id, { x: this.player.tx, y: this.player.ty, facing: this.player.facing }, arrive),
       panel: (p) => st().openPanel(p),
