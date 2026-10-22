@@ -35,6 +35,7 @@
 - 服飾：部位與品級在 `src/game/gear.ts`（數值查 `GEAR_TABLE`，新增服飾只填部位與品級），穿脫用 `character.ts` 的 `equipGear`／`unequipGear`，穿著的存在 `hero.gear`（不佔行囊），戰鬥數值在 `heroUnit` 加上 `gearStats`。門派發的服飾帶 `sect`（綁定），離開門派用 `takeSectGear` 收回。
 - 兵器：`gear.ts` 的 `weapon(名稱, '劍'|'刀', 品級, 說明)`，攻擊力查表；外功招式拿錯兵器只有九成威力、拳掌空手多一成（`weaponFit`，戰鬥中是 `Unit.moveMult`）。新增外功種類（例如暗器）時，記得在 `WEAPON_FOR` 填它要拿什麼。
 - 大地圖：地理、節點、道路在 `src/game/world/geo.ts`（新地方加進 `NODES`，填 `enter` 指到小地圖；還沒做好的標 `locked`；道路加進 `ROADS`），畫面是 `scenes/WorldScene.ts`（自己的劇情介面，只會說話、開戰、過時間）與 `ui/WorldOverlay.tsx`（地名與資訊卡）。每個節點是一個據點（一組小地圖），據點之間的小地圖不直接相連：出口填 `world: 節點id`、`worldFrom: 朝向哪個節點`；從哪條路來就從哪一側進去（節點的 `enterFrom`）；渡口類的節點標 `crossing`（大地圖上只能往回走，過河要進去坐船，見 `story/ferry.ts`）。戰敗送回的地方在 `scenes/defeat.ts`。開發用 `?map=world&node=linjiang`。
+- 做菜的師傅：`story/cooking.ts` 的 `teachDishes` 可以指定教哪些菜（`teaches`）、學費單位與金額；海鮮菜標 `sea`，只有大埠頭潘大娘教。
 - 學識：書目在 `src/game/books.ts`（`BOOKS`、`readBook`，熟讀程度是 `learning:書id` 項目），書架腳本 `story/reading.ts` 的 `readingShelf`；學識的好處用 `learningDiscount`（商店折扣）與 `learningBonus`（研讀領悟）。
 - 琴棋書畫：資料在 `src/game/arts.ts`，練習與對弈的腳本在 `story/arts.ts`（`practiceAt`、`playChess`）。NPC 的嗜好填在人物檔案的 `hobby`（哪一門、造詣、幾階起、棋風），互動是人際動作 `hobby`（按 H，名稱用 `actionName` 依嗜好顯示）。
 - 紡織：樣式與材料在 `src/game/weaving.ts`（織出的服飾是 `w_樣式_品級`，數值照 `gear.ts` 查表），腳本 `story/weaving.ts`（`teachPatterns`、`loomAt`）。坐騎在 `src/game/mounts.ts`（`hero.mount`、`hero.riding`），買賣在 `story/stable.ts`；騎馬加速在 `MapScene` 主角走路那裡。

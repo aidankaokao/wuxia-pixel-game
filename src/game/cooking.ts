@@ -36,6 +36,10 @@ export const INGREDIENTS: Record<string, ItemDef> = {
   osmanthus: { name: '桂花', category: '食材', icon: 'flower', desc: '曬乾的桂花，香氣濃郁。', price: 4 },
   sesame: { name: '芝麻', category: '食材', icon: 'seeds', desc: '炒香的黑芝麻。', price: 3 },
   almond: { name: '杏仁', category: '食材', icon: 'nut', desc: '去了殼的杏仁。', price: 5 },
+  // 海產：大埠頭的魚市才買得到
+  sea_fish: { name: '海魚', category: '食材', icon: 'fish', desc: '早上剛靠岸的海魚，眼睛還亮著。', price: 6 },
+  shrimp: { name: '鮮蝦', category: '食材', icon: 'shrimp', desc: '活蹦亂跳的海蝦。', price: 5 },
+  seaweed: { name: '海帶', category: '食材', icon: 'seaweed', desc: '曬乾的海帶，泡開了煮湯。', price: 2 },
 };
 
 // ── 菜餚 ────────────────────────────────────────────────
@@ -57,6 +61,8 @@ export interface DishDef {
   desc: string;
   /** 只在鳴泉廚房做得出來（要用鳴泉的泉水） */
   spring?: boolean;
+  /** 海鮮：大埠頭望潮客棧的潘大娘教（卜大勺不教） */
+  sea?: boolean;
 }
 
 export const DISHES: DishDef[] = [
@@ -80,6 +86,11 @@ export const DISHES: DishDef[] = [
   { id: 'guihua', name: '桂花糕', kind: '甜品', tier: 1, needs: { rice: 1, osmanthus: 1, sugar: 1 }, stamina: 20, treat: { battles: 3, mult: 1.15 }, desc: '米糕上撒著桂花，咬一口滿嘴花香。' },
   { id: 'tangyuan', name: '芝麻湯圓', kind: '甜品', tier: 2, needs: { rice: 1, sesame: 1, sugar: 1 }, stamina: 25, treat: { battles: 3, mult: 1.2 }, desc: '糯米皮包著流心的芝麻餡，小心燙口。' },
   { id: 'xingren', name: '杏仁酥', kind: '甜品', tier: 3, needs: { flour: 1, almond: 1, sugar: 1, egg: 1 }, stamina: 30, treat: { battles: 4, mult: 1.25 }, desc: '酥得一碰就掉渣，杏仁香氣十足。' },
+  // 海鮮：大埠頭望潮客棧的潘大娘教
+  { id: 'haidai', name: '海帶豆腐湯', kind: '湯品', tier: 0, needs: { seaweed: 1, tofu: 1 }, qi: 40, hp: 10, sea: true, desc: '海帶的鮮味全煮進了湯裡。' },
+  { id: 'yuzhou', name: '海魚粥', kind: '飯品', tier: 1, needs: { rice: 1, sea_fish: 1 }, hp: 85, stamina: 30, sea: true, desc: '魚片鋪在白粥上，熱粥一燙就熟了。' },
+  { id: 'xiahun', name: '鮮蝦餛飩', kind: '麵品', tier: 1, needs: { flour: 1, shrimp: 1 }, stamina: 55, hp: 40, sea: true, desc: '皮薄得透光，咬下去整隻蝦仁。' },
+  { id: 'yuwan', name: '魚丸湯', kind: '湯品', tier: 2, needs: { sea_fish: 2, flour: 1 }, qi: 90, hp: 40, sea: true, desc: '魚肉捶成泥再捏成丸子，彈牙得能在桌上跳。' },
 ];
 /** 燉山豬肉：家裡灶台本來就會燉的菜，不用學 */
 export const STEW: DishDef = { id: 'stew', name: '燉山豬肉', kind: '湯品', tier: 0, needs: { boar_meat: 1 }, hp: 150, desc: '燉得軟爛的山豬肉，香氣撲鼻。' };

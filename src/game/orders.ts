@@ -42,7 +42,7 @@ export interface Giver {
 }
 
 export const GIVERS: Giver[] = [
-  { id: 'bu', name: '卜大勺', kind: 'dish', person: 'bu', teaches: (d) => d.tier <= 1 && !d.spring, gifts: [['osmanthus', 3], ['almond', 3], ['sesame', 3]] },
+  { id: 'bu', name: '卜大勺', kind: 'dish', person: 'bu', teaches: (d) => d.tier <= 1 && !d.spring && !d.sea, gifts: [['osmanthus', 3], ['almond', 3], ['sesame', 3]] },
   { id: 'zhong', name: '鍾嬸', kind: 'dish', person: 'zhong', gifts: [['yunwu', 2], ['tea', 3], ['egg', 4]] },
   { id: 'jin', name: '魏錦娘', kind: 'woven', gifts: [['fine_silk', 1], ['silk_thread', 3]] },
 ];

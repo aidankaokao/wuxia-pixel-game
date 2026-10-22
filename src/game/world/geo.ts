@@ -93,7 +93,11 @@ export const NODES: WorldNode[] = [
     enter: { map: 'canglan', x: 11, y: 42, facing: 'up' },
   },
   // ── 還沒開放的地方 ──
-  { id: 'dabutou', name: '大埠頭', kind: 'port', x: 74, y: 38, locked: true, desc: '大江入海口的大港，聽說海船都在這裡靠岸。' },
+  {
+    id: 'dabutou', name: '大埠頭', kind: 'port', x: 74, y: 38,
+    desc: '大江入海口的港口小城。海船在東邊的碼頭靠岸，江船從大江上下來；城南有觀潮台。',
+    enter: { map: 'dabutou', x: 1, y: 14, facing: 'right' },
+  },
   { id: 'biyi', name: '碧漪湖漁村', kind: 'village', x: 42, y: 40, locked: true, desc: '碧漪湖西岸的漁村。' },
   { id: 'yunling', name: '雲嶺', kind: 'wild', x: 25, y: 51, locked: true, desc: '大江南岸連綿的群山，雲霧終年不散。' },
   { id: 'beishang', name: '北上官道', kind: 'wild', x: 58, y: 11, locked: true, desc: '翻過北嶺的官道，一路往北。' },

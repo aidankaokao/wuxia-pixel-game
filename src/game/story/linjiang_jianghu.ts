@@ -6,13 +6,14 @@ import { by } from '../maps/rooms';
 import { keText } from '../thought';
 import { useGame } from '../../state/store';
 import { exert } from './estate';
+import { riverBoat } from './dabutou';
 
 /**
  * 臨江城的江湖差事（第二批）：
  * - 金刀鏢局（總鏢頭金萬山）：護鏢。每天兩趟可挑，一天接一趟；路上可能遇劫，打跑劫匪才拿得到酬勞。遠程的要有點名聲。
  * - 臨江縣衙（捕頭霍青山）：懸賞。揭榜後到指定地點收拾目標，回來領賞；同一張懸賞過幾天才會再貼。
  *   斷崖寨寨主祁三刀的懸賞也貼著，但揭不下來（留給之後的主線）。
- * - 漕幫分舵（舵主彭大江）：扛貨換工錢（順便練外功）、擲骰子比大小。
+ * - 漕幫分舵（舵主彭大江）：扛貨換工錢（順便練外功）、擲骰子比大小、搭船走大江水路往大埠頭。
  *
  * 旗標：
  *   lj_b_<懸賞id>      1 揭了榜 / 2 目標收拾掉了，回縣衙領賞
@@ -242,12 +243,14 @@ export const guildTalk: Script = async (ctx) => {
   const c = await ctx.ask(peng('漕幫臨江分舵。有事說事。')[0], [
     `扛貨（一個時辰、體力 ${CARRY_STAMINA}，工錢 ${CARRY_PAY} 兩）`,
     '擲骰子',
+    '搭漕幫的船往大埠頭（大江水路）',
     '閒聊',
     '不用了',
   ]);
   if (c === 0) await carry(ctx);
   else if (c === 1) await dice(ctx);
-  else if (c === 2)
+  else if (c === 2) await riverBoat(ctx, 'dabutou', peng);
+  else if (c === 3)
     await ctx.say(
       ...peng('金刀鏢局？哼，他們的鏢船夾帶私貨，我們扣下來查，有什麼不對？', '碼頭是漕幫的碼頭，規矩是漕幫的規矩。'),
       ...peng('……三年前那趟鏢的事，跟我們漕幫沒關係。外頭傳的那些話，你別信。'),

@@ -6,6 +6,7 @@ export type ItemIcon =
   | 'salve' | 'pill' | 'tea' | 'book' | 'scroll' | 'stew' | 'herb' | 'meat' | 'tusk' | 'pelt' | 'token'
   // 食材
   | 'sack' | 'flour' | 'egg' | 'tofu' | 'greens' | 'radish' | 'chicken' | 'mushroom' | 'beans' | 'sugar' | 'flower' | 'seeds' | 'nut'
+  | 'fish' | 'shrimp' | 'seaweed'
   // 菜餚
   | 'rice' | 'noodle' | 'soup' | 'sweet'
   // 服飾
@@ -286,6 +287,26 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     for (const y of [5, 8, 11]) hline(ctx, 4, 11, y, '#5a3a20');
     vline(ctx, 4, 3, 12, '#6a4428');
     px(ctx, 9, 4, 2, 8, '#a8744a');
+  },
+  // 海魚：銀藍色的魚身，尾巴翹起
+  fish(ctx) {
+    ellipse(ctx, 7, 8, 5, 3, '#6a8aa8');
+    ellipse(ctx, 7, 7, 4, 1, '#a8c4d8');
+    px(ctx, 12, 6, 2, 1, '#6a8aa8');
+    px(ctx, 12, 9, 2, 1, '#6a8aa8');
+    px(ctx, 13, 7, 1, 2, '#6a8aa8');
+    px(ctx, 4, 7, 1, 1, '#1a1218');
+  },
+  // 鮮蝦：彎彎的橘紅色身子
+  shrimp(ctx) {
+    for (let i = 0; i < 5; i++) px(ctx, 4 + i * 2, 6 + Math.abs(2 - i), 2, 3, i % 2 ? '#e8704a' : '#f08a5a');
+    px(ctx, 3, 4, 1, 3, '#e8704a');
+    hline(ctx, 1, 3, 4, '#c85a3a');
+  },
+  // 海帶：捲起來的深綠色帶子
+  seaweed(ctx) {
+    for (let i = 0; i < 3; i++) px(ctx, 3 + i * 3, 3 + (i % 2), 2, 10, i % 2 ? '#3a5a32' : '#4a6a3a');
+    hline(ctx, 2, 12, 8, '#c8a050');
   },
   // 劍：斜放的長劍，劍格與劍穗
   sword(ctx) {

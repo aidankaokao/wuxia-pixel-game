@@ -126,6 +126,10 @@ export const GEAR_ITEMS: Record<string, ItemDef> = {
   g_sandals: gear('草鞋', 'shoes', 0, '稻草編的鞋，輕便，就是不經穿。', { price: 3 }),
   g_shoes: gear('千層布鞋', 'shoes', 1, '一層層納出來的鞋底，走山路也不磨腳。', { price: 14 }),
   g_boots: gear('薄底快靴', 'shoes', 2, '鞋底薄而軟，落地無聲，輕功好手最愛。', { price: 70 }),
+  // 大埠頭海商會館：海外來的飾品
+  g_coral: gear('珊瑚墜', 'neck', 3, '一截紅珊瑚磨成的墜子，海商說是從南洋來的。', { price: 180 }),
+  g_shark_bracer: gear('鯊皮護腕', 'hand', 3, '鯊魚皮鞣成的護腕，又韌又滑，刀鋒容易滑開。', { price: 170 }),
+  g_sea_hat: gear('海藤笠', 'hat', 2, '海島上的藤編斗笠，又輕又透氣。', { price: 50 }),
   // 兵器：青竹村石記鐵鋪賣粗製、普通；趕集與當鋪偶爾有好的
   w_wood_sword: weapon('木劍', '劍', 0, '一把削得光滑的木劍，練招式剛好。', { price: 5 }),
   w_iron_sword: weapon('鐵劍', '劍', 1, '石記鐵鋪打的鐵劍，樸實耐用。', { price: 30 }),

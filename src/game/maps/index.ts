@@ -1,6 +1,7 @@
 import { canglan } from './canglan';
 import { guandao } from './guandao';
 import { gdTeahouse } from './guandao_rooms';
+import { DABUTOU_MAPS } from './dabutou';
 import { linjiang } from './linjiang';
 import { LINJIANG_ROOMS } from './linjiang_rooms';
 import { mingquan } from './mingquan';
@@ -27,6 +28,7 @@ export const MAPS: Record<string, MapDef> = {
   [mqBack.id]: mqBack,
   ...Object.fromEntries(SECT_MINGQUAN_ROOMS.map((m) => [m.id, m])),
   ...Object.fromEntries(LINJIANG_ROOMS.map((m) => [m.id, m])),
+  ...Object.fromEntries(DABUTOU_MAPS.map((m) => [m.id, m])),
   [qzLiu.id]: qzLiu,
   [qzTea.id]: qzTea,
   [qzSmithy.id]: qzSmithy,

@@ -136,9 +136,13 @@ export async function teachDishes(
   levelOf: () => number,
   /** 交情夠教到第幾階（0 入門 … 3 拿手）；不夠時的提示 */
   trust: { maxTier: number; hint: string } = { maxTier: 3, hint: '' },
+  /** 這位師傅教哪些菜（例如卜大勺不教海鮮）；學費的單位（門派貢獻或銀兩）與各階學費 */
+  opts: { teaches?: (d: DishDef) => boolean; unit?: string; cost?: number[] } = {},
 ) {
   const say = (...t: string[]) => ctx.say(...t.map((text) => ({ speaker: who, text })));
-  const left = DISHES.filter((d) => !knowsDish(st().hero, d.id));
+  const cost = opts.cost ?? TIER_COST;
+  const unit = opts.unit ?? '貢獻';
+  const left = DISHES.filter((d) => !knowsDish(st().hero, d.id) && (opts.teaches?.(d) ?? true));
   if (!left.length) {
     await say('我會的菜都教給你了！剩下的就看你自己琢磨。');
     return;
@@ -153,11 +157,11 @@ export async function teachDishes(
     await say('先把會的菜做熟了再說。手藝不到家，教你也學不會。', hint.trim());
     return;
   }
-  const labels = can.map((d) => `${d.name}（${d.kind}・${DISH_TIERS[d.tier]}${TIER_COST[d.tier] ? `，貢獻 ${TIER_COST[d.tier]}` : ''}）`);
+  const labels = can.map((d) => `${d.name}（${d.kind}・${DISH_TIERS[d.tier]}${cost[d.tier] ? `，${unit} ${cost[d.tier]}` : ''}）`);
   const i = await ctx.ask({ speaker: who, text: `想學哪一道？${hint}` }, [...labels, '算了']);
   if (i >= can.length) return;
   const d = can[i];
-  if (!(await pay(TIER_COST[d.tier]))) return;
+  if (!(await pay(cost[d.tier]))) return;
   ctx.pass(4);
   await ctx.say(
     { speaker: who, text: `看好了，「${d.name}」的要訣是……` },
