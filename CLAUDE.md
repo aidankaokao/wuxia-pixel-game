@@ -33,6 +33,7 @@
 - 生活技能（烹飪、紡織、學識、琴棋書畫）在 `src/game/crafts.ts`：技能 0–10 級，底下的項目（例如每道菜）熟練度 1–5 級；跟武功分開。門派生活的整體規劃見 PLAN.md 4.7。裝備欄位是 `GEAR_SLOTS`。
 - 烹飪：食材與菜餚在 `src/game/cooking.ts`（菜的三種品質是三個物品：`菜id`、`菜id_2`、`菜id_3`，由 `FOOD_ITEMS` 產生併入 `ITEMS`），做菜與學菜的腳本在 `story/cooking.ts`（`cookAt`、`teachDishes`）。菜餚跟藥品一樣平時、戰鬥中都能吃（戰鬥中能用的看 `usableInBattle`：能回氣血或內力的；行囊裡能用的看 `usable`）。
 - 服飾：部位與品級在 `src/game/gear.ts`（數值查 `GEAR_TABLE`，新增服飾只填部位與品級），穿脫用 `character.ts` 的 `equipGear`／`unequipGear`，穿著的存在 `hero.gear`（不佔行囊），戰鬥數值在 `heroUnit` 加上 `gearStats`。門派發的服飾帶 `sect`（綁定），離開門派用 `takeSectGear` 收回。
+- 兵器：`gear.ts` 的 `weapon(名稱, '劍'|'刀', 品級, 說明)`，攻擊力查表；外功招式拿錯兵器只有九成威力、拳掌空手多一成（`weaponFit`，戰鬥中是 `Unit.moveMult`）。新增外功種類（例如暗器）時，記得在 `WEAPON_FOR` 填它要拿什麼。
 - 學識：書目在 `src/game/books.ts`（`BOOKS`、`readBook`，熟讀程度是 `learning:書id` 項目），書架腳本 `story/reading.ts` 的 `readingShelf`；學識的好處用 `learningDiscount`（商店折扣）與 `learningBonus`（研讀領悟）。
 - 琴棋書畫：資料在 `src/game/arts.ts`，練習與對弈的腳本在 `story/arts.ts`（`practiceAt`、`playChess`）。NPC 的嗜好填在人物檔案的 `hobby`（哪一門、造詣、幾階起、棋風），互動是人際動作 `hobby`（按 H，名稱用 `actionName` 依嗜好顯示）。
 - 紡織：樣式與材料在 `src/game/weaving.ts`（織出的服飾是 `w_樣式_品級`，數值照 `gear.ts` 查表），腳本 `story/weaving.ts`（`teachPatterns`、`loomAt`）。坐騎在 `src/game/mounts.ts`（`hero.mount`、`hero.riding`），買賣在 `story/stable.ts`；騎馬加速在 `MapScene` 主角走路那裡。
@@ -42,6 +43,7 @@
 - 重複的事：練樁、打坐、研讀、讀書、練雅藝、織布這類可以連做的事，用 `estate.ts` 的 `askRounds` 問回數（一回／三回／做到體力剩三成），再依回數扣體力、過時間、加成長；結尾的說明用 `roundsNote`。
 - 日課表：`src/game/schedule.ts`。新門派或新的固定作息要能照表做，就 `registerActivity`（`run` 只結算並回傳總結的話，不要問話；體力與時間由 `runSchedule` 扣）；有人找用 `registerInterrupt`；日常小事用 `registerDayEvent`（`after` 填場合，聊天是 `chat`，`with` 限定人物），由 `story/schedule.ts` 的 `maybeDayEvent` 觸發——新的做事腳本做完時也呼叫它（做事、聊天各一天最多一件，不要每天都有）。
 - 用餐：午時、酉時（`isMealTime`）。要讓人到飯廳吃飯，就在飯廳加一份 `meal: 'eat'` 的 NPC，並把他平常那幾份標 `meal: 'away'`；人物檔案可填 `meal` 台詞，新的飯廳地圖加進 `story/social.ts` 的 `DINING`。
+- 商店面板（`ctx.panel({ kind: 'shop', ... })`）：`stock` 賣的東西、`sellRate` 收購價比例（預設一半）、`buys` 只收哪些、`sellOnly` 只收不賣。臨江城的店家在 `story/linjiang_city.ts`，鏢局、縣衙懸賞、漕幫在 `story/linjiang_jianghu.ts`（懸賞目標是地圖上 `when: f.lj_b_<id> === 1` 的 NPC）。
 - 天氣：地圖條件可讀 `rain`／`fog`／`clear`；雨天會重生的野獸約一半躲起來（`MapScene.refresh`）。做事受天氣影響時，代價（`withCost`）與日課表的體力（`stamina` 可以給函式）要一起算。
 - 生活技能訂單：`src/game/orders.ts`（下單的人 `GIVERS`、`newOrder`），腳本 `story/orders.ts` 的 `orderTalk`（人際系統的交談會自動呼叫；沒有人物檔案的人在自己的腳本開頭呼叫）。
 - 到處翻找：`src/game/loot.ts`。只有描述（`lines`）、沒有 `script` 的擺設，以及花叢、石頭，每天隨機藏東西；不想讓人翻的擺設把貼圖名加進 `SKIP`。

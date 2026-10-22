@@ -32,6 +32,11 @@ export const ENEMIES: Record<string, EnemyDef> = {
   hanjingqiu: { name: '韓靖秋', sprite: 'sect_elder', hp: 1150, atk: 74, def: 15, spd: 23, eva: 0.12, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   masked: { name: '蒙面人', sprite: 'masked', hp: 950, atk: 82, def: 17, spd: 16, eva: 0.05, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
   boar_big: { name: '護藥山豬', sprite: 'boar', hp: 950, atk: 80, def: 15, spd: 10, eva: 0.02, moves: ['e_gore', 'e_ram'], ai: 'grunt' },
+  // 臨江城的差事：護鏢路上的劫匪、縣衙懸賞的目標（見 story/linjiang_jianghu.ts）
+  robber: { name: '攔路劫匪', sprite: 'bandit', hp: 90, atk: 20, def: 4, spd: 11, eva: 0.06, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  robber_lead: { name: '劫匪頭目', sprite: 'bandit', hp: 220, atk: 28, def: 7, spd: 12, eva: 0.06, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  water_bandit: { name: '江匪', sprite: 'boatman', hp: 130, atk: 25, def: 5, spd: 13, eva: 0.08, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  fierce_dog: { name: '惡犬', sprite: 'dog', hp: 160, atk: 26, def: 4, spd: 15, eva: 0.1, moves: ['e_bite', 'e_pounce'], ai: 'grunt', drops: [{ item: 'dog_pelt', chance: 1 }] },
   boss: { name: '祁三刀', sprite: 'boss', hp: 240, atk: 22, def: 6, spd: 12, eva: 0.06, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
 };
 
@@ -73,6 +78,11 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   trial_night2: { enemies: ['boar', 'boar'], background: 'mountain', intro: '第二夜。兩頭山豬嗅著氣味，低頭朝你衝來！', canFlee: false, silver: 0, growth: 0.5, points: 2, spar: true, noItems: true },
   trial_night3: { enemies: ['masked'], background: 'mountain', intro: '第三夜。一個蒙面人從崖頂躍下，一言不發，揮掌便打！', canFlee: false, silver: 0, growth: 1, points: 5, spar: true, noItems: true },
   trial_boar: { enemies: ['boar_big'], background: 'mountain', intro: '一頭比尋常大上一倍的山豬護在藥草前，鼻孔噴著白氣！', canFlee: true, silver: 0, growth: 0.8, points: 3, spar: true },
+  escort_near: { enemies: ['robber', 'robber'], background: 'mountain', intro: '路邊的草叢裡跳出兩個蒙面漢子：「把貨留下！」', canFlee: true, silver: 0, points: 2 },
+  escort_far: { enemies: ['robber_lead', 'robber', 'robber'], background: 'mountain', intro: '一夥劫匪攔住了鏢車，為首的扛著鬼頭刀：「金刀鏢局？今天栽在我手裡！」', canFlee: true, silver: 0, points: 4 },
+  bounty_dogs: { enemies: ['fierce_dog', 'dog', 'dog'], background: 'mountain', intro: '一頭比牛犢還大的惡犬領著狗群，低吼著圍了上來！', canFlee: true, silver: 0, growth: 0.6, points: 3 },
+  bounty_bandits: { enemies: ['robber', 'robber', 'robber'], background: 'mountain', intro: '三個毛賊從樹後鑽出來：「上山的？把錢袋交出來！」', canFlee: true, silver: 6, points: 3 },
+  bounty_river: { enemies: ['water_bandit', 'water_bandit', 'water_bandit'], background: 'mountain', intro: '幾條黑影從船上躍上岸，手裡的魚叉閃著寒光！', canFlee: true, silver: 10, points: 5 },
   camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 

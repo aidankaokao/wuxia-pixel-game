@@ -1,4 +1,5 @@
 import { STALLS, stallAt } from '../story/market';
+import { bountyTarget, escortGuardLines } from '../story/linjiang_jianghu';
 import { huichunDelivery, MQ } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
@@ -55,17 +56,17 @@ export const linjiang: MapDef = {
   battleBg: 'mountain',
 
   buildings: [
-    { style: 'house', x: 5, y: 4, name: '和記當鋪', door: [{ text: '當鋪的櫃台很高，掌櫃從上頭探出半張臉。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'hall', x: 16, y: 4, name: '臨江縣衙', door: [{ text: '衙門口兩尊石獅，門前的鳴冤鼓蒙著一層灰。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'hall', x: 32, y: 4, name: '金刀鏢局', door: [{ text: '門楣上一把金漆大刀，院裡傳出鏢師操練的吆喝聲。' }, { text: '（屋內尚未開放）' }] },
+    { style: 'house', x: 5, y: 4, name: '和記當鋪', door: [], enter: { to: 'lj_pawn', spawn: { x: 4, y: 5, facing: 'up' } } },
+    { style: 'hall', x: 16, y: 4, name: '臨江縣衙', door: [], enter: { to: 'lj_yamen', spawn: { x: 6, y: 7, facing: 'up' } } },
+    { style: 'hall', x: 32, y: 4, name: '金刀鏢局', door: [], enter: { to: 'lj_escort', spawn: { x: 6, y: 7, facing: 'up' } } },
     { style: 'house2', x: 45, y: 4, name: '錦繡布莊', door: [], enter: { to: 'lj_cloth', spawn: { x: 4, y: 5, facing: 'up' } } },
-    { style: 'house2', x: 5, y: 11, name: '回春堂', door: [{ text: '藥香撲鼻，櫃上一排排的抽屜貼滿了藥名。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'teahouse', x: 15, y: 11, name: '雲來客棧', door: [{ text: '門口掛著「雲來客棧」的燈籠，店小二正在擦桌子。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'teahouse', x: 34, y: 11, name: '望江樓', door: [{ text: '樓上傳來猜拳行令的笑鬧聲，酒香飄了半條街。' }, { text: '（屋內尚未開放）' }] },
+    { style: 'house2', x: 5, y: 11, name: '回春堂', door: [], enter: { to: 'lj_clinic', spawn: { x: 4, y: 5, facing: 'up' } } },
+    { style: 'teahouse', x: 15, y: 11, name: '雲來客棧', door: [], enter: { to: 'lj_inn', spawn: { x: 5, y: 6, facing: 'up' } } },
+    { style: 'teahouse', x: 34, y: 11, name: '望江樓', door: [], enter: { to: 'lj_tower', spawn: { x: 6, y: 6, facing: 'up' } } },
     { style: 'house', x: 45, y: 11, name: '民居', door: [{ text: '門關著。' }, { text: '（屋內尚未開放）' }] },
     { style: 'house', x: 5, y: 18, name: '民居', door: [{ text: '門關著。' }, { text: '（屋內尚未開放）' }] },
     { style: 'home3', x: 15, y: 18, name: '周員外府', door: [{ text: '朱門緊閉，門房斜眼打量著你。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'smithy', x: 35, y: 18, name: '漕幫分舵', door: [{ text: '幾個赤膊漢子在門口搬貨，見你走近，都停下來盯著你看。' }, { text: '（屋內尚未開放）' }] },
+    { style: 'smithy', x: 35, y: 18, name: '漕幫分舵', door: [], enter: { to: 'lj_guild', spawn: { x: 5, y: 6, facing: 'up' } } },
     { style: 'house2', x: 45, y: 18, name: '民居', door: [{ text: '門關著。' }, { text: '（屋內尚未開放）' }] },
   ],
 
@@ -122,15 +123,9 @@ export const linjiang: MapDef = {
       ],
     },
     {
-      id: 'lj_escort', name: '褚大剛', sprite: 'escort', x: 35, y: 10, facing: 'down',
-      talks: [
-        [
-          { speaker: '褚大剛', text: '金刀鏢局，褚大剛。' },
-          { speaker: '褚大剛', text: '漕幫那幫水耗子，仗著碼頭是他們的，連我們的鏢船都敢扣！' },
-          { speaker: '褚大剛', text: '總鏢頭忍得住，我可忍不住。' },
-        ],
-        [{ speaker: '褚大剛', text: '你身手看著不錯。鏢局最近缺人手，有興趣可以來找總鏢頭。（尚未開放）' }],
-      ],
+      // 站在鏢局門口旁邊，別擋住大門
+      id: 'lj_escort', name: '褚大剛', sprite: 'escort', x: 33, y: 10, facing: 'down',
+      talks: escortGuardLines,
     },
     {
       id: 'lj_boatman', name: '閻水生', sprite: 'boatman', x: 26, y: 30, facing: 'up', wander: 2,
@@ -182,6 +177,8 @@ export const linjiang: MapDef = {
       when: (f: Record<string, number>) => f.xunxiu === 1,
       talks: [[{ speaker: STALLS[id].vendor, text: STALLS[id].greet }, { text: `（要買東西，走到攤子前面挑貨）` }]],
     })),
+    // 縣衙懸賞「江邊水匪」：揭了榜才出現
+    { id: 'lj_b_river', allDay: true, name: '江匪', sprite: 'boatman', x: 8, y: 30, facing: 'right', script: bountyTarget('river'), when: (f) => f.lj_b_river === 1 },
     {
       id: 'lj_shopper', name: '余二嫂', sprite: 'lady', x: 36, y: 27, wander: 3, when: (f) => f.xunxiu === 1,
       talks: [[{ speaker: '余二嫂', text: '一旬才一回集，不早點來，好東西都讓人挑走了！' }]],

@@ -1,3 +1,4 @@
+import { bountyTarget } from '../story/linjiang_jianghu';
 import { coachmanTalk } from '../story/stable';
 import { gateTalk, MQ, pathDogs } from '../story/sect_mingquan';
 import type { MapDef } from './types';
@@ -66,6 +67,8 @@ export const mingquan: MapDef = {
       id: 'mq_coachman', name: '梁老四', sprite: 'peddler', x: 8, y: 10, facing: 'left', script: coachmanTalk,
     },
     // 委託「清理山道」：接下之後才出現
+    // 縣衙懸賞「山道毛賊」：揭了榜才出現
+    { id: 'mq_b_bandits', allDay: true, name: '毛賊', sprite: 'bandit', x: 8, y: 26, facing: 'right', script: bountyTarget('bandits'), when: (f) => f.lj_b_bandits === 1 },
     { id: 'mq_path_dogs', allDay: true, name: '野狗群', sprite: 'dog', x: 10, y: 17, wander: 2, script: pathDogs, when: (f) => f.mq_c_path === 1 },
     {
       id: 'mq_woodcutter', name: '柴老根', sprite: 'farmer', x: 9, y: 22, wander: 2,

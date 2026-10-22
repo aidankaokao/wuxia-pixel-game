@@ -7,7 +7,7 @@
  * - 腳本在 story/orders.ts：找下單的人說話時處理接單與交貨。
  */
 
-import { ITEMS, type Character } from './character';
+import { ITEMS, sellPrice, type Character } from './character';
 import { DISHES, dishItem, knowsDish, QUALITY } from './cooking';
 import { GRADES } from './gear';
 import type { World } from './home';
@@ -48,6 +48,11 @@ export const GIVERS: Giver[] = [
 ];
 export const giverDef = (id: string) => GIVERS.find((g) => g.id === id)!;
 
+/** 酬勞：比賣給商店多一些（收購價 × 份數 × 這個倍數，再加 ORDER_TIP）；賺頭主要在謝禮與交情 */
+const ORDER_MULT = 1.5;
+const ORDER_TIP = 5;
+const pay = (item: string, n: number) => Math.round(sellPrice(item) * n * ORDER_MULT) + ORDER_TIP;
+
 /** 交貨期限：幾天內 */
 export const ORDER_DAYS = 7;
 /** 交貨、婉拒或過期之後，隔幾天才再下單 */
@@ -84,15 +89,13 @@ export function newOrder(g: Giver, h: Character, day: number, rand = Math.random
     const d = pick(pool);
     const q = rand() < 0.5 ? 1 : 0;
     const n = 2 + Math.floor(rand() * 2);
-    const price = ITEMS[dishItem(d.id, q)].price ?? 10;
-    return { kind: 'dish', id: d.id, q, n, due: day + ORDER_DAYS, silver: Math.round(price * n * 1.8) + 10, items: { [gift[0]]: gift[1] }, aff: 4 };
+    return { kind: 'dish', id: d.id, q, n, due: day + ORDER_DAYS, silver: pay(dishItem(d.id, q), n), items: { [gift[0]]: gift[1] }, aff: 4 };
   }
   const pool = PATTERNS.filter((p) => knowsPattern(h, p.id));
   if (!pool.length) return null;
   const p = pick(pool);
   const q = rand() < 0.4 ? 2 : 1;
-  const price = ITEMS[wovenItem(p.id, q)].price ?? 20;
-  return { kind: 'woven', id: p.id, q, n: 1, due: day + ORDER_DAYS, silver: Math.round(price * 1.8) + 10, items: { [gift[0]]: gift[1] }, aff: 0 };
+  return { kind: 'woven', id: p.id, q, n: 1, due: day + ORDER_DAYS, silver: pay(wovenItem(p.id, q), 1), items: { [gift[0]]: gift[1] }, aff: 0 };
 }
 
 export const orderOf = (w: World, giver: string) => w.orders?.[giver];

@@ -1,3 +1,4 @@
+import { bountyTarget } from '../story/linjiang_jianghu';
 import type { MapDef } from './types';
 
 /**
@@ -36,6 +37,8 @@ export const guandao: MapDef = {
   ],
   npcs: [
     { id: 'g_dog1', name: '野狗', sprite: 'dog', x: 8, y: 11, wander: 3, encounter: 'dog', respawn: 45 },
+    // 縣衙懸賞「官道惡犬」：揭了榜才出現
+    { id: 'g_b_dogs', allDay: true, name: '惡犬', sprite: 'dog', x: 28, y: 11, facing: 'left', script: bountyTarget('dogs'), when: (f) => f.lj_b_dogs === 1 },
     { id: 'g_dogs', name: '野狗群', sprite: 'dog', x: 33, y: 4, wander: 3, encounter: 'dogs', respawn: 60 },
     {
       id: 'g_traveler', name: '余福來', sprite: 'peddler', x: 14, y: 9, facing: 'right',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { holdable, ITEMS, sellPrice } from '../game/character';
 import { learningDiscount } from '../game/books';
 import { itemIconUrl } from '../game/art/items';
@@ -25,6 +25,13 @@ export function ShopPanel() {
   const [cursor, setCursor] = useState(0);
   const [pending, setPending] = useState<Pending | null>(null);
   const open = panel?.kind === 'shop';
+  const sellOnly = panel?.kind === 'shop' && !!panel.sellOnly;
+  useEffect(() => {
+    if (open) {
+      setTab(sellOnly ? 'sell' : 'buy');
+      setCursor(0);
+    }
+  }, [panel]);
 
   const st = useGame.getState();
   const person = panel?.kind === 'shop' ? panel.person : undefined;
@@ -33,16 +40,19 @@ export function ShopPanel() {
   // 熟客打折，學識高的人也會講價
   const discount = Math.min(0.3, (person ? discountOf(person) : 0) + learningDiscount(hero));
   const buyPrice = (id: string) => Math.ceil(ITEMS[id].price! * (1 - discount));
+  // 收購價：預設原價一半；當鋪、藥鋪之類的店可以給得比較高（sellRate），也可以只收某些東西（buys）
+  const shop = panel?.kind === 'shop' ? panel : undefined;
+  const sellAt = (id: string) => (shop?.sellRate ? Math.floor((ITEMS[id].price ?? 0) * shop.sellRate) : sellPrice(id));
   const list =
     tab === 'buy'
       ? (panel?.kind === 'shop' && panel.stock) || [...STOCK, ...(flags.tao_stock ? EXTRA_STOCK : [])]
-      : Object.keys(hero.items).filter((id) => hero.items[id] > 0 && sellPrice(id) > 0 && !ITEMS[id].manual);
+      : Object.keys(hero.items).filter((id) => hero.items[id] > 0 && sellAt(id) > 0 && !ITEMS[id].manual && !ITEMS[id].bound && (!shop?.buys || shop.buys.includes(id)));
   const cur = Math.min(cursor, Math.max(0, list.length - 1));
 
   /** 這筆交易最多能買／賣幾個 */
   const maxQty = (mode: Pending['mode'], id: string) =>
     mode === 'buy' ? Math.min(Math.floor(st.hero.silver / buyPrice(id)), holdable(st.hero, id)) : st.hero.items[id] ?? 0;
-  const unit = (p: Pending) => (p.mode === 'buy' ? buyPrice(p.id) : sellPrice(p.id));
+  const unit = (p: Pending) => (p.mode === 'buy' ? buyPrice(p.id) : sellAt(p.id));
 
   const choose = (mode: Pending['mode'], id: string, all = false) => {
     const max = maxQty(mode, id);
@@ -83,7 +93,7 @@ export function ShopPanel() {
       return;
     }
     const n = list.length;
-    if (isLeft(k) || isRight(k)) {
+    if ((isLeft(k) || isRight(k)) && !sellOnly) {
       setTab((t) => (t === 'buy' ? 'sell' : 'buy'));
       setCursor(0);
     } else if (isUp(k) && n) setCursor((c) => (Math.min(c, n - 1) + n - 1) % n);
@@ -102,13 +112,15 @@ export function ShopPanel() {
           {(panel?.kind === 'shop' && panel.title) || '貨郎攤子'}　<small>銀兩 {hero.silver}{discount ? `　打 ${((1 - discount) * 10).toFixed(1).replace(/\.0$/, '')} 折` : ''}</small>
         </h2>
         <div className="panel-tabs">
-          <span className={tab === 'buy' ? 'active' : ''} onClick={() => (setTab('buy'), setCursor(0))}>
-            買
-          </span>
+          {!sellOnly && (
+            <span className={tab === 'buy' ? 'active' : ''} onClick={() => (setTab('buy'), setCursor(0))}>
+              買
+            </span>
+          )}
           <span className={tab === 'sell' ? 'active' : ''} onClick={() => (setTab('sell'), setCursor(0))}>
             賣
           </span>
-          <span className="muted small">←→ 切換　E {tab === 'buy' ? '買' : '賣'}{tab === 'sell' ? '　R 全部賣出' : ''}　X 離開</span>
+          <span className="muted small">{sellOnly ? '' : '←→ 切換　'}E {tab === 'buy' ? '買' : '賣'}{tab === 'sell' ? '　R 全部賣出' : ''}　X 離開</span>
         </div>
         <ul className="system-rows shop-rows">
           {list.length === 0 && <li className="muted">沒有可以賣的東西。</li>}
@@ -120,7 +132,7 @@ export function ShopPanel() {
                 {ITEMS[id].name}
                 <small className="muted">　持有 {hero.items[id] ?? 0}</small>
               </span>
-              <span>{tab === 'buy' ? buyPrice(id) : sellPrice(id)} 兩</span>
+              <span>{tab === 'buy' ? buyPrice(id) : sellAt(id)} 兩</span>
             </li>
           ))}
         </ul>

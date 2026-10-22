@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
-import { ATTRS, attrParts, Character, derive, equipGear, GEAR_SLOTS, gearStats, ITEMS, slotsFor, unequipGear } from '../game/character';
+import { ATTRS, attrParts, Character, derive, equipGear, GEAR_SLOTS, gearStats, heldWeapon, isEquipped, ITEMS, skillDef, slotsFor, unequipGear } from '../game/character';
+import { weaponFit, weaponWanted } from '../game/gear';
 import { gearKindName, GearSlotId, GRADE_CLASS, GRADES } from '../game/gear';
 import { mountDef } from '../game/mounts';
 import { PATTERNS } from '../game/weaving';
@@ -121,14 +122,15 @@ export function CharacterPage({ active, onExit }: { active: boolean; onExit: () 
               return (
                 <Fragment key={g.id}>
                   <dt>{g.name}</dt>
-                  <dd className={id ? GRADE_CLASS[ITEMS[id].gear!.grade] : 'muted'}>{id ? ITEMS[id].name : g.id === 'weapon' ? '（之後開放）' : '（空）'}</dd>
+                  <dd className={id ? GRADE_CLASS[ITEMS[id].gear!.grade] : 'muted'}>{id ? ITEMS[id].name : g.id === 'weapon' ? '（空手）' : '（空）'}</dd>
                 </Fragment>
               );
             })}
           </dl>
           <p className="small">
-            服飾合計：防禦 +{gs.def}　閃避 +{Math.round(gs.eva * 1000) / 10}%
+            合計：攻擊 +{gs.atk}　防禦 +{gs.def}　閃避 +{Math.round(gs.eva * 1000) / 10}%
           </p>
+          <WeaponFitList hero={hero} />
           <p className="small muted">進去選一個欄位，再挑行囊裡的服飾穿上，或把身上的卸下。</p>
         </>
       ),
@@ -230,9 +232,6 @@ function gearSlot(hero: Character, slot: GearSlotId, name: string): BrowseItem {
       <p className="small">{ITEMS[id].desc}</p>
     </>
   );
-  if (slot === 'weapon') {
-    return { key: slot, label: name, tag: '之後開放', muted: true, detail: () => <p className="small muted">兵器之後再設計。</p> };
-  }
   const options = Object.keys(hero.items).filter((id) => hero.items[id] > 0 && slotsFor(id).includes(slot));
   const children: BrowseItem[] = [
     ...(now
@@ -255,6 +254,28 @@ function gearSlot(hero: Character, slot: GearSlotId, name: string): BrowseItem {
     children: () => (children.length ? children : [{ key: 'none', label: '行囊裡沒有能穿在這裡的東西', muted: true }]),
     detail: () => (now ? info(now) : <p className="small muted">{name}沒有穿戴東西。{options.length ? `行囊裡有 ${options.length} 件可以穿。` : ''}</p>),
   };
+}
+
+/** 裝備中的外功與手上的兵器合不合：拿錯或沒拿只有九成威力，空手打拳多一成 */
+function WeaponFitList({ hero }: { hero: Character }) {
+  const held = heldWeapon(hero);
+  const outer = hero.skills.filter((s) => isEquipped(s) && weaponWanted(skillDef(s).kind));
+  if (!outer.length) return null;
+  return (
+    <ul className="small fit-list">
+      {outer.map((s) => {
+        const kind = skillDef(s).kind;
+        const want = weaponWanted(kind);
+        const fit = weaponFit(kind, held);
+        return (
+          <li key={s.id} className={fit < 1 ? 'bad' : 'good'}>
+            {skillDef(s).name}：{want === 'hand' ? '要空手' : `要拿${want}`}
+            {fit < 1 ? `——目前${held ? `拿著${held}` : '空手'}，威力只有九成` : fit > 1 ? '——空手打拳，威力多一成' : '——合手'}
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 /** 技能 › 學識：書目與熟讀程度 */

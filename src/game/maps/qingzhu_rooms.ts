@@ -1,3 +1,4 @@
+import { smithRack } from '../story/weapons';
 import { practiceAt } from '../story/arts';
 import { by, exitTo, room } from './rooms';
 import type { MapDef } from './types';
@@ -138,7 +139,7 @@ export const qzSmithy: MapDef = {
   buildings: [],
   props: [
     { sprite: 'forge', x: 1, y: 1, w: 2, lines: [{ text: '爐裡的炭火燒得正旺，熱氣烤得人臉發燙。' }] },
-    { sprite: 'f_deco_martial_1', x: 5, y: 1, w: 2, lines: [{ text: '架上掛著幾把剛打好的刀，還沒開鋒。' }] },
+    { sprite: 'f_deco_martial_1', x: 5, y: 1, w: 2, script: smithRack, label: '兵器架' },
     { sprite: 'anvil', x: 3, y: 3, lines: [{ text: '一座鐵砧，表面坑坑窪窪，不知打過多少把刀。' }] },
     { sprite: 'vat', x: 7, y: 5, lines: [{ text: '淬火用的水缸，水面上浮著一層鐵灰。' }] },
   ],

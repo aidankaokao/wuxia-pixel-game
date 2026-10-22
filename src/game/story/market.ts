@@ -10,7 +10,7 @@ import { useGame } from '../../state/store';
  * - 田記山貨（田有餘）：鳴泉廚房以外買不到的食材
  * - 江南絲行（沈綺羅）：絲線、棉線，還有只在這裡賣的上品絲線
  * - 漱石齋舊書攤（古懷石）：基礎武功的舊秘笈（買了就能突破上限）
- * - 雷家舊貨（雷振）：上品的護具與飾品
+ * - 雷家舊貨（雷振）：上品的護具與飾品，還有精良的青鋼劍、雁翎刀
  * 天黑就收攤。今天逛過任一攤，「今日」清單的趕集就打勾（daily 的 market）。
  */
 
@@ -46,8 +46,8 @@ export const STALLS: Record<string, Stall> = {
   goods: {
     title: '雷家舊貨',
     vendor: '雷振',
-    stock: ['g_bamboo_hat', 'g_iron_bracer', 'g_jade_pendant', 'g_cloud_boots'],
-    greet: '走江湖的家當，件件都是好東西。兵器？兵器得去鐵匠鋪，我這兒只收護具。',
+    stock: ['g_bamboo_hat', 'g_iron_bracer', 'g_jade_pendant', 'g_cloud_boots', 'w_steel_sword', 'w_goose_saber'],
+    greet: '走江湖的家當，件件都是好東西。這把青鋼劍、這把雁翎刀，鐵匠鋪可打不出來。',
   },
 };
 

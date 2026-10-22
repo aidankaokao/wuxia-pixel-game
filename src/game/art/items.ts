@@ -10,6 +10,8 @@ export type ItemIcon =
   | 'rice' | 'noodle' | 'soup' | 'sweet'
   // 服飾
   | 'hat' | 'robe' | 'robe_gray' | 'robe_white' | 'robe_blue' | 'pants' | 'shoes' | 'bracer' | 'pouch'
+  // 兵器
+  | 'sword' | 'blade'
   | 'painting'
   // 節令點心
   | 'dumpling' | 'qingtuan' | 'zongzi' | 'mooncake' | 'shoutao'
@@ -284,6 +286,28 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     for (const y of [5, 8, 11]) hline(ctx, 4, 11, y, '#5a3a20');
     vline(ctx, 4, 3, 12, '#6a4428');
     px(ctx, 9, 4, 2, 8, '#a8744a');
+  },
+  // 劍：斜放的長劍，劍格與劍穗
+  sword(ctx) {
+    for (let i = 0; i < 9; i++) {
+      px(ctx, 5 + i, 10 - i, 1, 1, '#d8dce4');
+      px(ctx, 6 + i, 10 - i, 1, 1, '#a8acb8');
+    }
+    px(ctx, 14, 1, 1, 1, '#f0f2f6');
+    hline(ctx, 2, 6, 11, '#c8a050');
+    vline(ctx, 4, 9, 13, '#c8a050');
+    px(ctx, 2, 12, 2, 2, '#5a3a20');
+    px(ctx, 1, 14, 1, 2, '#c4483c');
+  },
+  // 刀：寬背單刃，刀柄纏布
+  blade(ctx) {
+    for (let i = 0; i < 8; i++) {
+      px(ctx, 6 + i, 9 - i, 1, 2, '#d8dce4');
+      px(ctx, 7 + i, 8 - i, 1, 1, '#a8acb8');
+    }
+    px(ctx, 14, 1, 1, 2, '#f0f2f6');
+    hline(ctx, 3, 7, 11, '#6a6a72');
+    for (let i = 0; i < 3; i++) px(ctx, 4 - i, 12 + i, 1, 1, i % 2 ? '#5a3a20' : '#8a5a32');
   },
   // 香囊：繡花小袋，繫著紅繩
   pouch(ctx) {

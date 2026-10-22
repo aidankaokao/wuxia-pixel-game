@@ -164,7 +164,7 @@ export class Battle {
     // 連擊：每一下分別算命中與傷害；目標倒下就不再打
     const hits: Hit[] = [];
     for (let n = 0; n < (move.hits ?? 1); n++)
-      for (const t of targets) if (t.hp > 0) hits.push(this.hit(actor, t, move.power, move.kind === 'inner'));
+      for (const t of targets) if (t.hp > 0) hits.push(this.hit(actor, t, move.power * (actor.moveMult?.[move.id] ?? 1), move.kind === 'inner'));
 
     const events: BattleEvent[] = [
       { type: 'message', text: `${actor.name}使出「${move.name}」！` },

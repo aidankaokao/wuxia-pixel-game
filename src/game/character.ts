@@ -89,6 +89,8 @@ export const sellPrice = (id: string) => Math.floor((ITEMS[id]?.price ?? 0) / 2)
 
 export const ITEMS: Record<string, ItemDef> = {
   jinchuang: { name: '金創藥', category: '藥品', icon: 'salve', desc: '江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。', hp: 80, price: 30 },
+  huiqi_san: { name: '回氣散', category: '藥品', icon: 'pill', desc: '回春堂配的藥散，溫水送服，調息補氣。回復內力 50。', qi: 50, price: 25 },
+  dahuan_dan: { name: '大還丹', category: '藥品', icon: 'pill', desc: '回春堂的鎮店之寶，一顆就能把人從鬼門關拉回來。回復氣血 200、內力 60。', hp: 200, qi: 60, price: 120 },
   yangqi_wan: { name: '養氣小丸', category: '藥品', icon: 'pill', desc: '門裡藥房自製的小藥丸，提神養氣。回復體力 30。', stamina: 30, price: 15 },
   tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30, price: 12 },
   yunwu: { name: '雲霧茶', category: '藥品', icon: 'tea', desc: '高山雲霧間採的好茶，入口回甘。回復內力 60。', qi: 60, price: 30 },
@@ -599,7 +601,7 @@ export function addFame(c: Character, n: number): string {
 
 // ── 行囊容量 ────────────────────────────────────────────
 
-/** 裝備欄（武器之後再設計） */
+/** 裝備欄 */
 export const GEAR_SLOTS: readonly { id: GearSlotId; name: string }[] = [
   { id: 'hat', name: '帽子' },
   { id: 'top', name: '上衣' },
@@ -611,18 +613,23 @@ export const GEAR_SLOTS: readonly { id: GearSlotId; name: string }[] = [
   { id: 'weapon', name: '武器' },
 ];
 
-/** 身上服飾加總的防禦與閃避 */
+/** 身上服飾與兵器加總的攻擊、防禦與閃避 */
 export function gearStats(c: Character) {
+  let atk = 0;
   let def = 0;
   let eva = 0;
   for (const id of Object.values(c.gear ?? {})) {
     const g = id && ITEMS[id]?.gear;
     if (!g) continue;
+    atk += g.atk ?? 0;
     def += g.def;
     eva += g.eva;
   }
-  return { def, eva };
+  return { atk, def, eva };
 }
+
+/** 手上拿的兵器種類（空手是 undefined） */
+export const heldWeapon = (c: Character) => (c.gear?.weapon ? ITEMS[c.gear.weapon]?.gear?.weapon : undefined);
 
 /** 這件服飾能穿在哪幾個欄位 */
 export const slotsFor = (id: string): GearSlotId[] => GEAR_SLOTS.filter((s) => ITEMS[id]?.gear && kindOfSlot(s.id) === ITEMS[id].gear!.kind).map((s) => s.id);

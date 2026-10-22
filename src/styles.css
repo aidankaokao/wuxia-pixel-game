@@ -1773,3 +1773,13 @@ table.charter td {
 .schedule-warn {
   color: var(--red);
 }
+
+/* 裝備頁：武功與兵器合不合手 */
+.fit-list {
+  margin: 6px 0 0;
+  padding-left: 1.2em;
+}
+
+.fit-list .bad {
+  color: var(--red);
+}

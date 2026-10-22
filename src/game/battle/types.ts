@@ -94,6 +94,8 @@ export interface Unit {
   ai?: 'grunt' | 'boss';
   /** 主角用「出手」時，熟練度算在哪門武功（裝備中最高的外功） */
   baseSkill?: string;
+  /** 主角：各招式的威力倍數（兵器合不合手，見 gear.ts 的 weaponFit）；沒列的是 1 */
+  moveMult?: Record<string, number>;
   /** 身上的狀態 */
   effects: Effect[];
 }

@@ -1,4 +1,5 @@
-import { Character, attrs, effLevel, equippedLevel, gearStats, isEquipped, skillDef, slotOf } from '../character';
+import { Character, attrs, effLevel, equippedLevel, gearStats, heldWeapon, isEquipped, skillDef, slotOf } from '../character';
+import { weaponFit } from '../gear';
 import type { Move, Unit } from './types';
 
 /** 所有招式。每門武功有哪些招式、幾重才能悟出，寫在 character.ts 的 SKILLS 裡。 */
@@ -154,6 +155,11 @@ export function heroUnit(c: Character, max: { maxHp: number; maxQi: number }): U
   for (const s of c.skills) if (isEquipped(s) && s.level > 0) moves.push(...s.moves);
   const outer = c.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'outer');
   const baseSkill = outer.sort((x, y) => effLevel(y) - effLevel(x))[0]?.id;
+  // 兵器合不合手：外功招式拿對兵器才發揮全力（「出手」看最高的那門外功；什麼外功都沒有就是空手打拳）
+  const held = heldWeapon(c);
+  const moveMult: Record<string, number> = {};
+  for (const s of c.skills) if (isEquipped(s)) for (const m of s.moves) moveMult[m] = weaponFit(skillDef(s).kind, held);
+  moveMult.attack = weaponFit(baseSkill ? skillDef({ id: baseSkill }).kind : '拳掌', held);
   return {
     id: 'hero',
     name: c.name,
@@ -163,7 +169,7 @@ export function heroUnit(c: Character, max: { maxHp: number; maxQi: number }): U
     hp: c.hp,
     maxQi: max.maxQi,
     qi: c.qi,
-    atk: Math.round(10 + a.strength + equippedLevel(c, 'outer', 'max') * 4),
+    atk: Math.round(10 + a.strength + equippedLevel(c, 'outer', 'max') * 4 + gearStats(c).atk),
     ipow: Math.round(6 + a.energy * 1.2 + equippedLevel(c, 'inner') * 4),
     // 服飾加防禦與閃避
     def: Math.round(2 + a.constitution * 0.5 + gearStats(c).def),
@@ -173,6 +179,7 @@ export function heroUnit(c: Character, max: { maxHp: number; maxQi: number }): U
     guard: false,
     charging: false,
     baseSkill,
+    moveMult,
     effects: [],
   };
 }

@@ -41,9 +41,14 @@ export type Flags = Record<string, number>;
 
 export type Prompt = string | { title: string; actions: { key: string; label: string }[] };
 
-/** 劇情腳本打開的介面面板（商店、房屋），關閉時 resolve */
-/** 面板：商店（person 是交易的對象；stock、title 不給就是貨郎攤子）、房屋 */
-export type Panel = { kind: 'shop'; person?: string; stock?: string[]; title?: string } | { kind: 'home'; plot: string } | { kind: 'schedule' };
+/**
+ * 面板：商店（person 是交易的對象；stock、title 不給就是貨郎攤子；sellRate 是收購價佔原價的比例，預設一半；
+ * buys 有給就只收這些東西；sellOnly 是只收不賣）、房屋、日課表
+ */
+export type Panel =
+  | { kind: 'shop'; person?: string; stock?: string[]; title?: string; sellRate?: number; buys?: string[]; sellOnly?: boolean }
+  | { kind: 'home'; plot: string }
+  | { kind: 'schedule' };
 
 interface GameState {
   /** 標題畫面、建立角色或遊戲中 */
