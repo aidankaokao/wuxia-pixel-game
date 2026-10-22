@@ -20,6 +20,7 @@ import {
   skillCap,
   skillDef,
   SKILL_SLOT_NAME,
+  SLOT_LIMIT,
   Slot,
   slotOf,
   slotSkills,
@@ -37,91 +38,115 @@ import {
 import { itemIconUrl } from '../game/art/items';
 import { MOVES } from '../game/battle/moves';
 import { QUESTS } from '../game/story/quests';
-import { todayTasks } from '../game/daily';
+import { todayTasks, WEATHER_LINE } from '../game/daily';
+import { dateText, festivalOf, isXunxiu, timeText, WEATHER_NAME } from '../game/time';
 import { TaskList } from './MorningBrief';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
 import { Settings, useGame } from '../state/store';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
-import { CharacterPage } from './CharacterPage';
+import { CharacterPage, GearInfo } from './CharacterPage';
+import { CraftsPage } from './CraftsPage';
 import { PeoplePage } from './PeoplePage';
 import { SectPage } from './SectPage';
+import { PageHead, Paper, Row, RowList, Sheet, Spread } from './Paper';
 
-const TABS = ['人物', '武功', '行囊', '門派', '交遊', '江湖事', '系統'] as const;
+const TABS = ['人物', '武功', '技能', '行囊', '門派', '交遊', '江湖事', '系統'] as const;
 type Tab = (typeof TABS)[number];
 
-/** 可以用鍵盤選的一列 */
-interface Row {
-  label: string;
-  detail?: string;
-  disabled?: boolean;
-  run: () => void;
+/** 每一頁共用的參數：active 時按鍵歸這一頁，onExit 回到書籤 */
+interface PageProps {
+  active: boolean;
+  onExit: () => void;
+  folio: number;
 }
 
 /**
- * 系統選單：左側分頁、右側內容。↑↓ 切換分頁，X/Esc 關閉。
- * 「武功」「行囊」「系統」分頁按 E 或 → 進入內容，內容裡一層一層往下，X 回上一層。
+ * 系統選單：一本攤開的書。上緣是書籤（分頁），←→ 翻頁（有翻頁動畫）；E 或 ↓ 進入這一頁，
+ * 頁裡 X 回到書籤。翻閱中也能用 Tab／Shift+Tab、[ ]、PageUp／PageDown 直接翻到別頁。
+ * 每一頁是左右兩面的概覽，選中一項按 E 會攤開一張紙（`Paper`），細節與動作都在紙上。
  */
 export function GameMenu() {
   const open = useGame((s) => s.menuOpen);
   const setMenu = useGame((s) => s.setMenu);
   const [tab, setTab] = useState<Tab>('人物');
   const [inBody, setInBody] = useState(false);
-  const hasBody = tab === '人物' || tab === '武功' || tab === '系統' || tab === '行囊' || tab === '門派' || tab === '交遊';
+  const [turn, setTurn] = useState<{ dir: 'next' | 'prev'; n: number } | null>(null);
   useEffect(() => {
-    if (!open) setInBody(false);
+    if (!open) (setInBody(false), setTurn(null));
   }, [open]);
 
-  useKeys(open && !inBody, (k, e) => {
-    const i = TABS.indexOf(tab);
-    if (isUp(k)) setTab(TABS[(i + TABS.length - 1) % TABS.length]);
-    else if (isDown(k)) setTab(TABS[(i + 1) % TABS.length]);
+  const flip = (to: Tab) => {
+    if (to === tab) return;
+    setTurn((t) => ({ dir: TABS.indexOf(to) > TABS.indexOf(tab) ? 'next' : 'prev', n: (t?.n ?? 0) + 1 }));
+    setTab(to);
+    setInBody(false);
+  };
+  const by = (d: number) => TABS[(TABS.indexOf(tab) + d + TABS.length) % TABS.length];
+
+  useKeys(open, (k, e) => {
+    if (k === 'Tab' || k === '[' || k === ']' || k === 'PageUp' || k === 'PageDown') {
+      e.preventDefault();
+      return flip(by(k === '[' || k === 'PageUp' || (k === 'Tab' && e.shiftKey) ? -1 : 1));
+    }
+    if (inBody) return;
+    if (isLeft(k)) flip(by(-1));
+    else if (isRight(k)) flip(by(1));
     else if (isCancel(k)) setMenu(false);
-    else if (hasBody && (isConfirm(k) || isRight(k))) setInBody(true);
-    else if (isConfirm(k)) e.preventDefault();
+    else if (isConfirm(k) || isDown(k)) (e.preventDefault(), setInBody(true));
   });
 
   if (!open) return null;
-  const exit = () => setInBody(false);
+  const props: PageProps = { active: inBody, onExit: () => setInBody(false), folio: TABS.indexOf(tab) };
   return (
     <div className="menu-backdrop" onClick={() => setMenu(false)}>
-      <div className="menu pixel-frame" onClick={(e) => e.stopPropagation()}>
-        <ul className="menu-tabs">
+      <div className="tome" onClick={(e) => e.stopPropagation()}>
+        <ul className="tome-tabs">
           {TABS.map((t) => (
-            <li key={t} className={t === tab ? 'active' : ''} onClick={() => (setTab(t), setInBody(false))}>
-              {t === tab ? '▶ ' : '　'}
+            <li key={t} className={t === tab ? 'active' : ''} onClick={() => (t === tab ? setInBody(true) : flip(t))}>
               {t}
             </li>
           ))}
         </ul>
-        <div className="menu-body">
-          {tab === '人物' && <CharacterPage active={inBody} onExit={exit} />}
-          {tab === '武功' && <SkillsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
-          {tab === '行囊' && <ItemsPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
-          {tab === '門派' && <SectPage active={inBody} onExit={exit} />}
-          {tab === '交遊' && <PeoplePage active={inBody} onExit={exit} />}
-          {tab === '江湖事' && <QuestsPage />}
-          {tab === '系統' && <SystemPage active={inBody} onEnter={() => setInBody(true)} onExit={exit} />}
+        <div className="tome-cover">
+          <div className={`tome-spread ${inBody ? 'reading' : ''}`} key={tab} onClick={() => !inBody && setInBody(true)}>
+            {tab === '人物' && <CharacterPage {...props} />}
+            {tab === '武功' && <SkillsPage {...props} />}
+            {tab === '技能' && <CraftsPage {...props} />}
+            {tab === '行囊' && <ItemsPage {...props} />}
+            {tab === '門派' && <SectPage {...props} />}
+            {tab === '交遊' && <PeoplePage {...props} />}
+            {tab === '江湖事' && <QuestsPage {...props} />}
+            {tab === '系統' && <SystemPage {...props} />}
+          </div>
+          {turn && (
+            <div
+              key={turn.n}
+              className={`tome-turn ${turn.dir}`}
+              onAnimationEnd={(e) => e.animationName.startsWith('turn-') && setTurn(null)}
+            >
+              <LeafStrip n={LEAF_STRIPS} />
+              <div className="turn-shadow" />
+            </div>
+          )}
         </div>
+        <p className="tome-help">{inBody ? 'Tab／[ ] 翻到別頁　X 回到書籤' : '←→ 翻頁　E／↓ 翻閱這一頁　X 闔上'}</p>
       </div>
     </div>
   );
 }
 
-/** 一列列的選項（系統選單、武功清單共用） */
-function RowList({ rows, cursor, onPick }: { rows: Row[]; cursor: number; onPick: (i: number) => void }) {
+/** 翻過去的那張紙切成幾條，一條接一條各彎一點，整張紙就有弧度 */
+const LEAF_STRIPS = 10;
+
+/** 一條紙：正反兩面，後面接著下一條（巢狀，彎曲角度會一路累加） */
+function LeafStrip({ n }: { n: number }) {
   return (
-    <ul className="system-rows">
-      {rows.map((r, i) => (
-        <li key={r.label} className={`${i === cursor ? 'active' : ''} ${r.disabled ? 'disabled' : ''}`} onClick={() => onPick(i)}>
-          <span>
-            {i === cursor ? '▶ ' : '　'}
-            {r.label}
-          </span>
-          {r.detail && <span className="muted small">{r.detail}</span>}
-        </li>
-      ))}
-    </ul>
+    <div className="turn-strip">
+      <div className="leaf-face front" />
+      <div className="leaf-face back" />
+      {n > 1 && <LeafStrip n={n - 1} />}
+    </div>
   );
 }
 
@@ -138,7 +163,7 @@ const CELLS: { slot: Slot; pos: number }[] = [
 ];
 const LEFT = 3;
 
-/** 格子之間的移動：左欄 0–2、右欄 3–7；在左欄再往左就回到分頁 */
+/** 格子之間的移動：左欄 0–2、右欄 3–7；右欄再往右由呼叫端接到右頁 */
 function moveCell(i: number, k: string): number | 'exit' {
   const left = i < LEFT;
   const row = left ? i : i - LEFT;
@@ -149,109 +174,73 @@ function moveCell(i: number, k: string): number | 'exit' {
   return i;
 }
 
-type SkillLayer = 'grid' | 'list' | 'act';
+type SkillOpen = { kind: 'cell' } | { kind: 'skill'; id: string } | null;
+const SLOT_ORDER: Slot[] = ['inner', 'light', 'outer'];
 
-function SkillsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () => void; onExit: () => void }) {
+/**
+ * 武功：左頁是裝備欄（內功兩格、輕功一格、外功五格），右頁是所學的武功。
+ * 在格子上按 E 攤開「挑一門裝上」的紙；在右頁的武功上按 E 攤開武功的細節（招式、加成、修練、突破、裝到哪一格）。
+ */
+function SkillsPage({ active, onExit, folio }: PageProps) {
   const hero = useGame((s) => s.hero);
-  const [layer, setLayer] = useState<SkillLayer>('grid');
+  const [side, setSide] = useState<'grid' | 'list'>('grid');
   const [cell, setCell] = useState(0);
   const [row, setRow] = useState(0);
-  const [act, setAct] = useState(0);
+  const [open, setOpen] = useState<SkillOpen>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   useEffect(() => {
-    if (!active) setLayer('grid');
+    if (!active) (setOpen(null), setSide('grid'));
   }, [active]);
+  useEffect(() => {
+    listRef.current?.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+  }, [row, side]);
 
   const { slot, pos } = CELLS[cell];
   const inCell = slotSkills(hero, slot)[pos];
-  const toast = useGame.getState().showToast;
-  const doEquip = (id: string) => {
-    toast(
-      useGame.getState().updateHero((c) => {
-        const m = equipAt(c, id, pos);
-        clampVitals(c);
-        return m;
-      }),
-    );
-    setLayer('grid');
-  };
-  const doUnequip = (id: string) => {
-    toast(
-      useGame.getState().updateHero((c) => {
-        const m = unequip(c, id);
-        clampVitals(c);
-        return m;
-      }),
-    );
-    setLayer('grid');
+  // 右頁：依內功、輕功、外功排
+  const learned = SLOT_ORDER.flatMap((sl) => hero.skills.filter((s) => slotOf(skillDef(s).kind) === sl));
+  const listSkill = learned[Math.min(row, learned.length - 1)];
+  const focus = side === 'grid' ? inCell : listSkill;
+
+  const cellOf = (s: Skill) => {
+    const sl = slotOf(skillDef(s).kind);
+    return CELLS.findIndex((c) => c.slot === sl && c.pos === (s.pos ?? 0));
   };
 
-  // 第二層：這類武功的清單（這格有裝東西時，第一列是「卸下」）
-  const candidates = hero.skills.filter((s) => slotOf(skillDef(s).kind) === slot);
-  const listRows: (Row & { skill?: Skill })[] = [
-    ...(inCell ? [{ label: `卸下「${skillDef(inCell).name}」`, run: () => doUnequip(inCell.id) }] : []),
-    ...candidates.map((s) => ({
-      label: skillDef(s).name,
-      skill: s,
-      detail: s === inCell ? '◆ 裝在這一格' : s.pos !== null ? `◆ 裝在第 ${s.pos + 1} 格` : '◇ 未裝備',
-      run: () => doEquip(s.id),
-    })),
-  ];
-  const listSkill = listRows[row]?.skill;
-  const actRows = layer === 'act' && listSkill ? trainRows(listSkill.id) : [];
-  const focus = layer === 'grid' ? inCell : listSkill;
-
-  useKeys(active, (k) => {
-    if (layer === 'grid') {
-      if (isCancel(k)) return onExit();
-      if (isConfirm(k)) {
-        setLayer('list');
-        // 游標先停在這格裝的武功上，沒有就停在第一門
-        const idx = listRows.findIndex((r) => r.skill && r.skill === inCell);
-        setRow(idx >= 0 ? idx : 0);
+  useKeys(active && !open, (k) => {
+    if (isCancel(k)) return onExit();
+    if (side === 'grid') {
+      if (isConfirm(k)) return setOpen({ kind: 'cell' });
+      // 右欄再往右就到右頁
+      if (isRight(k) && cell >= LEFT && learned.length) {
+        setSide('list');
+        const i = inCell ? learned.indexOf(inCell) : -1;
+        setRow(i >= 0 ? i : 0);
         return;
       }
       const next = moveCell(cell, k);
-      if (next === 'exit') onExit();
-      else setCell(next);
+      if (next !== 'exit') setCell(next);
       return;
     }
-    if (layer === 'list') {
-      const n = listRows.length;
-      if (!n) {
-        if (isCancel(k) || isLeft(k) || isConfirm(k)) setLayer('grid');
-        return;
-      }
-      if (isUp(k)) setRow((r) => (r + n - 1) % n);
-      else if (isDown(k)) setRow((r) => (r + 1) % n);
-      else if (isConfirm(k)) listRows[row]?.run();
-      else if (isRight(k) && listSkill) (setLayer('act'), setAct(0));
-      else if (isCancel(k) || isLeft(k)) setLayer('grid');
-      return;
+    const n = learned.length;
+    if (isUp(k)) setRow((r) => (r + n - 1) % n);
+    else if (isDown(k)) setRow((r) => (r + 1) % n);
+    else if (isConfirm(k) && listSkill) setOpen({ kind: 'skill', id: listSkill.id });
+    else if (isLeft(k)) {
+      setSide('grid');
+      if (listSkill && listSkill.pos !== null) setCell(cellOf(listSkill));
     }
-    const n = actRows.length;
-    if (isUp(k)) setAct((a) => (a + n - 1) % n);
-    else if (isDown(k)) setAct((a) => (a + 1) % n);
-    else if (isConfirm(k)) actRows[act]?.run();
-    else if (isCancel(k) || isLeft(k)) setLayer('list');
   });
-
-  const hint = !active
-    ? '按 E 或 → 開始選擇欄位。'
-    : layer === 'grid'
-      ? '方向鍵選欄位，E 選擇要裝的武功，X 返回。'
-      : layer === 'list'
-        ? '↑↓ 選擇，E 裝備到這一格，→ 修練／突破，X 返回。'
-        : '↑↓ 選擇，E 確定，X 返回。';
 
   const cellView = (i: number) => {
     const c = CELLS[i];
     const s = slotSkills(hero, c.slot)[c.pos];
-    const on = active && i === cell;
+    const on = active && side === 'grid' && i === cell;
     return (
       <div
         key={i}
-        className={`skill-cell ${s ? 'filled' : 'empty'} ${on ? 'active' : ''} ${on && layer !== 'grid' ? 'open' : ''}`}
-        onClick={() => (onEnter(), setCell(i), setLayer('grid'))}
+        className={`skill-cell ${s ? 'filled' : 'empty'} ${on ? 'active' : ''}`}
+        onClick={() => (on ? setOpen({ kind: 'cell' }) : (setSide('grid'), setCell(i)))}
       >
         {s ? (
           <>
@@ -266,12 +255,9 @@ function SkillsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () 
     );
   };
 
-  return (
-    <div className="skills-page">
-      <h2>
-        武功　<small>武學點數 {hero.points}</small>
-      </h2>
-      <p className="muted small">{hint}</p>
+  const left = (
+    <>
+      <PageHead title="武功" sub={`武學點數 ${hero.points}`} />
       <div className="skill-board">
         <div className="skill-col">
           <div className="col-title">內功</div>
@@ -284,33 +270,133 @@ function SkillsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () 
           <div className="col-title">外功</div>
           {[3, 4, 5, 6, 7].map(cellView)}
         </div>
-        <div className="skill-side">
-          {layer === 'grid' || !active ? (
-            focus ? (
-              <SkillDetail s={focus} />
-            ) : (
-              <p className="muted small">這一格還沒裝備武功。{active ? `按 E 從${SKILL_SLOT_NAME[slot]}清單裡挑一門。` : ''}</p>
-            )
-          ) : (
-            <>
-              <div className="col-title">
-                {SKILL_SLOT_NAME[slot]}第 {pos + 1} 格
-              </div>
-              {listRows.length ? (
-                <RowList rows={listRows} cursor={layer === 'list' ? row : -1} onPick={(i) => (setRow(i), listRows[i].run())} />
-              ) : (
-                <p className="muted small">還沒有學會任何{SKILL_SLOT_NAME[slot]}。</p>
-              )}
-              {layer === 'act' && listSkill && (
-                <div className="act-box">
-                  <div className="col-title">修練「{skillDef(listSkill).name}」</div>
-                  <RowList rows={actRows} cursor={act} onPick={(i) => actRows[i].run()} />
-                </div>
-              )}
-              {focus && <SkillDetail s={focus} />}
-            </>
-          )}
-        </div>
+      </div>
+      {focus ? <SkillGlance s={focus} /> : <p className="small muted glance">這一格還沒裝備武功。</p>}
+      <p className="page-help">
+        {!active
+          ? '按 E 或 ↓ 開始翻閱'
+          : side === 'grid'
+            ? '方向鍵選格子　E 挑一門裝上　→ 到右頁　X 回到書籤'
+            : '↑↓ 選擇　E 展開細看與修練　← 回到裝備欄'}
+      </p>
+    </>
+  );
+
+  let lastSlot: Slot | null = null;
+  const right = (
+    <>
+      <PageHead title="所學" sub={`${hero.skills.length} 門`} />
+      <ul className="art-list" ref={listRef}>
+        {learned.map((s, i) => {
+          const sl = slotOf(skillDef(s).kind);
+          const head = sl !== lastSlot;
+          lastSlot = sl;
+          const on = active && side === 'list' && i === row;
+          return [
+            head && (
+              <li key={sl} className="art-group">
+                {SKILL_SLOT_NAME[sl]}
+              </li>
+            ),
+            <li key={s.id} className={on ? 'active' : ''} onClick={() => (on ? setOpen({ kind: 'skill', id: s.id }) : (setSide('list'), setRow(i)))}>
+              <span className={`book kind-${sl}`} />
+              <span className="art-name">{skillDef(s).name}</span>
+              <span className="art-tier">{skillDef(s).tier}</span>
+              <span className="art-level">第 {s.level} 重</span>
+              <span className="art-mark">{s.pos !== null ? '◆' : ''}</span>
+            </li>,
+          ];
+        })}
+      </ul>
+    </>
+  );
+
+  const toast = useGame.getState().showToast;
+  const doEquip = (id: string, at: number) =>
+    toast(
+      useGame.getState().updateHero((c) => {
+        const m = equipAt(c, id, at);
+        clampVitals(c);
+        return m;
+      }),
+    );
+  const doUnequip = (id: string) =>
+    toast(
+      useGame.getState().updateHero((c) => {
+        const m = unequip(c, id);
+        clampVitals(c);
+        return m;
+      }),
+    );
+
+  let sheet: Sheet | null = null;
+  if (open?.kind === 'cell') {
+    const candidates = hero.skills.filter((s) => slotOf(skillDef(s).kind) === slot);
+    sheet = {
+      title: `${SKILL_SLOT_NAME[slot]}・第 ${pos + 1} 格`,
+      sub: inCell ? skillDef(inCell).name : '空著',
+      body: candidates.length ? (
+        <p className="small muted">挑一門{SKILL_SLOT_NAME[slot]}裝在這一格；已經裝在別格的會換過來。裝備中的武功才會加五維、才能在戰鬥中使用。</p>
+      ) : (
+        <p className="small muted">還沒有學會任何{SKILL_SLOT_NAME[slot]}。</p>
+      ),
+      actions: [
+        ...(inCell ? [{ key: 'off', label: `卸下「${skillDef(inCell).name}」`, run: () => (doUnequip(inCell.id), 'close' as const) }] : []),
+        ...candidates.map((s) => ({
+          key: s.id,
+          label: skillDef(s).name,
+          detail: `第 ${s.level} 重・${s === inCell ? '裝在這一格' : s.pos !== null ? `裝在第 ${s.pos + 1} 格` : '未裝備'}`,
+          disabled: s === inCell,
+          run: () => (doEquip(s.id, pos), 'close' as const),
+        })),
+      ],
+    };
+  } else if (open?.kind === 'skill') {
+    const s = hero.skills.find((k) => k.id === open.id);
+    if (s) {
+      const def = skillDef(s);
+      const sl = slotOf(def.kind);
+      const here = slotSkills(hero, sl);
+      sheet = {
+        title: def.name,
+        sub: `${def.tier}・${def.kind}`,
+        body: <SkillDetail s={s} />,
+        actions: [
+          ...trainRows(s.id),
+          ...Array.from({ length: SLOT_LIMIT[sl] }, (_, p) => ({
+            key: `pos${p}`,
+            label: s.pos === p ? `卸下（目前裝在第 ${p + 1} 格）` : `裝到${SKILL_SLOT_NAME[sl]}第 ${p + 1} 格`,
+            detail: s.pos === p ? '' : here[p] ? `換下「${skillDef(here[p]!).name}」` : '空格',
+            run: () => (s.pos === p ? doUnequip(s.id) : doEquip(s.id, p)),
+          })),
+        ],
+      };
+    }
+  }
+
+  return (
+    <>
+      <Spread folio={folio} left={left} right={right} />
+      <Paper sheet={sheet} onClose={() => setOpen(null)} />
+    </>
+  );
+}
+
+/** 左頁下方的一眼概況：重數、經驗條、招式數 */
+function SkillGlance({ s }: { s: Skill }) {
+  const def = skillDef(s);
+  const cap = skillCap(s);
+  const pct = s.level >= cap ? 100 : (s.exp / expToNext(s.level)) * 100;
+  return (
+    <div className="glance">
+      <div className="glance-head">
+        <span className="glance-name">{def.name}</span>
+        <span className="small muted">
+          {def.tier}・第 {s.level}／{cap} 重・招式 {s.moves.length}/{def.moves.length}
+        </span>
+      </div>
+      <div className="exp-track">
+        <div className="exp-fill" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -327,11 +413,6 @@ function SkillDetail({ s }: { s: Skill }) {
     (Object.entries(o) as [AttrKey, number][]).map(([k, v]) => `${attrName(k)} +${fmt(v * m)}`).join('　') || '無';
   return (
     <div className="skill-detail">
-      <div className="skill-head">
-        <span className="skill-name">{def.name}</span>
-        <span className="tag">{def.kind}</span>
-        <span className="tag muted-tag">{def.tier}</span>
-      </div>
       <div className={over ? 'realm over' : 'realm'}>
         第 {s.level} 重<small className="muted">／{cap} 重{over ? `（已突破，有效 ${fmt(effLevel(s))} 重）` : ''}</small>
       </div>
@@ -386,7 +467,7 @@ function trainRows(id: string): Row[] {
       { label: `修練至第 ${s.level + 1} 重（${need} 點）`, disabled: st.hero.points < need, run: () => train(id, need) },
     ];
   }
-  if (s.level >= HIDDEN_CAP) return [{ label: '已臻化境，再無可進', disabled: true, run: () => {} }];
+  if (s.level >= HIDDEN_CAP) return [{ key: 'max', label: '已臻化境，再無可進', disabled: true, run: () => {} }];
   const { chance, cost } = breakthrough(s);
   const manual = hasManual(st.hero, id);
   return [
@@ -418,63 +499,40 @@ function clampVitals(c: Parameters<typeof derive>[0]) {
   c.stamina = Math.min(c.stamina, d.maxStamina);
 }
 
-// ── 行囊、江湖事 ─────────────────────────────────────────
+// ── 行囊 ─────────────────────────────────────────────────
 
 const BAG_COLS = 6;
 const BAG_MIN = 24;
 type BagCat = '全部' | ItemCategory;
 const BAG_CATS: BagCat[] = ['全部', ...ITEM_CATEGORIES];
-type BagLayer = 'cats' | 'grid' | 'act' | 'move';
+type BagLayer = 'cats' | 'grid' | 'move';
 
-/** 行囊：左邊分類與「重新整理」，右邊一格一格的物品。E 開啟動作（使用、移動）。 */
-function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () => void; onExit: () => void }) {
+/**
+ * 行囊：左頁上排是分類籤（最後一個是「整理」），下面一格一格的物品；右頁是游標那件東西的說明。
+ * 在物品上按 E 攤開一張紙：使用、穿上、移動。移動時拿起物品，放在別的物品上就對調。
+ */
+function ItemsPage({ active, onExit, folio }: PageProps) {
   const hero = useGame((s) => s.hero);
   const [layer, setLayer] = useState<BagLayer>('cats');
   const [cat, setCat] = useState(0);
   const [cell, setCell] = useState(0);
-  const [act, setAct] = useState(0);
+  const [open, setOpen] = useState<string | null>(null);
   /** 移動中的物品 */
   const [held, setHeld] = useState<string | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!active) (setLayer('cats'), setHeld(null));
+    if (!active) (setLayer('cats'), setHeld(null), setOpen(null));
   }, [active]);
+  useEffect(() => {
+    gridRef.current?.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+  }, [cell]);
 
   const st = useGame.getState();
-  const category = BAG_CATS[cat];
+  const category = BAG_CATS[Math.min(cat, BAG_CATS.length - 1)];
   const ids = Object.keys(hero.items).filter((id) => hero.items[id] > 0 && ITEMS[id] && (category === '全部' || ITEMS[id].category === category));
   const total = Math.max(BAG_MIN, Math.ceil((ids.length + 1) / BAG_COLS) * BAG_COLS);
   const selected = layer === 'cats' ? undefined : ids[cell];
-  const sortRow = BAG_CATS.length;
-
-  const actRows: Row[] = selected
-    ? [
-        ...(usable(selected)
-          ? [
-              {
-                label: '使用',
-                run: () => {
-                  const msg = st.updateHero((c) => consumeItem(c, selected));
-                  st.showToast(msg);
-                  if (!useGame.getState().hero.items[selected]) setLayer('grid');
-                },
-              },
-            ]
-          : []),
-        ...(ITEMS[selected].gear
-          ? [
-              {
-                label: '穿上',
-                detail: '穿到身上（換下的放回行囊）',
-                run: () => {
-                  st.showToast(st.updateHero((c) => equipGear(c, selected)));
-                  if (!useGame.getState().hero.items[selected]) setLayer('grid');
-                },
-              },
-            ]
-          : []),
-        { label: '移動', detail: '換到別的格子', run: () => (setHeld(selected), setLayer('move')) },
-      ]
-    : [];
+  const sortTab = BAG_CATS.length;
 
   const tidy = () => {
     st.updateHero((c) => sortItems(c));
@@ -500,40 +558,33 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
 
   const moveCellBy = (k: string): boolean => {
     const col = cell % BAG_COLS;
-    if (isUp(k)) setCell((c) => (c - BAG_COLS + total) % total);
-    else if (isDown(k)) setCell((c) => (c + BAG_COLS) % total);
+    if (isUp(k)) {
+      if (cell < BAG_COLS) return false;
+      setCell((c) => c - BAG_COLS);
+    } else if (isDown(k)) setCell((c) => (c + BAG_COLS) % total);
     else if (isRight(k)) setCell((c) => (col === BAG_COLS - 1 ? c - col : c + 1));
-    else if (isLeft(k)) {
-      if (col === 0) return false;
-      setCell((c) => c - 1);
-    } else return false;
+    else if (isLeft(k)) setCell((c) => (col === 0 ? c + BAG_COLS - 1 : c - 1));
+    else return false;
     return true;
   };
 
-  useKeys(active, (k) => {
+  useKeys(active && !open, (k) => {
     if (layer === 'cats') {
       const n = BAG_CATS.length + 1;
-      if (isUp(k)) setCat((c) => (c + n - 1) % n);
-      else if (isDown(k)) setCat((c) => (c + 1) % n);
-      else if (isConfirm(k) || isRight(k)) {
-        if (cat === sortRow) return isConfirm(k) && tidy();
+      if (isLeft(k)) setCat((c) => (c + n - 1) % n);
+      else if (isRight(k)) setCat((c) => (c + 1) % n);
+      else if (isConfirm(k) && cat === sortTab) tidy();
+      else if (isConfirm(k) || isDown(k)) {
+        if (cat === sortTab) setCat(0);
         setLayer('grid');
         setCell(0);
-      } else if (isCancel(k) || isLeft(k)) onExit();
+      } else if (isCancel(k) || isUp(k)) onExit();
       return;
     }
     if (layer === 'grid') {
-      if (isConfirm(k) && selected) (setLayer('act'), setAct(0));
+      if (isConfirm(k) && selected) setOpen(selected);
       else if (isCancel(k)) setLayer('cats');
-      else if (!moveCellBy(k) && isLeft(k)) setLayer('cats');
-      return;
-    }
-    if (layer === 'act') {
-      const n = actRows.length;
-      if (isUp(k)) setAct((a) => (a + n - 1) % n);
-      else if (isDown(k)) setAct((a) => (a + 1) % n);
-      else if (isConfirm(k)) actRows[act]?.run();
-      else if (isCancel(k) || isLeft(k)) setLayer('grid');
+      else if (!moveCellBy(k) && isUp(k)) setLayer('cats');
       return;
     }
     // 移動中
@@ -542,143 +593,207 @@ function ItemsPage({ active, onEnter, onExit }: { active: boolean; onEnter: () =
     else moveCellBy(k);
   });
 
-
-  const hint = !active
-    ? '按 E 或 → 開始選擇。'
-    : layer === 'cats'
-      ? '↑↓ 選擇分類，E 或 → 進入物品格，X 返回。'
-      : layer === 'grid'
-        ? '方向鍵選擇物品，E 使用或移動，X 返回分類。'
-        : layer === 'act'
-          ? '↑↓ 選擇，E 確定，X 返回。'
-          : '方向鍵選擇位置，E 放下（放在別的物品上會對調），X 取消。';
-
   const focus = held ?? selected;
-  return (
-    <div className="bag-page">
-      <h2>
-        行囊　<small>
-          銀兩 {hero.silver}　已用 {bagUsed(hero)}/{bagCapacity(hero)} 格
-        </small>
-      </h2>
-      <p className="muted small">{hint}</p>
-      <div className="bag-board">
-        <ul className="bag-cats">
-          {BAG_CATS.map((c, i) => (
-            <li
-              key={c}
-              className={`${i === cat ? 'current' : ''} ${active && layer === 'cats' && i === cat ? 'active' : ''}`}
-              onClick={() => (onEnter(), setCat(i), setLayer('grid'), setCell(0))}
-            >
-              {active && layer === 'cats' && i === cat ? '▶ ' : '　'}
-              {c}
-            </li>
-          ))}
+  const left = (
+    <>
+      <PageHead title="行囊" sub={`銀兩 ${hero.silver}`} />
+      <ul className="bag-tabs">
+        {[...BAG_CATS, '整理'].map((c, i) => (
           <li
-            className={`bag-sort ${active && layer === 'cats' && cat === sortRow ? 'active' : ''}`}
-            onClick={() => (onEnter(), setCat(sortRow), tidy())}
+            key={c}
+            className={`${i === cat ? 'current' : ''} ${active && layer === 'cats' && i === cat ? 'active' : ''} ${i === sortTab ? 'bag-sort' : ''}`}
+            onClick={() => (i === sortTab ? tidy() : (setCat(i), setLayer('grid'), setCell(0)))}
           >
-            {active && layer === 'cats' && cat === sortRow ? '▶ ' : '　'}重新整理
+            {c}
           </li>
-        </ul>
-        <div className="bag-main">
-          <div className="bag-grid" style={{ gridTemplateColumns: `repeat(${BAG_COLS}, 1fr)` }}>
-            {Array.from({ length: total }, (_, i) => {
-              const id = ids[i];
-              const on = active && layer !== 'cats' && i === cell;
-              return (
-                <div
-                  key={i}
-                  className={`bag-cell ${id ? 'filled' : ''} ${on ? 'active' : ''} ${held && id === held ? 'lifted' : ''}`}
-                  onClick={() => {
-                    onEnter();
-                    setCell(i);
-                    if (layer === 'move') return;
-                    setLayer(ids[i] ? 'act' : 'grid');
-                    setAct(0);
-                  }}
-                >
-                  {id && (
-                    <>
-                      <img src={itemIconUrl(ITEMS[id].icon)} alt={ITEMS[id].name} />
-                      {!ITEMS[id].manual && <span className="bag-count">{hero.items[id]}</span>}
-                    </>
-                  )}
-                  {/* 移動中：拿起的物品跟著游標 */}
-                  {on && held && <img className="bag-held" src={itemIconUrl(ITEMS[held].icon)} alt="" />}
-                </div>
-              );
-            })}
-          </div>
-          <div className="bag-detail">
-            {focus ? (
-              <>
-                <div className="skill-head">
-                  <img className="bag-big" src={itemIconUrl(ITEMS[focus].icon)} alt="" />
-                  <span className="skill-name">{ITEMS[focus].name}</span>
-                  <span className="tag">{ITEMS[focus].category}</span>
-                  {!ITEMS[focus].manual && <span className="muted">×{hero.items[focus]}</span>}
-                </div>
-                <p className="muted small">
-                  {ITEMS[focus].desc}
-                  {usableInBattle(focus) ? '（戰鬥中或行囊裡都能使用）' : usable(focus) ? '（在行囊裡使用）' : ''}
-                </p>
-                {layer === 'act' && <RowList rows={actRows} cursor={act} onPick={(i) => actRows[i].run()} />}
-              </>
-            ) : (
-              <p className="muted small">{ids.length ? '選一格看看物品的說明。' : category === '全部' ? '行囊空空如也。' : `沒有${category}。`}</p>
-            )}
+        ))}
+      </ul>
+      <div className="bag-grid" ref={gridRef}>
+        {Array.from({ length: total }, (_, i) => {
+          const id = ids[i];
+          const on = active && layer !== 'cats' && i === cell;
+          return (
+            <div
+              key={i}
+              className={`bag-cell ${id ? 'filled' : ''} ${on ? 'active' : ''} ${held && id === held ? 'lifted' : ''}`}
+              onClick={() => {
+                if (layer === 'move') return (setCell(i), undefined);
+                if (on && id) return setOpen(id);
+                setLayer('grid');
+                setCell(i);
+              }}
+            >
+              {id && (
+                <>
+                  <img src={itemIconUrl(ITEMS[id].icon)} alt={ITEMS[id].name} />
+                  {!ITEMS[id].manual && <span className="bag-count">{hero.items[id]}</span>}
+                </>
+              )}
+              {/* 移動中：拿起的物品跟著游標 */}
+              {on && held && <img className="bag-held" src={itemIconUrl(ITEMS[held].icon)} alt="" />}
+            </div>
+          );
+        })}
+      </div>
+      <p className="page-help">
+        {!active
+          ? '按 E 或 ↓ 開始翻閱'
+          : layer === 'cats'
+            ? '←→ 選分類　E／↓ 進到格子　X 回到書籤'
+            : layer === 'grid'
+              ? '方向鍵選物品　E 展開　X 回到分類'
+              : '方向鍵選位置　E 放下（放在別的物品上會對調）　X 取消'}
+      </p>
+    </>
+  );
+
+  const used = bagUsed(hero);
+  const cap = bagCapacity(hero);
+  const right = (
+    <>
+      <PageHead title={focus ? ITEMS[focus].name : category} sub={focus ? ITEMS[focus].category : `${ids.length} 樣`} />
+      {focus ? (
+        <div className="item-glance">
+          <img className="item-big" src={itemIconUrl(ITEMS[focus].icon)} alt="" />
+          <div>
+            {!ITEMS[focus].manual && <div className="small">持有 {hero.items[focus]} 個</div>}
+            <p className="small">{ITEMS[focus].desc}</p>
+            <p className="small muted">{usableInBattle(focus) ? '戰鬥中或行囊裡都能使用。' : usable(focus) ? '在行囊裡使用。' : ITEMS[focus].gear ? '可以穿戴。' : ''}</p>
           </div>
         </div>
+      ) : (
+        <p className="small muted">{ids.length ? '選一格看看物品的說明。' : category === '全部' ? '行囊空空如也。' : `沒有${category}。`}</p>
+      )}
+      <div className="bag-capacity">
+        <span className="small">已用 {used}/{cap} 格</span>
+        <div className="exp-track">
+          <div className="exp-fill" style={{ width: `${(used / cap) * 100}%` }} />
+        </div>
       </div>
-    </div>
+    </>
+  );
+
+  const it = open && hero.items[open] ? ITEMS[open] : null;
+  const sheet: Sheet | null =
+    open && it
+      ? {
+          title: it.name,
+          sub: `${it.category}${it.manual ? '' : `・${hero.items[open]} 個`}`,
+          body: it.gear ? (
+            <GearInfo id={open} />
+          ) : (
+            <div className="item-line">
+              <img className="item-icon" src={itemIconUrl(it.icon)} alt="" />
+              <p className="small">
+                {it.desc}
+                <span className="muted">{usableInBattle(open) ? '（戰鬥中或行囊裡都能使用）' : usable(open) ? '（在行囊裡使用）' : ''}</span>
+              </p>
+            </div>
+          ),
+          actions: [
+            ...(usable(open) ? [{ label: '使用', run: () => st.showToast(st.updateHero((c) => consumeItem(c, open))) }] : []),
+            ...(it.gear ? [{ label: '穿上', detail: '換下的放回行囊', run: () => (st.showToast(st.updateHero((c) => equipGear(c, open))), 'close' as const) }] : []),
+            { label: '移動', detail: '換到別的格子', run: () => (setHeld(open), setLayer('move'), 'close' as const) },
+          ],
+        }
+      : null;
+
+  return (
+    <>
+      <Spread folio={folio} left={left} right={right} />
+      <Paper sheet={sheet} onClose={() => setOpen(null)} />
+    </>
   );
 }
 
-function QuestsPage() {
+// ── 江湖事 ───────────────────────────────────────────────
+
+/** 江湖事：左頁是今天的日子與該做的事，右頁是長期的委託，E 攤開細看 */
+function QuestsPage({ active, onExit, folio }: PageProps) {
   const flags = useGame((s) => s.flags);
   const hero = useGame((s) => s.hero);
   const world = useGame((s) => s.world);
+  const [row, setRow] = useState(0);
+  const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => {
+    if (!active) setOpen(null);
+  }, [active]);
   // 進行中的排前面
   const list = QUESTS.map((q) => ({ q, st: q.status(flags) }))
     .filter((x) => x.st)
     .sort((a, b) => Number(a.st!.done) - Number(b.st!.done));
-  return (
-    <div className="quests-page">
-      <h2>江湖事</h2>
-      <h3>今日</h3>
+  const cur = Math.min(row, Math.max(0, list.length - 1));
+
+  useKeys(active && !open, (k) => {
+    const n = list.length;
+    if (isCancel(k) || isLeft(k)) return onExit();
+    if (!n) return;
+    if (isUp(k)) setRow((cur + n - 1) % n);
+    else if (isDown(k)) setRow((cur + 1) % n);
+    else if (isConfirm(k)) setOpen(list[cur].q.id);
+  });
+
+  const fest = festivalOf(world.day);
+  const left = (
+    <>
+      <PageHead title={dateText(world.day)} sub={`${WEATHER_NAME[world.weather]}・${timeText(world.time)}`} />
+      {(fest || isXunxiu(world.day)) && <p className="festival small">{[fest, isXunxiu(world.day) && '旬休'].filter(Boolean).join('・')}</p>}
+      <p className="small">{WEATHER_LINE[world.weather]}</p>
+      <h4 className="page-sec">今日</h4>
       <TaskList tasks={todayTasks({ hero, flags, world })} />
-      <h3>長期</h3>
-      {list.length === 0 && <p className="muted placeholder">尚未接下任何委託。</p>}
-      {list.map(({ q, st }) => (
-        <div key={q.id} className={`quest ${st!.done ? 'done' : ''}`}>
-          <div className="skill-head">
-            <span className="skill-name">{q.title}</span>
+    </>
+  );
+  const right = (
+    <>
+      <PageHead title="長期" sub={`進行中 ${list.filter((x) => !x.st!.done).length}`} />
+      {list.length === 0 && <p className="muted small">尚未接下任何委託。</p>}
+      <ul className="quest-list">
+        {list.map(({ q, st }, i) => (
+          <li key={q.id} className={`${active && i === cur ? 'active' : ''} ${st!.done ? 'done' : ''}`} onClick={() => (i === cur ? setOpen(q.id) : setRow(i))}>
+            <span>
+              {active && i === cur ? '▸ ' : '　'}
+              {q.title}
+            </span>
             <span className={`tag ${st!.done ? 'muted-tag' : ''}`}>{st!.done ? '已完成' : '進行中'}</span>
-          </div>
-          <p className="small">{st!.text}</p>
-        </div>
-      ))}
-    </div>
+          </li>
+        ))}
+      </ul>
+      <p className="page-help">{active ? '↑↓ 選擇　E 展開細看　X 回到書籤' : '按 E 或 ↓ 開始翻閱'}</p>
+    </>
+  );
+  const q = open ? list.find((x) => x.q.id === open) : undefined;
+  const sheet: Sheet | null = q ? { title: q.q.title, sub: q.st!.done ? '已完成' : '進行中', body: <p>{q.st!.text}</p> } : null;
+  return (
+    <>
+      <Spread folio={folio} left={left} right={right} />
+      <Paper sheet={sheet} onClose={() => setOpen(null)} />
+    </>
   );
 }
 
 // ── 系統 ────────────────────────────────────────────────
 
-type SysLayer = 'root' | 'save' | 'load' | 'settings';
-const SYS_TITLE: Record<SysLayer, string> = { root: '系統', save: '存檔', load: '讀檔', settings: '遊戲設定' };
+type SysRow = 'save' | 'load' | 'settings' | 'title';
+const SYS_ROWS: { id: SysRow; label: string; note: string }[] = [
+  { id: 'save', label: '存檔', note: '存到手動存檔欄' },
+  { id: 'load', label: '讀檔', note: '即時、自動或手動存檔' },
+  { id: 'settings', label: '遊戲設定', note: '戰鬥模式、自動戰鬥' },
+  { id: 'title', label: '回到標題畫面', note: '會先自動存檔' },
+];
 
-function SystemPage({ active, onEnter, onExit }: { active: boolean; onEnter: () => void; onExit: () => void }) {
-  const [layer, setLayer] = useState<SysLayer>('root');
+/** 系統：左頁選存檔、讀檔、設定、回標題；E 或 → 到右頁操作，← 或 X 回左頁 */
+function SystemPage({ active, onExit, folio }: PageProps) {
+  const [root, setRoot] = useState(0);
+  const [side, setSide] = useState<'left' | 'right'>('left');
   const [cursor, setCursor] = useState(0);
   const [, setVersion] = useState(0);
   const settings = useGame((s) => s.settings);
   useEffect(() => {
-    if (!active) setLayer('root');
+    if (!active) setSide('left');
   }, [active]);
 
   const st = useGame.getState();
-  const go = (l: SysLayer) => (setLayer(l), setCursor(0));
+  const layer = SYS_ROWS[root].id;
   const setSetting = (s: Partial<Settings>) => st.setSettings(s);
   const slotList: SlotId[] = layer === 'save' ? MANUAL_SLOTS : ['quick', 'auto', ...MANUAL_SLOTS];
   // 存檔：先確認（已經有存檔的要確認覆蓋）
@@ -698,79 +813,86 @@ function SystemPage({ active, onEnter, onExit }: { active: boolean; onEnter: () 
     loadGame(d);
     st.showToast(`已讀取${SLOT_NAME[s]}`);
   };
+  const toTitleScreen = () => (st.setMenu(false), toTitle());
 
   const rows: Row[] =
-    layer === 'root'
-      ? [
-          { label: '存檔', detail: `存到檔案一～${SLOT_NAME[MANUAL_SLOTS[MANUAL_SLOTS.length - 1]].slice(2)}`, run: () => go('save') },
-          { label: '讀檔', detail: '即時、自動或手動存檔', run: () => go('load') },
-          { label: '遊戲設定', detail: '戰鬥模式、自動戰鬥', run: () => go('settings') },
-          { label: '回到標題畫面', detail: '會先自動存檔', run: () => (st.setMenu(false), toTitle()) },
-        ]
-      : layer === 'save' || layer === 'load'
-        ? slotList.map((s) => ({ label: SLOT_NAME[s], disabled: layer === 'load' && !readSave(s), run: () => (layer === 'save' ? saveTo(s) : loadFrom(s)) }))
-          : [
-              {
-                label: `戰鬥模式：${settings.battleMode === 'turn' ? '回合制' : '半即時制'}`,
-                detail: settings.battleMode === 'turn' ? '依速度排順序，輪流出手' : '行動條跑滿才能出手，速度越快出手越多',
-                run: () => setSetting({ battleMode: settings.battleMode === 'turn' ? 'active' : 'turn' }),
-              },
-              {
-                label: `半即時制選指令時：${settings.atbWait ? '暫停' : '不暫停'}`,
-                detail: settings.atbWait ? '等待模式：慢慢想，時間會停住' : '即時模式：想太久敵人會先出手',
-                disabled: settings.battleMode === 'turn',
-                run: () => setSetting({ atbWait: !settings.atbWait }),
-              },
-              {
-                label: `自動戰鬥方針：${settings.autoTactic === 'steady' ? '穩健' : '猛攻'}`,
-                detail: settings.autoTactic === 'steady' ? '見敵蓄勢就防禦，氣血低於三成補血' : '只管出招，氣血低於兩成才補血',
-                run: () => setSetting({ autoTactic: settings.autoTactic === 'steady' ? 'aggressive' : 'steady' }),
-              },
-              {
-                label: `自動戰鬥用藥：${settings.autoItems ? '使用' : '不使用'}`,
-                detail: '不使用可避免刷怪時把藥吃光',
-                run: () => setSetting({ autoItems: !settings.autoItems }),
-              },
-            ];
+    layer === 'save' || layer === 'load'
+      ? slotList.map((s) => ({ label: SLOT_NAME[s], disabled: layer === 'load' && !readSave(s), run: () => (layer === 'save' ? saveTo(s) : loadFrom(s)) }))
+      : layer === 'settings'
+        ? [
+            {
+              label: `戰鬥模式：${settings.battleMode === 'turn' ? '回合制' : '半即時制'}`,
+              detail: settings.battleMode === 'turn' ? '依速度排順序，輪流出手' : '行動條跑滿才能出手，速度越快出手越多',
+              run: () => setSetting({ battleMode: settings.battleMode === 'turn' ? 'active' : 'turn' }),
+            },
+            {
+              label: `半即時制選指令時：${settings.atbWait ? '暫停' : '不暫停'}`,
+              detail: settings.atbWait ? '等待模式：慢慢想，時間會停住' : '即時模式：想太久敵人會先出手',
+              disabled: settings.battleMode === 'turn',
+              run: () => setSetting({ atbWait: !settings.atbWait }),
+            },
+            {
+              label: `自動戰鬥方針：${settings.autoTactic === 'steady' ? '穩健' : '猛攻'}`,
+              detail: settings.autoTactic === 'steady' ? '見敵蓄勢就防禦，氣血低於三成補血' : '只管出招，氣血低於兩成才補血',
+              run: () => setSetting({ autoTactic: settings.autoTactic === 'steady' ? 'aggressive' : 'steady' }),
+            },
+            {
+              label: `自動戰鬥用藥：${settings.autoItems ? '使用' : '不使用'}`,
+              detail: '不使用可避免刷怪時把藥吃光',
+              run: () => setSetting({ autoItems: !settings.autoItems }),
+            },
+          ]
+        : [{ label: '闔上書，回到標題畫面', run: toTitleScreen }];
 
   useKeys(active, (k) => {
+    if (side === 'left') {
+      const n = SYS_ROWS.length;
+      if (isUp(k)) setRoot((r) => (r + n - 1) % n);
+      else if (isDown(k)) setRoot((r) => (r + 1) % n);
+      else if (isConfirm(k) || isRight(k)) (setSide('right'), setCursor(0));
+      else if (isCancel(k) || isLeft(k)) onExit();
+      return;
+    }
     const n = rows.length;
     if (isUp(k)) setCursor((c) => (c + n - 1) % n);
     else if (isDown(k)) setCursor((c) => (c + 1) % n);
-    else if (isConfirm(k) || (layer === 'settings' && (isRight(k) || isLeft(k)))) rows[cursor]?.run();
-    else if (isCancel(k) || isLeft(k)) {
-      if (layer === 'root') onExit();
-      else {
-        setCursor((['save', 'load', 'settings'] as SysLayer[]).indexOf(layer));
-        setLayer('root');
-      }
-    }
+    else if (isConfirm(k)) rows[cursor]?.disabled || rows[cursor]?.run();
+    else if (isCancel(k) || isLeft(k)) setSide('left');
   });
 
-  return (
-    <div>
-      <h2>
-        {layer === 'root' ? (
-          '系統'
-        ) : (
-          <>
-            系統 <small>› {SYS_TITLE[layer]}</small>
-          </>
-        )}
-      </h2>
-      <p className="muted small">
-        {!active ? '按 E 或 → 開始選擇。' : layer === 'settings' ? '↑↓ 選擇，E 或 ←→ 切換，X 返回。' : '↑↓ 選擇，E 確定，X 返回。'}
-        {layer === 'root' && '隨時可按 Ctrl+S（Mac 為 ⌘S）即時存檔、F9 讀取即時存檔。'}
-        {layer === 'save' && '選一個欄位存檔，已經有存檔的會先問要不要覆蓋。'}
-        {layer === 'settings' && '戰鬥中按 Q 開關自動戰鬥。'}
-      </p>
-      {layer === 'save' || layer === 'load' ? (
-        <SlotBars slots={slotList} cursor={active ? cursor : -1} mode={layer} onPick={(i) => (onEnter(), setCursor(i), rows[i].run())} />
-      ) : (
-        <RowList rows={rows} cursor={active ? cursor : -1} onPick={(i) => (onEnter(), setCursor(i), rows[i].run())} />
-      )}
-    </div>
+  const rightOn = active && side === 'right';
+  const left = (
+    <>
+      <PageHead title="系統" />
+      <ul className="row-list sys-rows">
+        {SYS_ROWS.map((r, i) => (
+          <li key={r.id} className={`${i === root ? 'current' : ''} ${active && side === 'left' && i === root ? 'active' : ''}`} onClick={() => (setRoot(i), setSide('right'), setCursor(0))}>
+            <span>
+              {active && side === 'left' && i === root ? '▸ ' : '　'}
+              {r.label}
+            </span>
+            <span className="row-note">{r.note}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="small muted">隨時可按 Ctrl+S（Mac 為 ⌘S）即時存檔、F9 讀取即時存檔。戰鬥中按 Q 開關自動戰鬥。</p>
+      <p className="page-help">{!active ? '按 E 或 ↓ 開始翻閱' : side === 'left' ? '↑↓ 選擇　E／→ 到右頁　X 回到書籤' : '↑↓ 選擇　E 確定　←／X 回左頁'}</p>
+    </>
   );
+  const right = (
+    <>
+      <PageHead title={SYS_ROWS[root].label} />
+      {layer === 'save' || layer === 'load' ? (
+        <SlotBars slots={slotList} cursor={rightOn ? cursor : -1} mode={layer} onPick={(i) => (setSide('right'), setCursor(i), rows[i].disabled || rows[i].run())} />
+      ) : (
+        <>
+          {layer === 'title' && <p className="small">離開目前的遊戲回到標題畫面，離開前會自動存檔。</p>}
+          <RowList rows={rows} cursor={rightOn ? cursor : -1} onPick={(i) => (setSide('right'), setCursor(i), rows[i].disabled || rows[i].run())} />
+        </>
+      )}
+    </>
+  );
+  return <Spread folio={folio} left={left} right={right} />;
 }
 
 /** 存檔欄：一條一條的欄位，空的顯示「空白」；游標所在的捲到看得見 */
@@ -784,9 +906,9 @@ function SlotBars({ slots, cursor, mode, onPick }: { slots: SlotId[]; cursor: nu
       {slots.map((s, i) => {
         const d = readSave(s);
         return (
-          <li key={s} className={`save-slot pixel-frame ${i === cursor ? 'active' : ''} ${!d && mode === 'load' ? 'disabled' : ''}`} onClick={() => onPick(i)}>
+          <li key={s} className={`save-slot ${i === cursor ? 'active' : ''} ${!d && mode === 'load' ? 'disabled' : ''}`} onClick={() => onPick(i)}>
             <span className="save-slot-name">
-              {i === cursor ? '▶ ' : '　'}
+              {i === cursor ? '▸ ' : '　'}
               {SLOT_NAME[s]}
             </span>
             {d ? <span className="save-slot-info">{describeSave(d)}</span> : <span className="save-slot-info muted">— 空白 —</span>}

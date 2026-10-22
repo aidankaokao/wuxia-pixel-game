@@ -704,7 +704,7 @@ export class MapScene extends Phaser.Scene {
     if (exit) {
       this.player.stand();
       // 在室外地圖之間移動花一刻；進出屋子不花時間（室內地圖都有 theme）
-      if (exit.to && !this.def.theme && !getMap(exit.to)?.theme) useGame.getState().passTime(1);
+      if (exit.to && !exit.free && !this.def.theme && !getMap(exit.to)?.theme) useGame.getState().passTime(1);
       if (exit.world) this.toWorld(exit.world, exit.worldFrom);
       else if (exit.to) this.warp(exit.to, exit.spawn);
       else if (exit.lines) this.runScript((ctx) => ctx.say(...exit.lines!));

@@ -17,7 +17,13 @@ export type ItemIcon =
   // 節令點心
   | 'dumpling' | 'qingtuan' | 'zongzi' | 'mooncake' | 'shoutao'
   // 紡織材料
-  | 'thread' | 'silk';
+  | 'thread' | 'silk'
+  // 坐騎（不是物品，選單裡用）
+  | 'horse'
+  // 技能（選單「技能」用）
+  | 'c_cook' | 'c_weave' | 'c_learn' | 'c_qin' | 'c_chess' | 'c_brush'
+  // 書冊：依書架換封面顏色
+  | 'book_meng' | 'book_jing' | 'book_shi' | 'book_zi' | 'book_ji';
 
 const OUTLINE = '#1a1218';
 
@@ -395,7 +401,94 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
   thread: (ctx) => spool(ctx, '#ece6d6', '#c8bca4'),
   // 絲線：一綑紅色絲線
   silk: (ctx) => spool(ctx, '#d8483c', '#a83028'),
+  // ── 坐騎 ──
+  // 馬：側身站著，鬃毛與尾巴深色
+  horse(ctx) {
+    px(ctx, 3, 6, 9, 4, '#a86a3a');
+    px(ctx, 10, 3, 3, 4, '#a86a3a');
+    px(ctx, 12, 2, 2, 3, '#a86a3a');
+    px(ctx, 13, 4, 2, 2, '#a86a3a');
+    vline(ctx, 10, 2, 6, '#4a2a18');
+    px(ctx, 13, 3, 1, 1, '#1a1218');
+    hline(ctx, 4, 10, 6, '#c08050');
+    for (const x of [4, 6, 9, 11]) vline(ctx, x, 10, 14, '#7a4a28');
+    vline(ctx, 2, 6, 11, '#4a2a18');
+    px(ctx, 1, 10, 1, 2, '#4a2a18');
+  },
+  // ── 技能 ──
+  // 烹飪：鐵鍋與鍋鏟，冒著熱氣
+  c_cook(ctx) {
+    ellipse(ctx, 8, 11, 6, 3, '#3a3a42');
+    hline(ctx, 2, 14, 9, '#5a5a66');
+    px(ctx, 4, 10, 8, 1, '#c8a050');
+    hline(ctx, 13, 15, 8, '#6a4428');
+    for (const x of [5, 8, 11]) {
+      vline(ctx, x, 3, 4, '#e8e4dc');
+      vline(ctx, x + 1, 5, 6, '#e8e4dc');
+    }
+  },
+  // 紡織：織機的框架與經線，梭子
+  c_weave(ctx) {
+    px(ctx, 2, 2, 12, 1, '#7a5232');
+    px(ctx, 2, 12, 12, 1, '#7a5232');
+    vline(ctx, 2, 2, 14, '#6a4428');
+    vline(ctx, 13, 2, 14, '#6a4428');
+    for (let x = 4; x <= 11; x += 2) vline(ctx, x, 3, 11, '#ece6d6');
+    px(ctx, 3, 7, 10, 3, '#c4483c');
+    hline(ctx, 3, 12, 8, '#e8706a');
+    px(ctx, 5, 13, 6, 2, '#c8a050');
+  },
+  // 學識：一疊線裝書
+  c_learn(ctx) {
+    px(ctx, 2, 10, 12, 3, '#3a5a8a');
+    hline(ctx, 2, 13, 13, '#e8dcc0');
+    px(ctx, 3, 6, 11, 3, '#8a3a2a');
+    hline(ctx, 3, 13, 9, '#e8dcc0');
+    px(ctx, 4, 2, 9, 3, '#3a6a52');
+    hline(ctx, 4, 12, 5, '#e8dcc0');
+    for (const [x, y] of [[4, 11], [5, 7], [6, 3]]) px(ctx, x, y, 2, 1, '#f1e7cf');
+  },
+  // 琴：斜放的七弦琴
+  c_qin(ctx) {
+    for (let i = 0; i < 12; i++) px(ctx, 2 + i, 11 - Math.floor(i / 2), 1, 4, i % 4 === 0 ? '#5a3418' : '#7a4a28');
+    for (let i = 0; i < 12; i++) px(ctx, 2 + i, 12 - Math.floor(i / 2), 1, 1, '#e8dcc0');
+    px(ctx, 3, 12, 1, 1, '#f0d070');
+    px(ctx, 9, 9, 1, 1, '#f0d070');
+  },
+  // 棋：棋盤與黑白子
+  c_chess(ctx) {
+    px(ctx, 2, 3, 12, 11, '#d8b070');
+    for (let i = 4; i <= 12; i += 3) {
+      hline(ctx, 3, 12, i, '#8a6a3a');
+      vline(ctx, i, 4, 12, '#8a6a3a');
+    }
+    for (const [x, y] of [[4, 4], [10, 7]]) ellipse(ctx, x + 0.5, y + 0.5, 1.4, 1.4, '#1a1a22');
+    for (const [x, y] of [[7, 7], [7, 10]]) ellipse(ctx, x + 0.5, y + 0.5, 1.4, 1.4, '#f4f0e6');
+  },
+  // 書：毛筆與硯台
+  c_brush(ctx) {
+    px(ctx, 2, 10, 9, 4, '#3a3a42');
+    px(ctx, 3, 11, 5, 2, '#1a1a22');
+    for (let i = 0; i < 7; i++) px(ctx, 13 - i, 1 + i, 1, 1, '#a8744a');
+    px(ctx, 6, 8, 2, 2, '#2a2228');
+    px(ctx, 7, 8, 1, 1, '#e8dcc0');
+  },
+  book_meng: (ctx) => volume(ctx, '#c8a050', '#8a6a2e'),
+  book_jing: (ctx) => volume(ctx, '#3a5a8a', '#22406e'),
+  book_shi: (ctx) => volume(ctx, '#8a3a2a', '#5a2018'),
+  book_zi: (ctx) => volume(ctx, '#3a6a52', '#224636'),
+  book_ji: (ctx) => volume(ctx, '#6a4a7a', '#40284e'),
 };
+
+/** 線裝書：封面顏色、書脊顏色，貼一張題簽 */
+function volume(ctx: CanvasRenderingContext2D, cover: string, spine: string) {
+  px(ctx, 3, 2, 10, 12, cover);
+  px(ctx, 12, 3, 1, 11, '#e8dcc0');
+  vline(ctx, 3, 2, 13, spine);
+  for (const y of [4, 7, 10]) px(ctx, 3, y, 2, 1, '#e8dcc0');
+  px(ctx, 8, 3, 3, 8, '#f1e7cf');
+  vline(ctx, 9, 4, 9, '#5a4a3a');
+}
 
 /** 線軸：木軸纏著線 */
 function spool(ctx: CanvasRenderingContext2D, color: string, dark: string) {

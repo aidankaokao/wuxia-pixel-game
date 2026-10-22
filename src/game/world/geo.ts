@@ -85,8 +85,8 @@ export const NODES: WorldNode[] = [
     enter: { map: 'linjiang', x: 53, y: 16, facing: 'left' },
     enterFrom: {
       ferry: { map: 'linjiang', x: 1, y: 16, facing: 'right' },
-      mingquan: { map: 'linjiang', x: 27, y: 1, facing: 'down' },
-      beishang: { map: 'linjiang', x: 27, y: 1, facing: 'down' },
+      mingquan: { map: 'lj_north', x: 27, y: 1, facing: 'down' },
+      beiling: { map: 'lj_north', x: 27, y: 1, facing: 'down' },
     },
   },
   {

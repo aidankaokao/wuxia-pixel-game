@@ -1,22 +1,24 @@
+import { seam } from './city';
 import { STALLS, stallAt } from '../story/market';
 import { bountyTarget, escortGuardLines } from '../story/linjiang_jianghu';
-import { huichunDelivery, MQ } from '../story/sect_mingquan';
+import { huichunDelivery } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
  * 臨江城 —— 縣城。雲水河在城南匯入大江，碼頭是漕幫的地盤；城中有縣衙、金刀鏢局、客棧酒樓。
- * 西門、北門、東門出城都到大地圖（往雲水渡口、鳴泉山、大埠頭的方向），南門外是碼頭。
+ * 臨江城・城南：商號、客棧、酒樓、衙門、鏢局都在這一區，南門外是碼頭。西門、東門出城到大地圖（往雲水渡口、大埠頭）。
+ * 北邊沒有城牆，直接接到城北（lj_north，民居；北門在城北，出去往鳴泉山）。
  */
 export const linjiang: MapDef = {
   id: 'linjiang',
   name: '臨江城',
-  subtitle: '臨江縣・江畔大城',
+  subtitle: '城南・商街碼頭',
   // prettier-ignore
   tiles: [
-    '......T...T.T..T....TT.TTT.EE............T.T......TT....',
-    'T...T...TTTT.T..T.T.T.T....::...T.T....TT.T.......TT..TT',
-    '..T....TT.T.....T.TT.....T.::.T..T......TTT...T.....T.T.',
-    '...HHHHHHHHHHHHHHHHHHHHHHH====HHHHHHHHHHHHHHHHHHHHHHH...',
+    '..TH........::............====............::........H...',
+    '.T.H........::............====............::........H.T.',
+    'T..H......*.::............====.......*....::........H...',
+    '..TH........::............====............::........H..T',
     '..TH........::............====............::........H.T.',
     '.T.H........::............====...........T::........H...',
     'TT.H........::..........*.====............::........H.TT',
@@ -71,10 +73,8 @@ export const linjiang: MapDef = {
   ],
 
   props: [
-    { sprite: 'paifang_city', x: 25, y: 3, w: 6, passable: true },
     { sprite: 'paifang_city', x: 25, y: 28, w: 6, passable: true },
     { sprite: 'sign', x: 1, y: 15, lines: [{ text: '「臨江城」\n西 ── 雲水渡口・青竹村' }] },
-    { sprite: 'sign', x: 29, y: 1, lines: [{ text: '北 ── 鳴泉山\n山上有鳴泉劍派。' }] },
     {
       sprite: 'bulletin', x: 23, y: 12,
       lines: [
@@ -107,20 +107,6 @@ export const linjiang: MapDef = {
     {
       id: 'lj_guard_w2', allDay: true, name: '魏大牛', sprite: 'guard', x: 4, y: 18, facing: 'up',
       talks: [[{ speaker: '魏大牛', text: '東門修好啦。出了東門就上大路，往東順著大江走，聽說能一直走到海邊。' }]],
-    },
-    {
-      id: 'lj_guard_n', allDay: true, name: '朱八斤', sprite: 'guard', x: 25, y: 4, facing: 'right',
-      talks: [[{ speaker: '朱八斤', text: '出北門往上走就是鳴泉山。' }, { speaker: '朱八斤', text: '最近上山的年輕人特別多，都是去拜師的。' }]],
-    },
-    {
-      id: 'lj_disciple', name: MQ.wei, sprite: 'disciple', x: 28, y: 14, facing: 'down',
-      talks: [
-        [
-          { speaker: MQ.wei, text: '在下鳴泉劍派弟子韋季安，奉師命下山採買。' },
-          { speaker: MQ.wei, text: '本派正開山收徒，不拘時日。閣下若有意，出北門沿山道往上走，山門就在鳴泉旁。' },
-        ],
-        [{ speaker: MQ.wei, text: '鳴泉山上有一眼泉水，水擊山石，其聲如鳴，本派因此得名。' }],
-      ],
     },
     {
       // 站在鏢局門口旁邊，別擋住大門
@@ -192,7 +178,9 @@ export const linjiang: MapDef = {
   exits: [
     // 西門、北門、東門出城都到大地圖（各朝雲水渡口、鳴泉山、大埠頭的方向）
     { tiles: [[0, 16], [0, 17]], world: 'linjiang', worldFrom: 'ferry' },
-    { tiles: [[27, 0], [28, 0]], world: 'linjiang', worldFrom: 'mingquan' },
     { tiles: [[55, 16], [55, 17]], world: 'linjiang', worldFrom: 'dabutou' },
   ],
 };
+
+// 北邊接到城北：兩區同寬、東西城牆在同一欄，走過去就像同一條街
+linjiang.exits.push(...seam(linjiang.tiles, 'top', 'lj_north', { w: 56, h: 30 }, [4, 51]));

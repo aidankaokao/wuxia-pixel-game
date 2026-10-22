@@ -10,7 +10,7 @@ import { useGame } from '../state/store';
 import { BrowseItem, Browser } from './Browser';
 
 /** 選單「門派」：身分、晉升、本門武功、弟子名冊、門規、門派規矩，一層一層往下看 */
-export function SectPage({ active, onExit }: { active: boolean; onExit: () => void }) {
+export function SectPage({ active, onExit, folio }: { active: boolean; onExit: () => void; folio?: number }) {
   const world = useGame((s) => s.world);
   const hero = useGame((s) => s.hero);
   const flags = useGame((s) => s.flags);
@@ -36,7 +36,7 @@ export function SectPage({ active, onExit }: { active: boolean; onExit: () => vo
     ];
     // 聽說過的門派：可以先看看它的規矩
     if (flags.mq_seek || flags.mq_left) items.push({ key: 'charter', label: `${MINGQUAN.name}（聽說過）`, detail: () => <Charter def={MINGQUAN} /> });
-    return <Browser title="門派" items={items} active={active} onExit={onExit} />;
+    return <Browser title="門派" items={items} active={active} onExit={onExit} folio={folio} />;
   }
 
   const rank = def.ranks[s.rank];
@@ -206,7 +206,7 @@ export function SectPage({ active, onExit }: { active: boolean; onExit: () => vo
     },
     { key: 'charter', label: '門派規矩', tag: def.size + '門派', detail: () => <Charter def={def} /> },
   ];
-  return <Browser title={def.name} items={items} active={active} onExit={onExit} />;
+  return <Browser title={def.name} items={items} active={active} onExit={onExit} folio={folio} />;
 }
 
 /** 門派規矩：收徒、兵器、各身分的住處、月例與脫離方式 */

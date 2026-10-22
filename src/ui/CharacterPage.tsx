@@ -1,258 +1,323 @@
-import { Fragment } from 'react';
+import { useEffect, useState } from 'react';
 import { ATTRS, attrParts, Character, derive, equipGear, GEAR_SLOTS, gearStats, heldWeapon, isEquipped, ITEMS, skillDef, slotsFor, unequipGear } from '../game/character';
-import { weaponFit, weaponWanted } from '../game/gear';
-import { gearKindName, GearSlotId, GRADE_CLASS, GRADES } from '../game/gear';
+import { GEAR_ICON, weaponFit, weaponWanted } from '../game/gear';
+import { GearSlotId, GRADE_CLASS, GRADES } from '../game/gear';
+import { CHARACTERS, drawCharacterSheet } from '../game/art/characters';
+import { itemIconUrl } from '../game/art/items';
+import { CHAR_H, CHAR_W } from '../game/constants';
 import { mountDef } from '../game/mounts';
-import { PATTERNS } from '../game/weaving';
-import { bookOf, BOOKS, READ_STAGES } from '../game/books';
-import { DISH_TIERS, DISHES, dishItem, knowsDish, needsText, STEW, TIER_LEVEL } from '../game/cooking';
-import { CRAFTS, craftExpToNext, CRAFT_MAX, craftOf, craftTitle, WORK_MAX, workExpToNext, workOf } from '../game/crafts';
 import { rankName, sectDef } from '../game/sect';
 import { fameTitle } from '../game/social';
 import { useGame } from '../state/store';
-import { BrowseItem, Browser } from './Browser';
+import { IconTile, Paper, Sheet, Spread } from './Paper';
+import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
 const fmt = (n: number) => (Math.round(n * 10) / 10).toString();
 
-/** 選單「人物」：概況、五維、裝備、技能、坐騎 */
-export function CharacterPage({ active, onExit }: { active: boolean; onExit: () => void }) {
+/** 主角的正面像（取精靈表第一列站立那格，放大用 CSS） */
+let portrait: string | null = null;
+function heroPortrait(): string {
+  if (!portrait) {
+    const sheet = drawCharacterSheet(CHARACTERS.hero);
+    const c = document.createElement('canvas');
+    c.width = CHAR_W;
+    c.height = CHAR_H;
+    c.getContext('2d')!.drawImage(sheet, CHAR_W, 0, CHAR_W, CHAR_H, 0, 0, CHAR_W, CHAR_H);
+    portrait = c.toDataURL();
+  }
+  return portrait;
+}
+
+/** 一條數值：名稱、數字與長條 */
+function Vital({ name, now, max, kind }: { name: string; now: number; max: number; kind: string }) {
+  return (
+    <div className="vital">
+      <span className="vital-name">{name}</span>
+      <div className={`vital-bar ${kind}`}>
+        <div style={{ width: `${max ? Math.min(100, (now / max) * 100) : 0}%` }} />
+      </div>
+      <span className="vital-num">
+        {now}/{max}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * 人形四周的裝備框：左邊由上而下帽子、上衣、左手、褲子，右邊頸飾、兵器、右手、鞋子，腳下是坐騎。
+ * 索引 0–3 左欄、4–7 右欄、8 坐騎。
+ */
+const DOLL: GearSlotId[] = ['hat', 'top', 'leftHand', 'bottom', 'neck', 'weapon', 'rightHand', 'shoes'];
+const MOUNT = 8;
+
+/** 裝備框之間的移動；回傳 'attrs' 表示往左回到左頁的五維 */
+function moveDoll(i: number, k: string): number | 'attrs' {
+  if (i === MOUNT) return isUp(k) ? 3 : isLeft(k) ? 3 : isRight(k) ? 7 : i;
+  const right = i >= 4;
+  const row = i % 4;
+  if (isUp(k)) return (right ? 4 : 0) + ((row + 3) % 4);
+  if (isDown(k)) return row === 3 ? MOUNT : i + 1;
+  if (isRight(k)) return right ? i : i + 4;
+  if (isLeft(k)) return right ? i - 4 : 'attrs';
+  return i;
+}
+
+type Spot = { col: 0 | 1; i: number };
+
+/**
+ * 選單「人物」：左頁是名帖（畫像、氣血內力體力、五維），右頁是人形與四周的裝備框。
+ * 有穿戴的框裡畫著那件東西，沒有的是空框（淡淡的部位圖示）。E 把那一格攤開成紙：穿上、卸下、上馬、下馬。
+ */
+export function CharacterPage({ active, onExit, folio }: { active: boolean; onExit: () => void; folio?: number }) {
   const hero = useGame((s) => s.hero);
   const sect = useGame((s) => s.world.sect);
+  const [spot, setSpot] = useState<Spot>({ col: 0, i: 0 });
+  const [open, setOpen] = useState<Spot | null>(null);
+  useEffect(() => {
+    if (!active) (setOpen(null), setSpot({ col: 0, i: 0 }));
+  }, [active]);
+
   const d = derive(hero);
   const parts = attrParts(hero);
   const gs = gearStats(hero);
+  const m = mountDef(hero.mount);
 
-  const items: BrowseItem[] = [
-    {
-      key: 'summary',
-      label: '概況',
-      tag: fameTitle(hero.fame),
-      detail: () => (
+  useKeys(active && !open, (k) => {
+    if (isCancel(k)) return onExit();
+    if (isConfirm(k)) return setOpen(spot);
+    if (spot.col === 0) {
+      const n = ATTRS.length;
+      if (isUp(k)) setSpot({ col: 0, i: (spot.i + n - 1) % n });
+      else if (isDown(k)) setSpot({ col: 0, i: (spot.i + 1) % n });
+      else if (isRight(k)) setSpot({ col: 1, i: Math.min(spot.i, 3) });
+      else if (isLeft(k)) onExit();
+      return;
+    }
+    const next = moveDoll(spot.i, k);
+    setSpot(next === 'attrs' ? { col: 0, i: Math.min(spot.i, ATTRS.length - 1) } : { col: 1, i: next });
+  });
+
+  const on = (col: 0 | 1, i: number) => active && spot.col === col && spot.i === i;
+  const pick = (col: 0 | 1, i: number) => () => (on(col, i) ? setOpen({ col, i }) : setSpot({ col, i }));
+
+  const left = (
+    <>
+      <div className="namecard">
+        <img className="portrait" src={heroPortrait()} alt="" />
+        <div>
+          <div className="namecard-name">{hero.name}</div>
+          <div className="namecard-title">{fameTitle(hero.fame)}</div>
+          <div className="small muted">{sect ? `${sectDef(sect.id)?.name}・${rankName(sect)}` : '無門無派'}</div>
+        </div>
+      </div>
+      <Vital name="氣血" now={hero.hp} max={d.maxHp} kind="hp" />
+      <Vital name="內力" now={hero.qi} max={d.maxQi} kind="qi" />
+      <Vital name="體力" now={hero.stamina} max={d.maxStamina} kind="st" />
+      <div className="purse small">
+        <span>銀兩 {hero.silver}</span>
+        <span>名聲 {hero.fame}</span>
+        <span>武學點數 {hero.points}</span>
+      </div>
+      <h4 className="page-sec">五維</h4>
+      <ul className="attr-rows">
+        {ATTRS.map((a, i) => (
+          <li key={a.key} className={on(0, i) ? 'active' : ''} onClick={pick(0, i)}>
+            <span className="attr-name">
+              {on(0, i) ? '▸ ' : ''}
+              {a.name}
+            </span>
+            <span className="attr-total">{Math.floor(parts.total[a.key])}</span>
+            <span className="attr-parts">
+              底 {parts.base[a.key]}　長 +{fmt(parts.grow[a.key])}　
+              <span className={parts.equip[a.key] ? 'good' : ''}>裝 +{fmt(parts.equip[a.key])}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="page-help">{active ? '方向鍵選擇　→ 到裝備　E 展開　X 回到書籤' : '按 E 或 ↓ 開始翻閱'}</p>
+    </>
+  );
+
+  const box = (i: number) => {
+    if (i === MOUNT) {
+      return (
+        <div className={`doll-slot mount ${on(1, i) ? 'active' : ''}`} onClick={pick(1, i)}>
+          <IconTile icon={itemIconUrl('horse')} dim={!m} active={on(1, i)} badge={m && hero.riding ? '騎' : undefined} label="坐騎" />
+          <span className="doll-label">坐騎</span>
+        </div>
+      );
+    }
+    const slot = DOLL[i];
+    const id = hero.gear?.[slot];
+    const g = id ? ITEMS[id].gear : undefined;
+    return (
+      <div key={slot} className={`doll-slot ${on(1, i) ? 'active' : ''} ${g ? `filled grade-frame${g.grade}` : 'empty'}`} onClick={pick(1, i)}>
+        <IconTile icon={itemIconUrl(id ? ITEMS[id].icon : GEAR_ICON[slot])} dim={!id} active={on(1, i)} label={id ? ITEMS[id].name : GEAR_NAME[slot]} />
+        <span className="doll-label">{GEAR_NAME[slot]}</span>
+      </div>
+    );
+  };
+
+  // 框下面的說明：游標那一格是什麼
+  const focusSlot = spot.col === 1 ? (spot.i === MOUNT ? null : DOLL[spot.i]) : null;
+  const focusId = focusSlot ? hero.gear?.[focusSlot] : undefined;
+  const caption =
+    spot.col !== 1 ? (
+      <span className="muted">→ 選一個裝備框</span>
+    ) : spot.i === MOUNT ? (
+      m ? (
         <>
-          <h3>
-            {hero.name}　<small>{fameTitle(hero.fame)}</small>
-          </h3>
-          <dl className="kv">
-            <dt>氣血</dt>
-            <dd>
-              {hero.hp}/{d.maxHp}
-            </dd>
-            <dt>內力</dt>
-            <dd>
-              {hero.qi}/{d.maxQi}
-            </dd>
-            <dt>體力</dt>
-            <dd>
-              {hero.stamina}/{d.maxStamina}
-            </dd>
-            <dt>名聲</dt>
-            <dd>{hero.fame}</dd>
-            <dt>銀兩</dt>
-            <dd>{hero.silver}</dd>
-            <dt>武學點數</dt>
-            <dd>{hero.points}</dd>
-            <dt>師門</dt>
-            <dd>{sect ? `${sectDef(sect.id)?.name}・${rankName(sect)}` : '無門無派'}</dd>
-          </dl>
-          <p className="muted small">本作沒有人物等級。五維 ＝ 天生底值 ＋ 武功帶來的永久成長 ＋ 裝備中武功的加成。</p>
+          {m.name}・{hero.riding ? '騎乘中' : '牽著'}
         </>
-      ),
-    },
-    {
-      key: 'attrs',
-      label: '五維',
-      children: () =>
-        ATTRS.map((a) => ({
-          key: a.key,
-          label: a.name,
-          tag: String(Math.floor(parts.total[a.key])),
-          detail: () => (
-            <>
-              <h3>
-                {a.name}　<small>{Math.floor(parts.total[a.key])}</small>
-              </h3>
-              <p className="small">{a.desc}</p>
-              <dl className="kv">
-                <dt>天生底值</dt>
-                <dd>{parts.base[a.key]}</dd>
-                <dt>永久成長</dt>
-                <dd>+{fmt(parts.grow[a.key])}（學過的武功、悟出的招式）</dd>
-                <dt>裝備加成</dt>
-                <dd>+{fmt(parts.equip[a.key])}（裝備中的武功）</dd>
-              </dl>
-            </>
-          ),
-        })),
-      detail: () => (
-        <table className="attrs attr-table">
-          <thead>
-            <tr className="muted small">
-              <th />
-              <td>總計</td>
-              <td>底值</td>
-              <td>成長</td>
-              <td>裝備</td>
-            </tr>
-          </thead>
-          <tbody>
-            {ATTRS.map((a) => (
-              <tr key={a.key}>
-                <th>{a.name}</th>
-                <td className="realm">{Math.floor(parts.total[a.key])}</td>
-                <td>{parts.base[a.key]}</td>
-                <td className="muted">+{fmt(parts.grow[a.key])}</td>
-                <td className={parts.equip[a.key] ? 'good' : 'muted'}>+{fmt(parts.equip[a.key])}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ),
-    },
-    {
-      key: 'gear',
-      label: '裝備',
-      tag: `防禦 +${gs.def}`,
-      children: () => GEAR_SLOTS.map((g) => gearSlot(hero, g.id, g.name)),
-      detail: () => (
-        <>
-          <h3>裝備</h3>
-          <dl className="kv">
-            {GEAR_SLOTS.map((g) => {
-              const id = hero.gear?.[g.id];
-              return (
-                <Fragment key={g.id}>
-                  <dt>{g.name}</dt>
-                  <dd className={id ? GRADE_CLASS[ITEMS[id].gear!.grade] : 'muted'}>{id ? ITEMS[id].name : g.id === 'weapon' ? '（空手）' : '（空）'}</dd>
-                </Fragment>
-              );
-            })}
-          </dl>
-          <p className="small">
-            合計：攻擊 +{gs.atk}　防禦 +{gs.def}　閃避 +{Math.round(gs.eva * 1000) / 10}%
-          </p>
-          <WeaponFitList hero={hero} />
-          <p className="small muted">進去選一個欄位，再挑行囊裡的服飾穿上，或把身上的卸下。</p>
-        </>
-      ),
-    },
-    {
-      key: 'crafts',
-      label: '技能',
-      children: () =>
-        CRAFTS.map((c) => {
-          const p = craftOf(hero, c.id);
-          return {
-            key: c.id,
-            label: c.name,
-            muted: !c.open,
-            tag: c.open ? `${p.level} 級・${craftTitle(p.level)}` : '未開放',
-            children: c.id === 'cooking' ? () => dishList(hero) : c.id === 'learning' ? () => bookList(hero) : c.id === 'weaving' ? () => patternList(hero) : undefined,
-            detail: () => (
-              <>
-                <h3>
-                  {c.name}　<small>{c.group}</small>
-                </h3>
-                <p className="small">{c.desc}</p>
-                <div className="skill-head">
-                  <span className="tag">{craftTitle(p.level)}</span>
-                  <span className="muted small">
-                    第 {p.level} 級{p.level < CRAFT_MAX ? `　經驗 ${p.exp}/${craftExpToNext(p.level)}` : '（已臻化境）'}
-                  </span>
-                </div>
-                <div className="exp-track">
-                  <div className="exp-fill" style={{ width: `${p.level >= CRAFT_MAX ? 100 : (p.exp / craftExpToNext(p.level)) * 100}%` }} />
-                </div>
-                <p className="small muted">{c.howTo}</p>
-              </>
-            ),
-          };
-        }),
-    },
-    mountItem(hero),
-  ];
-  return <Browser title={hero.name} items={items} active={active} onExit={onExit} />;
+      ) : (
+        <span className="muted">坐騎：無</span>
+      )
+    ) : focusId ? (
+      <>
+        {GEAR_NAME[focusSlot!]}：<span className={GRADE_CLASS[ITEMS[focusId].gear!.grade]}>{ITEMS[focusId].name}</span>
+        <span className="muted">（{GRADES[ITEMS[focusId].gear!.grade]}）</span>
+      </>
+    ) : (
+      <span className="muted">{GEAR_NAME[focusSlot!]}：{focusSlot === 'weapon' ? '空手' : '空著'}</span>
+    );
+
+  const right = (
+    <>
+      <header className="page-head">
+        <h2>裝備</h2>
+        <span className="page-sub gear-sum">
+          <span className="stat atk">攻 {gs.atk}</span>
+          <span className="stat def">防 {gs.def}</span>
+          <span className="stat eva">閃 {Math.round(gs.eva * 1000) / 10}%</span>
+        </span>
+      </header>
+      <div className="doll">
+        <div className="doll-col">{[0, 1, 2, 3].map(box)}</div>
+        <div className="doll-figure">
+          <img src={heroPortrait()} alt="" />
+          {box(MOUNT)}
+        </div>
+        <div className="doll-col">{[4, 5, 6, 7].map(box)}</div>
+      </div>
+      <p className="doll-caption">{caption}</p>
+    </>
+  );
+
+  return (
+    <>
+      <Spread folio={folio} left={left} right={right} />
+      <Paper sheet={open ? sheetFor(hero, open) : null} onClose={() => setOpen(null)} />
+    </>
+  );
 }
 
-/** 技能 › 烹飪：學會的菜與熟練度，沒學的菜列出幾級能學 */
-function dishList(hero: Character): BrowseItem[] {
-  const name = (id: string) => ITEMS[id].name;
-  return [STEW, ...DISHES].map((d) => {
-    const known = knowsDish(hero, d.id);
-    const w = workOf(hero, 'cooking', d.id);
+const GEAR_NAME = Object.fromEntries(GEAR_SLOTS.map((g) => [g.id, g.name])) as Record<GearSlotId, string>;
+
+/** 某一項攤開成紙的內容 */
+function sheetFor(hero: Character, at: Spot): Sheet {
+  if (at.col === 0) {
+    const a = ATTRS[at.i];
+    const parts = attrParts(hero);
     return {
-      key: d.id,
-      label: d.name,
-      muted: !known,
-      tag: !known ? (craftOf(hero, 'cooking').level >= TIER_LEVEL[d.tier] ? '可以學' : `烹飪 ${TIER_LEVEL[d.tier]} 級起`) : w ? `熟練 ${w.level}` : '家常',
-      detail: () => (
+      title: a.name,
+      sub: `${Math.floor(parts.total[a.key])}`,
+      body: (
         <>
-          <h3>
-            {d.name}　<small>
-              {d.kind}・{DISH_TIERS[d.tier]}
-            </small>
-          </h3>
-          <p className="small">{ITEMS[dishItem(d.id)].desc}</p>
+          <p>{a.desc}</p>
           <dl className="kv">
-            <dt>食材</dt>
-            <dd>{needsText(d, name)}</dd>
-            {d.spring && (
-              <>
-                <dt>灶台</dt>
-                <dd>要用鳴泉的泉水，只能在鳴泉廚房做</dd>
-              </>
-            )}
-            <dt>熟練度</dt>
-            <dd>
-              {!known
-                ? '還沒學會（找鳴泉廚房的卜大勺學）'
-                : w
-                  ? `${w.level}/${WORK_MAX}${w.level < WORK_MAX ? `　${w.exp}/${workExpToNext(w.level)}` : '（爐火純青）'}`
-                  : '不用學，誰都會燉'}
-            </dd>
+            <dt>天生底值</dt>
+            <dd>{parts.base[a.key]}</dd>
+            <dt>永久成長</dt>
+            <dd>+{fmt(parts.grow[a.key])}（學過的武功、悟出的招式）</dd>
+            <dt>裝備加成</dt>
+            <dd>+{fmt(parts.equip[a.key])}（裝備中的武功）</dd>
           </dl>
-          <p className="small muted">做出來的品質有普通、上品、精品；烹飪等級與熟練度越高，越不會失手、越容易做出好菜。</p>
+          <p className="small muted">本作沒有人物等級。五維 ＝ 天生底值 ＋ 武功帶來的永久成長 ＋ 裝備中武功的加成。</p>
         </>
       ),
     };
-  });
+  }
+  if (at.i === MOUNT) return mountSheet(hero);
+  return gearSheet(hero, DOLL[at.i], GEAR_NAME[DOLL[at.i]]);
 }
 
-/** 裝備 › 某一欄：身上穿的（可以卸下）與行囊裡能穿在這一欄的服飾 */
-function gearSlot(hero: Character, slot: GearSlotId, name: string): BrowseItem {
+/** 一件服飾的說明：品級、數值、描述 */
+export function GearInfo({ id }: { id: string }) {
+  const g = ITEMS[id].gear!;
+  const stats = [g.atk ? `攻擊 +${g.atk}` : '', g.def ? `防禦 +${g.def}` : '', g.eva ? `閃避 +${Math.round(g.eva * 1000) / 10}%` : ''].filter(Boolean).join('　');
+  return (
+    <div className="gear-info">
+      <div className="item-line">
+        <img className="item-icon" src={itemIconUrl(ITEMS[id].icon)} alt="" />
+        <span className={GRADE_CLASS[g.grade]}>{ITEMS[id].name}</span>
+        <span className="tag muted-tag">{GRADES[g.grade]}</span>
+      </div>
+      {stats && <p className="small">{stats}</p>}
+      <p className="small muted">{ITEMS[id].desc}</p>
+    </div>
+  );
+}
+
+/** 裝備欄：身上穿的（可以卸下）與行囊裡能穿在這一欄的 */
+function gearSheet(hero: Character, slot: GearSlotId, name: string): Sheet {
   const now = hero.gear?.[slot];
   const run = (f: (c: Character) => string) => () => {
     const st = useGame.getState();
     st.showToast(st.updateHero(f));
   };
-  const info = (id: string) => (
-    <>
-      <h3 className={GRADE_CLASS[ITEMS[id].gear!.grade]}>
-        {ITEMS[id].name}　<small>{GRADES[ITEMS[id].gear!.grade]}</small>
-      </h3>
-      <p className="small">{ITEMS[id].desc}</p>
-    </>
-  );
   const options = Object.keys(hero.items).filter((id) => hero.items[id] > 0 && slotsFor(id).includes(slot));
-  const children: BrowseItem[] = [
-    ...(now
-      ? [{ key: 'off', label: `卸下「${ITEMS[now].name}」`, action: run((c) => unequipGear(c, slot)), actionLabel: '卸下', detail: () => info(now) }]
-      : []),
-    ...options.map((id) => ({
-      key: id,
-      label: ITEMS[id].name,
-      tag: <span className={GRADE_CLASS[ITEMS[id].gear!.grade]}>{GRADES[ITEMS[id].gear!.grade]}</span>,
-      action: run((c) => equipGear(c, id, slot)),
-      actionLabel: '穿上',
-      detail: () => info(id),
-    })),
-  ];
   return {
-    key: slot,
-    label: name,
-    tag: now ? <span className={GRADE_CLASS[ITEMS[now].gear!.grade]}>{ITEMS[now].name}</span> : '（空）',
-    muted: !now,
-    children: () => (children.length ? children : [{ key: 'none', label: '行囊裡沒有能穿在這裡的東西', muted: true }]),
-    detail: () => (now ? info(now) : <p className="small muted">{name}沒有穿戴東西。{options.length ? `行囊裡有 ${options.length} 件可以穿。` : ''}</p>),
+    title: name,
+    sub: now ? '穿戴中' : slot === 'weapon' ? '空手' : '空著',
+    body: (
+      <>
+        {now ? <GearInfo id={now} /> : <p className="small muted">{name}沒有穿戴東西。</p>}
+        {slot === 'weapon' && <WeaponFitList hero={hero} />}
+        {!options.length && <p className="small muted">行囊裡沒有能{slot === 'weapon' ? '拿' : '穿'}在這裡的東西。</p>}
+      </>
+    ),
+    actions: [
+      ...(now ? [{ key: 'off', label: `卸下「${ITEMS[now].name}」`, run: run((c) => unequipGear(c, slot)) }] : []),
+      ...options.map((id) => ({
+        key: id,
+        label: (
+          <span className="action-item">
+            <img className="item-icon small" src={itemIconUrl(ITEMS[id].icon)} alt="" />
+            <span className={GRADE_CLASS[ITEMS[id].gear!.grade]}>{ITEMS[id].name}</span>
+          </span>
+        ),
+        detail: `${GRADES[ITEMS[id].gear!.grade]}・${slot === 'weapon' ? '拿上' : '穿上'}`,
+        run: run((c) => equipGear(c, id, slot)),
+      })),
+    ],
+  };
+}
+
+/** 坐騎：有馬就能上馬、下馬 */
+function mountSheet(hero: Character): Sheet {
+  const m = mountDef(hero.mount);
+  if (!m) {
+    return { title: '坐騎', sub: '無', body: <p className="small muted">還沒有坐騎。鳴泉山下的梁老四有馬可買：騎著馬在室外走得更快，大地圖上也走得快。</p> };
+  }
+  const toggle = () => {
+    const st = useGame.getState();
+    st.updateHero((c) => (c.riding = !c.riding));
+    st.showToast(useGame.getState().hero.riding ? `騎上了${m.name}。` : `從${m.name}背上下來，牽著走。`);
+  };
+  return {
+    title: m.name,
+    sub: hero.riding ? '騎乘中' : '牽著走',
+    body: (
+      <>
+        <p className="small">{m.desc}</p>
+        <dl className="kv">
+          <dt>腳力</dt>
+          <dd>室外走路、奔跑快 {Math.round((m.speed - 1) * 100)}%（室內照樣步行）</dd>
+        </dl>
+        <p className="small muted">不要了可以賣回給梁老四（半價）。</p>
+      </>
+    ),
+    actions: [{ label: hero.riding ? '下馬' : '上馬', run: toggle }],
   };
 }
 
@@ -278,105 +343,3 @@ function WeaponFitList({ hero }: { hero: Character }) {
   );
 }
 
-/** 技能 › 學識：書目與熟讀程度 */
-function bookList(hero: Character): BrowseItem[] {
-  const lv = craftOf(hero, 'learning').level;
-  return BOOKS.map((b) => {
-    const p = bookOf(hero, b.id);
-    return {
-      key: b.id,
-      label: `《${b.name}》`,
-      muted: !p,
-      tag: p ? READ_STAGES[p.level] : lv >= b.level ? '還沒讀' : `學識 ${b.level} 級起`,
-      detail: () => (
-        <>
-          <h3>
-            《{b.name}》　<small>{b.shelf}</small>
-          </h3>
-          <p className="small">{b.desc}</p>
-          <dl className="kv">
-            <dt>門檻</dt>
-            <dd>學識 {b.level} 級</dd>
-            <dt>熟讀</dt>
-            <dd>
-              {p ? `${READ_STAGES[p.level]}（${p.level}/${WORK_MAX}）${p.level < WORK_MAX ? `　${p.exp}/${workExpToNext(p.level)}` : ''}` : '還沒讀過'}
-            </dd>
-          </dl>
-          <p className="small muted">在鳴泉劍派書房的「經史子集」書架讀。讀到精通時，學識會多長一截。</p>
-        </>
-      ),
-    };
-  });
-}
-
-/** 坐騎：有馬就能上馬、下馬 */
-function mountItem(hero: Character): BrowseItem {
-  const m = mountDef(hero.mount);
-  if (!m) {
-    return {
-      key: 'mount',
-      label: '坐騎',
-      tag: '無',
-      detail: () => (
-        <>
-          <h3>坐騎</h3>
-          <p className="small muted">還沒有坐騎。鳴泉山下的梁老四有馬可買：騎著馬在室外走得更快，之後也能騎著走天下大地圖。</p>
-        </>
-      ),
-    };
-  }
-  const toggle = () => {
-    const st = useGame.getState();
-    st.updateHero((c) => (c.riding = !c.riding));
-    st.showToast(useGame.getState().hero.riding ? `騎上了${m.name}。` : `從${m.name}背上下來，牽著走。`);
-  };
-  return {
-    key: 'mount',
-    label: '坐騎',
-    tag: `${m.name}・${hero.riding ? '騎乘中' : '牽著'}`,
-    action: toggle,
-    actionLabel: hero.riding ? '下馬' : '上馬',
-    detail: () => (
-      <>
-        <h3>
-          {m.name}　<small>{hero.riding ? '騎乘中' : '牽著走'}</small>
-        </h3>
-        <p className="small">{m.desc}</p>
-        <dl className="kv">
-          <dt>腳力</dt>
-          <dd>室外走路、奔跑快 {Math.round((m.speed - 1) * 100)}%（室內照樣步行）</dd>
-        </dl>
-        <p className="small muted">按 E {hero.riding ? '下馬' : '上馬'}。不要了可以賣回給梁老四（半價）。</p>
-      </>
-    ),
-  };
-}
-
-/** 技能 › 紡織：樣式與熟練度 */
-function patternList(hero: Character): BrowseItem[] {
-  const lv = craftOf(hero, 'weaving').level;
-  return PATTERNS.map((p) => {
-    const w = workOf(hero, 'weaving', p.id);
-    return {
-      key: p.id,
-      label: p.name,
-      muted: !w,
-      tag: w ? `熟練 ${w.level}` : lv >= p.level ? '可以學' : `紡織 ${p.level} 級起`,
-      detail: () => (
-        <>
-          <h3>
-            {p.name}　<small>{gearKindName(p.kind)}</small>
-          </h3>
-          <p className="small">{p.desc}</p>
-          <dl className="kv">
-            <dt>材料</dt>
-            <dd>{Object.entries(p.needs).map(([id, n]) => `${ITEMS[id].name}×${n}`).join('、')}</dd>
-            <dt>熟練度</dt>
-            <dd>{w ? `${w.level}/${WORK_MAX}${w.level < WORK_MAX ? `　${w.exp}/${workExpToNext(w.level)}` : ''}` : `還沒學（跟錦繡布莊的魏錦娘學，${p.cost ? `${p.cost} 兩` : '不收錢'}）`}</dd>
-          </dl>
-          <p className="small muted">織出來的品級從粗製到極品，紡織等級與熟練度越高越容易織出好東西。</p>
-        </>
-      ),
-    };
-  });
-}

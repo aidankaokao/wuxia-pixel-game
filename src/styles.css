@@ -266,48 +266,12 @@ kbd {
   background: rgba(0, 0, 0, 0.45);
 }
 
-.menu {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  width: min(820px, calc(100vw - 32px));
-  height: min(520px, calc(100vh - 32px));
-}
 
-.menu-tabs {
-  list-style: none;
-  margin: 0;
-  padding: 18px 0;
-  border-right: 3px solid #3a2e22;
-  font-size: 18px;
-}
 
-.menu-tabs li {
-  padding: 8px 16px;
-  cursor: pointer;
-  color: var(--muted);
-}
 
-.menu-tabs li.active {
-  color: var(--gold);
-}
 
-.menu-body {
-  padding: 18px 24px;
-  overflow-y: auto;
-  font-size: 16px;
-}
 
-.menu-body h2 {
-  margin: 0 0 8px;
-  font-weight: normal;
-  font-size: 24px;
-  color: var(--gold);
-}
 
-.menu-body h2 small {
-  font-size: 14px;
-  color: var(--muted);
-}
 
 .muted {
   color: var(--muted);
@@ -862,23 +826,12 @@ kbd {
   box-shadow: inset 3px 0 0 #205236, 2px 2px 0 #e8dcc0;
 }
 
-.skill-side {
-  min-width: 0;
-}
 
-.skill-side .system-rows {
-  margin-top: 0;
-}
 
 .system-rows li.disabled {
   color: #5a5262;
 }
 
-.act-box {
-  margin: 8px 0 4px 14px;
-  padding-left: 10px;
-  border-left: 3px solid var(--gold-dim);
-}
 
 .skill-detail {
   margin-top: 12px;
@@ -1035,39 +988,11 @@ kbd {
 }
 
 /* ── 行囊 ─────────────────────────────── */
-.bag-board {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 16px;
-  margin-top: 8px;
-}
 
-.bag-cats {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: 16px;
-}
 
-.bag-cats li {
-  padding: 6px 4px;
-  color: var(--muted);
-  cursor: pointer;
-}
 
-.bag-cats li.current {
-  color: var(--paper);
-}
 
-.bag-cats li.active {
-  color: var(--gold);
-}
 
-.bag-cats li.bag-sort {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 2px dashed #2e2636;
-}
 
 .bag-grid {
   display: grid;
@@ -1123,14 +1048,7 @@ kbd {
   text-shadow: 1px 1px 0 #000;
 }
 
-.bag-detail {
-  margin-top: 12px;
-  min-height: 90px;
-}
 
-.bag-detail p {
-  margin: 6px 0;
-}
 
 img.bag-big {
   width: 32px;
@@ -1649,8 +1567,7 @@ table.charter td {
   font-size: 15px;
 }
 
-.brief h3,
-.quests-page h3 {
+.brief h3 {
   margin: 12px 0 4px;
   font-size: 15px;
   color: var(--gold);
@@ -1864,3 +1781,1481 @@ table.charter td {
 .world-roads li {
   padding: 2px 0;
 }
+
+/* ══ 系統選單：一本攤開的書 ══════════════════════════════════
+   書殼是深色皮面，上緣一排書籤；左右兩頁是紙色。翻頁時一張紙從書背翻過去（.tome-turn），
+   細節攤開成一張紙（.paper）：先是摺成小方塊，橫向攤開、再縱向攤開。 */
+.tome {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(940px, calc(100vw - 24px));
+  height: min(580px, calc(100vh - 24px));
+  padding-top: 30px;
+}
+
+.tome,
+.paper {
+  --p-ink: #2b2118;
+  --p-muted: #8b7b5e;
+  --p-red: #8e2a1a;
+  --p-line: #b89c6a;
+  --p-hi: rgba(142, 42, 26, 0.12);
+}
+
+/* 書籤：絲帶從書頂垂下，選中的那條拉得最長 */
+.tome-tabs {
+  position: absolute;
+  top: 0;
+  left: 48px;
+  right: 48px;
+  z-index: 4;
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tome-tabs li {
+  position: relative;
+  padding: 7px 12px 14px;
+  font-size: 15px;
+  color: #f4ead2;
+  background: #6a3a2a;
+  border: 2px solid #1a1218;
+  border-bottom: none;
+  cursor: pointer;
+  transform: translateY(8px);
+  transition: transform 0.12s steps(3);
+}
+
+.tome-tabs li::after {
+  /* 絲帶尾端的燕尾缺口 */
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 10px;
+  height: 7px;
+  transform: translateX(-50%);
+  background: #4a2a1e;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+.tome-tabs li:nth-child(1) { background: #9a3a2a; }
+.tome-tabs li:nth-child(2) { background: #3a5a8a; }
+.tome-tabs li:nth-child(3) { background: #7a6a3a; }
+.tome-tabs li:nth-child(4) { background: #3a6a52; }
+.tome-tabs li:nth-child(5) { background: #8a4a6a; }
+.tome-tabs li:nth-child(6) { background: #5a4a7a; }
+.tome-tabs li:nth-child(7) { background: #5a5a5a; }
+
+.tome-tabs li.active {
+  transform: translateY(-4px);
+  color: #fff6dc;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.25);
+}
+
+.tome-tabs li:not(.active) {
+  filter: brightness(0.72);
+}
+
+/* 書殼 */
+.tome-cover {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 10px 12px;
+  background: #4a2a1e;
+  border: 3px solid #1a1218;
+  box-shadow:
+    inset 0 0 0 3px #6a3e2a,
+    inset 0 0 0 5px #2e1a12,
+    8px 8px 0 rgba(0, 0, 0, 0.4);
+  perspective: 2600px;
+}
+
+.tome-spread {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* 翻到新的一頁：紙一直在，只有字墨淡入 */
+.tome-spread .page-inner,
+.tome-spread .folio {
+  animation: ink-in 0.55s ease both;
+}
+
+/* 書背的陰影 */
+.tome-spread::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 36px;
+  transform: translateX(-50%);
+  background: linear-gradient(to right, transparent, rgba(60, 36, 16, 0.28) 45%, rgba(40, 24, 10, 0.42) 50%, rgba(60, 36, 16, 0.28) 55%, transparent);
+  pointer-events: none;
+}
+
+@keyframes ink-in {
+  0%, 35% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.tome-page {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 26px 26px;
+  color: var(--p-ink);
+  background-color: #efe3c4;
+  font-size: 15px;
+}
+
+.tome-page.left {
+  background-image: linear-gradient(to right, #ddcca4 0%, #efe3c4 6%, #f1e6c9 80%, #e2d2ab 100%);
+  box-shadow: -3px 0 0 #d8c79e, -6px 0 0 #c4b088;
+}
+
+.tome-page.right {
+  background-image: linear-gradient(to left, #ddcca4 0%, #efe3c4 6%, #f1e6c9 80%, #e2d2ab 100%);
+  box-shadow: 3px 0 0 #d8c79e, 6px 0 0 #c4b088;
+}
+
+.page-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.folio {
+  position: absolute;
+  bottom: 7px;
+  font-size: 12px;
+  color: var(--p-muted);
+}
+
+.tome-page.left .folio { left: 26px; }
+.tome-page.right .folio { right: 26px; }
+
+.tome-help {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* 翻過去的那一頁：切成十條巢狀的紙條，第一條繞書背轉 180 度，
+   後面每一條再各自彎一點——翻起時外緣先捲起、落下時外緣拖在後面，整張紙看起來是軟的、有弧度。 */
+.tome-turn {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  width: calc(50% - 12px);
+  z-index: 3;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.tome-turn.next { left: 50%; }
+.tome-turn.prev { right: 50%; }
+
+.turn-strip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  transform-style: preserve-3d;
+  animation-duration: 0.62s;
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.35, 1);
+  animation-fill-mode: forwards;
+}
+
+/* 第一條（貼著書背） */
+.tome-turn > .turn-strip {
+  width: 10%;
+}
+
+.tome-turn.next > .turn-strip {
+  left: 0;
+  transform-origin: left center;
+  animation-name: turn-next;
+}
+
+.tome-turn.prev > .turn-strip {
+  right: 0;
+  transform-origin: right center;
+  animation-name: turn-prev;
+}
+
+/* 後面的每一條接在前一條的外側，跟著彎 */
+.tome-turn.next .turn-strip .turn-strip {
+  left: 100%;
+  transform-origin: left center;
+  animation-name: bend-next;
+}
+
+.tome-turn.prev .turn-strip .turn-strip {
+  right: 100%;
+  transform-origin: right center;
+  animation-name: bend-prev;
+}
+
+@keyframes turn-next {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(-180deg); }
+}
+
+@keyframes turn-prev {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(180deg); }
+}
+
+/* 每條多彎的角度（十條累加）：先往翻的方向捲起，過了中間改成拖在後面，最後攤平 */
+@keyframes bend-next {
+  0% { transform: rotateY(0deg); }
+  18% { transform: rotateY(-7deg); }
+  45% { transform: rotateY(-3deg); }
+  72% { transform: rotateY(6deg); }
+  90% { transform: rotateY(2deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+@keyframes bend-prev {
+  0% { transform: rotateY(0deg); }
+  18% { transform: rotateY(7deg); }
+  45% { transform: rotateY(3deg); }
+  72% { transform: rotateY(-6deg); }
+  90% { transform: rotateY(-2deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+.leaf-face {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /* 多出一點點，免得紙條之間露縫 */
+  width: calc(100% + 1px);
+  backface-visibility: hidden;
+  background-color: #efe3c4;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 25px, rgba(184, 156, 106, 0.22) 25px 26px);
+}
+
+.leaf-face.back {
+  transform: rotateY(180deg);
+  background-color: #e9dcba;
+}
+
+/* 紙面的明暗：翻到一半最暗（側著光），兩頭最亮 */
+.leaf-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(70, 44, 20, 0.32);
+  opacity: 0;
+  animation: leaf-light 0.62s ease forwards;
+}
+
+@keyframes leaf-light {
+  0% { opacity: 0; }
+  45% { opacity: 0.55; }
+  60% { opacity: 0.45; }
+  100% { opacity: 0; }
+}
+
+/* 被翻起的紙投在下面那頁的影子 */
+.turn-shadow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: turn-shadow 0.62s ease forwards;
+}
+
+.tome-turn.next .turn-shadow {
+  background: linear-gradient(to left, rgba(40, 24, 10, 0.35), transparent 70%);
+}
+
+.tome-turn.prev .turn-shadow {
+  background: linear-gradient(to right, rgba(40, 24, 10, 0.35), transparent 70%);
+}
+
+@keyframes turn-shadow {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  55% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* 頁首、段落、說明 */
+.page-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: none;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--p-line);
+}
+
+.page-head h2 {
+  margin: 0;
+  font-weight: normal;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: var(--p-red);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.page-sub {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--p-muted);
+  white-space: nowrap;
+}
+
+.page-sec {
+  display: flex;
+  align-items: baseline;
+  margin: 12px 0 4px;
+  padding-bottom: 2px;
+  font-weight: normal;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: var(--p-red);
+  border-bottom: 1px dashed var(--p-line);
+}
+
+.page-sec.first {
+  margin-top: 0;
+}
+
+.sec-note {
+  margin-left: auto;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--p-muted);
+}
+
+.page-help {
+  flex: none;
+  margin: auto 0 0;
+  padding-top: 8px;
+  font-size: 12px;
+  color: var(--p-muted);
+}
+
+.page-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* 紙上的配色：深字淺底 */
+.tome .muted,
+.paper .muted { color: var(--p-muted); }
+.tome .good,
+.paper .good { color: #3d7a2a; }
+.tome .bad,
+.paper .bad { color: #a8382a; }
+.tome .realm,
+.paper .realm { color: #8a5a12; }
+.tome .realm.over,
+.paper .realm.over { color: #b0501c; }
+.tome .tag,
+.paper .tag { background: var(--p-red); color: #f6ecd4; }
+.tome .tag.muted-tag,
+.paper .tag.muted-tag { background: #cdbb94; color: var(--p-ink); }
+.tome .grade0,
+.paper .grade0 { color: #8b7b5e; }
+.tome .grade2,
+.paper .grade2 { color: #3d7a2a; }
+.tome .grade3,
+.paper .grade3 { color: #2f5f9a; }
+.tome .grade4,
+.paper .grade4 { color: #a0661a; }
+.tome .exp-track,
+.paper .exp-track { background: #ddd0ac; border: 2px solid #8a6a3e; }
+.tome .exp-fill,
+.paper .exp-fill { background: #a0702a; }
+.tome .exp-fill.bad,
+.paper .exp-fill.bad { background: #a8382a; }
+.tome dl.kv dt,
+.paper dl.kv dt { color: var(--p-muted); }
+.tome .festival { color: var(--p-red); }
+.tome .task-mark { color: var(--p-red); }
+.tome .task.done,
+.tome .task.missed,
+.tome .task-note,
+.tome .task.done .task-mark,
+.tome .task.missed .task-mark { color: var(--p-muted); }
+.tome .col-title,
+.paper .col-title { color: #8a6a3e; }
+.paper table.charter th,
+.paper table.charter td,
+.tome table.charter th,
+.tome table.charter td { border-bottom: 1px dashed var(--p-line); }
+
+/* 一列一列可選的清單（各頁共用的外觀） */
+.row-list,
+.slot-rows,
+.attr-rows,
+.quest-list,
+.art-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row-list li,
+.slot-rows li,
+.quest-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 6px;
+  border-bottom: 1px dashed var(--p-line);
+  cursor: pointer;
+}
+
+.slot-rows li {
+  padding: 3px 6px;
+  font-size: 14px;
+}
+
+.row-note {
+  font-size: 12px;
+  color: var(--p-muted);
+  text-align: right;
+}
+
+.row-list li.disabled {
+  opacity: 0.5;
+}
+
+.tome .row-list li.active,
+.paper .row-list li.active,
+.slot-rows li.active,
+.attr-rows li.active,
+.quest-list li.active,
+.art-list li.active,
+.tome .browser-list li.active,
+.paper .browser-list li.active {
+  color: var(--p-red);
+  background: var(--p-hi);
+  box-shadow: inset 3px 0 0 var(--p-red);
+}
+
+.sys-rows li.current {
+  color: var(--p-red);
+}
+
+.quest-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.quest-list li.done {
+  color: var(--p-muted);
+}
+
+/* 分層瀏覽放在書頁與紙上 */
+.tome .browser-list,
+.paper .browser-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-right: none;
+  padding: 0;
+}
+
+.paper .browser-list {
+  flex: 0 0 200px;
+  border-right: 1px dashed var(--p-line);
+  padding-right: 6px;
+}
+
+.tome .browser-list li,
+.paper .browser-list li {
+  border-bottom: 1px dashed var(--p-line);
+}
+
+.tome .browser-list.dim {
+  opacity: 0.55;
+}
+
+.tome .browser-tag,
+.paper .browser-tag {
+  color: var(--p-muted);
+}
+
+.tome .browser-detail {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0;
+  border: none;
+}
+
+.tome .browser-detail h4,
+.paper .browser-detail h4,
+.paper-body h4 {
+  margin: 12px 0 4px;
+  font-weight: normal;
+  color: var(--p-red);
+}
+
+.paper .browser-detail h3 small,
+.paper-body h3 small,
+.tome .browser-detail h3 small {
+  color: var(--p-muted);
+}
+
+.tome .browser-preview li {
+  border-bottom: 1px dashed var(--p-line);
+}
+
+.paper .browser {
+  height: 100%;
+}
+
+.paper .browser-crumbs {
+  color: var(--p-red);
+}
+
+.paper .browser-help {
+  font-size: 12px;
+  color: var(--p-muted);
+}
+
+/* 細節本身帶了大標題時，頁首／紙頭就不再重複寫一次 */
+.page-inner:has(> .browser-detail > h3:first-child) > .page-head,
+.paper-content:has(> .paper-body > h3:first-child) > .paper-head {
+  display: none;
+}
+
+.tome .browser-detail > h3:first-child,
+.paper-body > h3:first-child {
+  margin: 0 0 10px;
+  padding-bottom: 4px;
+  font-weight: normal;
+  font-size: 22px;
+  color: var(--p-red);
+  border-bottom: 2px solid var(--p-line);
+}
+
+/* 人物：名帖 */
+.namecard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.portrait {
+  width: 64px;
+  height: 96px;
+  padding: 4px 12px;
+  box-sizing: content-box;
+  image-rendering: pixelated;
+  background: #e2d3ae;
+  border: 2px solid #8a6a3e;
+  box-shadow: inset 0 0 0 2px #f1e6c9;
+}
+
+.namecard-name {
+  font-size: 28px;
+  letter-spacing: 0.15em;
+  color: var(--p-red);
+}
+
+.namecard-title {
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.vital {
+  display: grid;
+  grid-template-columns: 40px 1fr 74px;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+.vital-num {
+  text-align: right;
+  font-size: 13px;
+}
+
+.vital-bar {
+  height: 10px;
+  background: #ddd0ac;
+  border: 2px solid #8a6a3e;
+}
+
+.vital-bar > div {
+  height: 100%;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.vital-bar.hp > div { background: #b0402e; }
+.vital-bar.qi > div { background: #3a62a0; }
+.vital-bar.st > div { background: #5a8a3a; }
+
+.purse {
+  display: flex;
+  gap: 16px;
+  margin: 8px 0 0;
+}
+
+.attr-rows li {
+  display: grid;
+  grid-template-columns: 72px 40px 1fr;
+  align-items: baseline;
+  padding: 4px 6px;
+  border-bottom: 1px dashed var(--p-line);
+  cursor: pointer;
+}
+
+.attr-total {
+  font-size: 18px;
+  color: #8a5a12;
+}
+
+.attr-parts {
+  font-size: 12px;
+  color: var(--p-muted);
+}
+
+.slot-name {
+  white-space: nowrap;
+}
+
+/* 武功：裝備欄與所學 */
+.tome .skill-board {
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 0;
+}
+
+.tome .skill-cell {
+  height: 36px;
+  margin-bottom: 5px;
+  background: #e6d8b4;
+  border: 2px solid #a88c5c;
+}
+
+.tome .skill-cell.empty {
+  background: transparent;
+  border-style: dashed;
+}
+
+.tome .skill-cell.active {
+  border-color: var(--p-red);
+  background: #f6e9c4;
+  box-shadow: 2px 2px 0 rgba(142, 42, 26, 0.3);
+}
+
+.tome .cell-level { color: #8a5a12; }
+.tome .cell-empty { color: var(--p-muted); }
+
+.glance {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--p-line);
+}
+
+.glance-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.glance-name {
+  font-size: 17px;
+  color: var(--p-red);
+}
+
+.art-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.art-list li {
+  display: grid;
+  grid-template-columns: 18px 1fr auto auto 14px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.art-list li.art-group {
+  display: block;
+  padding: 8px 0 2px;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: #8a6a3e;
+  border-bottom: 1px dashed var(--p-line);
+  cursor: default;
+}
+
+.art-tier {
+  font-size: 12px;
+  color: var(--p-muted);
+}
+
+.art-level {
+  font-size: 13px;
+  color: #8a5a12;
+}
+
+.art-mark {
+  color: var(--p-red);
+  font-size: 12px;
+}
+
+/* 行囊 */
+.bag-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.bag-tabs li {
+  padding: 2px 7px;
+  font-size: 13px;
+  border: 1px solid var(--p-line);
+  cursor: pointer;
+}
+
+.bag-tabs li.current {
+  color: #f6ecd4;
+  background: var(--p-red);
+  border-color: var(--p-red);
+}
+
+.bag-tabs li.active {
+  outline: 2px solid var(--p-ink);
+  outline-offset: 1px;
+}
+
+.bag-tabs li.bag-sort {
+  margin-left: auto;
+  color: var(--p-muted);
+  border-style: dashed;
+}
+
+.tome .bag-grid {
+  flex: 1;
+  min-height: 0;
+  max-width: none;
+  overflow-y: auto;
+  align-content: start;
+  grid-template-columns: repeat(6, 48px);
+  gap: 4px;
+  padding: 2px;
+}
+
+.tome .bag-cell {
+  width: 48px;
+  height: 48px;
+  background: #e3d5b0;
+  border: 2px solid #c8b088;
+}
+
+.tome .bag-cell.filled {
+  background: #ecdfbd;
+  border-color: #a88c5c;
+}
+
+.tome .bag-cell.active {
+  border-color: var(--p-red);
+  background: #f6e9c4;
+}
+
+.tome .bag-cell img {
+  width: 36px;
+  height: 36px;
+}
+
+.tome .bag-count {
+  color: var(--p-ink);
+  text-shadow: 1px 1px 0 #f4ead2;
+}
+
+.item-glance {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.item-glance p {
+  margin: 6px 0;
+}
+
+img.item-big {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  background: #e2d3ae;
+  border: 2px solid #a88c5c;
+}
+
+.bag-capacity {
+  margin-top: auto;
+}
+
+.item-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+img.item-icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.gear-info p {
+  margin: 6px 0;
+}
+
+/* 存檔欄 */
+.tome .save-slots {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+}
+
+.tome .save-slot {
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  background: #ece0c0;
+  border: 1px solid var(--p-line);
+}
+
+.tome .save-slot.active {
+  background: #f6e9c4;
+  border-color: var(--p-red);
+  color: var(--p-red);
+  box-shadow: inset 3px 0 0 var(--p-red);
+}
+
+/* ── 攤開的紙 ── */
+.paper-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 12, 8, 0.35);
+}
+
+.paper {
+  position: relative;
+  display: flex;
+  width: min(520px, calc(100vw - 32px));
+  max-height: min(600px, calc(100vh - 48px));
+  color: var(--p-ink);
+  background-color: #f5ebd3;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(184, 156, 106, 0.12) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 80%, rgba(184, 156, 106, 0.1) 0 2px, transparent 3px);
+  background-size: 23px 19px, 31px 27px;
+  border: 2px solid #b89c6a;
+  box-shadow:
+    0 0 0 1px #6a5030,
+    10px 12px 0 rgba(0, 0, 0, 0.35);
+  animation: unfold 0.5s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+
+.paper.wide {
+  width: min(800px, calc(100vw - 32px));
+  height: min(540px, calc(100vh - 48px));
+}
+
+/* 摺痕：三折加對折，攤開後還留一點淡淡的痕 */
+.paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(33.33% - 2px), rgba(120, 88, 48, 0.32) 33.33%, rgba(255, 255, 255, 0.4) calc(33.33% + 1px), transparent calc(33.33% + 3px)),
+    linear-gradient(to right, transparent calc(66.66% - 2px), rgba(120, 88, 48, 0.32) 66.66%, rgba(255, 255, 255, 0.4) calc(66.66% + 1px), transparent calc(66.66% + 3px)),
+    linear-gradient(to bottom, transparent calc(50% - 2px), rgba(120, 88, 48, 0.32) 50%, rgba(255, 255, 255, 0.4) calc(50% + 1px), transparent calc(50% + 3px));
+  animation: crease 0.9s ease forwards;
+}
+
+/* 還沒攤平的那幾折偏暗 */
+.paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(90, 60, 30, 0.25), transparent 33%, transparent 67%, rgba(90, 60, 30, 0.25));
+  animation: shade 0.5s ease forwards;
+}
+
+@keyframes unfold {
+  0% { clip-path: inset(25% 33.34% 25% 33.34%); transform: scale(0.9) rotate(-2deg); }
+  42% { clip-path: inset(25% 0 25% 0); transform: scale(0.97) rotate(-1deg); }
+  100% { clip-path: inset(0 0 0 0); transform: none; }
+}
+
+@keyframes crease {
+  0% { opacity: 1; }
+  60% { opacity: 0.7; }
+  100% { opacity: 0.22; }
+}
+
+@keyframes shade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.paper.folding {
+  animation: fold 0.18s ease-in forwards;
+}
+
+.paper.folding::before {
+  animation: none;
+  opacity: 0.9;
+}
+
+@keyframes fold {
+  0% { clip-path: inset(0 0 0 0); opacity: 1; }
+  100% { clip-path: inset(25% 33.34% 25% 33.34%); opacity: 0; transform: scale(0.92); }
+}
+
+.paper-content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 26px 12px;
+  font-size: 15px;
+  animation: ink-in 0.5s ease both;
+}
+
+.paper-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex: none;
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--p-line);
+}
+
+.paper-head h3 {
+  margin: 0;
+  font-weight: normal;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: var(--p-red);
+}
+
+.paper-sub {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--p-muted);
+}
+
+.paper-body {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  line-height: 1.55;
+}
+
+.paper-body p {
+  margin: 6px 0;
+}
+
+.paper-actions {
+  flex: none;
+  max-height: 45%;
+  overflow-y: auto;
+  margin-top: 10px;
+  border-top: 2px solid var(--p-line);
+}
+
+.paper-browse {
+  flex: 1;
+  min-height: 0;
+}
+
+.paper .ledger {
+  margin: 0;
+}
+
+.paper-help {
+  flex: none;
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--p-muted);
+}
+
+.paper .move-row.unknown {
+  color: var(--p-muted);
+}
+
+/* 窄螢幕：兩頁上下疊，整本可以捲 */
+@media (max-width: 760px) {
+  .tome-tabs {
+    left: 8px;
+    right: 8px;
+    gap: 2px;
+  }
+  .tome-tabs li {
+    padding: 6px 6px 12px;
+    font-size: 13px;
+  }
+  .tome-spread {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .tome-spread::after {
+    display: none;
+  }
+  .tome-page {
+    min-height: 100%;
+  }
+}
+
+.paper .move-row {
+  color: var(--p-ink);
+}
+
+/* ── 圖示格子（技能、裝備框、紙上的細目） ── */
+.tome-tabs li:nth-child(3) { background: #8a6a2a; }
+.tome-tabs li:nth-child(4) { background: #7a6a3a; }
+.tome-tabs li:nth-child(5) { background: #3a6a52; }
+.tome-tabs li:nth-child(6) { background: #8a4a6a; }
+.tome-tabs li:nth-child(7) { background: #5a4a7a; }
+.tome-tabs li:nth-child(8) { background: #5a5a5a; }
+
+.icon-tile {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  background: #e6d8b4;
+  border: 2px solid #a88c5c;
+  box-shadow: inset 0 0 0 2px #f1e6c9;
+  cursor: pointer;
+}
+
+.icon-tile img {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.icon-tile.l {
+  width: 64px;
+  height: 64px;
+}
+
+.icon-tile.l img {
+  width: 48px;
+  height: 48px;
+}
+
+.icon-tile.s {
+  width: 30px;
+  height: 30px;
+  box-shadow: none;
+  border-width: 1px;
+}
+
+.icon-tile.s img {
+  width: 22px;
+  height: 22px;
+}
+
+.icon-tile.dim {
+  background: #e0d3b0;
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.icon-tile.dim img {
+  opacity: 0.22;
+  filter: grayscale(1);
+}
+
+.icon-tile.active {
+  border-color: var(--p-red);
+  background: #f8ecc8;
+  box-shadow:
+    inset 0 0 0 2px #fff4d8,
+    0 0 0 2px rgba(142, 42, 26, 0.35);
+}
+
+.icon-badge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  min-width: 16px;
+  padding: 0 3px;
+  font-size: 11px;
+  line-height: 15px;
+  text-align: center;
+  color: #f6ecd4;
+  background: var(--p-red);
+  border: 1px solid #4a1a10;
+}
+
+.icon-tile.s .icon-badge {
+  right: -3px;
+  bottom: -3px;
+  min-width: 12px;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+/* 人物：人形與四周的裝備框 */
+.gear-sum {
+  display: flex;
+  gap: 8px;
+}
+
+.stat {
+  padding: 0 5px;
+  font-size: 12px;
+  border: 1px solid currentColor;
+}
+
+.stat.atk { color: #a8382a; }
+.stat.def { color: #2f5f9a; }
+.stat.eva { color: #3d7a2a; }
+
+.doll {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 76px 1fr 76px;
+  gap: 4px;
+  padding: 4px 6px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(184, 156, 106, 0.28), transparent 65%);
+}
+
+.doll-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.doll-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.doll-label {
+  font-size: 11px;
+  color: var(--p-muted);
+  white-space: nowrap;
+}
+
+.doll-slot.active .doll-label {
+  color: var(--p-red);
+}
+
+/* 有穿戴的框依品級換框色 */
+.doll-slot.grade-frame2 .icon-tile:not(.active) { border-color: #3d7a2a; }
+.doll-slot.grade-frame3 .icon-tile:not(.active) { border-color: #2f5f9a; }
+.doll-slot.grade-frame4 .icon-tile:not(.active) { border-color: #a0661a; }
+
+.doll-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 0;
+}
+
+.doll-figure img {
+  flex: 1;
+  min-height: 0;
+  max-height: 240px;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(3px 4px 0 rgba(90, 60, 30, 0.25));
+}
+
+.doll-caption {
+  flex: none;
+  margin: 6px 0 0;
+  padding-top: 6px;
+  min-height: 26px;
+  text-align: center;
+  font-size: 14px;
+  border-top: 1px dashed var(--p-line);
+}
+
+.action-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+img.item-icon.small {
+  width: 20px;
+  height: 20px;
+}
+
+/* 技能頁 */
+.craft-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 4px 0 2px;
+}
+
+.craft-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 70px;
+  cursor: pointer;
+}
+
+.craft-name {
+  font-size: 13px;
+}
+
+.craft-tile.active .craft-name {
+  color: var(--p-red);
+}
+
+.craft-tile.locked .craft-name {
+  color: var(--p-muted);
+}
+
+.craft-tile .exp-track.thin {
+  width: 60px;
+}
+
+.exp-track.thin {
+  height: 6px;
+  border-width: 1px;
+}
+
+.craft-hero {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.craft-hero-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.craft-hero-text p {
+  margin: 0;
+}
+
+.detail-label {
+  margin: 10px 0 4px;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: #8a6a3e;
+}
+
+.mini-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.effect {
+  padding: 1px 7px;
+  font-size: 12px;
+  color: #f6ecd4;
+  background: #8a6a3e;
+}
+
+.effect.hp { background: #b0402e; }
+.effect.qi { background: #3a62a0; }
+.effect.st { background: #5a8a3a; }
+.effect.treat { background: #8a4a6a; }
+
+.needs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.need {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.pips {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.pips i {
+  width: 10px;
+  height: 10px;
+  background: #ddd0ac;
+  border: 1px solid #8a6a3e;
+}
+
+.pips i.on {
+  background: #a0702a;
+}
+
+.progress-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 4px;
+}
+
+.progress-line .detail-label {
+  margin: 0;
+}
+
+.detail-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.peer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.peer {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 3px 8px;
+  font-size: 13px;
+  border: 1px solid var(--p-line);
+  background: #ece0c0;
+}
+
+.peer small {
+  font-size: 11px;
+  color: var(--p-muted);
+}
+
+.peer.ok {
+  border-color: #3d7a2a;
+}
+
+.peer.unknown {
+  color: var(--p-muted);
+  border-style: dashed;
+}
+
+/* 紙上的圖示格子：左格右細節 */
+.paper-top {
+  flex: none;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed var(--p-line);
+}
+
+.icon-pane {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+}
+
+.icon-grid {
+  overflow-y: auto;
+  padding: 4px 8px 6px 4px;
+  border-right: 1px dashed var(--p-line);
+}
+
+.icon-group {
+  margin: 6px 0 4px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: #8a6a3e;
+}
+
+.icon-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.icon-detail {
+  min-width: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.icon-detail h4 {
+  margin: 0 0 6px;
+  font-weight: normal;
+  font-size: 19px;
+  color: var(--p-red);
+}
+
+.icon-detail p {
+  margin: 6px 0;
+}
+
+.paper .detail-label { color: #8a6a3e; }

@@ -116,6 +116,8 @@ export interface ExitDef {
   world?: string;
   /** 走到大地圖時，算是面向哪個節點的方向（再按 E 進來時從同一側進來；渡口靠它分兩岸） */
   worldFrom?: string;
+  /** 同一個據點裡相連的區域（例如城南走到城北）：不花時間（見 maps/city.ts 的 seam） */
+  free?: boolean;
 }
 
 /** 踩到就觸發的區域（例如埋伏） */

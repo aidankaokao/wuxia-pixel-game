@@ -1,11 +1,12 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
+import { PageHead, Paper, Sheet, Spread } from './Paper';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
 /**
  * 分層瀏覽：一層一層往下看（分類 → 清單 → 細節），全程只用方向鍵與確認鍵。
- * 左邊是目前這一層的清單，右邊是游標所在那一項的細節；有下一層的項目按 E／→ 進去，X／← 回上一層。
- * 細節太長時，在沒有下一層的項目上按 E／→ 可以把焦點移到右邊，用 ↑↓ 捲動。
- * 項目也可以是一張表（ledger，例如弟子名冊）：進去後整個畫面是一張表，一列一個，用 ↑↓ 逐列看。
+ * 書本模式（選單裡）：最上層時左頁是清單、右頁是游標那一項的預覽；往下翻一層時，左頁換成上一層、右頁是這一層。
+ * 沒有下一層的項目按 E 會把細節攤開成一張紙（`Paper`）；名冊（ledger，例如弟子名冊）也攤開成紙，一列一個。
+ * 紙上模式（pane，用在紙裡）：左邊清單、右邊細節，細節太長時按 E／→ 把焦點移到右邊捲動。
  * 項目帶 action 時按 E 直接執行（例如在「裝備」裡挑一件穿上）。
  */
 
@@ -34,26 +35,46 @@ export interface BrowseItem {
   actionLabel?: string;
 }
 
-export function Browser({ title, items, active, onExit }: { title: string; items: BrowseItem[]; active: boolean; onExit: () => void }) {
+export function Browser({
+  title,
+  items,
+  active,
+  onExit,
+  layout = 'book',
+  folio,
+}: {
+  title: string;
+  items: BrowseItem[];
+  active: boolean;
+  onExit: () => void;
+  /** book：攤開的兩頁，細節展開成紙；pane：紙上的小型瀏覽（左清單右細節） */
+  layout?: 'book' | 'pane';
+  folio?: number;
+}) {
   // 走進來的路徑：每一層記住游標位置
   const [stack, setStack] = useState<{ key: string; cursor: number }[]>([]);
   const [cursor, setCursor] = useState(0);
   const [reading, setReading] = useState(false);
+  /** 書本模式：攤開成紙的那一項 */
+  const [sheetKey, setSheetKey] = useState<string | null>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const book = layout === 'book';
 
   useEffect(() => {
     if (!active) {
       setStack([]);
       setCursor(0);
       setReading(false);
+      setSheetKey(null);
     }
   }, [active]);
 
   // 依路徑找出目前這一層的清單（資料變了、找不到時退回上層）
   let level = items;
+  let parentLevel: BrowseItem[] | null = null;
   let ledger: Ledger | null = null;
-  const crumbs: ReactNode[] = [title];
+  const crumbs: ReactNode[] = title ? [title] : [];
   for (const s of stack) {
     const parent = level.find((i) => i.key === s.key);
     if (parent?.ledger) {
@@ -63,6 +84,7 @@ export function Browser({ title, items, active, onExit }: { title: string; items
     }
     if (!parent?.children) break;
     crumbs.push(parent.label);
+    parentLevel = level;
     level = parent.children();
   }
   const count = ledger ? ledger.rows.length : level.length;
@@ -84,7 +106,24 @@ export function Browser({ title, items, active, onExit }: { title: string; items
     setCursor(top.cursor);
   };
 
-  useKeys(active, (k) => {
+  const enter = (it: BrowseItem, i: number) => {
+    if (it.action) return it.action();
+    // 書本模式：名冊與沒有下一層的細節都攤開成一張紙
+    if (book && (it.ledger || (!it.children && it.detail))) return setSheetKey(it.key);
+    if (it.children || it.ledger) {
+      setStack([...stack, { key: it.key, cursor: i }]);
+      setCursor(0);
+    } else if (detailRef.current && detailRef.current.scrollHeight > detailRef.current.clientHeight) setReading(true);
+  };
+
+  const sheetItem = sheetKey ? level.find((i) => i.key === sheetKey) : undefined;
+  const sheet: Sheet | null = sheetItem
+    ? sheetItem.ledger
+      ? { title: sheetItem.label, ledger: sheetItem.ledger(), wide: true }
+      : { title: sheetItem.label, sub: sheetItem.tag, body: sheetItem.detail?.() }
+    : null;
+
+  useKeys(active && !sheet, (k) => {
     if (reading) {
       const el = detailRef.current;
       if (isUp(k)) el?.scrollBy({ top: -48 });
@@ -105,70 +144,116 @@ export function Browser({ title, items, active, onExit }: { title: string; items
     }
     if (isUp(k)) setCursor((cur + n - 1) % n);
     else if (isDown(k)) setCursor((cur + 1) % n);
-    else if (isConfirm(k) || isRight(k)) {
-      if (item?.action) item.action();
-      else if (item?.children || item?.ledger) {
-        setStack([...stack, { key: item.key, cursor: cur }]);
-        setCursor(0);
-      } else if (detailRef.current && detailRef.current.scrollHeight > detailRef.current.clientHeight) setReading(true);
-    } else if (isCancel(k) || isLeft(k)) back();
+    else if (isConfirm(k) || isRight(k)) item && enter(item, cur);
+    else if (isCancel(k) || isLeft(k)) back();
   });
+
+  const listView = (list: BrowseItem[], at: number, live: boolean, ref?: React.RefObject<HTMLUListElement>) => (
+    <ul className={`browser-list ${live ? 'focus' : 'dim'}`} ref={ref}>
+      {list.map((it, i) => (
+        <li
+          key={it.key}
+          className={`${i === at ? 'active' : ''} ${it.muted ? 'muted' : ''}`}
+          onClick={() => (live ? (i === cur ? enter(it, i) : setCursor(i)) : back())}
+        >
+          <span>
+            {i === at && live && active ? '▸ ' : '　'}
+            {it.label}
+            {(it.children || it.ledger) && <span className="muted"> ›</span>}
+          </span>
+          {it.tag && <span className="browser-tag">{it.tag}</span>}
+        </li>
+      ))}
+      {!list.length && <li className="muted">（沒有內容）</li>}
+    </ul>
+  );
+
+  const help = active
+    ? ledger
+      ? '↑↓ 逐列翻看　X／← 闔上名冊'
+      : `↑↓ 選擇　E／→ ${item?.action ? (item.actionLabel ?? '確定') : item?.children ? '翻開' : item?.ledger || (book && item?.detail) ? '展開細看' : '細看'}　X／← ${stack.length || reading ? '回上一層' : '回到書籤'}`
+    : '按 E 或 ↓ 開始翻閱';
+
+  if (book) {
+    const top = stack.length === 0;
+    const parentCursor = stack.length ? stack[stack.length - 1].cursor : 0;
+    const crumbHead = <PageHead title={crumbs[crumbs.length - 1]} sub={crumbs.length > 1 ? crumbs.slice(0, -1).map((c, i) => <span key={i}>{c} › </span>) : undefined} />;
+    return (
+      <>
+        <Spread
+          folio={folio}
+          left={
+            top ? (
+              <>
+                <PageHead title={title} />
+                {listView(level, cur, true, listRef)}
+                <p className="page-help">{help}</p>
+              </>
+            ) : (
+              <>
+                <PageHead title={crumbs[crumbs.length - 2]} sub={crumbs.length > 2 ? crumbs.slice(0, -2).map((c, i) => <span key={i}>{c} › </span>) : undefined} />
+                {listView(parentLevel ?? [], parentCursor, false)}
+              </>
+            )
+          }
+          right={
+            top ? (
+              item ? (
+                <>
+                  <PageHead title={item.label} sub={item.tag} />
+                  <div className="browser-detail" ref={detailRef}>
+                    {item.children ? <Preview items={item.children()} /> : item.detail ? item.detail() : null}
+                  </div>
+                  {(item.ledger || item.detail) && !item.children && <p className="page-help">E 展開細看</p>}
+                </>
+              ) : null
+            ) : (
+              <>
+                {crumbHead}
+                {ledger ? (
+                  <LedgerTable ledger={ledger} cursor={cur} active={active} innerRef={tableRef} onPick={setCursor} />
+                ) : (
+                  listView(level, cur, true, listRef)
+                )}
+                <p className="page-help">{help}</p>
+              </>
+            )
+          }
+        />
+        <Paper sheet={sheet} onClose={() => setSheetKey(null)} />
+      </>
+    );
+  }
 
   return (
     <div className="browser">
-      <div className="browser-crumbs">
-        {crumbs.map((c, i) => (
-          <span key={i}>
-            {i > 0 && <span className="muted"> › </span>}
-            {c}
-          </span>
-        ))}
-      </div>
+      {crumbs.length > 0 && (
+        <div className="browser-crumbs">
+          {crumbs.map((c, i) => (
+            <span key={i}>
+              {i > 0 && <span className="muted"> › </span>}
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
       {ledger ? (
         <LedgerTable ledger={ledger} cursor={cur} active={active} innerRef={tableRef} onPick={setCursor} />
       ) : (
         <div className="browser-panes">
-          <ul className={`browser-list ${active && !reading ? 'focus' : ''}`} ref={listRef}>
-            {level.map((it, i) => (
-              <li
-                key={it.key}
-                className={`${i === cur ? 'active' : ''} ${it.muted ? 'muted' : ''}`}
-                onClick={() =>
-                  i === cur && it.action
-                    ? it.action()
-                    : i === cur && (it.children || it.ledger)
-                      ? (setStack([...stack, { key: it.key, cursor: i }]), setCursor(0))
-                      : setCursor(i)
-                }
-              >
-                <span>
-                  {i === cur && active ? '▶ ' : '　'}
-                  {it.label}
-                  {(it.children || it.ledger) && <span className="muted"> ›</span>}
-                </span>
-                {it.tag && <span className="browser-tag">{it.tag}</span>}
-              </li>
-            ))}
-            {!level.length && <li className="muted">（沒有內容）</li>}
-          </ul>
+          {listView(level, cur, active && !reading, listRef)}
           <div className={`browser-detail ${reading ? 'focus' : ''}`} ref={detailRef}>
             {item?.detail ? item.detail() : item?.children ? <Preview items={item.children()} /> : null}
           </div>
         </div>
       )}
-      <p className="browser-help muted small">
-        {active
-          ? ledger
-            ? '↑↓ 逐列翻看　X／← 闔上名冊'
-            : `↑↓ 選擇　E／→ ${item?.action ? (item.actionLabel ?? '確定') : item?.children || item?.ledger ? '進入' : '細看'}　X／← ${stack.length || reading ? '回上一層' : '回到分頁'}`
-          : '按 E 或 → 開始瀏覽'}
-      </p>
+      <p className="browser-help">{help.replace('回到書籤', '摺起')}</p>
     </div>
   );
 }
 
 /** 名冊式的表格：紙色底、直線分欄，游標所在的那一列標出來 */
-function LedgerTable({
+export function LedgerTable({
   ledger,
   cursor,
   active,

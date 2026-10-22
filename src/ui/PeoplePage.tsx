@@ -8,7 +8,7 @@ import { useGame } from '../state/store';
 import { BrowseItem, Browser } from './Browser';
 
 /** 選單「交遊」：依認識的地方分類，再看每個人的交情、稱呼、喜好與能做的事 */
-export function PeoplePage({ active, onExit }: { active: boolean; onExit: () => void }) {
+export function PeoplePage({ active, onExit, folio }: { active: boolean; onExit: () => void; folio?: number }) {
   const relations = useGame((s) => s.world.relations);
   const day = useGame((s) => s.world.day);
   // 先排熟的人
@@ -44,7 +44,7 @@ export function PeoplePage({ active, onExit }: { active: boolean; onExit: () => 
           detail: () => <p className="small">去跟人說說話吧。每個人增進感情的方式不同：有人愛聊天、有人看重買賣、有人收禮、有人只認名聲。</p>,
         },
       ];
-  return <Browser title="交遊" items={items} active={active} onExit={onExit} />;
+  return <Browser title="交遊" items={items} active={active} onExit={onExit} folio={folio} />;
 }
 
 function PersonDetail({ p, day }: { p: PersonDef; day: number }) {

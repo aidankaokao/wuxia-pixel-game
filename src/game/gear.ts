@@ -91,7 +91,7 @@ export function gear(
   };
 }
 
-const KIND_ICON: Record<GearKind, ItemDef['icon']> = { hat: 'hat', top: 'robe', bottom: 'pants', shoes: 'shoes', hand: 'bracer', neck: 'pouch', weapon: 'sword' };
+export const KIND_ICON: Record<GearKind, ItemDef['icon']> = { hat: 'hat', top: 'robe', bottom: 'pants', shoes: 'shoes', hand: 'bracer', neck: 'pouch', weapon: 'sword' };
 
 /** 兵器：種類與品級決定攻擊力 */
 export function weapon(name: string, type: WeaponType, grade: number, desc: string, opts: { price?: number; sect?: string } = {}): ItemDef {
@@ -159,3 +159,8 @@ export const GEAR_ITEMS: Record<string, ItemDef> = {
 /** 鳴泉劍派各身分發的服飾 */
 /** 鳴泉劍派各身分發的服飾與佩劍 */
 export const MQ_UNIFORMS = [['mq_robe_gray', 'mq_sword_1'], ['mq_robe_white', 'mq_boots', 'mq_sword_2'], ['mq_robe_blue', 'mq_boots', 'mq_sword_3']];
+
+/** 每個裝備欄空著時畫的淡淡圖示 */
+export const GEAR_ICON: Record<GearSlotId, ItemDef['icon']> = {
+  hat: 'hat', top: 'robe', bottom: 'pants', shoes: 'shoes', leftHand: 'bracer', rightHand: 'bracer', neck: 'pouch', weapon: 'sword',
+};
