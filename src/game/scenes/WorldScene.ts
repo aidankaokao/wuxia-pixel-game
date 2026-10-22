@@ -5,12 +5,14 @@ import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { EventCtx, Script, ScriptAbort } from '../events';
 import { drawNodeIcon, drawWorldHero, drawWorldMap } from '../art/worldmap';
-import { CELL, edgesFrom, NODES, nodeById, spawnOf, WORLD_H, WORLD_W, type WorldNode } from '../world/geo';
-import { mountDef } from '../mounts';
+import { CELL, edgesFrom, NODES, nodeById, spawnOf, travelKe, WORLD_H, WORLD_W, type WorldNode } from '../world/geo';
+import { keText } from '../thought';
+import { periodOf, type Period } from '../time';
 import { autosave, setPositionProvider } from '../save';
 import type { Line } from '../maps/types';
 import { uiBlocking, useGame } from '../../state/store';
 import { DEFEAT } from './defeat';
+import { restStop } from '../story/waystation';
 
 /** 大地圖場景的參數：站在哪個節點；arrive 是一到就說的話 */
 export interface WorldData {
@@ -38,6 +40,8 @@ export class WorldScene extends Phaser.Scene {
   private moving = false;
   private leaving = false;
   private queued: 'interact' | 'menu' | Dir | null = null;
+  /** 日夜與天氣的色調（蓋在地形上、節點圖示底下，夜裡城鎮看起來像點了燈） */
+  private shade!: Phaser.GameObjects.Rectangle;
 
   constructor() {
     super('world');
@@ -55,7 +59,7 @@ export class WorldScene extends Phaser.Scene {
   create() {
     const tex = this.textures;
     if (!tex.exists('worldmap')) tex.addCanvas('worldmap', drawWorldMap());
-    for (const k of ['city', 'village', 'sect', 'wild', 'port', 'ferry', 'locked'] as const)
+    for (const k of ['city', 'village', 'sect', 'wild', 'port', 'ferry', 'inn', 'locked'] as const)
       if (!tex.exists(`wnode_${k}`)) tex.addCanvas(`wnode_${k}`, drawNodeIcon(k));
     if (!tex.exists('world_hero')) {
       const t = tex.addCanvas('world_hero', drawWorldHero())!;
@@ -64,6 +68,12 @@ export class WorldScene extends Phaser.Scene {
     }
     if (!this.anims.exists('world_hero_walk')) this.anims.create({ key: 'world_hero_walk', frames: [{ key: 'world_hero', frame: 0 }, { key: 'world_hero', frame: 1 }], frameRate: 6 });
     this.add.image(0, 0, 'worldmap').setOrigin(0);
+    this.shade = this.add.rectangle(0, 0, WORLD_W * CELL, WORLD_H * CELL, 0x000000, 0).setOrigin(0).setDepth(0.5);
+    this.updateShade(false);
+    const unsub = useGame.subscribe((s, prev) => {
+      if (s.world.time !== prev.world.time || s.world.weather !== prev.world.weather) this.updateShade(true);
+    });
+    this.events.once('shutdown', unsub);
     for (const n of NODES) this.add.image(n.x * CELL + 4, n.y * CELL + 4, `wnode_${n.locked ? 'locked' : n.kind}`).setDepth(1);
     this.hero = this.add.sprite(this.node.x * CELL + 4, this.node.y * CELL - 2, 'world_hero', 0).setDepth(2);
 
@@ -114,6 +124,20 @@ export class WorldScene extends Phaser.Scene {
     if (arrive) this.time.delayedCall(450, () => this.runScript((ctx) => ctx.say(...arrive)));
   }
 
+  /** 日夜色調：黃昏偏橘、夜裡深藍；陰天、雨天白天也暗一點（跟小地圖的室外一致，夜裡稍淡一些，地形還看得清楚） */
+  private updateShade(animate: boolean) {
+    const { time, weather } = useGame.getState().world;
+    const SHADE: Record<Period, [number, number]> = { dawn: [0x000000, 0], day: [0x000000, 0], dusk: [0xd06a28, 0.28], night: [0x0a1238, 0.5] };
+    let [color, alpha] = SHADE[periodOf(time)];
+    if ((weather === 'cloudy' || weather === 'rain') && alpha < 0.2) {
+      color = alpha ? color : 0x505a68;
+      alpha = Math.max(alpha, weather === 'rain' ? 0.2 : 0.12);
+    }
+    this.shade.setFillStyle(color, this.shade.fillAlpha);
+    if (animate) this.tweens.add({ targets: this.shade, fillAlpha: alpha, duration: 600 });
+    else this.shade.fillAlpha = alpha;
+  }
+
   /** 整數倍放大：大約看得到 50 格寬 */
   private fitZoom() {
     const { width, height } = this.scale;
@@ -146,20 +170,32 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
-  /** 照方向鍵挑一條路：路的頭一段方向最接近按的方向 */
-  private chooseRoad(dir: Dir) {
+  /**
+   * 照方向鍵挑一條路：看路的頭幾格往哪個方向。
+   * 這個方向只有一條路就直接走；有兩條以上（岔路，例如臨江城往東、往東北各一條）就跳出選項讓你挑。
+   */
+  private async chooseRoad(dir: Dir) {
     const [dx, dy] = DIRS[dir];
-    let best: { to: WorldNode; score: number } | null = null;
-    for (const r of edgesFrom(this.node.id, this.from)) {
-      // 看路上第三格（或終點）的方向，比較不受起頭轉折影響
-      const [px, py] = r.path[Math.min(3, r.path.length - 1)];
-      const vx = px - this.node.x;
-      const vy = py - this.node.y;
-      const len = Math.hypot(vx, vy) || 1;
-      const score = (vx * dx + vy * dy) / len;
-      if (score > 0.5 && (!best || score > best.score)) best = { to: r.to, score };
-    }
-    if (best) this.travelTo(best.to.id);
+    const roads = edgesFrom(this.node.id, this.from)
+      .map((r) => {
+        // 看路上第三格（或終點）的方向，比較不受起頭轉折影響
+        const [px, py] = r.path[Math.min(3, r.path.length - 1)];
+        const vx = px - this.node.x;
+        const vy = py - this.node.y;
+        return { r, score: (vx * dx + vy * dy) / (Math.hypot(vx, vy) || 1) };
+      })
+      .filter((x) => x.score > 0.35)
+      .sort((a, b) => b.score - a.score);
+    if (!roads.length) return;
+    if (roads.length === 1) return this.travelTo(roads[0].r.to.id);
+    let pick = -1;
+    await this.runScript(async (ctx) => {
+      pick = await ctx.ask('這裡是岔路。往哪裡走？', [
+        ...roads.map(({ r }) => `${r.edge.name}・${r.to.locked ? '？' : r.to.name}${r.to.locked ? '' : `（約${keText(travelKe(r.edge.ke, useGame.getState().hero))}）`}`),
+        '算了',
+      ]);
+    });
+    if (pick >= 0 && pick < roads.length) this.travelTo(roads[pick].r.to.id);
   }
 
   /** 沿路走到另一個節點 */
@@ -204,10 +240,8 @@ export class WorldScene extends Phaser.Scene {
       await walk(half, steps.length);
       this.hero.stop();
       this.hero.setFrame(0);
-      // 騎馬比較快
-      const h = useGame.getState().hero;
-      const speed = h.riding ? (mountDef(h.mount)?.speed ?? 1) : 1;
-      useGame.getState().passTime(Math.max(1, Math.round(r.edge.ke / speed)));
+      // 騎馬、輕功好都走得比較快
+      useGame.getState().passTime(travelKe(r.edge.ke, useGame.getState().hero));
       this.from = this.node.id;
       this.node = r.to;
       this.moving = false;
@@ -222,8 +256,12 @@ export class WorldScene extends Phaser.Scene {
     useGame.getState().updateWorld((w) => (w.wpos = { node: this.node.id, from: this.from }));
   }
 
-  /** 進入這個節點的小地圖：從哪條路來，就從據點的哪一側進去 */
+  /** 進入這個節點的小地圖：從哪條路來，就從據點的哪一側進去；驛站、茶亭直接打開歇腳的選單 */
   private enterNode() {
+    if (this.node.rest) {
+      this.runScript(restStop(this.node));
+      return;
+    }
     const e = spawnOf(this.node, this.from);
     if (e) this.enterMap(e.map, { x: e.x, y: e.y, facing: e.facing });
   }

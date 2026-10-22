@@ -164,6 +164,15 @@ export function drawNodeIcon(kind: NodeKind | 'locked'): HTMLCanvasElement {
       for (let i = 0; i < 5; i++) hline(l, 7, 7 + 4 - i, 2 + i, '#f1e7cf');
       for (let i = 0; i < 4; i++) hline(l, 6 - (3 - i), 5, 3 + i, '#e0d4b8');
       break;
+    case 'inn':
+      // 驛站：小瓦房，門口一根掛燈籠的竿子
+      px(l, 2, 6, 7, 5, '#d0c098');
+      hline(l, 1, 9, 5, '#5a6070');
+      hline(l, 2, 8, 4, '#5a6070');
+      px(l, 4, 8, 2, 3, '#5a3a20');
+      vline(l, 10, 2, 10, '#6a4428');
+      px(l, 9, 3, 2, 2, '#e8603a');
+      break;
     case 'ferry':
       // 渡船：小船與撐篙
       px(l, 2, 7, 8, 2, '#7a5232');

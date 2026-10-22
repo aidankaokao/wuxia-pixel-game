@@ -13,6 +13,8 @@ import { inShichen, SHICHEN_INDEX } from './time';
 /** 一刻、兩刻、半個時辰、一個時辰、一個半時辰…… */
 export function keText(ke: number): string {
   const N = '零一兩三四五六七八九';
+  // 長的時間湊到最接近的半個時辰（大地圖的路程是估計值）
+  if (ke % 4 && ke > 8) return keText(Math.round(ke / 4) * 4);
   if (ke % 4) return `${N[ke] ?? ke}刻`;
   if (ke === 4) return '半個時辰';
   const sc = Math.floor(ke / 8);

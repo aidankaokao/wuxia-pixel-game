@@ -102,7 +102,7 @@ export const traderTalk: Script = async (ctx) => {
 
 const ling = by('凌萬川');
 /** 搭船走大江水路：船錢、花的時間（比走大地圖的路快） */
-export const RIVER_BOAT = { price: 15, ke: 32 };
+export const RIVER_BOAT = { price: 15, ke: 8 };
 /** 船到臨江城、大埠頭時，落腳在碼頭 */
 export const RIVER_LANDING = {
   linjiang: { map: 'linjiang', x: 27, y: 30, facing: 'up' as const },
@@ -112,12 +112,12 @@ export const RIVER_LANDING = {
 /** 搭船走水路到另一頭（臨江城漕幫分舵與大埠頭船行共用） */
 export async function riverBoat(ctx: EventCtx, to: keyof typeof RIVER_LANDING, who: (...t: string[]) => Line[]) {
   const name = to === 'linjiang' ? '臨江城' : '大埠頭';
-  const c = await ctx.ask(who(`搭船走大江水路到${name}？${RIVER_BOAT.price} 兩，順風的話四個時辰就到。`)[0], ['上船', '不用了']);
+  const c = await ctx.ask(who(`搭船走大江水路到${name}？${RIVER_BOAT.price} 兩，順風的話一個時辰就到。`)[0], ['上船', '不用了']);
   if (c !== 0) return;
   if (!(await paySilver(ctx, RIVER_BOAT.price, who))) return;
   ctx.pass(RIVER_BOAT.ke);
   const l = RIVER_LANDING[to];
-  await ctx.say('帆鼓滿了風，船順著大江走。兩岸的蘆葦一叢叢往後退，江鷗在船尾盤旋。', `（坐了四個時辰的船，到了${name}的碼頭）`);
+  await ctx.say('帆鼓滿了風，船順著大江走。兩岸的蘆葦一叢叢往後退，江鷗在船尾盤旋。', `（坐了一個時辰的船，到了${name}的碼頭）`);
   ctx.warp(l.map, { x: l.x, y: l.y, facing: l.facing });
 }
 

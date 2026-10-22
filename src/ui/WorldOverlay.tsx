@@ -1,6 +1,6 @@
-import { mountDef } from '../game/mounts';
 import { keText } from '../game/thought';
-import { AREA_LABELS, edgesFrom, NODE_KIND_NAME, NODES, nodeById } from '../game/world/geo';
+import { KE_PER_DAY, periodOf, timeText } from '../game/time';
+import { AREA_LABELS, edgesFrom, NODE_KIND_NAME, NODES, nodeById, travelKe } from '../game/world/geo';
 import { useGame } from '../state/store';
 
 /** 道路往哪個方向（看路的頭幾格），顯示成箭頭 */
@@ -11,6 +11,14 @@ function arrowOf(from: { x: number; y: number }, path: [number, number][]) {
   return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? '→' : '←') : dy > 0 ? '↓' : '↑';
 }
 
+/** 走這段路到的時候天黑了沒：預估抵達時辰，夜裡才到就提醒一聲（已經是夜裡的短程就不囉嗦了） */
+function arriveNote(now: number, ke: number) {
+  const at = (now + ke) % KE_PER_DAY;
+  const days = Math.floor((now + ke) / KE_PER_DAY);
+  if (periodOf(at) !== 'night' || (periodOf(now) === 'night' && ke < 8)) return '';
+  return `，${days ? '隔天' : ''}${timeText(at)}才到（天黑了）`;
+}
+
 /**
  * 大地圖的文字：地名、節點名（位置由 WorldScene 每幀擺好，見 data-wx／data-wy），
  * 以及下方的資訊卡：這裡是哪裡、往哪些地方的路、各要走多久。
@@ -19,8 +27,9 @@ export function WorldOverlay() {
   const wm = useGame((s) => s.worldMap);
   const hidden = useGame((s) => s.battle !== null || s.screen !== 'game');
   const hero = useGame((s) => s.hero);
+  const time = useGame((s) => s.world.time);
   if (!wm || hidden) return null;
-  const speed = hero.riding ? (mountDef(hero.mount)?.speed ?? 1) : 1;
+  const speed = travelKe(100, hero) < 100 ? Math.round((100 / travelKe(100, hero) - 1) * 100) : 0;
   const here = wm.node ? nodeById(wm.node) : null;
   return (
     <>
@@ -47,11 +56,11 @@ export function WorldOverlay() {
               {edgesFrom(here.id, wm.from).map((r) => (
                 <li key={r.to.id} className={r.to.locked ? 'muted' : ''}>
                   <kbd>{arrowOf(here, r.path)}</kbd> {r.edge.name}・{r.to.locked ? '？（還沒開放）' : r.to.name}
-                  {!r.to.locked && <span className="muted">　約{keText(Math.max(1, Math.round(r.edge.ke / speed)))}</span>}
+                  {!r.to.locked && <span className="muted">　約{keText(travelKe(r.edge.ke, hero))}{arriveNote(time, travelKe(r.edge.ke, hero))}</span>}
                 </li>
               ))}
             </ul>
-            <p className="muted small">{here.enter ? <><kbd>E</kbd> 進入{here.name}　</> : null}<kbd>X</kbd> 選單{speed > 1 ? '　（騎著馬，路上快一些）' : ''}</p>
+            <p className="muted small">{here.rest ? <><kbd>E</kbd> 歇腳（住店、吃東西、打聽）　</> : here.enter ? <><kbd>E</kbd> 進入{here.name}　</> : null}<kbd>X</kbd> 選單{speed > 0 ? `　（${hero.riding ? '騎馬、' : ''}腳程快 ${speed}%）` : ''}</p>
           </>
         ) : (
           <p className="small">前往{wm.to ? nodeById(wm.to).name : ''}途中……</p>
