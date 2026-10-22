@@ -47,6 +47,11 @@
 - 用餐：午時、酉時（`isMealTime`）。要讓人到飯廳吃飯，就在飯廳加一份 `meal: 'eat'` 的 NPC，並把他平常那幾份標 `meal: 'away'`；人物檔案可填 `meal` 台詞，新的飯廳地圖加進 `story/social.ts` 的 `DINING`。
 - 商店面板（`ctx.panel({ kind: 'shop', ... })`）：`stock` 賣的東西、`sellRate` 收購價比例（預設一半）、`buys` 只收哪些、`sellOnly` 只收不賣。臨江城的店家在 `story/linjiang_city.ts`，鏢局、縣衙懸賞、漕幫在 `story/linjiang_jianghu.ts`（懸賞目標是地圖上 `when: f.lj_b_<id> === 1` 的 NPC）。
 - 隨劇情改變的地形用 `MapDef.patches`（`when` 成立時用幾列字元蓋掉原本的地形，空白不改），例如雲水渡口蓋好的橋；旗標變了要 `ctx.reload()` 才看得到。渡口在大地圖上能不能直接走過，用 `geo.ts` 的 `setCrossingOpen`（由劇情檔設定）。
+- 官府、大戶人家的院子：院牆用地形 `R`（朱紅牆、灰瓦牆帽，不可走）圍起來，城裡只畫外觀（大門可進，牆裡的廂房、大堂是裝飾，底下填 `X`），進門後的院子另做一張石板地圖，院裡的房子各自再有室內（例如臨江縣衙 `lj_yamen` 中庭 → 大堂、兩廂；建築樣式 `yamen_*`）。石板地上的出口 `E` 會畫成石板。
+- 店家招牌：建築填 `sign`（門楣匾額，寫店名）與 `flag`（簷下幌子，寫一個字）；新的店、官府、祠堂都填上，讓人一眼看出是什麼地方。板子在 MapScene 畫，字在 `ui/MapSigns.tsx`。
+- 公告欄：`notices.ts` 的 `registerNotices`（三欄：big 重要大事、urgent 懸賞公告（id 沿用 urgent）、daily 日常公告；依狀態算出來，不存檔）。要貼新的告示（懸賞、官府消息、招租）就註冊一個來源；告示可帶 `act`（在公告欄上按 E 執行）。打開公告欄用 `story/yamen.ts` 的 `noticeBoard(欄, 標題)`。
+- 房產與經營：物件在 `property.ts` 的 `PROPERTIES`（民居 house、空店面 shop、照舊經營的老店 business；地圖上的哪棟建築用 map＋bx／by 對到），狀態在 world.property；師爺與牙人的選單在 `story/property.ts`。開店在 `shop.ts`（店種 `SHOP_TYPES`、等級、夥計、`settleDay`）與 `story/shop.ts`，狀態在 world.shops。房子裡面的地圖是 `prop:物件id`（`maps/property.ts`）。新的城要開放房產：在 `PROPERTIES` 加物件、在那個城的衙門放師爺。
+- 每天半夜要做的事用 `time.ts` 的 `onNewDay`（例如店鋪結算、房產市場換告示）；只改 world，不要問話。
 - 大一點的城分成幾區（例如臨江城的城南 `linjiang`、城北 `lj_north`），每區一張地圖，相鄰兩區同寬（或同高）、城牆在同一欄，用 `maps/city.ts` 的 `seam` 接起來（走過去接到同一個位置、不花時間）。
 - 季節：`time.ts` 的 `seasonOf(day)`（春夏秋冬依月份）、`currentTerm`／`solarTermOf`（二十四節氣，每月初一、十六）。地圖條件可讀 `season`（0 春…3 冬）與 `spring`／`summer`／`autumn`／`winter`。畫面換色在 `art/season.ts`（只改偏綠的像素；室外地形 `seasonCanvas`，樹木 `seasonTextureKey`）。新玩法要隨季節變時，直接讀 `seasonOf(world.day)`；魚的季節喜好寫在 `FishDef.likes`／`hides`；路程的季節天氣倍數是 `geo.ts` 的 `roadFactor`（大地圖花的時間一律用 `roadKe`）。
 - 天氣：地圖條件可讀 `rain`／`fog`／`clear`／`snow`（雪只在冬天）；雨天、雪天會重生的野獸約一半躲起來（`MapScene.refresh`）。做事受天氣影響時，代價（`withCost`）與日課表的體力（`stamina` 可以給函式）要一起算。

@@ -2,6 +2,7 @@ import { clothShopTalk } from '../story/linjiang';
 import { loomAt } from '../story/weaving';
 import { by, exitTo, room } from './rooms';
 import { clinicTalk, innTalk, pawnTalk, tellerTalk, towerTalk } from '../story/linjiang_city';
+import { clerkTalk, jailerTalk, magistrateTalk, noticeBoard } from '../story/yamen';
 import { bountyBoard, diceTable, escortTalk, guildTalk } from '../story/linjiang_jianghu';
 import type { MapDef } from './types';
 
@@ -159,29 +160,121 @@ export const ljEscort: MapDef = {
   exits: [exitTo('linjiang', 35, 9, 6, 9)],
 };
 
-/** 臨江縣衙：懸賞榜 */
+/**
+ * 臨江縣衙・中庭：從大門進來，正前方是大堂，西廂簽押房、東廂捕快房，東北角是縣牢（獄卒守著）。
+ * 城裡看到的外觀在 linjiang.ts（院牆、大門、兩廂、大堂）。
+ */
 export const ljYamen: MapDef = {
   id: 'lj_yamen',
   name: '臨江縣衙',
-  subtitle: '臨江城・縣衙',
+  subtitle: '臨江城・縣衙中庭',
+  // prettier-ignore
+  tiles: [
+    'RRRRRRRRRRRRRRRRRRRRRRRRR',
+    'R=======================R',
+    'R=T==T==================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=======================R',
+    'R=T===================T=R',
+    'R=======================R',
+    'RRRRRRRRRRRRERRRRRRRRRRRR',
+  ],
+  spawn: { x: 12, y: 15, facing: 'up' },
+  buildings: [
+    { style: 'yamen_main', x: 8, y: 1, name: '大堂', sign: '親民堂', door: [], enter: { to: 'lj_yamen_hall', spawn: { x: 6, y: 7, facing: 'up' } } },
+    { style: 'yamen_side', x: 2, y: 7, name: '簽押房', sign: '簽押房', door: [], enter: { to: 'lj_yamen_west', spawn: { x: 4, y: 5, facing: 'up' } } },
+    { style: 'yamen_side', x: 18, y: 7, name: '捕快房', sign: '捕快房', door: [], enter: { to: 'lj_yamen_east', spawn: { x: 5, y: 6, facing: 'up' } } },
+    { style: 'yamen_jail', x: 18, y: 2, name: '縣牢', sign: '縣牢', door: [{ text: '鐵皮包著的牢門，上了三道鎖。' }] },
+  ],
+  props: [
+    { sprite: 'stele', x: 12, y: 13, lines: [{ text: '戒石上刻著幾行字：「一粥一飯，皆出民力；一錢不義，天必記之。」' }, { text: '是歷任知縣立在堂前自警的。' }] },
+    { sprite: 'bulletin', x: 9, y: 14, script: noticeBoard('big', '臨江縣衙・公告欄'), label: '公告欄' },
+    { sprite: 'lantern_post', x: 10, y: 6, lines: [{ text: '大堂前的燈籠，夜裡升堂才點。' }] },
+    { sprite: 'lantern_post', x: 14, y: 6, lines: [{ text: '燈籠上寫著一個「臨」字。' }] },
+    { sprite: 'vat', x: 22, y: 12, lines: [{ text: '防火用的大水缸，缸裡浮著兩片落葉。' }] },
+    { sprite: 'vat', x: 2, y: 12, lines: [{ text: '防火用的大水缸，水面映著天。' }] },
+    { sprite: 'f_deco_martial_1', x: 22, y: 5, lines: [{ text: '兵器架上插著水火棍與鐵尺，衙役升堂時拿的。' }] },
+  ],
+  npcs: [
+    { id: 'ljy_gao', work: true, name: '高升', sprite: 'guard', x: 12, y: 10, wander: 3, talks: [by('高升')('威——武——', '……咳，練習一下，晚點要升堂。'), by('高升')('公告欄每天都有人來看，要找房子、找差事的，都先看那兒。'), by('高升')('大堂是老爺問案的地方，進去別大聲嚷嚷。'), by('高升')('東北角是縣牢，鄒老七守著，那老頭脾氣怪，別去惹他。')] },
+    { id: 'ljy_zou', allDay: true, name: '鄒老七', sprite: 'guard', x: 19, y: 5, facing: 'down', script: jailerTalk },
+  ],
+  exits: [exitTo('linjiang', 19, 8, 12, 17)],
+};
+
+/** 縣衙大堂：知縣升堂問案的地方 */
+export const ljYamenHall: MapDef = {
+  id: 'lj_yamen_hall',
+  name: '親民堂',
+  subtitle: '臨江縣衙・大堂',
   tiles: room(13, 9, 6),
   spawn: { x: 6, y: 7, facing: 'up' },
   theme: 'stone',
   buildings: [],
   props: [
     { sprite: 'altar', x: 5, y: 2, w: 3, lines: [{ text: '公案上擺著驚堂木與籤筒，「明鏡高懸」的匾額就在頭頂。' }] },
-    { sprite: 'bulletin', x: 10, y: 3, script: bountyBoard, label: '懸賞榜' },
     { sprite: 'f_deco_scholar_1', x: 2, y: 0, lines: [{ text: '牆上掛著「肅靜」「迴避」兩面木牌。' }] },
+    { sprite: 'f_deco_martial_1', x: 10, y: 0, lines: [{ text: '架上一排水火棍，漆成上紅下黑。' }] },
   ],
   npcs: [
-    {
-      id: 'ljy_lu', allDay: true, name: '盧秉文', sprite: 'scholar', x: 6, y: 1, facing: 'down',
-      talks: [by('盧秉文')('本官盧秉文，臨江知縣。', '城裡的事，大小都歸衙門管。江湖上的事……衙門管不了的，就貼懸賞。')],
-    },
-    { id: 'ljy_huo', work: true, name: '霍青山', sprite: 'guard', x: 9, y: 4, facing: 'right', script: bountyBoard },
-    { id: 'ljy_gao', allDay: true, name: '高升', sprite: 'guard', x: 2, y: 4, facing: 'right', talks: [by('高升')('威——武——', '……咳，練習一下，晚點要升堂。')] },
+    { id: 'ljy_lu', allDay: true, name: '盧秉文', sprite: 'scholar', x: 6, y: 1, facing: 'down', script: magistrateTalk },
+    { id: 'ljy_fang', work: true, name: '方大成', sprite: 'guard', x: 3, y: 4, facing: 'right', talks: [by('方大成')('老爺問案的時候，站兩邊的就是我們。'), by('方大成')('堂下跪的那塊石板，都被膝蓋磨亮了。')] },
+    { id: 'ljy_tang', work: true, name: '湯小滿', sprite: 'guard', x: 9, y: 4, facing: 'left', talks: [by('湯小滿')('站一整天，腿都麻了……噓，別跟老爺說。')] },
   ],
-  exits: [exitTo('linjiang', 19, 9, 6, 9)],
+  exits: [exitTo('lj_yamen', 12, 6, 6, 9)],
+};
+
+/** 西廂簽押房：師爺辦公，房契地契、商號登記都在這裡 */
+export const ljYamenWest: MapDef = {
+  id: 'lj_yamen_west',
+  name: '簽押房',
+  subtitle: '臨江縣衙・西廂',
+  tiles: room(9, 7, 4),
+  spawn: { x: 4, y: 5, facing: 'up' },
+  theme: 'scholar',
+  buildings: [],
+  props: [
+    { sprite: 'f_table_scholar_1', x: 1, y: 2, w: 2, script: clerkTalk, label: '找師爺' },
+    { sprite: 'f_shelf_scholar_2', x: 5, y: 0, w: 2, lines: [{ text: '架上堆滿卷宗：魚鱗冊、戶籍、房契底簿，每一卷都用麻繩捆著。' }] },
+    { sprite: 'f_table_scholar_1', x: 6, y: 3, w: 2, lines: [{ text: '書辦的桌上攤著一本帳，算盤珠子撥到一半。' }] },
+  ],
+  npcs: [
+    { id: 'ljy_miao', allDay: true, name: '苗守正', sprite: 'storyteller', x: 2, y: 1, facing: 'down', script: clerkTalk },
+    { id: 'ljy_ge', work: true, name: '葛文顯', sprite: 'scholar', x: 6, y: 2, facing: 'down', talks: [by('葛文顯')('在下是戶房書辦。買屋賣屋、立契過戶，都要在這兒蓋印。', '找師爺就行，他點了頭，在下就替你寫契。'), by('葛文顯')('城北那幾間民居，好些是祖上傳下來的，屋主不住了才肯賣。')] },
+  ],
+  exits: [exitTo('lj_yamen', 4, 11, 4, 7)],
+};
+
+/** 東廂捕快房：捕頭領懸賞，捕快值完班在這裡歇腳 */
+export const ljYamenEast: MapDef = {
+  id: 'lj_yamen_east',
+  name: '捕快房',
+  subtitle: '臨江縣衙・東廂',
+  tiles: room(11, 8, 5),
+  spawn: { x: 5, y: 6, facing: 'up' },
+  theme: 'stone',
+  buildings: [],
+  props: [
+    { sprite: 'bulletin', x: 8, y: 1, script: noticeBoard('urgent', '捕快房・懸賞榜'), label: '懸賞榜' },
+    { sprite: 'f_table_plain_1', x: 4, y: 3, w: 2, lines: [{ text: '桌上一壺涼掉的茶，幾個缺口的粗碗，還有一副骰子——被沒收的。' }] },
+    { sprite: 'f_bed_plain_1', x: 1, y: 1, lines: [{ text: '值夜的捕快輪流睡的鋪，被子疊得歪歪扭扭。' }] },
+    { sprite: 'f_bed_plain_1', x: 1, y: 4, lines: [{ text: '枕頭底下塞著一本翻爛的話本。' }] },
+    { sprite: 'f_deco_martial_1', x: 9, y: 4, lines: [{ text: '牆上掛著鐵尺、鎖鏈與幾副枷，都擦得發亮。' }] },
+  ],
+  npcs: [
+    { id: 'ljy_huo', work: true, name: '霍青山', sprite: 'guard', x: 6, y: 1, facing: 'down', script: bountyBoard },
+    { id: 'ljy_lei_n', night: true, name: '雷小五', sprite: 'guard', x: 3, y: 4, facing: 'right', talks: [by('雷小五')('巡了一天的街，腿都快斷了。', '你也這麼晚還在外頭晃？小心點，夜裡城裡也不太平。')] },
+  ],
+  exits: [exitTo('lj_yamen', 20, 11, 5, 8)],
 };
 
 /** 漕幫分舵：扛貨、擲骰子 */
@@ -209,4 +302,4 @@ export const ljGuild: MapDef = {
   exits: [exitTo('linjiang', 37, 22, 5, 8)],
 };
 
-export const LINJIANG_ROOMS = [ljCloth, ljInn, ljTower, ljClinic, ljPawn, ljEscort, ljYamen, ljGuild];
+export const LINJIANG_ROOMS = [ljCloth, ljInn, ljTower, ljClinic, ljPawn, ljEscort, ljYamen, ljYamenHall, ljYamenWest, ljYamenEast, ljGuild];

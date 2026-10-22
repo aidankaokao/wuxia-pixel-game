@@ -59,15 +59,15 @@ export const qingzhu: MapDef = {
 
   buildings: [
     {
-      style: 'hall', x: 17, y: 11, name: '柳家大宅', door: [],
+      style: 'hall', x: 17, y: 11, name: '柳家大宅', sign: '柳宅', door: [],
       enter: { to: 'qz_liu', spawn: { x: 5, y: 5, facing: 'up' } },
     },
     {
-      style: 'teahouse', x: 29, y: 12, name: '竹風茶寮', door: [],
+      style: 'teahouse', x: 29, y: 12, name: '竹風茶寮', sign: '竹風茶寮', flag: '茶', door: [],
       enter: { to: 'qz_tea', spawn: { x: 4, y: 5, facing: 'up' } },
     },
     {
-      style: 'smithy', x: 11, y: 15, name: '石家鐵鋪', door: [],
+      style: 'smithy', x: 11, y: 15, name: '石家鐵鋪', sign: '石家鐵鋪', flag: '鐵', door: [],
       enter: { to: 'qz_smithy', spawn: { x: 2, y: 5, facing: 'up' } },
     },
     {

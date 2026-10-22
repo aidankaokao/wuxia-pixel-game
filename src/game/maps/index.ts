@@ -14,6 +14,9 @@ import { qingzhu } from './qingzhu';
 import { qzNorth } from './qz_north';
 import { qzLiu, qzSmithy, qzTea, qzWang } from './qingzhu_rooms';
 import type { MapDef } from './types';
+import { buildPropertyMap } from './property';
+import { propertyDef, propertyOf, PROPERTIES } from '../property';
+import { shopTypeDef } from '../shop';
 import { registerPlotNames } from '../story/estate';
 import { useGame } from '../../state/store';
 
@@ -57,8 +60,30 @@ export function getMap(id: string): MapDef | undefined {
     const e = plot && estates[plot.id];
     return e ? buildHomeMap(plot, e) : undefined;
   }
+  if (id.startsWith('prop:')) {
+    const p = propertyDef(id.slice(5));
+    const b = p && MAPS[p.map]?.buildings.find((x) => x.x === p.bx && x.y === p.by);
+    return p && b ? buildPropertyMap(p, b) : undefined;
+  }
   const def = MAPS[id];
-  return def && withPatches(withPlots(def, estates));
+  return def && withProperties(withPatches(withPlots(def, estates)));
+}
+
+/** 自己名下的房子：門打得開（進到 prop:物件id），名字也改成「你的〇〇」 */
+function withProperties(def: MapDef): MapDef {
+  const owned = propertyOf(useGame.getState().world).owned;
+  if (!Object.keys(owned).length) return def;
+  let changed = false;
+  const buildings = def.buildings.map((b) => {
+    const p = PROPERTIES.find((x) => x.map === def.id && x.bx === b.x && x.by === b.y);
+    if (!p || !owned[p.id] || p.kind === 'business') return b;
+    changed = true;
+    // 開了店：匾額寫商號、幌子寫店種
+    const shop = useGame.getState().world.shops?.[p.id];
+    const sign = shop ? { sign: shop.name, flag: shopTypeDef(shop.type).flag } : {};
+    return { ...b, ...sign, name: shop?.name ?? p.name, door: [], enter: { to: `prop:${p.id}`, spawn: p.kind === 'shop' ? { x: 5, y: 6, facing: 'up' as const } : { x: 4, y: 5, facing: 'up' as const } } };
+  });
+  return changed ? { ...def, buildings } : def;
 }
 
 /** 套用隨劇情改變的地形（MapDef.patches） */

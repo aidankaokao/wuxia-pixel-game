@@ -4,7 +4,7 @@ import Phaser from 'phaser';
 import { Dir, NPC_WALK_MS, RUN_MS, TILE, VIEW_TILES_H, VIEW_TILES_W, WALK_MS } from '../constants';
 import { tileArt } from '../art/tiles';
 import { seasonCanvas, seasonTextureKey } from '../art/season';
-import { BUILDINGS } from '../art/props';
+import { BUILDINGS, signSpots, type BuildingStyle } from '../art/props';
 import { hash, makeCanvas } from '../art/pixel';
 import { Actor } from '../entities/Actor';
 import { getMap } from '../maps';
@@ -88,6 +88,7 @@ export class MapScene extends Phaser.Scene {
 
   init(data: SceneData) {
     this.data_ = data;
+    this.signs = [];
     // 找不到（例如房子已不存在）就回到村裡
     this.def = getMap(data.mapId) ?? getMap('qingzhu')!;
     this.npcs = [];
@@ -290,6 +291,44 @@ export class MapScene extends Phaser.Scene {
         enter: b.enter,
       });
       if (st.chimney) this.smoke(img.x + img.width - 13, img.y - img.height + 1);
+      this.placeSign(b, st, bottom);
+    }
+    // 匾額與幌子上的字由介面疊上去（ui/MapSigns.tsx）
+    useGame.setState({ mapSigns: this.signs });
+    this.events.once('shutdown', () => useGame.setState({ mapSigns: [] }));
+  }
+
+  private signs: { key: string; text: string; kind: 'board' | 'flag'; x: number; y: number }[] = [];
+
+  /** 店家、官府的匾額（門楣上的木匾）與幌子（簷下的布招）：板子在這裡畫，字由介面疊上去 */
+  private placeSign(b: BuildingDef, st: BuildingStyle, bottom: number) {
+    const spot = signSpots(st, b.x, b.y);
+    if (b.sign) {
+      const w = Math.max(18, [...b.sign].length * 7 + 6);
+      const { x, y } = spot.board;
+      this.add.rectangle(x, y, w + 2, 11, 0xd4a640).setDepth(bottom + 1);
+      this.add.rectangle(x, y, w, 9, 0x2a2a3a).setDepth(bottom + 1);
+      this.signs.push({ key: `b:${b.x},${b.y}`, text: b.sign, kind: 'board', x, y });
+    }
+    if (b.flag) {
+      const { x, y } = spot.flag;
+      this.add.rectangle(x, y, 1, 3, 0x3a2a1a).setDepth(bottom + 1);
+      this.add.rectangle(x, y + 11, 11, 18, 0xa83a2a).setDepth(bottom + 1);
+      this.add.rectangle(x, y + 11, 9, 16, 0xf1e7cf).setDepth(bottom + 1);
+      this.signs.push({ key: `f:${b.x},${b.y}`, text: b.flag, kind: 'flag', x, y: y + 11 });
+    }
+  }
+
+  /** 匾額、幌子上的字跟著鏡頭走（字的大小隨縮放倍率） */
+  private placeSigns() {
+    const els = document.querySelectorAll<HTMLElement>('[data-mx]');
+    if (!els.length) return;
+    const cam = this.cameras.main;
+    const box = document.querySelector<HTMLElement>('.map-signs');
+    box?.style.setProperty('--z', String(cam.zoom));
+    for (const el of Array.from(els)) {
+      el.style.left = `${Math.round((Number(el.dataset.mx) - cam.worldView.x) * cam.zoom)}px`;
+      el.style.top = `${Math.round((Number(el.dataset.my) - cam.worldView.y) * cam.zoom)}px`;
     }
   }
 
@@ -922,6 +961,7 @@ export class MapScene extends Phaser.Scene {
     if (this.leaving) return;
     if (this.rain) this.rain.setPosition(this.cameras.main.worldView.x, this.cameras.main.worldView.y);
     this.placeThought();
+    this.placeSigns();
 
     if (uiBlocking()) {
       this.queued = null;

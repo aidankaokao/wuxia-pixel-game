@@ -12,7 +12,7 @@ import type { Flags } from '../../state/store';
  *   E  出入口（走上去會觸發 exits 裡對應的事件）
  *
  * 室內另有：W  牆（不可走）  _  地板  d  屋內的門（可走）
- * 城鎮與山道：H  城牆（不可走）  S  石階  X  看起來是石板、但不能走（牌坊柱腳）
+ * 城鎮與山道：H  城牆（不可走）  S  石階  X  看起來是石板、但不能走（牌坊柱腳）  R  院牆（官府等，不可走）
  *
  * 建築、告示牌、NPC 等不寫在字元裡，另外列在 buildings / props / npcs。
  * 空地（可以買下蓋房子）列在 plots，房子蓋好後由 maps/index.ts 的 getMap() 動態加上建築與室內地圖。
@@ -40,6 +40,10 @@ export interface BuildingDef {
   door: Line[];
   /** 可以進去：走向門或對門按確認就進到這張地圖 */
   enter?: { to: string; spawn: { x: number; y: number; facing: Dir } };
+  /** 門楣上的匾額寫什麼（店家、官府；不填就沒有匾額） */
+  sign?: string;
+  /** 簷下掛的幌子寫哪個字（例如酒、茶、藥、當），讓人一眼看出賣什麼 */
+  flag?: string;
 }
 
 export interface PropDef {
@@ -152,4 +156,4 @@ export interface MapDef {
 }
 
 /** 不能走上去的地形字元 */
-export const BLOCKING = new Set(['^', '~', 'f', 'T', 'Y', 'o', 'W', 'H', 'X']);
+export const BLOCKING = new Set(['^', '~', 'f', 'T', 'Y', 'o', 'W', 'H', 'X', 'R']);

@@ -36,7 +36,7 @@ export const guandao: MapDef = {
   patches: [{ when: bridgeBuilt, x: 19, y: 7, rows: ['###', '###'] }],
   spawn: { x: 1, y: 7, facing: 'right' },
   battleBg: 'mountain',
-  buildings: [{ style: 'teahouse', x: 9, y: 2, name: '雲水茶棚', door: [], enter: { to: 'gd_teahouse', spawn: { x: 4, y: 5, facing: 'up' } } }],
+  buildings: [{ style: 'teahouse', x: 9, y: 2, name: '雲水茶棚', sign: '雲水茶棚', flag: '茶', door: [], enter: { to: 'gd_teahouse', spawn: { x: 4, y: 5, facing: 'up' } } }],
   props: [
     { sprite: 'sign', x: 15, y: 6, lines: [{ text: '「雲水渡口」\n過河請找船家。\n東岸 ── 臨江城　西岸 ── 青竹村' }] },
     { sprite: 'sign', x: 25, y: 9, lines: [{ text: '「雲水渡口・東岸」\n往西過河請找船家。河水往下游流進碧漪湖。' }] },

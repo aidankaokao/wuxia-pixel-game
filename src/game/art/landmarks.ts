@@ -1,4 +1,4 @@
-import { hline, makeCanvas, outline, px, vline } from './pixel';
+import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
 import type { PropArt } from './props';
 
 /** 地標：城門與山門的牌坊、江上的小船。 */
@@ -245,6 +245,49 @@ function mushrooms(): PropArt {
   return done(c, ctx);
 }
 
+/** 石獅子：蹲在石座上，捲毛的鬃 */
+function stoneLion(): PropArt {
+  const [c, ctx] = makeCanvas(16, 26);
+  const body = '#a8a294';
+  const dark = '#7e786c';
+  const light = '#c8c2b4';
+  // 石座
+  px(ctx, 1, 19, 14, 7, '#8f8a7e');
+  hline(ctx, 1, 14, 19, '#aaa597');
+  hline(ctx, 1, 14, 22, '#6f6b61');
+  // 身子與前腿
+  px(ctx, 3, 11, 10, 8, body);
+  px(ctx, 4, 15, 2, 4, light);
+  px(ctx, 10, 15, 2, 4, light);
+  vline(ctx, 7, 13, 18, dark);
+  // 頭與鬃毛
+  ellipse(ctx, 8, 7, 6, 6, dark);
+  ellipse(ctx, 8, 7, 4, 4, body);
+  for (const [x, y] of [[3, 3], [6, 1], [10, 1], [13, 3], [2, 7], [14, 7], [3, 11], [13, 11]] as const) px(ctx, x, y, 2, 2, light);
+  px(ctx, 6, 6, 1, 1, '#2a2620');
+  px(ctx, 10, 6, 1, 1, '#2a2620');
+  hline(ctx, 6, 10, 9, '#5a5448');
+  px(ctx, 7, 8, 3, 1, light);
+  return done(c, ctx);
+}
+
+/** 鳴冤鼓：木架上一面紅鼓，鼓槌掛在旁邊 */
+function grievanceDrum(): PropArt {
+  const [c, ctx] = makeCanvas(16, 28);
+  vline(ctx, 1, 4, 27, '#5a3a20');
+  vline(ctx, 14, 4, 27, '#5a3a20');
+  hline(ctx, 0, 15, 3, '#3a2414');
+  hline(ctx, 0, 15, 4, '#5a3a20');
+  ellipse(ctx, 8, 13, 6, 7, '#a82e24');
+  ellipse(ctx, 8, 13, 4, 5, '#e8d8b0');
+  ellipse(ctx, 8, 13, 2, 3, '#d4c49a');
+  for (const y of [7, 19]) hline(ctx, 4, 12, y, '#d4a640');
+  // 鼓槌
+  vline(ctx, 13, 18, 25, '#7a5232');
+  px(ctx, 12, 25, 3, 2, '#c8342c');
+  return done(c, ctx);
+}
+
 /** 節慶的燈籠架：木桿上掛兩盞紅燈籠 */
 function lanternPost(): PropArt {
   const [c, ctx] = makeCanvas(16, 32);
@@ -266,6 +309,8 @@ function lanternPost(): PropArt {
 export function landmarkProps(): Record<string, PropArt> {
   return {
     lantern_post: lanternPost(),
+    stone_lion: stoneLion(),
+    drum: grievanceDrum(),
     wild_herb: wildHerb(),
     mushrooms: mushrooms(),
     carriage: carriage(),

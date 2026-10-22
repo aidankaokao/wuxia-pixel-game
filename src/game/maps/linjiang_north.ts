@@ -1,3 +1,4 @@
+import { agentTalk } from '../story/property';
 import { bridgeBuilt, masonTalk } from '../story/bridge';
 import { by, exitTo, room } from './rooms';
 import { readingShelf } from '../story/reading';
@@ -50,9 +51,9 @@ export const ljNorth: MapDef = {
   spawn: { x: 27, y: 4, facing: 'down' },
   battleBg: 'mountain',
   buildings: [
-    { style: 'hall', x: 14, y: 4, name: '臨江書院', door: [], enter: { to: 'lj_academy', spawn: { x: 6, y: 7, facing: 'up' } } },
-    { style: 'sect_master', x: 34, y: 5, name: '土地祠', door: [{ text: '小小的土地祠，香爐裡插滿了香。' }, { text: '門楣上一塊匾：「保境安民」。' }] },
-    { style: 'house', x: 5, y: 5, name: '民居', door: [{ text: '門口晾著一排小孩的衣裳。' }] },
+    { style: 'hall', x: 14, y: 4, name: '臨江書院', sign: '臨江書院', door: [], enter: { to: 'lj_academy', spawn: { x: 6, y: 7, facing: 'up' } } },
+    { style: 'sect_master', x: 34, y: 5, name: '土地祠', sign: '土地祠', door: [{ text: '小小的土地祠，香爐裡插滿了香。' }, { text: '門楣上一塊匾：「保境安民」。' }] },
+    { style: 'house', x: 5, y: 5, name: '萬通牙行', sign: '萬通牙行', flag: '牙', door: [{ text: '門上貼著一張紅紙：「代客買賣房屋，招租覓屋，童叟無欺」。' }, { text: '（牙人錢六多半在門口招呼客人）' }] },
     { style: 'house2', x: 45, y: 5, name: '民居', door: [{ text: '門關著，裡頭傳出搓麻將的聲音。' }] },
     { style: 'home2', x: 5, y: 11, name: '民居', door: [{ text: '院子裡一隻黃狗衝著你叫了兩聲。' }] },
     { style: 'house', x: 15, y: 11, name: '民居', door: [{ text: '門上貼著一張褪了色的門神。' }] },
@@ -102,6 +103,8 @@ export const ljNorth: MapDef = {
       id: 'ljn_du', name: '杜三嫂', sprite: 'lady', x: 37, y: 27, facing: 'left', wander: 1,
       talks: [by('杜三嫂')('城北的井水比城南的甜，洗衣裳也乾淨。'), by('杜三嫂')('聽說漕幫跟鏢局又吵起來了，唉，城南那邊老是不太平。')],
     },
+    // 萬通牙行的牙人錢六：買房、賣房、招租都能找他（story/property.ts）
+    { id: 'ljn_qian', work: true, name: '錢六', sprite: 'peddler', x: 9, y: 9, facing: 'down', script: agentTalk },
     // 石匠魯一鑿（石岳的師兄）：蓋橋的支線要請他出馬；動工那幾天在渡口
     { id: 'ljn_lu', allDay: true, name: '魯一鑿', sprite: 'smith', x: 31, y: 25, facing: 'right', script: masonTalk, when: (f) => f.bridge !== 2 || bridgeBuilt(f) },
     { id: 'ljn_qu', name: '曲老爹', sprite: 'elder', x: 11, y: 24, facing: 'right', talks: [by('曲老爹')('年輕人，坐下來陪老頭子下盤棋？……唉，今天手氣不好，改天吧。')] },

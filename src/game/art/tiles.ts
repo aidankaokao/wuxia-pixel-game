@@ -90,19 +90,30 @@ export function tileArt(g: Grid, x: number, y: number, frame = 0, theme?: string
       // 室內牆上的出口畫成門檻踏墊
       if (c === 'E' && theme && (at(g, x - 1, y) === 'W' || at(g, x + 1, y) === 'W'))
         return { key: `mat_${theme}`, draw: (ctx) => (drawFloor(ctx, pal, 0), drawMat(ctx)) };
+      // 石板地上的出口（院牆的門口）照石板畫
+      const near = [at(g, x, y - 1), at(g, x, y + 1), at(g, x - 1, y), at(g, x + 1, y)];
+      if (c === 'E' && near.includes('=') && !near.includes(':'))
+        return { key: `plaza${mask(g, x, y, (n) => n === '=' || n === 'R' || n === 'E')}`, draw: (ctx) => drawPlaza(ctx, mask(g, x, y, (n) => n === '=' || n === 'R' || n === 'E')) };
       const m = mask(g, x, y, (n) => ROADLIKE.has(n));
       return { key: `road${m}_${v % 2}`, draw: (ctx) => drawRoad(ctx, m, v % 2) };
     }
     case '=':
     case 'X': {
       // X：看起來是石板地、但不能走（例如牌坊柱腳）
-      const m = mask(g, x, y, (n) => n === '=' || n === 'X');
+      const m = mask(g, x, y, (n) => n === '=' || n === 'X' || n === 'R');
       return { key: `plaza${m}`, draw: (ctx) => drawPlaza(ctx, m) };
     }
     case 'H': {
       // 城牆：上方不是城牆的那一格畫出垛口
       const top = at(g, x, y - 1) !== 'H';
       return { key: `citywall${top ? 1 : 0}_${v % 2}`, draw: (ctx) => drawCityWall(ctx, top, v % 2) };
+    }
+    case 'R': {
+      // 院牆：下面還是院牆的畫成牆頂（灰瓦），其餘畫出朱紅的牆面
+      const below = at(g, x, y + 1);
+      const face = below !== 'R';
+      const capTop = at(g, x, y - 1) !== 'R';
+      return { key: `yardwall${face ? 1 : 0}${capTop ? 1 : 0}`, draw: (ctx) => drawYardWall(ctx, face, capTop) };
     }
     case 'S':
       return { key: 'steps', draw: (ctx) => drawSteps(ctx) };
@@ -175,6 +186,37 @@ function drawCityWall(ctx: Ctx, top: boolean, v: number) {
     for (let x = 1; x < TILE; x += 6) px(ctx, x, 0, 3, 3, '#a8a296');
   }
   hline(ctx, 0, TILE - 1, TILE - 1, '#4a4640');
+}
+
+/** 院牆（官府、大戶人家）：朱紅牆身、灰瓦牆帽 */
+function drawYardWall(ctx: Ctx, face: boolean, capTop: boolean) {
+  if (!face) {
+    // 從上面看到的牆頂：一條灰瓦脊，兩側露一點紅牆
+    px(ctx, 0, 0, TILE, TILE, '#8a3428');
+    px(ctx, 3, 0, 10, TILE, '#4a4a54');
+    vline(ctx, 7, 0, TILE - 1, '#2e2e36');
+    vline(ctx, 8, 0, TILE - 1, '#62626e');
+    for (let y = 1; y < TILE; y += 4) {
+      hline(ctx, 3, 6, y, '#5c5c68');
+      hline(ctx, 9, 12, y + 2, '#5c5c68');
+    }
+    vline(ctx, 2, 0, TILE - 1, '#5a2018');
+    vline(ctx, 13, 0, TILE - 1, '#5a2018');
+    if (capTop) hline(ctx, 3, 12, 0, '#2e2e36');
+    return;
+  }
+  px(ctx, 0, 0, TILE, TILE, '#9a3a2e');
+  // 牆帽：兩層灰瓦
+  px(ctx, 0, 0, TILE, 5, '#4a4a54');
+  hline(ctx, 0, TILE - 1, 0, capTop ? '#2e2e36' : '#4a4a54');
+  for (let x = 1; x < TILE; x += 3) vline(ctx, x, 1, 3, '#62626e');
+  hline(ctx, 0, TILE - 1, 4, '#2e2e36');
+  hline(ctx, 0, TILE - 1, 5, '#6a2a20');
+  // 牆身的斑駁與牆腳
+  px(ctx, 4, 8, 2, 1, '#aa4a3c');
+  px(ctx, 10, 11, 3, 1, '#8a3428');
+  px(ctx, 0, TILE - 3, TILE, 3, '#8f8a7e');
+  hline(ctx, 0, TILE - 1, TILE - 3, '#aaa597');
 }
 
 /** 石階：一級一級的橫條 */

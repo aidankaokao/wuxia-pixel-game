@@ -240,11 +240,15 @@ export interface BuildingStyle {
   plaque?: boolean;
   banner?: boolean;
   chimney?: boolean;
+  /** 門的漆色（官府的黑漆大門等；預設深褐） */
+  doorPaint?: string;
+  /** 窗子換成鐵柵（牢房） */
+  bars?: boolean;
 }
 
 export const BUILDINGS: Record<string, BuildingStyle> = {
   hall: { w: 7, h: 5, door: 3, roof: '#3f4a5e', roofDark: '#2a3242', roofLight: '#5a6880', timber: '#8a2e26', lanterns: true, plaque: true },
-  teahouse: { w: 6, h: 4, door: 2, roof: '#3e6656', roofDark: '#284638', roofLight: '#56826f', lanterns: true, banner: true },
+  teahouse: { w: 6, h: 4, door: 2, roof: '#3e6656', roofDark: '#284638', roofLight: '#56826f', lanterns: true },
   smithy: { w: 5, h: 4, door: 2, roof: '#4a4248', roofDark: '#302a2e', roofLight: '#625860', wall: '#c9bda6', chimney: true },
   house: { w: 5, h: 4, door: 2, roof: '#4a5568', roofDark: '#323a4a', roofLight: '#64708a' },
   house2: { w: 5, h: 4, door: 2, roof: '#6a4a3a', roofDark: '#4a3226', roofLight: '#86624e' },
@@ -265,10 +269,29 @@ export const BUILDINGS: Record<string, BuildingStyle> = {
   home3: { w: 6, h: 4, door: 2, roof: '#5a6070', roofDark: '#3e4450', roofLight: '#767c8c' },
   home4: { w: 7, h: 5, door: 3, roof: '#3a4a5a', roofDark: '#28323e', roofLight: '#526476', wall: '#9aa0a8' },
   home5: { w: 7, h: 5, door: 3, roof: '#3f4a5e', roofDark: '#2a3242', roofLight: '#5a6880', timber: '#8a2e26', lanterns: true, plaque: true },
+  // 官府（縣衙）：深灰瓦、朱紅柱子與牆，黑漆大門；城裡看到的是大門、兩廂與後面的大堂，進門後的中庭另有一張地圖
+  yamen_gate: { w: 3, h: 3, door: 1, roof: '#34363e', roofDark: '#22232a', roofLight: '#4c4e58', wall: '#9a3a2e', timber: '#5a1a14', doorPaint: '#1e1a1a', lanterns: true },
+  yamen_hall: { w: 7, h: 4, door: 3, roof: '#34363e', roofDark: '#22232a', roofLight: '#4c4e58', timber: '#8a2e26', doorPaint: '#5a1a14', lanterns: true, plaque: true },
+  yamen_main: { w: 9, h: 5, door: 4, roof: '#34363e', roofDark: '#22232a', roofLight: '#4c4e58', timber: '#8a2e26', doorPaint: '#5a1a14', lanterns: true, plaque: true },
+  yamen_wing: { w: 3, h: 3, door: 1, roof: '#44464e', roofDark: '#2e3036', roofLight: '#5c5e68', timber: '#8a2e26' },
+  yamen_side: { w: 5, h: 4, door: 2, roof: '#44464e', roofDark: '#2e3036', roofLight: '#5c5e68', timber: '#8a2e26' },
+  yamen_jail: { w: 3, h: 3, door: 1, roof: '#3a3636', roofDark: '#262222', roofLight: '#4e4a4a', wall: '#8a8478', timber: '#3e3630', doorPaint: '#3a3a3e', bars: true },
 };
 
 const EAVE = 2; // 屋簷左右外凸的像素
 const RISE = 10; // 屋頂高出佔地上緣的像素
+
+/**
+ * 建築的匾額與幌子位置（世界座標，以佔地左上角的格子算）：
+ * 匾額在門楣正上方（跟畫在牆上的空白匾同一處）；幌子掛在最左邊那一格的簷下。
+ */
+export function signSpots(st: BuildingStyle, bx: number, by: number) {
+  const wallTop = by * TILE + Math.round(st.h * TILE * 0.48);
+  return {
+    board: { x: (bx + st.door) * TILE + 8, y: wallTop + 4.5 },
+    flag: { x: bx * TILE + 8, y: wallTop + 2 },
+  };
+}
 
 function drawBuilding(st: BuildingStyle): PropArt {
   const W = st.w * TILE + EAVE * 2;
@@ -301,6 +324,13 @@ function drawBuilding(st: BuildingStyle): PropArt {
   for (let i = 0; i < st.w; i++) {
     if (i === st.door) continue;
     const wx = EAVE + i * TILE + 3;
+    if (st.bars) {
+      // 鐵柵窗：黑洞洞的，幾根鐵條
+      px(ctx, wx, winY, 10, 8, '#1e1c1c');
+      for (let k = 1; k < 10; k += 3) vline(ctx, wx + k, winY, winY + 7, '#8a8a92');
+      hline(ctx, wx, wx + 9, winY, '#5a5a62');
+      continue;
+    }
     px(ctx, wx, winY, 10, 8, '#f2e6c8');
     for (let k = 0; k <= 10; k += 3) vline(ctx, wx + Math.min(k, 9), winY, winY + 7, '#6a4228');
     hline(ctx, wx, wx + 9, winY, '#6a4228');
@@ -310,8 +340,8 @@ function drawBuilding(st: BuildingStyle): PropArt {
   // 門
   const doorTop = H - 4 - 15;
   px(ctx, doorX0 - 1, doorTop - 1, 14, 16, timber);
-  px(ctx, doorX0, doorTop, 12, 15, '#4a2c1a');
-  vline(ctx, doorX0 + 6, doorTop, doorTop + 14, '#2e1a0e');
+  px(ctx, doorX0, doorTop, 12, 15, st.doorPaint ?? '#4a2c1a');
+  vline(ctx, doorX0 + 6, doorTop, doorTop + 14, '#120c08');
   for (let y = doorTop + 3; y < doorTop + 14; y += 4) {
     px(ctx, doorX0 + 2, y, 1, 1, '#d4a640');
     px(ctx, doorX0 + 9, y, 1, 1, '#d4a640');

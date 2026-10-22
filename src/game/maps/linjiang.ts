@@ -1,3 +1,5 @@
+import { by } from './rooms';
+import { grievanceDrum, noticeBoard } from '../story/yamen';
 import { seam } from './city';
 import { STALLS, stallAt } from '../story/market';
 import { bountyTarget, escortGuardLines } from '../story/linjiang_jianghu';
@@ -15,15 +17,15 @@ export const linjiang: MapDef = {
   subtitle: '城南・商街碼頭',
   // prettier-ignore
   tiles: [
-    '..TH........::............====............::........H...',
-    '.T.H........::............====............::........H.T.',
-    'T..H......*.::............====.......*....::........H...',
-    '..TH........::............====............::........H..T',
-    '..TH........::............====............::........H.T.',
-    '.T.H........::............====...........T::........H...',
-    'TT.H........::..........*.====............::........H.TT',
-    '...H........::TT..........====............::........H...',
-    'T..H......T.::............====............::.....T..H...',
+    '..TH........::RXXXXXXXXXR.====............::........H...',
+    '.T.H........::RXXXXXXXXXR.====............::........H.T.',
+    'T..H......*.::RXXXXXXXXXR.====.......*....::........H...',
+    '..TH........::RXXXXXXXXXR.====............::........H..T',
+    '..TH........::RXXXXXXXXXR.====............::........H.T.',
+    '.T.H........::RXXXXXXXXXR.====...........T::........H...',
+    'TT.H........::RXXXXXXXXXR.====............::........H.TT',
+    '...H........::RRRRXXXRRRR.====............::........H...',
+    'T..H......T.::===========.====............::.....T..H...',
     '..TH::::::::::::::::::::::::::::::::::::::::::::::::H...',
     '..TH........::..T.........====.......T....::........HT.T',
     'T..H........::............====............::........H...',
@@ -58,32 +60,32 @@ export const linjiang: MapDef = {
   battleBg: 'mountain',
 
   buildings: [
-    { style: 'house', x: 5, y: 4, name: '和記當鋪', door: [], enter: { to: 'lj_pawn', spawn: { x: 4, y: 5, facing: 'up' } } },
-    { style: 'hall', x: 16, y: 4, name: '臨江縣衙', door: [], enter: { to: 'lj_yamen', spawn: { x: 6, y: 7, facing: 'up' } } },
-    { style: 'hall', x: 32, y: 4, name: '金刀鏢局', door: [], enter: { to: 'lj_escort', spawn: { x: 6, y: 7, facing: 'up' } } },
-    { style: 'house2', x: 45, y: 4, name: '錦繡布莊', door: [], enter: { to: 'lj_cloth', spawn: { x: 4, y: 5, facing: 'up' } } },
-    { style: 'house2', x: 5, y: 11, name: '回春堂', door: [], enter: { to: 'lj_clinic', spawn: { x: 4, y: 5, facing: 'up' } } },
-    { style: 'teahouse', x: 15, y: 11, name: '雲來客棧', door: [], enter: { to: 'lj_inn', spawn: { x: 5, y: 6, facing: 'up' } } },
-    { style: 'teahouse', x: 34, y: 11, name: '望江樓', door: [], enter: { to: 'lj_tower', spawn: { x: 6, y: 6, facing: 'up' } } },
+    { style: 'house', x: 5, y: 4, name: '和記當鋪', sign: '和記當鋪', flag: '當', door: [], enter: { to: 'lj_pawn', spawn: { x: 4, y: 5, facing: 'up' } } },
+    // 縣衙：院牆圍起來，正面是黑漆大門，門後兩廂、最後面是大堂；從大門進去是中庭（lj_yamen）
+    { style: 'yamen_hall', x: 16, y: 0, name: '縣衙大堂', sign: '親民堂', door: [{ text: '院牆擋著，得從大門進去。' }] },
+    { style: 'yamen_wing', x: 15, y: 4, name: '縣衙西廂', door: [{ text: '院牆擋著，得從大門進去。' }] },
+    { style: 'yamen_wing', x: 21, y: 4, name: '縣衙東廂', door: [{ text: '院牆擋著，得從大門進去。' }] },
+    { style: 'yamen_gate', x: 18, y: 5, name: '臨江縣衙', sign: '臨江縣衙', door: [], enter: { to: 'lj_yamen', spawn: { x: 12, y: 15, facing: 'up' } } },
+    { style: 'hall', x: 32, y: 4, name: '金刀鏢局', sign: '金刀鏢局', flag: '鏢', door: [], enter: { to: 'lj_escort', spawn: { x: 6, y: 7, facing: 'up' } } },
+    { style: 'house2', x: 45, y: 4, name: '錦繡布莊', sign: '錦繡布莊', flag: '布', door: [], enter: { to: 'lj_cloth', spawn: { x: 4, y: 5, facing: 'up' } } },
+    { style: 'house2', x: 5, y: 11, name: '回春堂', sign: '回春堂', flag: '藥', door: [], enter: { to: 'lj_clinic', spawn: { x: 4, y: 5, facing: 'up' } } },
+    { style: 'teahouse', x: 15, y: 11, name: '雲來客棧', sign: '雲來客棧', flag: '客', door: [], enter: { to: 'lj_inn', spawn: { x: 5, y: 6, facing: 'up' } } },
+    { style: 'teahouse', x: 34, y: 11, name: '望江樓', sign: '望江樓', flag: '酒', door: [], enter: { to: 'lj_tower', spawn: { x: 6, y: 6, facing: 'up' } } },
     { style: 'house', x: 45, y: 11, name: '民居', door: [{ text: '門關著。' }, { text: '（屋內尚未開放）' }] },
     { style: 'house', x: 5, y: 18, name: '民居', door: [{ text: '門關著。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'home3', x: 15, y: 18, name: '周員外府', door: [{ text: '朱門緊閉，門房斜眼打量著你。' }, { text: '（屋內尚未開放）' }] },
-    { style: 'smithy', x: 35, y: 18, name: '漕幫分舵', door: [], enter: { to: 'lj_guild', spawn: { x: 5, y: 6, facing: 'up' } } },
+    { style: 'home3', x: 15, y: 18, name: '周員外府', sign: '周府', door: [{ text: '朱門緊閉，門房斜眼打量著你。' }, { text: '（屋內尚未開放）' }] },
+    { style: 'smithy', x: 35, y: 18, name: '漕幫分舵', sign: '漕幫分舵', door: [], enter: { to: 'lj_guild', spawn: { x: 5, y: 6, facing: 'up' } } },
     { style: 'house2', x: 45, y: 18, name: '民居', door: [{ text: '門關著。' }, { text: '（屋內尚未開放）' }] },
   ],
 
   props: [
     { sprite: 'paifang_city', x: 25, y: 28, w: 6, passable: true },
     { sprite: 'sign', x: 1, y: 15, lines: [{ text: '「臨江城」\n西 ── 雲水渡口・青竹村' }] },
-    {
-      sprite: 'bulletin', x: 23, y: 12,
-      lines: [
-        { text: '【告示】' },
-        { text: '鳴泉劍派開山收徒，不拘時日。\n凡年滿十五、身家清白、有志習武者，可自行上鳴泉山應考，過得入門考驗即可拜師。' },
-        { text: '──鳴泉劍派' },
-        { text: '（旁邊還貼著一張褪色的懸賞：「緝拿斷崖寨寨主祁三刀，賞銀五百兩」）' },
-      ],
-    },
+    // 縣衙門口：石獅子、鳴冤鼓與告示牌（告示牌跟縣衙裡的公告欄一樣，見 story/yamen.ts）
+    { sprite: 'stone_lion', x: 17, y: 8, lines: [{ text: '一對石獅子蹲在衙門口，張著嘴，鬃毛被雨水沖得發亮。' }] },
+    { sprite: 'stone_lion', x: 21, y: 8, lines: [{ text: '母獅子腳下按著一隻小獅子。' }] },
+    { sprite: 'drum', x: 15, y: 8, script: grievanceDrum, label: '鳴冤鼓' },
+    { sprite: 'bulletin', x: 23, y: 8, script: noticeBoard('big', '臨江縣・告示牌'), label: '看告示' },
     { sprite: 'well', x: 6, y: 25, lines: [{ text: '城裡的公井，井沿被繩子磨出了一道道溝。' }] },
     { sprite: 'stall', x: 15, y: 25, w: 2, lines: [{ text: '攤子上擺著糖人、紙鳶和各色小玩意。' }] },
     { sprite: 'stall', x: 19, y: 25, w: 2, lines: [{ text: '賣菜的攤子，青菜蘿蔔堆得像小山。' }] },
@@ -98,6 +100,15 @@ export const linjiang: MapDef = {
   ],
 
   npcs: [
+    // 捕快雷小五：白天在城南大街巡邏
+    {
+      id: 'lj_lei', work: true, name: '雷小五', sprite: 'guard', x: 30, y: 16, wander: 4,
+      talks: [
+        by('雷小五')('巡街呢！城裡有什麼不平的事，跟我說。', '……不過打架的事別找我，找捕頭。'),
+        by('雷小五')('縣衙門口的告示牌記得常看，誰家要賣房子、哪裡有懸賞，都貼在那兒。'),
+        by('雷小五')('最近上頭發了海捕文書，抓一個左眉帶疤的傢伙。你要是看見了，可別自己逞強。'),
+      ],
+    },
     // 鳴泉委託「回春堂送藥」：掌櫃在店門口等藥
     { id: 'lj_huichun', name: '白濟仁', sprite: 'storyteller', x: 8, y: 16, facing: 'down', script: huichunDelivery, when: (f) => f.mq_c_med === 1 },
     {

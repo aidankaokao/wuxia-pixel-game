@@ -104,6 +104,10 @@ export function currentTerm(day: number): string {
 /** 新遊戲從第一天辰時初（早上 7 點）開始 */
 export const START_TIME = 28;
 
+/** 過了半夜、換成新的一天時要做的事（例如店鋪結算前一天的帳、房產市場貼新告示）；會直接改 world */
+const NEW_DAY: ((w: World) => void)[] = [];
+export const onNewDay = (f: (w: World) => void) => NEW_DAY.push(f);
+
 /**
  * 讓時間往前走幾刻：跨過半夜就換日，跨過時辰時天氣偶爾會變（起霧只在清晨，太陽出來就散）。
  * 回傳換了幾天。會直接修改傳入的 world。
@@ -117,6 +121,7 @@ export function advance(w: World, ke: number, rand: () => number = Math.random):
       w.time = 0;
       w.day++;
       days++;
+      for (const f of NEW_DAY) f(w);
     }
     const now = shichenOf(w.time);
     if (now === before) continue;

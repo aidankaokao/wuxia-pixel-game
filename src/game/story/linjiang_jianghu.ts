@@ -1,5 +1,7 @@
 import { addFame, gainSkill, isEquipped, skillCap, skillDef, slotOf } from '../character';
 import { registerDailyTasks } from '../daily';
+import { registerNotices, type Notice } from '../notices';
+import { noticeBoard } from './yamen';
 import type { EventCtx, Script } from '../events';
 import { usedToday } from '../home';
 import { by } from '../maps/rooms';
@@ -129,9 +131,9 @@ const bflag = (id: string) => `lj_b_${id}`;
 /** 這張懸賞現在貼著嗎（沒揭、也不在冷卻中） */
 const posted = (f: Record<string, number>, b: Bounty) => !f[bflag(b.id)] && (!f[`${bflag(b.id)}_day`] || day() >= f[`${bflag(b.id)}_day`] + BOUNTY_GAP);
 
-export const bountyBoard: Script = async (ctx) => {
+/** 領賞：辦妥的懸賞（旗標是 2）一一領了 */
+export async function claimBounties(ctx: EventCtx) {
   const f = st().flags;
-  // 先領賞
   for (const b of BOUNTIES.filter((x) => f[bflag(x.id)] === 2)) {
     await ctx.say(...huo(`「${b.title}」辦妥了？好！這是賞銀。`));
     ctx.setFlag(bflag(b.id), 0);
@@ -141,21 +143,11 @@ export const bountyBoard: Script = async (ctx) => {
       return [`銀兩 +${b.pay}。`, addFame(h, b.fame)];
     });
   }
-  const list = BOUNTIES.filter((b) => posted(st().flags, b));
-  const taken = BOUNTIES.filter((b) => st().flags[bflag(b.id)] === 1);
-  await ctx.say(
-    '【臨江縣衙・懸賞】',
-    '（最上頭一張發黃的告示：「緝拿斷崖寨寨主祁三刀，賞銀五百兩」。邊角已經捲起，看來貼了很久，一直沒人揭得下來）',
-  );
-  if (taken.length) await ctx.say(`你揭了的懸賞：${taken.map((b) => `「${b.title}」（${b.where}）`).join('、')}`);
-  if (!list.length) {
-    await ctx.say('其他的懸賞都有人揭了，過幾天再來看看。');
-    return;
-  }
+}
+
+/** 揭一張懸賞 */
+async function takeBounty(ctx: EventCtx, b: Bounty) {
   const fame = st().hero.fame;
-  const i = await ctx.ask('要揭哪一張？', [...list.map((b) => `${b.title}（賞銀 ${b.pay} 兩${fame < b.fameReq ? `，名聲 ${b.fameReq} 起` : ''}）`), '算了']);
-  if (i >= list.length) return;
-  const b = list[i];
   if (fame < b.fameReq) {
     await ctx.say(...huo('這張懸賞兇險，衙門不放心交給沒名沒姓的人。'), `（名聲要 ${b.fameReq}，目前 ${fame}）`);
     return;
@@ -163,6 +155,30 @@ export const bountyBoard: Script = async (ctx) => {
   ctx.setFlag(bflag(b.id), 1);
   ctx.refresh();
   await ctx.say(`你揭下「${b.title}」的榜文。`, ...huo(b.brief, `地點在${b.where}。辦妥了回來領賞。`));
+}
+
+/** 懸賞貼在公告欄的「懸賞公告」：還沒揭的可以揭，揭了的寫著進度 */
+registerNotices(({ flags, hero }) =>
+  BOUNTIES.flatMap((b): Notice[] => {
+    const state = flags[bflag(b.id)];
+    if (state === 1 || state === 2)
+      return [{ id: `bounty:${b.id}`, tab: 'urgent', title: `懸賞・${b.title}（已揭）`, text: [b.brief, `地點：${b.where}。`, state === 2 ? '你已經辦妥了，找捕頭霍青山領賞。' : '榜已經被你揭了，辦妥了回縣衙領賞。'], by: '臨江縣捕廳', tag: `賞銀 ${b.pay} 兩` }];
+    if (!posted(flags, b)) return [];
+    return [
+      {
+        id: `bounty:${b.id}`, tab: 'urgent', title: `懸賞・${b.title}`,
+        text: [b.brief, `地點：${b.where}。`, `能為地方除害者，賞銀 ${b.pay} 兩。${b.fameReq ? `（此案兇險，名聲 ${b.fameReq} 以上者方可揭榜）` : ''}`],
+        by: '臨江縣捕廳', tag: `賞銀 ${b.pay} 兩${hero.fame < b.fameReq ? `・名聲 ${b.fameReq} 起` : ''}`,
+        act: { label: '揭榜', run: (ctx) => takeBounty(ctx, b) },
+      },
+    ];
+  }),
+);
+
+/** 捕頭霍青山：先領賞，再看公告欄的懸賞公告 */
+export const bountyBoard: Script = async (ctx) => {
+  await claimBounties(ctx);
+  await noticeBoard('urgent')(ctx);
 };
 
 /** 懸賞目標：在地圖上等你（旗標 lj_b_<id> 是 1 時才出現） */

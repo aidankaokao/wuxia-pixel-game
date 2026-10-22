@@ -8,7 +8,9 @@ import { GameMenu } from './ui/GameMenu';
 import { HomePanel } from './ui/HomePanel';
 import { Hud } from './ui/Hud';
 import { LocationBanner } from './ui/LocationBanner';
+import { MapSigns } from './ui/MapSigns';
 import { MorningBrief } from './ui/MorningBrief';
+import { NoticeBoard } from './ui/NoticeBoard';
 import { SchedulePanel } from './ui/SchedulePanel';
 import { ShopPanel } from './ui/ShopPanel';
 import { TitleScreen } from './ui/TitleScreen';
@@ -22,6 +24,7 @@ export function App() {
     <div className="stage">
       <GameCanvas />
       <WorldOverlay />
+      <MapSigns />
       <ThoughtBubble />
       <Hud />
       <LocationBanner />
@@ -31,6 +34,7 @@ export function App() {
       <ShopPanel />
       <HomePanel />
       <SchedulePanel />
+      <NoticeBoard />
       <FishingGame />
       <MorningBrief />
       <TitleScreen />

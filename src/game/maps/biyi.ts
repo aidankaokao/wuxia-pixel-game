@@ -50,7 +50,7 @@ export const biyi: MapDef = {
   spawn: { x: 1, y: 13, facing: 'right' },
   battleBg: 'mountain',
   buildings: [
-    { style: 'teahouse', x: 14, y: 6, name: '湖鮮館', door: [], enter: { to: 'by_tavern', spawn: { x: 5, y: 6, facing: 'up' } } },
+    { style: 'teahouse', x: 14, y: 6, name: '湖鮮館', sign: '湖鮮館', flag: '鮮', door: [], enter: { to: 'by_tavern', spawn: { x: 5, y: 6, facing: 'up' } } },
     { style: 'house', x: 24, y: 6, name: '秦家', door: [], enter: { to: 'by_qinhome', spawn: { x: 3, y: 4, facing: 'up' } } },
     { style: 'house2', x: 9, y: 16, name: '阮家', door: [{ text: '門上掛著一串風乾的小魚。' }, { text: '屋裡傳出阮大娘的聲音：「大水！魚簍又忘了收！」' }] },
     { style: 'house', x: 20, y: 16, name: '漁家', door: [{ text: '門口堆著補到一半的漁網。' }] },

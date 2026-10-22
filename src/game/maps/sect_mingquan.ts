@@ -68,18 +68,18 @@ export const mqSect: MapDef = {
   battleBg: 'mountain',
 
   buildings: [
-    { style: 'sect_hall', x: 19, y: 4, name: '大殿', door: [], enter: { to: 'mq_hall', spawn: { x: 7, y: 7, facing: 'up' } } },
-    { style: 'sect_master', x: 31, y: 3, name: '掌門居', door: [{ text: '門上懸著「靜修」二字，門關著。' }, { text: '（掌門居所，沒有傳喚不得擅入）' }] },
+    { style: 'sect_hall', x: 19, y: 4, name: '大殿', sign: '鳴泉大殿', door: [], enter: { to: 'mq_hall', spawn: { x: 7, y: 7, facing: 'up' } } },
+    { style: 'sect_master', x: 31, y: 3, name: '掌門居', sign: '掌門居', door: [{ text: '門上懸著「靜修」二字，門關著。' }, { text: '（掌門居所，沒有傳喚不得擅入）' }] },
     { style: 'sect_dorm', x: 2, y: 10, name: '大通鋪', door: [], enter: { to: 'mq_dorm', spawn: { x: 7, y: 5, facing: 'up' } } },
     { style: 'sect_room', x: 2, y: 17, name: '弟子房・甲', door: [], enter: { to: 'mq_room_a', spawn: { x: 4, y: 4, facing: 'up' } } },
     { style: 'sect_room', x: 7, y: 17, name: '弟子房・乙', door: [], enter: { to: 'mq_room_b', spawn: { x: 4, y: 4, facing: 'up' } } },
     { style: 'sect_cell', x: 2, y: 23, name: '真傳弟子房・一', door: [], enter: { to: 'mq_cell_1', spawn: { x: 3, y: 3, facing: 'up' } } },
     { style: 'sect_cell', x: 7, y: 23, name: '真傳弟子房・二', door: [], enter: { to: 'mq_cell_2', spawn: { x: 3, y: 3, facing: 'up' } } },
-    { style: 'sect_train', x: 37, y: 9, name: '練功房', door: [], enter: { to: 'mq_train', spawn: { x: 6, y: 7, facing: 'up' } } },
-    { style: 'sect_lib', x: 36, y: 16, name: '書房', door: [], enter: { to: 'mq_lib', spawn: { x: 5, y: 5, facing: 'up' } } },
-    { style: 'sect_armory', x: 42, y: 16, name: '武器房', door: [], enter: { to: 'mq_armory', spawn: { x: 4, y: 4, facing: 'up' } } },
-    { style: 'sect_med', x: 36, y: 23, name: '藥房', door: [], enter: { to: 'mq_med', spawn: { x: 5, y: 5, facing: 'up' } } },
-    { style: 'sect_kitchen', x: 41, y: 23, name: '廚房', door: [], enter: { to: 'mq_kitchen', spawn: { x: 5, y: 5, facing: 'up' } } },
+    { style: 'sect_train', x: 37, y: 9, name: '練功房', sign: '練功房', door: [], enter: { to: 'mq_train', spawn: { x: 6, y: 7, facing: 'up' } } },
+    { style: 'sect_lib', x: 36, y: 16, name: '書房', sign: '書房', door: [], enter: { to: 'mq_lib', spawn: { x: 5, y: 5, facing: 'up' } } },
+    { style: 'sect_armory', x: 42, y: 16, name: '武器房', sign: '武器房', door: [], enter: { to: 'mq_armory', spawn: { x: 4, y: 4, facing: 'up' } } },
+    { style: 'sect_med', x: 36, y: 23, name: '藥房', sign: '藥房', flag: '藥', door: [], enter: { to: 'mq_med', spawn: { x: 5, y: 5, facing: 'up' } } },
+    { style: 'sect_kitchen', x: 41, y: 23, name: '廚房', sign: '廚房', door: [], enter: { to: 'mq_kitchen', spawn: { x: 5, y: 5, facing: 'up' } } },
   ],
 
   props: [

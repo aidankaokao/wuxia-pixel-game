@@ -1,4 +1,5 @@
 import { orderTalk } from './orders';
+import { propertyOf } from '../property';
 import { derive, ITEMS } from '../character';
 import { DISHES, dishItem } from '../cooking';
 import type { EventCtx, Script } from '../events';
@@ -55,10 +56,15 @@ const RUMORS: { when?: (f: Record<string, number>) => boolean; lines: Line[] }[]
 /** 今天的傳聞（記在 daily，聽過了當天就換成閒話） */
 const RUMOR_KEY = 'lj:rumor';
 
+/** 老店的東家（4.20 第四階段）：掌櫃改口叫東家，買東西打八折 */
+const isOwner = (id: string) => propertyOf(useGame.getState().world).owned[id]?.use === 'business';
+const OWNER_DISCOUNT = 0.2;
+
 export const innTalk: Script = async (ctx) => {
-  const c = await ctx.ask(he('客官，住店還是打尖？')[0], [`住店（${INN_PRICE} 兩，睡到天亮）`, `打尖（喝壺茶 ${TEA_PRICE} 兩，聽聽傳聞）`, '不用了']);
+  const owner = isOwner('ljb_inn');
+  const c = await ctx.ask(he(owner ? '東家來了！今天客房住了七成，帳都記好了。您要歇一晚？' : '客官，住店還是打尖？')[0], [owner ? '住店（東家免費）' : `住店（${INN_PRICE} 兩，睡到天亮）`, `打尖（喝壺茶 ${TEA_PRICE} 兩，聽聽傳聞）`, '不用了']);
   if (c === 0) {
-    if (!(await pay(ctx, INN_PRICE, he))) return;
+    if (!owner && !(await pay(ctx, INN_PRICE, he))) return;
     await ctx.say(...he('天字二號房，被褥都是今天新曬的。小旺，帶客官上去！'));
     // 客棧的床跟自家第二級的床一樣：睡飽了精神好
     await sleep(ctx, 2, () => [...wang('客官早！樓下有熱粥，要不要來一碗？')]);
@@ -84,9 +90,10 @@ const TOWER_MENU = ['zhutongfan', 'laweifan', 'daoxiao', 'jitang', 'tangyuan', '
 export const towerTalk: Script = async (ctx) => {
   // 訂貨：魚、魚乾、湖產、湖鮮海鮮菜（orders.ts 的 tower）
   if (await orderTalk(ctx, 'tower')) return;
-  const c = await ctx.ask(wangjiang('客官樓上請！望江樓的菜，臨江城頭一份。')[0], ['點菜', '不用了']);
+  const owner = isOwner('ljb_tower');
+  const c = await ctx.ask(wangjiang(owner ? '東家！您樓上請，雅座給您留著。' : '客官樓上請！望江樓的菜，臨江城頭一份。')[0], ['點菜', '不用了']);
   if (c !== 0) return;
-  await ctx.panel({ kind: 'shop', title: '望江樓・菜單', stock: TOWER_MENU.filter((id) => DISHES.some((d) => d.id === id)).map((id) => dishItem(id)) });
+  await ctx.panel({ kind: 'shop', title: '望江樓・菜單', stock: TOWER_MENU.filter((id) => DISHES.some((d) => d.id === id)).map((id) => dishItem(id)), discount: owner ? OWNER_DISCOUNT : 0 });
 };
 
 const fei = by('費一言');
@@ -165,8 +172,9 @@ function pawnStock(): string[] {
 }
 
 export const pawnTalk: Script = async (ctx) => {
-  const c = await ctx.ask(ho('當東西，還是看看死當的貨？')[0], ['看看死當貨（每旬換一批）', '典當（收得比別處高）', '不用了']);
-  if (c === 0) await ctx.panel({ kind: 'shop', title: '和記當鋪・死當貨', stock: pawnStock() });
+  const owner = isOwner('ljb_pawn');
+  const c = await ctx.ask(ho(owner ? '東家來了。這旬收了幾件好東西，您先挑。' : '當東西，還是看看死當的貨？')[0], ['看看死當貨（每旬換一批）', '典當（收得比別處高）', '不用了']);
+  if (c === 0) await ctx.panel({ kind: 'shop', title: '和記當鋪・死當貨', stock: pawnStock(), discount: owner ? OWNER_DISCOUNT : 0 });
   else if (c === 1) {
     await ctx.say(...ho('拿出來我瞧瞧。……嗯，就這個價，童叟無欺。'));
     await ctx.panel({ kind: 'shop', title: '和記當鋪・典當', stock: [], sellRate: PAWN_RATE, sellOnly: true });

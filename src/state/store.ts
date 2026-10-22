@@ -1,3 +1,4 @@
+import type { NoticeTab } from '../game/notices';
 import type { WorkKind } from '../game/art/work';
 import { create } from 'zustand';
 import { Character, newHero } from '../game/character';
@@ -48,7 +49,8 @@ export type Prompt = string | { title: string; actions: { key: string; label: st
 export type Panel =
   | { kind: 'shop'; person?: string; stock?: string[]; title?: string; sellRate?: number; buys?: string[]; sellOnly?: boolean; discount?: number }
   | { kind: 'home'; plot: string }
-  | { kind: 'schedule' };
+  | { kind: 'schedule' }
+  | { kind: 'notices'; tab?: NoticeTab; title?: string };
 
 interface GameState {
   /** 標題畫面、建立角色或遊戲中 */
@@ -68,6 +70,10 @@ interface GameState {
   work: { id: number; kind: WorkKind; text: string; ms: number } | null;
   /** 早晨提要（睡醒、讀檔、開新遊戲時跳出），關閉時 resolve */
   brief: { resolve: () => void } | null;
+  /** 在公告欄上選了哪張告示的動作（面板關起來後由腳本接著做） */
+  noticePick: string | null;
+  /** 目前地圖上的匾額與幌子（字由 ui/MapSigns.tsx 疊上去，位置由 MapScene 每幀擺） */
+  mapSigns: { key: string; text: string; kind: 'board' | 'flag'; x: number; y: number }[];
   /** 釣魚小遊戲（ui/FishingGame.tsx）：紅區寬度、指針速度，結束時 resolve 結果 */
   fishing: { zone: number; speed: number; resolve: (r: FishResult) => void } | null;
   settings: Settings;
@@ -147,6 +153,8 @@ export const useGame = create<GameState>((set, get) => ({
   confirm: null,
   work: null,
   fishing: null,
+  mapSigns: [],
+  noticePick: null,
   brief: null,
   settings: { ...DEFAULT_SETTINGS },
   mapName: '',

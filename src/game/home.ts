@@ -8,6 +8,8 @@
  * 同一套配置之後也能拿來產生 NPC 的家。
  */
 
+import type { PropertyState } from './property';
+import type { ShopState } from './shop';
 import type { Order } from './orders';
 import type { SectState } from './sect';
 import { START_TIME, type Weather } from './time';
@@ -61,6 +63,10 @@ export interface World {
   schedule?: string[];
   /** 離開過的門派：不能再回去拜師 */
   leftSects?: string[];
+  /** 房產市場：出售告示、名下的房子、掛出去賣的房子（見 property.ts） */
+  property?: PropertyState;
+  /** 自己開的店：物件 id → 店（見 shop.ts） */
+  shops?: Record<string, ShopState>;
 }
 
 export const newWorld = (): World => ({ day: 1, time: START_TIME, weather: 'clear', estates: {}, daily: {}, relations: {}, seed: Math.floor(Math.random() * 2 ** 31) });
