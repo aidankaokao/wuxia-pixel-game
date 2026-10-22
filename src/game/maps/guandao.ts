@@ -1,5 +1,7 @@
 import { ferryman } from '../story/ferry';
 import { bountyTarget } from '../story/linjiang_jianghu';
+import { bridgeBuilt, bridgeStele, masonTalk } from '../story/bridge';
+import { by } from './rooms';
 import type { MapDef } from './types';
 
 /**
@@ -30,6 +32,8 @@ export const guandao: MapDef = {
     'TTTTTTTTTTTTTTTTTTT~~~TTTTTTTTTTTTTTTTTT',
     'TTTTTTTTTTTTTTTTTTT~~~TTTTTTTTTTTTTTTTTT',
   ],
+  // 支線「雲水渡口造橋」：蓋好以後，官道過河的那兩列換成木橋（story/bridge.ts）
+  patches: [{ when: bridgeBuilt, x: 19, y: 7, rows: ['###', '###'] }],
   spawn: { x: 1, y: 7, facing: 'right' },
   battleBg: 'mountain',
   buildings: [{ style: 'teahouse', x: 9, y: 2, name: '雲水茶棚', door: [], enter: { to: 'gd_teahouse', spawn: { x: 4, y: 5, facing: 'up' } } }],
@@ -37,6 +41,10 @@ export const guandao: MapDef = {
     { sprite: 'sign', x: 15, y: 6, lines: [{ text: '「雲水渡口」\n過河請找船家。\n東岸 ── 臨江城　西岸 ── 青竹村' }] },
     { sprite: 'sign', x: 25, y: 9, lines: [{ text: '「雲水渡口・東岸」\n往西過河請找船家。河水往下游流進碧漪湖。' }] },
     { sprite: 'boat', x: 19, y: 9, w: 3, lines: [{ text: '渡船繫在岸邊，船底積著一點水。' }] },
+    // 蓋橋：湊石料時河邊堆著青石條；動工時搭著木架；蓋好了立一塊捐建碑
+    { sprite: 'rock', x: 16, y: 5, when: (f) => (f.bridge_stone ?? 0) > 0 && !bridgeBuilt(f), lines: [{ text: '河邊堆著一堆青石條，是要拿來蓋橋的。' }] },
+    { sprite: 'drying_rack', x: 23, y: 10, w: 2, when: (f) => f.bridge === 2 && !bridgeBuilt(f), lines: [{ text: '搭在河邊的木架，吊著繩索和滑輪，用來把石條吊下河。' }] },
+    { sprite: 'stele', x: 16, y: 6, when: bridgeBuilt, script: bridgeStele, label: '捐建碑' },
   ],
   npcs: [
     { id: 'g_dog1', name: '野狗', sprite: 'dog', x: 8, y: 11, wander: 3, encounter: 'dog', respawn: 45 },
@@ -51,6 +59,16 @@ export const guandao: MapDef = {
           { speaker: '余福來', text: '過了河再走一段就是臨江城了。進城記得看緊荷包，碼頭那邊龍蛇混雜的。' },
         ],
       ],
+    },
+    // 蓋橋時：魯一鑿帶著徒弟在河邊動工
+    {
+      id: 'g_mason', allDay: true, name: '魯一鑿', sprite: 'smith', x: 18, y: 9, facing: 'right', script: masonTalk,
+      when: (f) => f.bridge === 2 && !bridgeBuilt(f),
+    },
+    {
+      id: 'g_mason_boy', allDay: true, name: '魯小錘', sprite: 'apprentice', x: 24, y: 9, facing: 'left',
+      when: (f) => f.bridge === 2 && !bridgeBuilt(f),
+      talks: [by('魯小錘')('師父說這座橋要撐一百年！', '我負責遞錘子……還有挨罵。')],
     },
     // 船家：西岸范老舟、東岸鄭小篙（白天在，夜裡加價也肯撐，所以一直都在）
     { id: 'g_ferry_w', allDay: true, name: '范老舟', sprite: 'boatman', x: 18, y: 6, facing: 'down', script: ferryman('范老舟', 'west') },

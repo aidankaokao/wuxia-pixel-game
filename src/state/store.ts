@@ -46,7 +46,7 @@ export type Prompt = string | { title: string; actions: { key: string; label: st
  * buys 有給就只收這些東西；sellOnly 是只收不賣）、房屋、日課表
  */
 export type Panel =
-  | { kind: 'shop'; person?: string; stock?: string[]; title?: string; sellRate?: number; buys?: string[]; sellOnly?: boolean }
+  | { kind: 'shop'; person?: string; stock?: string[]; title?: string; sellRate?: number; buys?: string[]; sellOnly?: boolean; discount?: number }
   | { kind: 'home'; plot: string }
   | { kind: 'schedule' };
 
@@ -68,6 +68,8 @@ interface GameState {
   work: { id: number; kind: WorkKind; text: string; ms: number } | null;
   /** 早晨提要（睡醒、讀檔、開新遊戲時跳出），關閉時 resolve */
   brief: { resolve: () => void } | null;
+  /** 釣魚小遊戲（ui/FishingGame.tsx）：紅區寬度、指針速度，結束時 resolve 結果 */
+  fishing: { zone: number; speed: number; resolve: (r: FishResult) => void } | null;
   settings: Settings;
   mapName: string;
   mapSubtitle?: string;
@@ -126,6 +128,8 @@ interface GameState {
   playWork: (kind: WorkKind, text: string, ms?: number) => Promise<void>;
   /** 跳出早晨提要，關閉後 resolve */
   showBrief: () => Promise<void>;
+  /** 玩一回釣魚小遊戲 */
+  playFishing: (opts: { zone: number; speed: number }) => Promise<FishResult>;
   setSettings: (s: Partial<Settings>) => void;
   showToast: (text: string) => void;
   /** 回到全新的遊戲狀態（開新遊戲、讀檔、回標題前呼叫） */
@@ -142,6 +146,7 @@ export const useGame = create<GameState>((set, get) => ({
   panel: null,
   confirm: null,
   work: null,
+  fishing: null,
   brief: null,
   settings: { ...DEFAULT_SETTINGS },
   mapName: '',
@@ -230,6 +235,18 @@ export const useGame = create<GameState>((set, get) => ({
     new Promise((resolve) => {
       set({ brief: { resolve: () => (set({ brief: null, uiClosedAt: performance.now() }), resolve()) } });
     }),
+  playFishing: (opts) =>
+    new Promise((resolve) => {
+      set({
+        fishing: {
+          ...opts,
+          resolve: (r) => {
+            set({ fishing: null, uiClosedAt: performance.now() });
+            resolve(r);
+          },
+        },
+      });
+    }),
   askConfirm: (text, ok = '確定') =>
     new Promise((resolve) => {
       set({
@@ -254,6 +271,7 @@ export const useGame = create<GameState>((set, get) => ({
       world: newWorld(),
       panel: null,
       brief: null,
+      fishing: null,
       dialog: null,
       menuOpen: false,
       eventRunning: false,
@@ -268,6 +286,9 @@ export const useGame = create<GameState>((set, get) => ({
       respawnAt: {},
     }),
 }));
+
+/** 釣魚小遊戲的結果：正中紅心、釣起、跑了 */
+export type FishResult = 'perfect' | 'ok' | 'miss';
 
 export const flag = (key: string) => useGame.getState().flags[key] ?? 0;
 

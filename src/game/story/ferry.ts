@@ -4,12 +4,13 @@ import { by } from '../maps/rooms';
 import { inShichen, SHICHEN_INDEX } from '../time';
 import { useGame } from '../../state/store';
 import { sleep } from './estate';
+import { bridgeBuilt, bridgeOption, bridgeTalk } from './bridge';
 
 /**
  * 雲水渡口：官道被雲水河截斷，靠船家擺渡過河；西岸有座茶棚給南來北往的旅人歇腳。
  * - 船家：西岸范老舟、東岸鄭小篙。白天 2 兩，夜裡加價 5 兩（叫醒船家）。過河一刻。
  * - 雲水茶棚（季秋娘）：吃點東西、歇一晚（3 兩，通鋪）。
- * 之後打算做一條支線：大家出錢出力在這裡蓋一座橋（蓋好之後就不用坐船）。
+ * 支線「雲水渡口造橋」見 bridge.ts：蓋好之後河上有橋，不用坐船（船家改載人遊河）。
  *
  * 旗標：
  *   ferry_rides  坐過幾次船（之後蓋橋的支線可以參考）
@@ -31,6 +32,10 @@ export const ferryman =
   (name: string, side: 'west' | 'east'): Script =>
   async (ctx: EventCtx) => {
     const say = by(name);
+    if (bridgeBuilt({ ...st().flags, today: st().world.day })) {
+      await ctx.say(...say(side === 'west' ? '橋蓋好啦，過河走橋就成。' : '我爹的事……橋蓋好了，以後不會再有人翻船了。', '想坐船看看河景，再來找我。'));
+      return;
+    }
     const night = !inShichen(st().world.time, SHICHEN_INDEX.卯, SHICHEN_INDEX.酉);
     const price = night ? FERRY_NIGHT : FERRY_PRICE;
     const other = side === 'west' ? '東岸，往臨江城' : '西岸，往青竹村';
@@ -59,8 +64,11 @@ const TEAHOUSE_MENU = [dishItem('baifan'), dishItem('yangchun'), dishItem('doufu
 export const TEAHOUSE_BED = 3;
 
 export const teahouseTalk: Script = async (ctx) => {
-  const c = await ctx.ask(ji('客官歇歇腳？熱茶熱飯都有。')[0], ['吃點東西', `歇一晚（${TEAHOUSE_BED} 兩，後頭的通鋪）`, '閒聊', '不用了']);
-  if (c === 0) await ctx.panel({ kind: 'shop', title: '雲水茶棚', stock: TEAHOUSE_MENU });
+  const bridge = bridgeOption();
+  const c = await ctx.ask(ji('客官歇歇腳？熱茶熱飯都有。')[0], ['吃點東西', `歇一晚（${TEAHOUSE_BED} 兩，後頭的通鋪）`, '閒聊', ...(bridge ? ['修橋的事'] : []), '不用了']);
+  if (bridge && c === 3) return bridgeTalk(ctx);
+  // 橋蓋好、喝過慶功茶以後，茶棚吃東西打八折
+  if (c === 0) await ctx.panel({ kind: 'shop', title: '雲水茶棚', stock: TEAHOUSE_MENU, discount: ctx.flag('bridge_party') ? 0.2 : 0 });
   else if (c === 1) {
     if (st().hero.silver < TEAHOUSE_BED) {
       await ctx.say(...ji('客官，通鋪也得三兩銀子呢。'));

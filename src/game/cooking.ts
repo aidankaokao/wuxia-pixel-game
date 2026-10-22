@@ -63,6 +63,8 @@ export interface DishDef {
   spring?: boolean;
   /** 海鮮：大埠頭望潮客棧的潘大娘教（卜大勺不教） */
   sea?: boolean;
+  /** 湖鮮：碧漪湖漁村湖鮮館的喬嫂教（卜大勺不教） */
+  lake?: boolean;
 }
 
 export const DISHES: DishDef[] = [
@@ -90,6 +92,15 @@ export const DISHES: DishDef[] = [
   { id: 'haidai', name: '海帶豆腐湯', kind: '湯品', tier: 0, needs: { seaweed: 1, tofu: 1 }, qi: 40, hp: 10, sea: true, desc: '海帶的鮮味全煮進了湯裡。' },
   { id: 'yuzhou', name: '海魚粥', kind: '飯品', tier: 1, needs: { rice: 1, sea_fish: 1 }, hp: 85, stamina: 30, sea: true, desc: '魚片鋪在白粥上，熱粥一燙就熟了。' },
   { id: 'xiahun', name: '鮮蝦餛飩', kind: '麵品', tier: 1, needs: { flour: 1, shrimp: 1 }, stamina: 55, hp: 40, sea: true, desc: '皮薄得透光，咬下去整隻蝦仁。' },
+  // 湖鮮：碧漪湖漁村湖鮮館的喬嫂教；魚要自己釣（或跟阮大水買），蓮藕、菱角在荷塘採
+  { id: 'jiyu', name: '鯽魚豆腐湯', kind: '湯品', tier: 0, needs: { crucian: 1, tofu: 1 }, qi: 45, hp: 15, lake: true, desc: '鯽魚先煎後燉，湯白得像奶。' },
+  { id: 'lingjiao', name: '菱角糕', kind: '甜品', tier: 0, needs: { water_chestnut: 1, sugar: 1 }, stamina: 18, treat: { battles: 2, mult: 1.15 }, lake: true, desc: '菱角磨粉蒸成的糕，清甜爽口。' },
+  { id: 'tangcu', name: '糖醋鯉魚', kind: '飯品', tier: 1, needs: { carp: 1, sugar: 1, rice: 1 }, hp: 95, stamina: 30, lake: true, desc: '鯉魚炸得翹起頭尾，淋上酸甜的醬汁。' },
+  { id: 'yinyu', name: '銀魚羹', kind: '湯品', tier: 1, needs: { silverfish: 1, egg: 1 }, qi: 70, hp: 20, lake: true, desc: '銀魚配蛋花勾的羹，滑得一口就下肚。' },
+  { id: 'qingxia', name: '青蝦麵', kind: '麵品', tier: 1, needs: { lake_shrimp: 1, flour: 1 }, stamina: 55, hp: 40, lake: true, desc: '剝好的青蝦仁鋪滿一碗麵。' },
+  { id: 'ouzhou', name: '蓮藕燉肉', kind: '湯品', tier: 2, needs: { lotus_root: 1, boar_meat: 1 }, qi: 80, hp: 70, lake: true, desc: '蓮藕燉得粉糯，一咬就牽出絲來。' },
+  { id: 'qingzheng', name: '清蒸鱖魚', kind: '飯品', tier: 2, needs: { mandarin: 1, greens: 1, rice: 1 }, hp: 145, stamina: 50, lake: true, desc: '鱖魚清蒸，淋一點醬油、蔥絲，鮮得眉毛都要掉下來。' },
+  { id: 'jiayu', name: '甲魚燉菌湯', kind: '湯品', tier: 3, needs: { turtle: 1, mushroom: 1 }, qi: 130, hp: 80, lake: true, desc: '甲魚配山裡的野菌燉了一整個下午，大補元氣。' },
   { id: 'yuwan', name: '魚丸湯', kind: '湯品', tier: 2, needs: { sea_fish: 2, flour: 1 }, qi: 90, hp: 40, sea: true, desc: '魚肉捶成泥再捏成丸子，彈牙得能在桌上跳。' },
 ];
 /** 燉山豬肉：家裡灶台本來就會燉的菜，不用學 */

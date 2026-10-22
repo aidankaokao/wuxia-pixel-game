@@ -1,3 +1,4 @@
+import { bridgeBuilt, masonTalk } from '../story/bridge';
 import { by, exitTo, room } from './rooms';
 import { readingShelf } from '../story/reading';
 import { practiceAt } from '../story/arts';
@@ -63,7 +64,7 @@ export const ljNorth: MapDef = {
     { style: 'home2', x: 45, y: 16, name: '民居', door: [{ text: '院牆上爬滿了牽牛花。' }] },
     { style: 'house', x: 5, y: 21, name: '民居', door: [{ text: '門口坐著一隻打盹的花貓。' }] },
     { style: 'home3', x: 15, y: 21, name: '民居', door: [{ text: '大門緊閉，門環擦得發亮。' }] },
-    { style: 'house2', x: 32, y: 21, name: '民居', door: [{ text: '屋簷下掛著一串串曬乾的辣椒。' }] },
+    { style: 'house2', x: 32, y: 21, name: '魯家', door: [{ text: '屋簷下掛著一串串曬乾的辣椒，門口堆著幾塊鑿了一半的石頭。' }] },
     { style: 'house', x: 45, y: 21, name: '民居', door: [{ text: '門上掛著一塊「囍」字，看來剛辦過喜事。' }] },
   ],
   props: [
@@ -101,6 +102,8 @@ export const ljNorth: MapDef = {
       id: 'ljn_du', name: '杜三嫂', sprite: 'lady', x: 37, y: 27, facing: 'left', wander: 1,
       talks: [by('杜三嫂')('城北的井水比城南的甜，洗衣裳也乾淨。'), by('杜三嫂')('聽說漕幫跟鏢局又吵起來了，唉，城南那邊老是不太平。')],
     },
+    // 石匠魯一鑿（石岳的師兄）：蓋橋的支線要請他出馬；動工那幾天在渡口
+    { id: 'ljn_lu', allDay: true, name: '魯一鑿', sprite: 'smith', x: 31, y: 25, facing: 'right', script: masonTalk, when: (f) => f.bridge !== 2 || bridgeBuilt(f) },
     { id: 'ljn_qu', name: '曲老爹', sprite: 'elder', x: 11, y: 24, facing: 'right', talks: [by('曲老爹')('年輕人，坐下來陪老頭子下盤棋？……唉，今天手氣不好，改天吧。')] },
     {
       id: 'ljn_watch', night: true, name: '邱更生', sprite: 'peddler', x: 28, y: 14, wander: 4,

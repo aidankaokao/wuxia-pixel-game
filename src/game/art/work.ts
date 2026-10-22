@@ -1,11 +1,11 @@
 import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
 
 /**
- * 做事的過場動畫：掃地、挑水、翻曬草藥、整理書冊、澆菜、做菜、織布、讀書、睡覺、練劍、打坐、吃飯。
+ * 做事的過場動畫：掃地、挑水、翻曬草藥、整理書冊、澆菜、做菜、織布、讀書、睡覺、練劍、打坐、吃飯、釣魚。
  * 每種 4 格，64×40，由介面放大顯示（見 ui/WorkAnim.tsx）。
  */
 
-export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read' | 'sleep' | 'drill' | 'sit' | 'eat';
+export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read' | 'sleep' | 'drill' | 'sit' | 'eat' | 'fish';
 export const WORK_W = 64;
 export const WORK_H = 40;
 export const WORK_FRAMES = 4;
@@ -192,7 +192,28 @@ const DRAW: Record<WorkKind, (ctx: Ctx, f: number) => void> = {
     vline(ctx, 37, 10 + up, 15 + up, '#c8a050');
     for (const x of [28, 33]) vline(ctx, x + ((f + x) % 2), 7 + ((f + x) % 3), 11 + ((f + x) % 3), '#d8d8e0');
   },
-};
+  // 釣魚：坐在岸邊，釣竿一彎，浮標一沉，最後一條魚甩出水面
+  fish(ctx, f) {
+    px(ctx, 0, 28, WORK_W, 12, '#3a72a8');
+    for (let x = 4; x < WORK_W; x += 12) hline(ctx, x + (f % 2) * 3, x + 5 + (f % 2) * 3, 32, '#6a9ccc');
+    px(ctx, 0, 26, 22, 14, '#7a5232');
+    hline(ctx, 0, 21, 26, '#9a6a3a');
+    figure(ctx, 12, 26);
+    const bend = f === 2 ? 3 : f === 3 ? 1 : 0;
+    for (let i = 0; i < 26; i++) px(ctx, 16 + i, 18 - Math.round(i * 0.4) + Math.round((bend * i * i) / 600), 1, 1, '#a8b860');
+    const tipX = 41;
+    const tipY = 8 + bend;
+    if (f < 3) {
+      vline(ctx, tipX, tipY, 27 + (f === 2 ? 2 : 0), '#e8e4dc');
+      px(ctx, tipX - 1, 27 + (f === 2 ? 2 : 0), 3, 2, '#c4483c');
+      if (f === 2) hline(ctx, tipX - 4, tipX + 4, 30, '#a8d0ec');
+    } else {
+      vline(ctx, tipX, tipY, 16, '#e8e4dc');
+      ellipse(ctx, tipX + 1, 19, 2, 4, '#c8903a');
+      px(ctx, tipX, 23, 3, 2, '#c4483c');
+      for (const [x, y] of [[36, 24], [47, 22], [44, 27]] as const) px(ctx, x, y, 1, 1, '#a8d0f0');
+    }
+  },};
 
 /** 在室外做的事（背景畫天空與遠山），其他的在室內（牆與窗） */
 const OUTDOOR: WorkKind[] = ['sweep', 'water', 'herbs', 'garden', 'drill'];

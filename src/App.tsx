@@ -3,6 +3,7 @@ import { BattleUI } from './ui/BattleUI';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { CreateScreen } from './ui/CreateScreen';
 import { DialogBox } from './ui/DialogBox';
+import { FishingGame } from './ui/FishingGame';
 import { GameMenu } from './ui/GameMenu';
 import { HomePanel } from './ui/HomePanel';
 import { Hud } from './ui/Hud';
@@ -30,6 +31,7 @@ export function App() {
       <ShopPanel />
       <HomePanel />
       <SchedulePanel />
+      <FishingGame />
       <MorningBrief />
       <TitleScreen />
       <CreateScreen />

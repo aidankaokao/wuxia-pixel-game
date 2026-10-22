@@ -1,3 +1,4 @@
+import { quarry } from '../story/bridge';
 import { by } from './rooms';
 import type { MapDef } from './types';
 
@@ -34,6 +35,8 @@ export const qzNorth: MapDef = {
   props: [
     { sprite: 'sign', x: 13, y: 1, lines: [{ text: '「青竹村北」\n北 ── 蒼嵐山\n南 ── 青竹村' }] },
     { sprite: 'stele', x: 5, y: 8, lines: [{ text: '一座小小的土地廟，供著幾個野果子，香爐裡的香還冒著煙。' }] },
+    // 採石場：以前有人採石，蓋橋的支線要來這裡鑿青石條
+    { sprite: 'rock', x: 3, y: 3, script: quarry, label: '採石' },
     { sprite: 'well', x: 17, y: 6, lines: [{ text: '田邊的水井，打上來的水冰涼清甜。' }] },
   ],
   npcs: [

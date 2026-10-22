@@ -145,6 +145,7 @@ export const GEAR_ITEMS: Record<string, ItemDef> = {
   // 旬休趕集時舊貨攤才有的
   g_bamboo_hat: gear('青竹笠', 'hat', 2, '細竹篾編的斗笠，遮陽擋雨，邊上還壓著一圈藤。', { price: 45 }),
   g_iron_bracer: gear('鐵護臂', 'hand', 3, '舊貨攤上淘來的鐵護臂，磨得發亮，不知擋過多少刀。', { price: 150 }),
+  g_carp_scale: gear('白鯉鱗墜', 'neck', 4, '月圓之夜白鯉留下的一片鱗，穿了紅繩掛在頸上。夜裡微微發亮，摸起來是涼的。', { price: 300 }),
   g_jade_pendant: gear('青玉墜', 'neck', 3, '一塊溫潤的青玉，攤主說是從前大戶人家流出來的。', { price: 160 }),
   g_cloud_boots: gear('雲紋靴', 'shoes', 3, '靴面繡著雲紋，鞋底輕軟，走起路來悄無聲息。', { price: 180 }),
   g_bracer: gear('皮護腕', 'hand', 2, '牛皮縫的護腕，擋得住刀劍擦過。', { price: 40 }),

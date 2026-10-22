@@ -146,7 +146,11 @@ export const NODES: WorldNode[] = [
     desc: '大江入海口的港口小城。海船在東邊的碼頭靠岸，江船從大江上下來；城南有觀潮台。',
     enter: { map: 'dabutou', x: 1, y: 14, facing: 'right' },
   },
-  { id: 'biyi', name: '碧漪湖漁村', kind: 'village', x: 42, y: 40, locked: true, desc: '碧漪湖西岸的漁村。' },
+  {
+    id: 'biyi', name: '碧漪湖漁村', kind: 'village', x: 42, y: 40,
+    desc: '碧漪湖西岸的小漁村。棧橋伸進湖裡可以釣魚，秦老漢撐船去湖心島；湖鮮館的糖醋鯉魚遠近有名。',
+    enter: { map: 'biyi', x: 1, y: 13, facing: 'right' },
+  },
   { id: 'jiangnan', name: '江南渡', kind: 'ferry', x: 32, y: 45, locked: true, crossing: true, desc: '南嶺古道在這裡渡大江。聽說渡船停了好一陣子。' },
   { id: 'yunling', name: '雲嶺', kind: 'wild', x: 25, y: 51, locked: true, desc: '大江南岸連綿的群山，雲霧終年不散。' },
   { id: 'beishang', name: '北上官道', kind: 'wild', x: 58, y: 11, locked: true, desc: '翻過北嶺的官道，一路往北。' },
@@ -217,8 +221,12 @@ export const EDGES: WorldEdge[] = ROADS.map((r) => {
  * 從某個節點出發的道路（path 已經轉成從這個節點出發的方向）。
  * 渡口：只能往回走（from 是從哪個節點來的；不知道就都列出來）
  */
+/** 渡口能不能直接走過去（例如雲水渡口蓋好橋以後）；由劇情設定（story/bridge.ts），免得這裡引用劇情 */
+let crossingOpen: (id: string) => boolean = () => false;
+export const setCrossingOpen = (f: (id: string) => boolean) => (crossingOpen = f);
+
 export function edgesFrom(id: string, from?: string): { to: WorldNode; edge: WorldEdge; path: [number, number][] }[] {
-  const crossing = nodeById(id).crossing && from;
+  const crossing = nodeById(id).crossing && from && !crossingOpen(id);
   return EDGES.filter((e) => (e.a === id || e.b === id) && (!crossing || e.a === from || e.b === from)).map((e) => ({
     to: nodeById(e.a === id ? e.b : e.a),
     edge: e,

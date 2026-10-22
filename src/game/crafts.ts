@@ -1,5 +1,5 @@
 /**
- * 生活技能：烹飪、紡織、學識、琴棋書畫。跟武功分開，不影響五維。
+ * 生活技能：烹飪、紡織、釣魚、學識、琴棋書畫。跟武功分開，不影響五維。
  *
  * - 每項技能有等級（0–10）與經驗，等級越高做得越好、越不容易失敗。
  * - 技能底下可以有「項目」（例如每一道菜），各自有熟練度（1–5 級），練這個項目同時替技能加經驗。
@@ -8,7 +8,7 @@
 
 import type { Character } from './character';
 
-export type CraftId = 'cooking' | 'weaving' | 'learning' | 'qin' | 'chess' | 'calligraphy' | 'painting';
+export type CraftId = 'cooking' | 'weaving' | 'fishing' | 'learning' | 'qin' | 'chess' | 'calligraphy' | 'painting';
 
 export interface CraftDef {
   id: CraftId;
@@ -29,6 +29,10 @@ export const CRAFTS: CraftDef[] = [
   {
     id: 'weaving', name: '紡織', group: '生活', desc: '紡紗織布、裁製衣物。織出來的品級從粗製到極品，紡織等級與樣式的熟練度越高越容易織出好東西。',
     howTo: '在臨江城錦繡布莊跟魏錦娘學樣式（紡織 0、1、2、3 級起），買棉線、絲線，在布莊的織機織。', open: true,
+  },
+  {
+    id: 'fishing', name: '釣魚', group: '生活', desc: '在湖邊、河邊垂釣。手藝越好越常釣起來，也釣得到更難纏的魚；每種釣過的魚都記進魚譜。',
+    howTo: '跟碧漪湖漁村的秦老漢買釣竿，在有浮標漣漪的水面按 E 釣魚；可以自己拉竿（看準時機按 E），也可以慢慢等。', open: true,
   },
   {
     id: 'learning', name: '學識', group: '學問', desc: '讀書明理。每一級買東西便宜 1%（最多一成），研讀武功時領悟也多 1 點。',

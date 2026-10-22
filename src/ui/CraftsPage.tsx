@@ -9,6 +9,7 @@ import { gearKindName } from '../game/gear';
 import { stageOf, STAGES } from '../game/social';
 import { PEOPLE } from '../game/story/people';
 import { PATTERNS, wovenItem } from '../game/weaving';
+import { FISH, FishSpot } from '../game/fishing';
 import { useGame } from '../state/store';
 import { IconCell, IconTile, PageHead, Paper, Sheet, Spread } from './Paper';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
@@ -22,12 +23,16 @@ import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './u
 export const CRAFT_ICON: Record<CraftId, ItemIcon> = {
   cooking: 'c_cook',
   weaving: 'c_weave',
+  fishing: 'rod',
   learning: 'c_learn',
   qin: 'c_qin',
   chess: 'c_chess',
   calligraphy: 'c_brush',
   painting: 'painting',
 };
+
+const SPOT_NAME: Record<FishSpot, string> = { pier: '湖邊棧橋', reeds: '蘆葦蕩', isle: '湖心島' };
+const LIKE_NAME: Record<string, string> = { dawn: '清晨', dusk: '黃昏', night: '夜裡', rain: '雨天', day: '白天', fog: '霧天', clear: '晴天', cloudy: '陰天' };
 
 const SHELF_ICON: Record<Shelf, ItemIcon> = { 蒙學: 'book_meng', 經部: 'book_jing', 史部: 'book_shi', 子部: 'book_zi', 集部: 'book_ji' };
 const GROUPS = ['生活', '學問', '雅藝'] as const;
@@ -156,8 +161,8 @@ function Needs({ needs }: { needs: Record<string, number> }) {
 /** 一門手藝底下的細目（學會的、還沒學的） */
 function cellsFor(hero: Character, id: CraftId): IconCell[] | null {
   if (id === 'cooking') {
-    const kinds = ['飯品', '麵品', '湯品', '甜品', '海鮮'];
-    const group = (d: DishDef) => (d.sea ? '海鮮' : d.kind);
+    const kinds = ['飯品', '麵品', '湯品', '甜品', '湖鮮', '海鮮'];
+    const group = (d: DishDef) => (d.sea ? '海鮮' : d.lake ? '湖鮮' : d.kind);
     return [STEW, ...DISHES]
       .sort((a, b) => kinds.indexOf(group(a)) - kinds.indexOf(group(b)))
       .map((d) => {
@@ -224,6 +229,45 @@ function cellsFor(hero: Character, id: CraftId): IconCell[] | null {
       };
     });
   }
+  if (id === 'fishing') {
+    // 魚譜：釣過的魚亮起來，右下角是熟練度（釣得越多越熟）
+    return FISH.map((f) => {
+      const w = workOf(hero, 'fishing', f.id);
+      return {
+        key: f.id,
+        icon: itemIcon(f.id),
+        label: f.name,
+        group: '魚譜',
+        dim: !w,
+        badge: w?.level,
+        detail: () => (
+          <>
+            <h4>{w ? f.name : '？？？'}</h4>
+            <div className="detail-tags">
+              <span className="tag muted-tag">{'好釣・普通・難纏・極難'.split('・')[f.fight]}</span>
+              <span className="small muted">釣魚 {f.level} 級起</span>
+            </div>
+            <p className="small">{w ? f.desc : '還沒釣過這種魚。'}</p>
+            <div className="detail-label">出沒</div>
+            <div className="effects">
+              {(Object.keys(f.spots) as FishSpot[]).map((s) => (
+                <span key={s} className="effect">
+                  {SPOT_NAME[s]}
+                </span>
+              ))}
+              {f.likes?.map((l) => (
+                <span key={l} className="effect treat">
+                  {LIKE_NAME[l]}多
+                </span>
+              ))}
+            </div>
+            {w && <Progress label="熟練度" level={w.level} exp={w.exp} />}
+            <p className="small muted">行情：一條約 {f.price} 兩。</p>
+          </>
+        ),
+      };
+    });
+  }
   if (id === 'painting') {
     return PAINTINGS.map((pid) => ({
       key: pid,
@@ -263,7 +307,7 @@ function DishDetail({ hero, d }: { hero: Character; d: DishDef }) {
     <>
       <h4>{d.name}</h4>
       <div className="detail-tags">
-        <span className="tag muted-tag">{d.sea ? '海鮮' : d.kind}</span>
+        <span className="tag muted-tag">{d.sea ? '海鮮' : d.lake ? '湖鮮' : d.kind}</span>
         <span className="small muted">
           {DISH_TIERS[d.tier]}・烹飪 {TIER_LEVEL[d.tier]} 級起
         </span>
@@ -287,7 +331,7 @@ function DishDetail({ hero, d }: { hero: Character; d: DishDef }) {
           <p className="small muted">家常菜，不用學，誰都會燉。</p>
         )
       ) : (
-        <p className="small muted">還沒學會：{d.sea ? '大埠頭望潮客棧的潘大娘教海鮮菜' : '找鳴泉廚房的卜大勺學'}。</p>
+        <p className="small muted">還沒學會：{d.sea ? '大埠頭望潮客棧的潘大娘教海鮮菜' : d.lake ? '碧漪湖漁村湖鮮館的喬嫂教湖鮮菜' : '找鳴泉廚房的卜大勺學'}。</p>
       )}
     </>
   );
@@ -329,7 +373,7 @@ function Collection({ hero, id, relations }: { hero: Character; id: CraftId; rel
   );
   if (!cells) return extra;
   const have = cells.filter((c) => !c.dim);
-  const noun = id === 'cooking' ? '學會的菜' : id === 'learning' ? '讀過的書' : id === 'weaving' ? '會織的樣式' : '手邊的畫';
+  const noun = id === 'cooking' ? '學會的菜' : id === 'learning' ? '讀過的書' : id === 'weaving' ? '會織的樣式' : id === 'fishing' ? '魚譜' : '手邊的畫';
   return (
     <>
       <div className="detail-label">

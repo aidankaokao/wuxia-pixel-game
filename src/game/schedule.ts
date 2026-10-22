@@ -13,7 +13,8 @@ import type { DailyView } from './daily';
 import type { EventCtx } from './events';
 
 /** 事情的種類，給隨機事件挑場合用（chat 是跟人聊天） */
-export type ActivityTag = 'drill' | 'chore' | 'study' | 'meal' | 'rest' | 'chat';
+/** 在哪種事做完後；lake 是碧漪湖邊的事（釣魚、採蓮），只碰得上湖邊的小事 */
+export type ActivityTag = 'drill' | 'chore' | 'study' | 'meal' | 'rest' | 'chat' | 'lake';
 
 export interface Activity {
   id: string;

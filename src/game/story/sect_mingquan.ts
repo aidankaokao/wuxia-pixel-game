@@ -1398,7 +1398,7 @@ async function buStory(ctx: EventCtx): Promise<boolean> {
       return true;
     }
     const hint = max < 3 ? `跟卜大勺再熟一些（${max < 2 ? '熟識' : '知交'}），他才肯教更拿手的菜` : '';
-    await teachDishes(ctx, MQ.bu, (n) => payContrib(ctx, n), () => craftOf(st().hero, 'cooking').level, { maxTier: max, hint }, { teaches: (d) => !d.sea });
+    await teachDishes(ctx, MQ.bu, (n) => payContrib(ctx, n), () => craftOf(st().hero, 'cooking').level, { maxTier: max, hint }, { teaches: (d) => !d.sea && !d.lake });
   } else if (c === 2) await ctx.panel({ kind: 'shop', title: '伙房的食材', stock: KITCHEN_STOCK });
   else if (c === 3) {
     if (await donate(ctx, MQ.bu, 'boar_meat', 1, 4, '好大一塊山豬肉！今晚加菜！')) addAff('bu', 2);

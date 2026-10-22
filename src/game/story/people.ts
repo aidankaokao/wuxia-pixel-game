@@ -7,6 +7,8 @@ import { STAGE } from '../social';
 import type { Flags } from '../../state/store';
 import { liuStory, zhongStory } from './bandits';
 import { SECT_PEOPLE } from './sect_mingquan';
+import { BIYI_PEOPLE } from './biyi_people';
+import { bridgeDonation } from './bridge';
 
 /**
  * 人物檔案：每個人怎麼提升熟悉度、在各階段說什麼、怎麼稱呼你、什麼時候不理你。
@@ -93,7 +95,7 @@ const liuP: PersonDef = {
   place: '青竹村',
   role: '青竹村村長',
   address: (s, fame) => (fame >= 80 ? '{姓}大俠' : s >= STAGE.CLOSE ? '{姓}賢侄' : s >= STAGE.FAMILIAR ? '{姓}少俠' : s >= STAGE.NOD ? '少俠' : '年輕人'),
-  story: liuStory,
+  story: async (ctx) => (await bridgeDonation(ctx, 'liu')) || liuStory(ctx),
   talk: { gain: 3, perDay: 2, after: 'chat' },
   lines: {
     [STAGE.STRANGER]: [
@@ -264,7 +266,7 @@ const zhongP: PersonDef = {
   place: '青竹村',
   role: '村口茶攤的老闆娘',
   address: (s, fame) => (fame >= 80 ? '{姓}大俠' : s >= STAGE.FAMILIAR ? '小{姓}' : s >= STAGE.NOD ? '小哥' : '客官'),
-  story: async (ctx) => (await zhongFestival(ctx)) || zhongStory(ctx),
+  story: async (ctx) => (await zhongFestival(ctx)) || (await bridgeDonation(ctx, 'zhong')) || zhongStory(ctx),
   talk: { gain: 3, perDay: 2, after: 'chat' },
   lines: {
     [STAGE.STRANGER]: [
@@ -345,6 +347,7 @@ const taoP: PersonDef = {
   place: '青竹村',
   role: '走村串鄉的貨郎',
   address: (s, fame) => (s >= STAGE.FAMILIAR ? '{姓}老弟' : fame >= 40 ? '{姓}少俠' : '客官'),
+  story: (ctx) => bridgeDonation(ctx, 'tao'),
   talk: { gain: 1, perDay: 1, after: 'chat' },
   lines: {
     [STAGE.STRANGER]: [
@@ -400,6 +403,7 @@ const shiP: PersonDef = {
     open: (f, fame) => fame >= 15 || !!f.smith_intro,
     refuse: [{ speaker: '石岳', text: '叮——噹——！' }, { text: '石岳頭也不抬，像是根本沒看見你。\n（名聲再大一點，他或許會理你）' }],
   },
+  story: (ctx) => bridgeDonation(ctx, 'shi'),
   talk: { gain: 3, perDay: 1, after: 'busy' },
   lines: {
     [STAGE.STRANGER]: [
@@ -522,7 +526,7 @@ const xiaohuP: PersonDef = {
 };
 
 export const PEOPLE: Record<string, PersonDef> = Object.fromEntries(
-  [liuP, qingheP, zhongP, taoP, shiP, xiaohuP, ...SECT_PEOPLE].map((p) => [p.id, p]),
+  [liuP, qingheP, zhongP, taoP, shiP, xiaohuP, ...SECT_PEOPLE, ...BIYI_PEOPLE].map((p) => [p.id, p]),
 );
 
 /** 任務日誌：小虎的木劍 */

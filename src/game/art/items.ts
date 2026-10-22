@@ -20,6 +20,10 @@ export type ItemIcon =
   | 'thread' | 'silk'
   // 坐騎（不是物品，選單裡用）
   | 'horse'
+  // 湖裡的魚與漁具、湖產
+  | 'f_crucian' | 'f_carp' | 'f_silver' | 'f_grass' | 'f_mandarin' | 'f_turtle' | 'f_gold' | 'rod' | 'lotus_root' | 'water_chestnut'
+  // 石料
+  | 'slab'
   // 技能（選單「技能」用）
   | 'c_cook' | 'c_weave' | 'c_learn' | 'c_qin' | 'c_chess' | 'c_brush'
   // 書冊：依書架換封面顏色
@@ -401,6 +405,64 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
   thread: (ctx) => spool(ctx, '#ece6d6', '#c8bca4'),
   // 絲線：一綑紅色絲線
   silk: (ctx) => spool(ctx, '#d8483c', '#a83028'),
+  // ── 湖裡的魚 ──
+  f_crucian: (ctx) => lakeFish(ctx, '#8a9a7a', '#b8c4a4', '#5a6a4a'),
+  f_carp: (ctx) => lakeFish(ctx, '#c8903a', '#e8c070', '#c4483c'),
+  f_silver: (ctx) => {
+    hline(ctx, 2, 13, 8, '#d8e4ec');
+    hline(ctx, 3, 12, 7, '#f4f8fc');
+    px(ctx, 13, 7, 2, 1, '#b8c8d4');
+    px(ctx, 13, 9, 2, 1, '#b8c8d4');
+    px(ctx, 3, 7, 1, 1, '#1a1218');
+  },
+  f_grass: (ctx) => lakeFish(ctx, '#6a7a6a', '#98a890', '#4a5a4a'),
+  f_mandarin: (ctx) => {
+    lakeFish(ctx, '#a89a5a', '#d0c488', '#6a5a2a');
+    for (const [x, y] of [[6, 6], [9, 9], [10, 6]]) px(ctx, x, y, 1, 1, '#3a3020');
+    for (let x = 5; x <= 10; x += 2) px(ctx, x, 4, 1, 1, '#6a5a2a');
+  },
+  f_turtle: (ctx) => {
+    ellipse(ctx, 8, 9, 5, 4, '#5a6a3a');
+    ellipse(ctx, 8, 8, 3, 2, '#7a8a52');
+    px(ctx, 13, 8, 2, 2, '#8a9a6a');
+    for (const [x, y] of [[3, 5], [12, 5], [3, 12], [12, 12]]) px(ctx, x, y, 2, 1, '#8a9a6a');
+    px(ctx, 14, 8, 1, 1, '#1a1218');
+  },
+  f_gold: (ctx) => {
+    lakeFish(ctx, '#e8b830', '#fff0a0', '#e86a30');
+    px(ctx, 7, 7, 1, 1, '#ffffff');
+  },
+  // 釣竿：斜斜一根竹竿，垂下一條線
+  rod(ctx) {
+    for (let i = 0; i < 12; i++) px(ctx, 2 + i, 14 - i, 1, 1, i % 4 === 3 ? '#6a8a3a' : '#a8b860');
+    vline(ctx, 13, 3, 11, '#e8e4dc');
+    px(ctx, 12, 11, 2, 1, '#c4483c');
+    px(ctx, 1, 14, 3, 2, '#5a3a20');
+  },
+  // 蓮藕：三節白胖的藕
+  lotus_root(ctx) {
+    for (const [x, y] of [[2, 9], [6, 7], [10, 5]]) {
+      ellipse(ctx, x + 2, y + 2, 2.5, 2.5, '#e8d8c0');
+      px(ctx, x + 1, y + 1, 1, 1, '#fff4e4');
+    }
+    px(ctx, 13, 3, 2, 2, '#6a9a4a');
+  },
+  // 菱角：兩頭彎彎的尖角
+  water_chestnut(ctx) {
+    ellipse(ctx, 8, 9, 4, 3, '#5a3a4a');
+    px(ctx, 2, 6, 3, 2, '#5a3a4a');
+    px(ctx, 11, 6, 3, 2, '#5a3a4a');
+    px(ctx, 1, 5, 1, 1, '#3a2230');
+    px(ctx, 14, 5, 1, 1, '#3a2230');
+    px(ctx, 7, 8, 2, 1, '#8a6a7a');
+  },
+  // 青石條：長方的石塊，側面看得到鑿痕
+  slab(ctx) {
+    px(ctx, 2, 6, 12, 6, '#8a929a');
+    hline(ctx, 2, 13, 6, '#b0b8c0');
+    px(ctx, 2, 12, 12, 2, '#5a626a');
+    for (const x of [5, 9, 12]) vline(ctx, x, 7, 10, '#6a727a');
+  },
   // ── 坐騎 ──
   // 馬：側身站著，鬃毛與尾巴深色
   horse(ctx) {
@@ -479,6 +541,17 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
   book_zi: (ctx) => volume(ctx, '#3a6a52', '#224636'),
   book_ji: (ctx) => volume(ctx, '#6a4a7a', '#40284e'),
 };
+
+/** 湖魚：身體、肚子、尾巴與鰭的顏色 */
+function lakeFish(ctx: CanvasRenderingContext2D, body: string, belly: string, fin: string) {
+  ellipse(ctx, 7, 8, 5, 3, body);
+  hline(ctx, 4, 10, 10, belly);
+  px(ctx, 12, 5, 2, 2, fin);
+  px(ctx, 12, 10, 2, 2, fin);
+  px(ctx, 13, 7, 1, 2, fin);
+  px(ctx, 7, 4, 3, 1, fin);
+  px(ctx, 4, 7, 1, 1, '#1a1218');
+}
 
 /** 線裝書：封面顏色、書脊顏色，貼一張題簽 */
 function volume(ctx: CanvasRenderingContext2D, cover: string, spine: string) {

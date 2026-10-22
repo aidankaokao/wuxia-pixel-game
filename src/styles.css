@@ -3299,3 +3299,292 @@ img.item-icon.small {
 }
 
 .paper .detail-label { color: #8a6a3e; }
+
+/* ── 釣魚小遊戲 ── */
+.fishing {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  width: min(460px, calc(100vw - 32px));
+  padding: 14px 20px 10px;
+  text-align: center;
+}
+
+.fishing-water {
+  position: relative;
+  height: 54px;
+  margin-bottom: 8px;
+  background: repeating-linear-gradient(to bottom, #3a72a8 0 6px, #4a82b4 6px 12px);
+  border: 2px solid #1a1218;
+  overflow: hidden;
+}
+
+/* 浮標：紅白兩截，平時輕輕晃，咬鉤時往下沉 */
+.fishing-float {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  width: 8px;
+  height: 18px;
+  margin-left: -4px;
+  background: linear-gradient(to bottom, #f1e7cf 0 50%, #c4483c 50% 100%);
+  border: 2px solid #1a1218;
+  animation: float-bob 1.4s steps(4) infinite;
+}
+
+.fishing-water.bite .fishing-float {
+  animation: float-sink 0.5s steps(3) infinite alternate;
+}
+
+.fishing-ring {
+  position: absolute;
+  left: 50%;
+  top: 30px;
+  width: 40px;
+  height: 8px;
+  margin-left: -20px;
+  border: 2px solid rgba(220, 240, 255, 0.6);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.fishing-water.bite .fishing-ring {
+  animation: ring-out 0.7s ease-out infinite;
+}
+
+@keyframes float-bob {
+  50% { transform: translateY(2px); }
+}
+
+@keyframes float-sink {
+  from { transform: translateY(6px); }
+  to { transform: translateY(14px); }
+}
+
+@keyframes ring-out {
+  from { opacity: 0.9; transform: scale(0.4); }
+  to { opacity: 0; transform: scale(1.4); }
+}
+
+.fishing-text {
+  margin: 4px 0 8px;
+  font-size: 16px;
+  min-height: 22px;
+}
+
+.fishing-text.bite,
+.fishing-text.perfect { color: var(--gold); }
+.fishing-text.ok { color: #8fd06a; }
+.fishing-text.miss { color: var(--muted); }
+
+.fishing-bar {
+  position: relative;
+  height: 18px;
+  background: #0c0a10;
+  border: 2px solid var(--gold-dim);
+}
+
+.fishing-bar.idle {
+  opacity: 0.35;
+}
+
+.fishing-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: #a8382a;
+}
+
+.fishing-heart {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 33.3%;
+  width: 33.4%;
+  background: var(--gold);
+}
+
+.fishing-needle {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 4px;
+  margin-left: -2px;
+  background: #f1e7cf;
+  box-shadow: 0 0 0 2px #1a1218;
+}
+
+.fishing-help {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── 選單收尾：招式卡、效果小章、告示 ── */
+.move-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+
+.move-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  min-height: 62px;
+  background: #fbf3dc;
+  border: 2px solid #a88c5c;
+  box-shadow: 2px 3px 0 rgba(90, 60, 30, 0.2);
+}
+
+.move-card.known {
+  border-color: var(--p-red);
+}
+
+.move-card.hidden {
+  background: repeating-linear-gradient(45deg, #d8c8a2 0 6px, #cfbe96 6px 12px);
+  color: var(--p-muted);
+}
+
+.move-card.next {
+  border-style: dashed;
+  border-color: #a0702a;
+}
+
+.move-name {
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  color: var(--p-red);
+}
+
+.move-card.hidden .move-name {
+  color: var(--p-muted);
+}
+
+.move-cost {
+  font-size: 11px;
+  color: #3a62a0;
+}
+
+.move-card.hidden .move-cost {
+  color: var(--p-ink);
+}
+
+.move-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--p-muted);
+}
+
+.move-bar {
+  height: 5px;
+  background: #e8dcbc;
+  border: 1px solid #8a6a3e;
+}
+
+.move-bar i {
+  display: block;
+  height: 100%;
+  background: #a0702a;
+}
+
+.effect.equip { background: #3d7a2a; }
+.effect.grow { background: #8a6a3e; }
+.effect.atk { background: #a8382a; }
+.effect.def { background: #2f5f9a; }
+.effect.eva { background: #3d7a2a; }
+.effect.manual { background: #6a4a7a; }
+
+.item-line .effects {
+  margin: 0;
+}
+
+/* 江湖事：長期委託貼成一張張告示 */
+.notice-board {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: 12px 10px;
+  padding: 6px 4px;
+}
+
+.notice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 10px 10px;
+  min-height: 96px;
+  background: #fbf3dc;
+  border: 1px solid #c8b088;
+  box-shadow: 2px 3px 0 rgba(90, 60, 30, 0.22);
+  cursor: pointer;
+  transform: rotate(-1deg);
+}
+
+.notice:nth-child(even) {
+  transform: rotate(1.2deg);
+}
+
+.notice.active {
+  border: 2px solid var(--p-red);
+  transform: rotate(0) translateY(-2px);
+  box-shadow: 3px 5px 0 rgba(142, 42, 26, 0.25);
+}
+
+.notice.done {
+  background: #ece0c0;
+  color: var(--p-muted);
+}
+
+.notice-pin {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: #a8382a;
+  border: 1px solid #4a1a10;
+  border-radius: 50%;
+}
+
+.notice-title {
+  font-size: 15px;
+  color: var(--p-red);
+}
+
+.notice.done .notice-title {
+  color: var(--p-muted);
+}
+
+.notice-text {
+  font-size: 11px;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notice-seal {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  color: #c4483c;
+  border: 2px solid #c4483c;
+  transform: rotate(-12deg);
+  opacity: 0.85;
+}

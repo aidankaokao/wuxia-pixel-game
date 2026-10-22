@@ -49,6 +49,43 @@ function boat(): PropArt {
   return { canvas: c };
 }
 
+/** 釣點：水面上一圈漣漪，中間一個紅白浮標 */
+function ripple(): PropArt {
+  const [c, ctx] = makeCanvas(16, 12);
+  for (const [w, y] of [[14, 7], [10, 9]] as const) {
+    hline(ctx, 8 - w / 2, 8 + w / 2 - 1, y, '#a8d0ec');
+  }
+  hline(ctx, 3, 12, 6, '#8cc2e6');
+  px(ctx, 7, 1, 2, 3, '#e8e4dc');
+  px(ctx, 7, 4, 2, 2, '#c4483c');
+  return { canvas: c };
+}
+
+/** 蘆葦：水邊一叢，頂上褐色的穗 */
+function reeds(): PropArt {
+  const [c, ctx] = makeCanvas(16, 22);
+  for (const [x, top] of [[2, 6], [5, 2], [8, 4], [11, 1], [13, 7]] as const) {
+    vline(ctx, x, top + 3, 21, '#7a9a4a');
+    px(ctx, x, top, 1, 4, '#a8804a');
+  }
+  px(ctx, 3, 12, 3, 1, '#9aba5a');
+  px(ctx, 9, 10, 3, 1, '#9aba5a');
+  return { canvas: c };
+}
+
+/** 荷葉與荷花：浮在水面 */
+function lotus(): PropArt {
+  const [c, ctx] = makeCanvas(32, 16);
+  for (const [x, y, r] of [[7, 10, 6], [22, 9, 5], [15, 13, 3]] as const) {
+    for (let i = -r; i <= r; i++) hline(ctx, Math.round(x - r + Math.abs(i) / 2), Math.round(x + r - Math.abs(i) / 2), y + Math.round(i / 2), '#4a8a3a');
+    px(ctx, x, y - 1, 1, 2, '#2a5a2a');
+  }
+  px(ctx, 17, 2, 4, 4, '#f0a0b8');
+  px(ctx, 18, 1, 2, 1, '#f8d0dc');
+  px(ctx, 18, 6, 2, 2, '#5a8a3a');
+  return done(c, ctx);
+}
+
 const done = (c: HTMLCanvasElement, ctx: CanvasRenderingContext2D): PropArt => {
   outline(ctx, 0, 0, c.width, c.height, OUTLINE);
   return { canvas: c };
@@ -244,5 +281,8 @@ export function landmarkProps(): Record<string, PropArt> {
     paifang_city: paifang('#8a2e26', '#5a1a14', '#3f4a5e', '#2a3242', '#2a3242'),
     paifang_sect: paifang('#b8b2a4', '#8a8478', '#3e6656', '#284638', '#284638'),
     boat: boat(),
+    ripple: ripple(),
+    reeds: reeds(),
+    lotus: lotus(),
   };
 }

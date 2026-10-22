@@ -38,7 +38,7 @@ export function ShopPanel() {
   const flags = useGame((s) => s.flags);
   // 熟客打折
   // 熟客打折，學識高的人也會講價
-  const discount = Math.min(0.3, (person ? discountOf(person) : 0) + learningDiscount(hero));
+  const discount = Math.min(0.3, (person ? discountOf(person) : 0) + learningDiscount(hero) + (panel?.kind === 'shop' ? (panel.discount ?? 0) : 0));
   const buyPrice = (id: string) => Math.ceil(ITEMS[id].price! * (1 - discount));
   // 收購價：預設原價一半；當鋪、藥鋪之類的店可以給得比較高（sellRate），也可以只收某些東西（buys）
   const shop = panel?.kind === 'shop' ? panel : undefined;

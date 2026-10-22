@@ -2,6 +2,7 @@ import { canglan } from './canglan';
 import { guandao } from './guandao';
 import { gdTeahouse } from './guandao_rooms';
 import { DABUTOU_MAPS } from './dabutou';
+import { BIYI_MAPS } from './biyi';
 import { ljAcademy, ljNorth } from './linjiang_north';
 import { linjiang } from './linjiang';
 import { LINJIANG_ROOMS } from './linjiang_rooms';
@@ -30,6 +31,7 @@ export const MAPS: Record<string, MapDef> = {
   ...Object.fromEntries(SECT_MINGQUAN_ROOMS.map((m) => [m.id, m])),
   ...Object.fromEntries(LINJIANG_ROOMS.map((m) => [m.id, m])),
   ...Object.fromEntries(DABUTOU_MAPS.map((m) => [m.id, m])),
+  ...Object.fromEntries(BIYI_MAPS.map((m) => [m.id, m])),
   [ljNorth.id]: ljNorth,
   [ljAcademy.id]: ljAcademy,
   [qzLiu.id]: qzLiu,
@@ -56,5 +58,18 @@ export function getMap(id: string): MapDef | undefined {
     return e ? buildHomeMap(plot, e) : undefined;
   }
   const def = MAPS[id];
-  return def && withPlots(def, estates);
+  return def && withPatches(withPlots(def, estates));
+}
+
+/** 套用隨劇情改變的地形（MapDef.patches） */
+function withPatches(def: MapDef): MapDef {
+  if (!def.patches?.length) return def;
+  const { flags, world } = useGame.getState();
+  const f = { ...flags, today: world.day };
+  const on = def.patches.filter((p) => p.when(f));
+  if (!on.length) return def;
+  const tiles = def.tiles.map((r) => [...r]);
+  for (const p of on)
+    p.rows.forEach((row, dy) => [...row].forEach((c, dx) => c !== ' ' && tiles[p.y + dy] && (tiles[p.y + dy][p.x + dx] = c)));
+  return { ...def, tiles: tiles.map((r) => r.join('')) };
 }

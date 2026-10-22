@@ -50,6 +50,7 @@ import { CraftsPage } from './CraftsPage';
 import { PeoplePage } from './PeoplePage';
 import { SectPage } from './SectPage';
 import { PageHead, Paper, Row, RowList, Sheet, Spread } from './Paper';
+import { ItemEffects } from './ItemEffects';
 
 const TABS = ['人物', '武功', '技能', '行囊', '門派', '交遊', '江湖事', '系統'] as const;
 type Tab = (typeof TABS)[number];
@@ -409,8 +410,13 @@ function SkillDetail({ s }: { s: Skill }) {
   const over = s.level > cap;
   const pct = s.level >= cap ? 100 : (s.exp / expToNext(s.level)) * 100;
   const m = effLevel(s) * TIERS[def.tier].mult;
-  const bonus = (o: Partial<Record<AttrKey, number>>) =>
-    (Object.entries(o) as [AttrKey, number][]).map(([k, v]) => `${attrName(k)} +${fmt(v * m)}`).join('　') || '無';
+  const pills = (o: Partial<Record<AttrKey, number>>, kind: string) =>
+    (Object.entries(o) as [AttrKey, number][]).map(([k, v]) => (
+      <span key={k} className={`effect ${kind}`}>
+        {attrName(k)} +{fmt(v * m)}
+      </span>
+    ));
+  const next = nextMove(s);
   return (
     <div className="skill-detail">
       <div className={over ? 'realm over' : 'realm'}>
@@ -419,37 +425,44 @@ function SkillDetail({ s }: { s: Skill }) {
       <div className="exp-track">
         <div className="exp-fill" style={{ width: `${pct}%` }} />
       </div>
-      <p className="small">裝備加成：{bonus(def.equip)}</p>
-      <p className="small muted">永久成長：{bonus(def.grow)}</p>
-      <div className="move-list">
-        <div className="col-title">
-          招式 {s.moves.length}/{def.moves.length}
-        </div>
+      <div className="detail-label">裝備加成</div>
+      <div className="effects">{pills(def.equip, 'equip')}</div>
+      <div className="detail-label">永久成長</div>
+      <div className="effects">{pills(def.grow, 'grow')}</div>
+      <div className="detail-label">
+        招式 {s.moves.length}/{def.moves.length}
+      </div>
+      {/* 招式卡：學會的翻開，還沒悟出的蓋著，下一招有領悟度 */}
+      <div className="move-cards">
         {def.moves.map((mv) => {
           const known = s.moves.includes(mv.id);
-          const isNext = nextMove(s)?.id === mv.id;
+          const isNext = next?.id === mv.id;
+          const mvDef = MOVES[mv.id];
           return (
-            <div key={mv.id} className={`move-row ${known ? '' : 'unknown'}`} title={known ? MOVES[mv.id].desc : ''}>
-              <span>
-                {known ? '◆ ' : '◇ '}
-                {known ? MOVES[mv.id].name : '？？？'}
-              </span>
-              <span className="muted small">
-                {known
-                  ? MOVES[mv.id].qi
-                    ? `內力 ${MOVES[mv.id].qi}`
-                    : ''
-                  : s.level < mv.level
-                    ? `第 ${mv.level} 重後可悟`
-                    : isNext
-                      ? `領悟 ${s.insight}%`
-                      : '尚未參透'}
-              </span>
+            <div key={mv.id} className={`move-card ${known ? 'known' : 'hidden'} ${isNext ? 'next' : ''}`} title={known ? mvDef.desc : ''}>
+              <span className="move-name">{known ? mvDef.name : '？？？？'}</span>
+              {known ? (
+                <>
+                  <span className="move-cost">{mvDef.qi ? `內力 ${mvDef.qi}` : '不耗內力'}</span>
+                  <span className="move-desc">{mvDef.desc}</span>
+                </>
+              ) : s.level < mv.level ? (
+                <span className="move-cost">第 {mv.level} 重後</span>
+              ) : isNext ? (
+                <>
+                  <span className="move-cost">領悟 {s.insight}%</span>
+                  <span className="move-bar">
+                    <i style={{ width: `${s.insight}%` }} />
+                  </span>
+                </>
+              ) : (
+                <span className="move-cost">尚未參透</span>
+              )}
             </div>
           );
         })}
-        {nextMove(s) && <p className="muted small">在戰鬥中使用這門武功，就有機會悟出新招；悟出時武功也會精進一重。</p>}
       </div>
+      {next && <p className="muted small">在戰鬥中使用這門武功，就有機會悟出新招；悟出時武功也會精進一重。</p>}
       <p className="muted small">{def.desc}</p>
     </div>
   );
@@ -657,6 +670,7 @@ function ItemsPage({ active, onExit, folio }: PageProps) {
           <img className="item-big" src={itemIconUrl(ITEMS[focus].icon)} alt="" />
           <div>
             {!ITEMS[focus].manual && <div className="small">持有 {hero.items[focus]} 個</div>}
+            <ItemEffects id={focus} />
             <p className="small">{ITEMS[focus].desc}</p>
             <p className="small muted">{usableInBattle(focus) ? '戰鬥中或行囊裡都能使用。' : usable(focus) ? '在行囊裡使用。' : ITEMS[focus].gear ? '可以穿戴。' : ''}</p>
           </div>
@@ -682,13 +696,16 @@ function ItemsPage({ active, onExit, folio }: PageProps) {
           body: it.gear ? (
             <GearInfo id={open} />
           ) : (
-            <div className="item-line">
-              <img className="item-icon" src={itemIconUrl(it.icon)} alt="" />
+            <>
+              <div className="item-line">
+                <img className="item-icon" src={itemIconUrl(it.icon)} alt="" />
+                <ItemEffects id={open} />
+              </div>
               <p className="small">
                 {it.desc}
                 <span className="muted">{usableInBattle(open) ? '（戰鬥中或行囊裡都能使用）' : usable(open) ? '（在行囊裡使用）' : ''}</span>
               </p>
-            </div>
+            </>
           ),
           actions: [
             ...(usable(open) ? [{ label: '使用', run: () => st.showToast(st.updateHero((c) => consumeItem(c, open))) }] : []),
@@ -708,7 +725,9 @@ function ItemsPage({ active, onExit, folio }: PageProps) {
 
 // ── 江湖事 ───────────────────────────────────────────────
 
-/** 江湖事：左頁是今天的日子與該做的事，右頁是長期的委託，E 攤開細看 */
+const NOTICE_COLS = 2;
+
+/** 江湖事：左頁是今天的日子與該做的事，右頁是長期的委託（一張張貼著的告示），E 攤開細看 */
 function QuestsPage({ active, onExit, folio }: PageProps) {
   const flags = useGame((s) => s.flags);
   const hero = useGame((s) => s.hero);
@@ -724,12 +743,15 @@ function QuestsPage({ active, onExit, folio }: PageProps) {
     .sort((a, b) => Number(a.st!.done) - Number(b.st!.done));
   const cur = Math.min(row, Math.max(0, list.length - 1));
 
+  // 告示兩欄一排：↑↓ 換排、←→ 換欄
   useKeys(active && !open, (k) => {
     const n = list.length;
-    if (isCancel(k) || isLeft(k)) return onExit();
-    if (!n) return;
-    if (isUp(k)) setRow((cur + n - 1) % n);
-    else if (isDown(k)) setRow((cur + 1) % n);
+    if (isCancel(k)) return onExit();
+    if (!n) return isLeft(k) && onExit();
+    if (isUp(k)) setRow(cur >= NOTICE_COLS ? cur - NOTICE_COLS : cur);
+    else if (isDown(k)) setRow(Math.min(n - 1, cur + NOTICE_COLS));
+    else if (isLeft(k)) cur % NOTICE_COLS ? setRow(cur - 1) : onExit();
+    else if (isRight(k)) setRow(Math.min(n - 1, cur + 1));
     else if (isConfirm(k)) setOpen(list[cur].q.id);
   });
 
@@ -747,18 +769,21 @@ function QuestsPage({ active, onExit, folio }: PageProps) {
     <>
       <PageHead title="長期" sub={`進行中 ${list.filter((x) => !x.st!.done).length}`} />
       {list.length === 0 && <p className="muted small">尚未接下任何委託。</p>}
-      <ul className="quest-list">
+      <div className="notice-board">
         {list.map(({ q, st }, i) => (
-          <li key={q.id} className={`${active && i === cur ? 'active' : ''} ${st!.done ? 'done' : ''}`} onClick={() => (i === cur ? setOpen(q.id) : setRow(i))}>
-            <span>
-              {active && i === cur ? '▸ ' : '　'}
-              {q.title}
-            </span>
-            <span className={`tag ${st!.done ? 'muted-tag' : ''}`}>{st!.done ? '已完成' : '進行中'}</span>
-          </li>
+          <div
+            key={q.id}
+            className={`notice ${active && i === cur ? 'active' : ''} ${st!.done ? 'done' : ''}`}
+            onClick={() => (i === cur ? setOpen(q.id) : setRow(i))}
+          >
+            <span className="notice-pin" />
+            <span className="notice-title">{q.title}</span>
+            <span className="notice-text">{st!.text}</span>
+            {st!.done && <span className="notice-seal">完</span>}
+          </div>
         ))}
-      </ul>
-      <p className="page-help">{active ? '↑↓ 選擇　E 展開細看　X 回到書籤' : '按 E 或 ↓ 開始翻閱'}</p>
+      </div>
+      <p className="page-help">{active ? '方向鍵選告示　E 攤開細看　X 回到書籤' : '按 E 或 ↓ 開始翻閱'}</p>
     </>
   );
   const q = open ? list.find((x) => x.q.id === open) : undefined;

@@ -143,6 +143,12 @@ export interface MapDef {
   plots?: PlotDef[];
   /** 室內地圖的配色（房屋風格） */
   theme?: string;
+  /**
+   * 隨劇情改變的地形：條件成立時，從 (x, y) 起用 rows 蓋掉原本的字元（rows 裡的空白表示不改）。
+   * 例如蓋好橋以後，河上那幾格換成木橋。進地圖時套用（`maps/index.ts` 的 getMap），旗標變了要 `ctx.reload()`。
+   * 條件可以讀旗標與 today（今天第幾日）。
+   */
+  patches?: { when: Condition; x: number; y: number; rows: string[] }[];
 }
 
 /** 不能走上去的地形字元 */

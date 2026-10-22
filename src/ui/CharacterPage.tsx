@@ -10,6 +10,7 @@ import { rankName, sectDef } from '../game/sect';
 import { fameTitle } from '../game/social';
 import { useGame } from '../state/store';
 import { IconTile, Paper, Sheet, Spread } from './Paper';
+import { ItemEffects } from './ItemEffects';
 import { isCancel, isConfirm, isDown, isLeft, isRight, isUp, useKeys } from './useKeys';
 
 const fmt = (n: number) => (Math.round(n * 10) / 10).toString();
@@ -244,7 +245,6 @@ function sheetFor(hero: Character, at: Spot): Sheet {
 /** 一件服飾的說明：品級、數值、描述 */
 export function GearInfo({ id }: { id: string }) {
   const g = ITEMS[id].gear!;
-  const stats = [g.atk ? `攻擊 +${g.atk}` : '', g.def ? `防禦 +${g.def}` : '', g.eva ? `閃避 +${Math.round(g.eva * 1000) / 10}%` : ''].filter(Boolean).join('　');
   return (
     <div className="gear-info">
       <div className="item-line">
@@ -252,7 +252,7 @@ export function GearInfo({ id }: { id: string }) {
         <span className={GRADE_CLASS[g.grade]}>{ITEMS[id].name}</span>
         <span className="tag muted-tag">{GRADES[g.grade]}</span>
       </div>
-      {stats && <p className="small">{stats}</p>}
+      <ItemEffects id={id} />
       <p className="small muted">{ITEMS[id].desc}</p>
     </div>
   );

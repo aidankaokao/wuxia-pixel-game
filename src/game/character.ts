@@ -7,6 +7,7 @@
  * 武功有品階，品階決定正常上限；到了上限後，有秘笈就能花「武學點數」嘗試突破，最高到隱藏上限。
  */
 
+import { FISH_ITEMS } from './fishing';
 import type { ItemIcon } from './art/items';
 import type { CraftId, Progress } from './crafts';
 import { FOOD_ITEMS } from './cooking';
@@ -100,6 +101,7 @@ export const ITEMS: Record<string, ItemDef> = {
   dog_pelt: { name: '野狗皮', category: '雜物', icon: 'pelt', desc: '粗硬的狗皮，硝過之後能做些皮件。', price: 12 },
   // 食材與菜餚（含燉山豬肉）見 cooking.ts；服飾見 gear.ts
   ...FOOD_ITEMS,
+  ...FISH_ITEMS,
   ...GEAR_ITEMS,
   ...ART_ITEMS,
   ...FEST_ITEMS,

@@ -1,3 +1,4 @@
+import { markRoadEvent, rollRoadEvent } from '../story/road';
 import Phaser from 'phaser';
 import { derive } from '../character';
 import type { Dir } from '../constants';
@@ -30,7 +31,7 @@ const DIRS: Record<Dir, [number, number]> = { up: [0, -1], down: [0, 1], left: [
 /**
  * 大地圖：在城市、村莊、門派、據點之間移動。
  * 方向鍵選一條路走過去（小人沿路走，到了才算時間），E 進入這個地方，X 開選單。
- * 路上可能遇到劫匪或野獸（edge.danger）；還沒開放的地方走不過去。
+ * 路上可能遇到劫匪或野獸（edge.danger），沒遇上的話偶爾碰上一件小事（story/road.ts）；還沒開放的地方走不過去。
  */
 export class WorldScene extends Phaser.Scene {
   private data_!: WorldData;
@@ -223,8 +224,18 @@ export class WorldScene extends Phaser.Scene {
       });
     void (async () => {
       await walk(0, half);
-      // 路上：偶爾遇到劫匪或野獸
-      if (Math.random() < r.edge.danger) {
+      // 路上：偶爾遇到劫匪或野獸；沒遇上的話，偶爾碰上一件小事（story/road.ts）
+      const danger = Math.random() < r.edge.danger;
+      const incident = danger ? null : rollRoadEvent(r.edge, this.node, r.to);
+      if (incident) {
+        this.hero.stop();
+        this.moving = false;
+        markRoadEvent(incident.event.id);
+        await this.runScript((ctx) => incident.event.run(ctx, incident.view));
+        if (this.leaving) return;
+        this.moving = true;
+        this.hero.play({ key: 'world_hero_walk', repeat: -1 });
+      } else if (danger) {
         this.hero.stop();
         this.moving = false;
         await this.runScript(async (ctx) => {
