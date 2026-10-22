@@ -1,5 +1,5 @@
-import { canHold, ITEMS } from '../character';
-import { craftOf, learnWork, workOf } from '../crafts';
+import { canHold, giveItem, ITEMS } from '../character';
+import { craftOf, gainCraft, learnWork, workOf } from '../crafts';
 import { withCost, type EventCtx, type Script } from '../events';
 import { GRADES } from '../gear';
 import { by } from '../maps/rooms';
@@ -56,10 +56,36 @@ export const loomAt =
       return;
     }
     const label = (p: PatternDef) => `${p.name}（熟練 ${workOf(st().hero, 'weaving', p.id)!.level}）${missing(p).length ? '　缺料' : ''}`;
-    const i = await ctx.ask(`${idle}\n要織什麼？`, [...known.map(label), '算了']);
+    // 紡織 1 級起也能結漁網（給釣魚用）
+    const net = craftOf(st().hero, 'weaving').level >= NET_LEVEL;
+    const i = await ctx.ask(`${idle}\n要織什麼？`, [...known.map(label), ...(net ? [`漁網（棉線×${NET_THREAD}）`] : []), '算了']);
+    if (net && i === known.length) return knitNet(ctx);
     if (i >= known.length) return;
     await weave(ctx, known[i]);
   });
+
+/** 漁網：紡織 1 級起，棉線結成一張網；帶在身上，釣魚「慢慢等」時更容易釣起來，偶爾一次兩條 */
+const NET_LEVEL = 1;
+const NET_THREAD = 4;
+async function knitNet(ctx: EventCtx) {
+  if ((st().hero.items.cotton_thread ?? 0) < NET_THREAD) {
+    await ctx.say(`結一張漁網要棉線×${NET_THREAD}。`);
+    return;
+  }
+  if (!canHold(st().hero, 'fish_net')) {
+    await ctx.say('行囊滿了，結好了也沒地方放。');
+    return;
+  }
+  if (!(await exert(ctx, WEAVE_STAMINA, '手指都僵了，再結下去只會打錯結。'))) return;
+  await ctx.work('weave', '結漁網中……');
+  ctx.pass(4);
+  await ctx.say('你把棉線搓成粗繩，一個結一個結地打，結成一張細密的漁網。\n（花了半個時辰）');
+  await ctx.hero((h) => {
+    h.items.cotton_thread -= NET_THREAD;
+    if (!h.items.cotton_thread) delete h.items.cotton_thread;
+    return [giveItem(h, 'fish_net'), gainCraft(h, 'weaving', 6)];
+  });
+}
 
 const missing = (p: PatternDef) =>
   Object.entries(p.needs)

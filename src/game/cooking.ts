@@ -95,6 +95,7 @@ export const DISHES: DishDef[] = [
   // 湖鮮：碧漪湖漁村湖鮮館的喬嫂教；魚要自己釣（或跟阮大水買），蓮藕、菱角在荷塘採
   { id: 'jiyu', name: '鯽魚豆腐湯', kind: '湯品', tier: 0, needs: { crucian: 1, tofu: 1 }, qi: 45, hp: 15, lake: true, desc: '鯽魚先煎後燉，湯白得像奶。' },
   { id: 'lingjiao', name: '菱角糕', kind: '甜品', tier: 0, needs: { water_chestnut: 1, sugar: 1 }, stamina: 18, treat: { battles: 2, mult: 1.15 }, lake: true, desc: '菱角磨粉蒸成的糕，清甜爽口。' },
+  { id: 'yugan', name: '魚乾燒豆腐', kind: '湯品', tier: 1, needs: { dried_fish: 1, tofu: 1 }, qi: 55, hp: 45, lake: true, desc: '魚乾的鹹香全燒進了豆腐裡，下飯得很。' },
   { id: 'tangcu', name: '糖醋鯉魚', kind: '飯品', tier: 1, needs: { carp: 1, sugar: 1, rice: 1 }, hp: 95, stamina: 30, lake: true, desc: '鯉魚炸得翹起頭尾，淋上酸甜的醬汁。' },
   { id: 'yinyu', name: '銀魚羹', kind: '湯品', tier: 1, needs: { silverfish: 1, egg: 1 }, qi: 70, hp: 20, lake: true, desc: '銀魚配蛋花勾的羹，滑得一口就下肚。' },
   { id: 'qingxia', name: '青蝦麵', kind: '麵品', tier: 1, needs: { lake_shrimp: 1, flour: 1 }, stamina: 55, hp: 40, lake: true, desc: '剝好的青蝦仁鋪滿一碗麵。' },

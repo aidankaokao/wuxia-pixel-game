@@ -1,3 +1,4 @@
+import { orderTalk } from './orders';
 import { derive, ITEMS } from '../character';
 import { DISHES, dishItem } from '../cooking';
 import type { EventCtx, Script } from '../events';
@@ -81,6 +82,8 @@ const wangjiang = by('汪福來');
 const TOWER_MENU = ['zhutongfan', 'laweifan', 'daoxiao', 'jitang', 'tangyuan', 'xingren', 'guihua'];
 
 export const towerTalk: Script = async (ctx) => {
+  // 訂貨：魚、魚乾、湖產、湖鮮海鮮菜（orders.ts 的 tower）
+  if (await orderTalk(ctx, 'tower')) return;
   const c = await ctx.ask(wangjiang('客官樓上請！望江樓的菜，臨江城頭一份。')[0], ['點菜', '不用了']);
   if (c !== 0) return;
   await ctx.panel({ kind: 'shop', title: '望江樓・菜單', stock: TOWER_MENU.filter((id) => DISHES.some((d) => d.id === id)).map((id) => dishItem(id)) });

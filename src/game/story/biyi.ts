@@ -7,7 +7,7 @@ import { CAST_KE, CAST_STAMINA, catchExp, FishDef, fightParams, FishSpot, rollFi
 import { usedToday } from '../home';
 import { by } from '../maps/rooms';
 import { STAGE, stageOf } from '../social';
-import { dateOf, periodOf } from '../time';
+import { dateOf, periodOf, seasonOf, type Season } from '../time';
 import { useGame } from '../../state/store';
 import { teachDishes } from './cooking';
 import { askRounds, exert, roundsNote, sleep } from './estate';
@@ -68,7 +68,7 @@ async function castByHand(ctx: EventCtx, spot: FishSpot) {
     ctx.pass(CAST_KE);
     const w = st().world;
     const lv = fishLevel();
-    const f = rollFish(spot, lv, periodOf(w.time), w.weather);
+    const f = rollFish(spot, lv, periodOf(w.time), w.weather, seasonOf(w.day));
     const r = await st().playFishing(fightParams(lv, f.fight));
     if (r === 'miss') st().updateHero((h) => void gainCraft(h, 'fishing', 1));
     else await ctx.hero((h) => [`釣起一條${f.name}！${r === 'perfect' ? '（漂亮）' : ''}`, ...landFish(h, f, r === 'perfect')]);
@@ -83,13 +83,18 @@ async function castWaiting(ctx: EventCtx, spot: FishSpot) {
   if (!n) return;
   if (!(await exert(ctx, CAST_STAMINA * n, '手臂痠得握不住竿了。'))) return;
   ctx.pass(CAST_KE * n);
-  await ctx.work('fish', '垂釣中……');
+  const net = (st().hero.items.fish_net ?? 0) > 0;
+  await ctx.work('fish', net ? '撒網垂釣中……' : '垂釣中……');
   const w = st().world;
   let lost = 0;
   const caught: FishDef[] = [];
   for (let i = 0; i < n; i++) {
-    const f = rollFish(spot, fishLevel(), periodOf(w.time), w.weather);
-    if (Math.random() < waitChance(fishLevel(), f.fight, w.weather)) caught.push(f);
+    const f = rollFish(spot, fishLevel(), periodOf(w.time), w.weather, seasonOf(w.day));
+    if (Math.random() < waitChance(fishLevel(), f.fight, w.weather, net)) {
+      caught.push(f);
+      // 下了漁網：偶爾一次撈上兩條
+      if (net && Math.random() < NET_DOUBLE) caught.push(f);
+    }
     else lost++;
   }
   await ctx.hero((h) => {
@@ -230,22 +235,48 @@ export const moonPavilion: Script = async (ctx) => {
 // ── 荷塘 ────────────────────────────────────────────────
 
 const LOTUS_KEY = 'by:lotus';
+/** 帶著漁網慢慢等：每釣起一條，有這個機率多撈一條 */
+const NET_DOUBLE = 0.25;
 const LOTUS_STAMINA = 10;
 
+/** 荷塘各季能採什麼：春天荷葉才冒尖；夏天菱角剛結；秋天菱角、蓮藕都有；冬天只剩挖藕（比較冷、比較累） */
+const LOTUS_SEASON: Record<Season, { roots: [number, number]; chestnuts: [number, number]; stamina: number } | null> = {
+  spring: null,
+  summer: { roots: [0, 0], chestnuts: [1, 2], stamina: LOTUS_STAMINA },
+  autumn: { roots: [1, 2], chestnuts: [2, 3], stamina: LOTUS_STAMINA },
+  winter: { roots: [1, 3], chestnuts: [0, 0], stamina: LOTUS_STAMINA + 8 },
+};
+const roll = ([a, b]: [number, number]) => a + Math.floor(Math.random() * (b - a + 1));
+
 export const lotusPond: Script = withCost(
-  () => (usedToday(st().world, LOTUS_KEY) ? null : { ke: 2, stamina: LOTUS_STAMINA }),
+  () => {
+    const s = LOTUS_SEASON[seasonOf(st().world.day)];
+    return usedToday(st().world, LOTUS_KEY) || !s ? null : { ke: 2, stamina: s.stamina };
+  },
   async (ctx) => {
-    if (usedToday(st().world, LOTUS_KEY)) {
-      await ctx.say('荷塘裡的蓮藕、菱角今天已經採過了，留一些明天再長吧。');
+    const season = seasonOf(st().world.day);
+    const s = LOTUS_SEASON[season];
+    if (!s) {
+      await ctx.say('荷塘裡的荷葉才剛冒尖，捲得像一支支小筆。', '（菱角夏天才結，蓮藕要等到秋冬）');
       return;
     }
-    if ((await ctx.ask('一塘荷葉，底下有蓮藕，水面漂著菱角。要下塘採一些嗎？（兩刻、體力 10）', ['挽起褲腳下塘', '算了'])) !== 0) return;
-    if (!(await exert(ctx, LOTUS_STAMINA, '腿軟得站不穩，掉進塘裡就不好笑了。'))) return;
+    if (usedToday(st().world, LOTUS_KEY)) {
+      await ctx.say('荷塘今天已經採過了，留一些明天再長吧。');
+      return;
+    }
+    const what = season === 'summer' ? '水面漂著剛結的嫩菱角。' : season === 'autumn' ? '荷葉底下有蓮藕，水面漂著菱角。' : '荷葉都枯了，塘泥底下還埋著蓮藕。';
+    if ((await ctx.ask(`${what}要下塘採一些嗎？（兩刻、體力 ${s.stamina}）`, [season === 'winter' ? '咬咬牙，下塘挖藕' : '挽起褲腳下塘', '算了'])) !== 0) return;
+    if (!(await exert(ctx, s.stamina, '腿軟得站不穩，掉進塘裡就不好笑了。'))) return;
     ctx.pass(2);
     st().updateWorld((w) => (w.daily[LOTUS_KEY] = { day: w.day, n: 1 }));
-    await ctx.work('garden', '採蓮中……');
-    await ctx.say('塘泥軟軟的，一腳踩下去沒到小腿。你順著荷梗往下摸，拔出一節白胖的藕。', { speaker: '喬小荷', text: '菱角要從底下翻過來摘，才不會扎手！' });
-    await ctx.hero((h) => [giveItem(h, 'lotus_root', 1 + Math.floor(Math.random() * 2)), giveItem(h, 'water_chestnut', 2 + Math.floor(Math.random() * 2))]);
+    await ctx.work('garden', season === 'winter' ? '挖藕中……' : '採蓮中……');
+    await ctx.say(
+      season === 'winter' ? '塘水冰得刺骨，你咬著牙順著枯荷梗往下摸，拔出一節沾滿泥的白藕。' : '塘泥軟軟的，一腳踩下去沒到小腿。',
+      { speaker: '喬小荷', text: season === 'winter' ? '冬天的藕最粉！娘說燉肉最好吃！' : '菱角要從底下翻過來摘，才不會扎手！' },
+    );
+    const roots = roll(s.roots);
+    const nuts = roll(s.chestnuts);
+    await ctx.hero((h) => [roots ? giveItem(h, 'lotus_root', roots) : null, nuts ? giveItem(h, 'water_chestnut', nuts) : null]);
     await maybeDayEvent(ctx, 'lake');
   },
 );

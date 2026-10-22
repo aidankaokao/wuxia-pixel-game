@@ -24,6 +24,8 @@ export type ItemIcon =
   | 'f_crucian' | 'f_carp' | 'f_silver' | 'f_grass' | 'f_mandarin' | 'f_turtle' | 'f_gold' | 'rod' | 'lotus_root' | 'water_chestnut'
   // 石料
   | 'slab'
+  // 漁網、魚乾
+  | 'net' | 'f_dried'
   // 技能（選單「技能」用）
   | 'c_cook' | 'c_weave' | 'c_learn' | 'c_qin' | 'c_chess' | 'c_brush'
   // 書冊：依書架換封面顏色
@@ -455,6 +457,22 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     px(ctx, 1, 5, 1, 1, '#3a2230');
     px(ctx, 14, 5, 1, 1, '#3a2230');
     px(ctx, 7, 8, 2, 1, '#8a6a7a');
+  },
+  // 漁網：一團收起來的網，網眼一格格
+  net(ctx) {
+    ellipse(ctx, 8, 9, 6, 5, '#c8b890');
+    for (let x = 3; x <= 13; x += 2) vline(ctx, x, 5, 13, '#8a7a58');
+    for (let y = 5; y <= 13; y += 2) hline(ctx, 3, 13, y, '#8a7a58');
+    px(ctx, 7, 2, 2, 3, '#6a4428');
+  },
+  // 魚乾：串在草繩上的兩條扁魚
+  f_dried(ctx) {
+    hline(ctx, 2, 13, 3, '#a8804a');
+    for (const x of [4, 9]) {
+      px(ctx, x, 4, 3, 8, '#a87a48');
+      px(ctx, x + 1, 5, 1, 6, '#c89a60');
+      px(ctx, x - 1, 12, 5, 2, '#8a5a30');
+    }
   },
   // 青石條：長方的石塊，側面看得到鑿痕
   slab(ctx) {

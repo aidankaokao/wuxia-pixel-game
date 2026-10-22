@@ -31,8 +31,8 @@ export const CRAFT_ICON: Record<CraftId, ItemIcon> = {
   painting: 'painting',
 };
 
-const SPOT_NAME: Record<FishSpot, string> = { pier: '湖邊棧橋', reeds: '蘆葦蕩', isle: '湖心島' };
-const LIKE_NAME: Record<string, string> = { dawn: '清晨', dusk: '黃昏', night: '夜裡', rain: '雨天', day: '白天', fog: '霧天', clear: '晴天', cloudy: '陰天' };
+const SPOT_NAME: Record<FishSpot, string> = { pier: '湖邊棧橋', reeds: '蘆葦蕩', isle: '湖心島', pond: '自家池塘' };
+const LIKE_NAME: Record<string, string> = { dawn: '清晨', dusk: '黃昏', night: '夜裡', rain: '雨天', day: '白天', fog: '霧天', clear: '晴天', cloudy: '陰天', snow: '雪天', spring: '春天', summer: '夏天', autumn: '秋天', winter: '冬天' };
 
 const SHELF_ICON: Record<Shelf, ItemIcon> = { 蒙學: 'book_meng', 經部: 'book_jing', 史部: 'book_shi', 子部: 'book_zi', 集部: 'book_ji' };
 const GROUPS = ['生活', '學問', '雅藝'] as const;
@@ -258,6 +258,11 @@ function cellsFor(hero: Character, id: CraftId): IconCell[] | null {
               {f.likes?.map((l) => (
                 <span key={l} className="effect treat">
                   {LIKE_NAME[l]}多
+                </span>
+              ))}
+              {f.hides?.map((l) => (
+                <span key={l} className="effect">
+                  {LIKE_NAME[l]}釣不到
                 </span>
               ))}
             </div>

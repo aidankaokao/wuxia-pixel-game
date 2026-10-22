@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { todayTasks, WEATHER_LINE, type DayTask } from '../game/daily';
+import { TERM_LINE, todayTasks, WEATHER_LINE, type DayTask } from '../game/daily';
 import { QUESTS } from '../game/story/quests';
-import { dateText, festivalOf, isXunxiu, timeText, WEATHER_NAME } from '../game/time';
+import { currentTerm, dateText, festivalOf, isXunxiu, seasonOf, SEASON_NAME, solarTermOf, timeText, WEATHER_NAME } from '../game/time';
 import { useGame } from '../state/store';
 import { isCancel, isConfirm, useKeys } from './useKeys';
 
@@ -61,10 +61,14 @@ export function MorningBrief() {
           <span className="brief-date">{dateText(world.day)}</span>
           {fest && <span className="festival">{fest}</span>}
           {isXunxiu(world.day) && <span className="festival">旬休</span>}
+          <span className="brief-term">
+            {SEASON_NAME[seasonOf(world.day)]}・{currentTerm(world.day)}
+          </span>
           <span className="brief-weather">
             {WEATHER_NAME[world.weather]}　{timeText(world.time)}
           </span>
         </div>
+        {solarTermOf(world.day) && <p className="brief-line festival">{TERM_LINE[solarTermOf(world.day)!]}</p>}
         <p className="brief-line">{WEATHER_LINE[world.weather]}</p>
 
         <h3>今日</h3>

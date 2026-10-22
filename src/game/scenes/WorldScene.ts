@@ -6,9 +6,10 @@ import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { EventCtx, Script, ScriptAbort } from '../events';
 import { drawNodeIcon, drawWorldHero, drawWorldMap } from '../art/worldmap';
-import { CELL, edgesFrom, NODES, nodeById, spawnOf, travelKe, WORLD_H, WORLD_W, type WorldNode } from '../world/geo';
+import { seasonCanvas } from '../art/season';
+import { CELL, edgesFrom, NODES, nodeById, roadKe, spawnOf, WORLD_H, WORLD_W, type WorldNode } from '../world/geo';
 import { keText } from '../thought';
-import { periodOf, type Period } from '../time';
+import { periodOf, seasonOf, type Period } from '../time';
 import { autosave, setPositionProvider } from '../save';
 import type { Line } from '../maps/types';
 import { uiBlocking, useGame } from '../../state/store';
@@ -60,6 +61,10 @@ export class WorldScene extends Phaser.Scene {
   create() {
     const tex = this.textures;
     if (!tex.exists('worldmap')) tex.addCanvas('worldmap', drawWorldMap());
+    // 依季節換色的大地圖：秋天枯黃、冬天覆雪
+    const season = seasonOf(useGame.getState().world.day);
+    const mapKey = season === 'spring' ? 'worldmap' : `worldmap@${season}`;
+    if (!tex.exists(mapKey)) tex.addCanvas(mapKey, seasonCanvas(tex.get('worldmap').getSourceImage() as HTMLCanvasElement, season, 'ground')!);
     for (const k of ['city', 'village', 'sect', 'wild', 'port', 'ferry', 'inn', 'locked'] as const)
       if (!tex.exists(`wnode_${k}`)) tex.addCanvas(`wnode_${k}`, drawNodeIcon(k));
     if (!tex.exists('world_hero')) {
@@ -68,7 +73,7 @@ export class WorldScene extends Phaser.Scene {
       t.add(1, 0, 9, 0, 9, 12);
     }
     if (!this.anims.exists('world_hero_walk')) this.anims.create({ key: 'world_hero_walk', frames: [{ key: 'world_hero', frame: 0 }, { key: 'world_hero', frame: 1 }], frameRate: 6 });
-    this.add.image(0, 0, 'worldmap').setOrigin(0);
+    this.add.image(0, 0, mapKey).setOrigin(0);
     this.shade = this.add.rectangle(0, 0, WORLD_W * CELL, WORLD_H * CELL, 0x000000, 0).setOrigin(0).setDepth(0.5);
     this.updateShade(false);
     const unsub = useGame.subscribe((s, prev) => {
@@ -130,9 +135,9 @@ export class WorldScene extends Phaser.Scene {
     const { time, weather } = useGame.getState().world;
     const SHADE: Record<Period, [number, number]> = { dawn: [0x000000, 0], day: [0x000000, 0], dusk: [0xd06a28, 0.28], night: [0x0a1238, 0.5] };
     let [color, alpha] = SHADE[periodOf(time)];
-    if ((weather === 'cloudy' || weather === 'rain') && alpha < 0.2) {
-      color = alpha ? color : 0x505a68;
-      alpha = Math.max(alpha, weather === 'rain' ? 0.2 : 0.12);
+    if ((weather === 'cloudy' || weather === 'rain' || weather === 'snow') && alpha < 0.2) {
+      color = alpha ? color : weather === 'snow' ? 0x8a9ab8 : 0x505a68;
+      alpha = Math.max(alpha, weather === 'rain' ? 0.2 : weather === 'snow' ? 0.1 : 0.12);
     }
     this.shade.setFillStyle(color, this.shade.fillAlpha);
     if (animate) this.tweens.add({ targets: this.shade, fillAlpha: alpha, duration: 600 });
@@ -192,7 +197,7 @@ export class WorldScene extends Phaser.Scene {
     let pick = -1;
     await this.runScript(async (ctx) => {
       pick = await ctx.ask('這裡是岔路。往哪裡走？', [
-        ...roads.map(({ r }) => `${r.edge.name}・${r.to.locked ? '？' : r.to.name}${r.to.locked ? '' : `（約${keText(travelKe(r.edge.ke, useGame.getState().hero))}）`}`),
+        ...roads.map(({ r }) => `${r.edge.name}・${r.to.locked ? '？' : r.to.name}${r.to.locked ? '' : `（約${keText(roadKe(r.edge, useGame.getState().hero, useGame.getState().world))}）`}`),
         '算了',
       ]);
     });
@@ -252,7 +257,7 @@ export class WorldScene extends Phaser.Scene {
       this.hero.stop();
       this.hero.setFrame(0);
       // 騎馬、輕功好都走得比較快
-      useGame.getState().passTime(travelKe(r.edge.ke, useGame.getState().hero));
+      useGame.getState().passTime(roadKe(r.edge, useGame.getState().hero, useGame.getState().world));
       this.from = this.node.id;
       this.node = r.to;
       this.moving = false;

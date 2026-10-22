@@ -1,3 +1,4 @@
+import { fishAt } from '../story/biyi';
 import { BUILDINGS } from '../art/props';
 import { Estate, furnitureOf, furnitureWidth, LAYOUTS, parseLayout, tierDef } from '../home';
 import { furnitureScript, plotSign } from '../story/estate';
@@ -31,6 +32,9 @@ export function buildHomeMap(plot: PlacedPlot, e: Estate): MapDef {
     const lv = f.maxLevel > 1 ? e.furniture[f.id] ?? 1 : 1;
     props.push({ id: f.id, sprite: `f_${f.id}_${e.style}_${lv}`, x: at.x, y: at.y, w: furnitureWidth(f.id, e.style), script, label });
   }
+  // 大宅的院子有池塘：放一個釣點（只有鯽魚、鯉魚）
+  const pond = tiles.findIndex((r) => r.includes('~'));
+  if (pond >= 0) props.push({ sprite: 'ripple', x: tiles[pond].indexOf('~'), y: pond, script: fishAt('pond', '自家院子的小池塘，養著幾條鯽魚、鯉魚。'), label: '釣魚' });
   const ey = tiles.findIndex((r) => r.includes('E'));
   const ex = tiles[ey].indexOf('E');
   const door = plotBuilding(plot, e).door;

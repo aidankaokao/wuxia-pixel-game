@@ -1,6 +1,6 @@
 import { COOK_STAMINA, cookAt } from './cooking';
 import { learningBonus } from '../books';
-import { Character, derive, roundsToCap, type Skill, gainInsight, gainSkill, giveItem, isEquipped, nextMove, restoreAll, skillCap, skillDef, slotOf } from '../character';
+import { canHold, Character, derive, roundsToCap, type Skill, gainInsight, gainSkill, giveItem, isEquipped, nextMove, restoreAll, skillCap, skillDef, slotOf } from '../character';
 import { MOVES } from '../battle/moves';
 import { withCost, type EventCtx, type Script } from '../events';
 import {
@@ -17,7 +17,7 @@ import {
 import type { Line, PlotDef } from '../maps/types';
 import { keText } from '../thought';
 import { editSchedule, runSchedule } from './schedule';
-import { dateText, festivalOf, inShichen, keUntilDawn, SHICHEN, SHICHEN_INDEX, timeText } from '../time';
+import { dateText, festivalOf, inShichen, keUntilDawn, seasonOf, SHICHEN, SHICHEN_INDEX, timeText } from '../time';
 import { useGame } from '../../state/store';
 import { registerDailyTasks } from '../daily';
 
@@ -309,10 +309,49 @@ const garden =
     if (!(await useDaily(ctx, `${plot}:garden`, 1, '今天的止血草已經收過了，新芽還沒長出來。'))) return;
     ctx.pass(2);
     const e = estateOf(plot);
-    const n = GARDEN_HERBS[furnitureLevel(e, 'garden')] + (e.style === 'plain' ? 1 : 0);
-    await ctx.say('你蹲下身，把長好的止血草一株株摘了下來。');
+    // 冬天長得慢，少收一株
+    const winter = seasonOf(st().world.day) === 'winter';
+    const n = Math.max(1, GARDEN_HERBS[furnitureLevel(e, 'garden')] + (e.style === 'plain' ? 1 : 0) - (winter ? 1 : 0));
+    await ctx.say(winter ? '藥圃蓋著一層稻草擋霜。你掀開稻草，摘下幾株長得慢吞吞的止血草。' : '你蹲下身，把長好的止血草一株株摘了下來。');
     await ctx.hero((h) => giveItem(h, 'herb', n));
   });
+
+/** 晾魚架：把鮮魚掛上去，兩天後收魚乾（秋冬一天） */
+const RACK_FISH = ['crucian', 'carp', 'silverfish', 'grass_carp', 'mandarin', 'sea_fish'];
+const rackDays = () => (['autumn', 'winter'].includes(seasonOf(st().world.day)) ? 1 : 2);
+const rack =
+  (plot: string): Script =>
+  async (ctx) => {
+    const e = estateOf(plot);
+    const r = e?.rack;
+    const day = st().world.day;
+    if (r?.n) {
+      const left = r.day + rackDays() - day;
+      if (left > 0) {
+        await ctx.say(`晾魚架上掛著 ${r.n} 條魚，還沒乾透。\n（再 ${left} 天就能收）`);
+        return;
+      }
+      if (!canHold(st().hero, 'dried_fish', r.n)) {
+        await ctx.say('魚乾曬好了，可是行囊塞不下。（先騰出位子再來收）');
+        return;
+      }
+      await ctx.say('魚都曬得乾硬，聞起來又鹹又香。你一條條取下來，用草繩串好。');
+      await ctx.hero((h) => giveItem(h, 'dried_fish', r.n));
+      st().updateWorld((w) => delete w.estates[plot].rack);
+      return;
+    }
+    const fresh = RACK_FISH.filter((id) => (st().hero.items[id] ?? 0) > 0);
+    const n = fresh.reduce((a, id) => a + st().hero.items[id], 0);
+    if (!n) {
+      await ctx.say(`晾魚架空著。\n（把鮮魚掛上去，${rackDays()} 天後收魚乾。魚可以自己釣，也能在大埠頭魚市、碧漪湖阮大水那兒買）`);
+      return;
+    }
+    if ((await ctx.ask(`要把身上的鮮魚掛上去晾嗎？（${n} 條，${rackDays()} 天後收魚乾）`, ['全掛上去', '算了'])) !== 0) return;
+    ctx.pass(1);
+    st().updateHero((h) => fresh.forEach((id) => delete h.items[id]));
+    st().updateWorld((w) => (w.estates[plot].rack = { n, day: w.day }));
+    await ctx.say('你把魚剖開、抹上鹽，一條條掛上竿子。風一吹，魚尾巴晃呀晃的。');
+  };
 
 const look =
   (text: string): Script =>
@@ -336,6 +375,8 @@ export function furnitureScript(plot: string, id: string): { script: Script; lab
       return { script: furnace(plot), label: '煉藥' };
     case 'garden':
       return { script: garden(plot), label: '收成' };
+    case 'rack':
+      return { script: rack(plot), label: '晾魚' };
     case 'table':
       return { script: look('一張方桌、兩張竹凳。'), label: '查看' };
     case 'guestbed':

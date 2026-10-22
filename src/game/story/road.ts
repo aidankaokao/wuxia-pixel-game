@@ -1,10 +1,10 @@
-import { addFame, Character, derive, giveItem } from '../character';
+import { addFame, Character, derive, gainSkill, giveItem, isEquipped, skillCap, skillDef, slotOf } from '../character';
 import { gainCraft } from '../crafts';
 import type { EventCtx } from '../events';
 import { usedToday } from '../home';
 import type { Line } from '../maps/types';
 import type { WorldEdge, WorldNode } from '../world/geo';
-import { periodOf, Period, Weather } from '../time';
+import { periodOf, Period, Season, seasonOf, Weather } from '../time';
 import type { Flags } from '../../state/store';
 import type { World } from '../home';
 import { useGame } from '../../state/store';
@@ -32,6 +32,7 @@ export interface RoadView {
   to: WorldNode;
   period: Period;
   weather: Weather;
+  season: Season;
 }
 
 export interface RoadEvent {
@@ -56,7 +57,7 @@ export function rollRoadEvent(edge: WorldEdge, from: WorldNode, to: WorldNode, r
   const s = st();
   if (usedToday(s.world, DAY_KEY) >= MAX_PER_DAY) return null;
   if (rand() >= roadChance(edge.li)) return null;
-  const view: RoadView = { hero: s.hero, flags: s.flags, world: s.world, edge, from, to, period: periodOf(s.world.time), weather: s.world.weather };
+  const view: RoadView = { hero: s.hero, flags: s.flags, world: s.world, edge, from, to, period: periodOf(s.world.time), weather: s.world.weather, season: seasonOf(s.world.day) };
   const pool = EVENTS.filter((e) => {
     const last = s.world.daily[`road:${e.id}`]?.day;
     return (last === undefined || s.world.day - last >= e.cooldown) && (e.when?.(view) ?? true);
@@ -186,7 +187,7 @@ registerRoadEvent({
   id: 'sunrise',
   weight: 3,
   cooldown: 3,
-  when: (v) => v.period === 'dawn' && v.weather !== 'rain' && v.weather !== 'fog',
+  when: (v) => v.period === 'dawn' && (v.weather === 'clear' || v.weather === 'cloudy'),
   run: async (ctx) => {
     await ctx.say('東邊的天一點一點亮起來，太陽從山脊後頭跳出來，整條路都鍍上了金。', '你停下腳步，深深吸了一口氣——胸中一股清氣，緩緩沉到丹田。');
     const ready = studyable(st().hero);
@@ -320,13 +321,105 @@ registerRoadEvent({
   },
 });
 
+// ── 四季的路上 ──────────────────────────────────────────
+
+registerRoadEvent({
+  id: 'blossoms',
+  weight: 3,
+  cooldown: 4,
+  when: (v) => v.season === 'spring' && v.period !== 'night' && v.weather !== 'rain',
+  run: async (ctx) => {
+    await ctx.say('路旁一片桃林開得正盛，風一吹，花瓣落了你一肩。', '你伸手接住一片，忽然想起一句「桃花流水鱖魚肥」——這時節，湖裡的鱖魚該肥了。');
+    await ctx.hero((h) => {
+      h.stamina = Math.min(derive(h).maxStamina, h.stamina + 8);
+      return '（心情大好，體力 +8）';
+    });
+  },
+});
+
+registerRoadEvent({
+  id: 'shade',
+  weight: 3,
+  cooldown: 3,
+  when: (v) => v.season === 'summer' && v.period === 'day' && v.weather === 'clear',
+  run: async (ctx) => {
+    ctx.pass(1);
+    await ctx.say('日頭毒得像火，你在路邊一棵大樟樹下歇了歇腳。', '樹上的蟬叫得震天響。賣涼茶的老漢舀了一碗給你，只收一個銅板。');
+    await ctx.hero((h) => {
+      h.stamina = Math.min(derive(h).maxStamina, h.stamina + 15);
+      return '（喝了碗涼茶，歇了一刻。體力 +15）';
+    });
+  },
+});
+
+registerRoadEvent({
+  id: 'geese',
+  weight: 3,
+  cooldown: 4,
+  when: (v) => v.season === 'autumn' && v.period !== 'night',
+  run: async (ctx) => {
+    await ctx.say('一行大雁排成人字，從頭頂往南飛去，叫聲一聲接一聲。', '你看著牠們的隊形，一隻領頭、兩翼相應，忽然覺得跟劍陣有幾分相似。');
+    const ready = studyable(st().hero);
+    if (ready.length) await ctx.hero((h) => studyInsight(h, ready[0].id, 8));
+    else await ctx.say('（心裡隱約有點什麼，一時又說不上來）');
+  },
+});
+
+registerRoadEvent({
+  id: 'persimmon',
+  weight: 2,
+  cooldown: 5,
+  when: (v) => v.season === 'autumn' && v.period !== 'night',
+  run: async (ctx) => {
+    const p = says('佃農包大嫂');
+    await ctx.say('路邊的農家院子裡，柿子樹掛滿了紅燈籠似的果子。', ...p('過路的，拿兩個去吃！今年結得多，吃不完要爛啦。'));
+    await ctx.hero((h) => {
+      h.hp = Math.min(derive(h).maxHp, h.hp + 30);
+      return '（甜得黏牙。氣血 +30）';
+    });
+  },
+});
+
+registerRoadEvent({
+  id: 'snow_road',
+  weight: 4,
+  cooldown: 2,
+  when: (v) => v.season === 'winter' && (v.weather === 'snow' || !!v.edge.slow),
+  run: async (ctx, v) => {
+    ctx.pass(1);
+    await ctx.say(
+      v.weather === 'snow' ? '雪越下越大，路上的腳印一下就被蓋住了。' : '山路上的積雪還沒化，一腳深一腳淺。',
+      '你提一口氣，踩著前人的腳印往前走，竟也走出了幾分輕功的味道。',
+    );
+    await ctx.hero((h) => {
+      const s = h.skills.find((k) => isEquipped(k) && slotOf(skillDef(k).kind) === 'light' && k.level < skillCap(k));
+      return s ? [`「${skillDef(s).name}」經驗 +12。`, gainSkill(h, s.id, 12, false)] : '（踩雪走路，腿上的勁長了些）';
+    });
+  },
+});
+
+registerRoadEvent({
+  id: 'plum',
+  weight: 2,
+  cooldown: 5,
+  when: (v) => v.season === 'winter' && v.period !== 'night',
+  run: async (ctx) => {
+    await ctx.say('雪地裡一株老梅開了，紅得耀眼，香氣冷冷的。', '你在梅樹下站了一會兒，胸中一股清氣慢慢沉了下去。');
+    await ctx.hero((h) => {
+      h.qi = Math.min(derive(h).maxQi, h.qi + 20);
+      return '（內力 +20）';
+    });
+  },
+});
+
 // ── 夜路 ────────────────────────────────────────────────
 
 registerRoadEvent({
   id: 'fireflies',
   weight: 3,
   cooldown: 3,
-  when: (v) => v.period === 'night' && v.weather !== 'rain',
+  // 螢火蟲只在夏天
+  when: (v) => v.period === 'night' && v.weather !== 'rain' && v.season === 'summer',
   run: async (ctx) => {
     await ctx.say('夜路上，草叢裡亮起一點一點的螢火，忽明忽滅，跟著你走了好長一段。', '頭頂的星星密得像撒了一把鹽。你忽然覺得，夜路也沒那麼難走。');
     await ctx.hero((h) => {

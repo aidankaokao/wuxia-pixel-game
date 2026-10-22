@@ -1,6 +1,6 @@
 import { keText } from '../game/thought';
 import { KE_PER_DAY, periodOf, timeText } from '../game/time';
-import { AREA_LABELS, edgesFrom, NODE_KIND_NAME, NODES, nodeById, travelKe } from '../game/world/geo';
+import { AREA_LABELS, edgesFrom, isCrossingOpen, NODE_KIND_NAME, NODES, nodeById, roadFactor, roadKe, travelKe } from '../game/world/geo';
 import { useGame } from '../state/store';
 
 /** 道路往哪個方向（看路的頭幾格），顯示成箭頭 */
@@ -28,6 +28,7 @@ export function WorldOverlay() {
   const hidden = useGame((s) => s.battle !== null || s.screen !== 'game');
   const hero = useGame((s) => s.hero);
   const time = useGame((s) => s.world.time);
+  const world = useGame((s) => s.world);
   if (!wm || hidden) return null;
   const speed = travelKe(100, hero) < 100 ? Math.round((100 / travelKe(100, hero) - 1) * 100) : 0;
   const here = wm.node ? nodeById(wm.node) : null;
@@ -51,12 +52,18 @@ export function WorldOverlay() {
               <span className="muted small">{NODE_KIND_NAME[here.kind]}</span>
             </div>
             <p className="small">{here.desc}</p>
-            {here.crossing && wm.from && <p className="small muted">（要到對岸，得進渡口坐船過河）</p>}
+            {here.crossing && wm.from && !isCrossingOpen(here.id) && <p className="small muted">（要到對岸，得進渡口坐船過河）</p>}
             <ul className="world-roads">
               {edgesFrom(here.id, wm.from).map((r) => (
                 <li key={r.to.id} className={r.to.locked ? 'muted' : ''}>
                   <kbd>{arrowOf(here, r.path)}</kbd> {r.edge.name}・{r.to.locked ? '？（還沒開放）' : r.to.name}
-                  {!r.to.locked && <span className="muted">　約{keText(travelKe(r.edge.ke, hero))}{arriveNote(time, travelKe(r.edge.ke, hero))}</span>}
+                  {!r.to.locked && (
+                    <span className="muted">
+                      　約{keText(roadKe(r.edge, hero, world))}
+                      {roadFactor(r.edge, world).note && `（${roadFactor(r.edge, world).note}）`}
+                      {arriveNote(time, roadKe(r.edge, hero, world))}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

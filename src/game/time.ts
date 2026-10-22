@@ -54,13 +54,49 @@ export const SHICHEN_INDEX = { 子: 0, 丑: 1, 寅: 2, 卯: 3, 辰: 4, 巳: 5, �
 
 // ── 天氣 ────────────────────────────────────────────────
 
-export type Weather = 'clear' | 'cloudy' | 'rain' | 'fog';
-export const WEATHER_NAME: Record<Weather, string> = { clear: '晴', cloudy: '陰', rain: '雨', fog: '霧' };
+export type Weather = 'clear' | 'cloudy' | 'rain' | 'fog' | 'snow';
+export const WEATHER_NAME: Record<Weather, string> = { clear: '晴', cloudy: '陰', rain: '雨', fog: '霧', snow: '雪' };
 
-/** 每天早上擲的天氣（晴天多一點） */
-function rollWeather(rand: () => number): Weather {
+/** 各季的天氣機率（晴、陰、雨或雪、霧）：夏天雨多，秋天晴多，冬天下的是雪 */
+const WEATHER_ODDS: Record<Season, [number, number, number, number]> = {
+  spring: [0.45, 0.22, 0.23, 0.1],
+  summer: [0.5, 0.15, 0.3, 0.05],
+  autumn: [0.6, 0.2, 0.1, 0.1],
+  winter: [0.4, 0.28, 0.22, 0.1],
+};
+
+/** 每天早上擲的天氣（依季節） */
+function rollWeather(rand: () => number, season: Season): Weather {
+  const [clear, cloudy, wet] = WEATHER_ODDS[season];
   const r = rand();
-  return r < 0.5 ? 'clear' : r < 0.72 ? 'cloudy' : r < 0.9 ? 'rain' : 'fog';
+  if (r < clear) return 'clear';
+  if (r < clear + cloudy) return 'cloudy';
+  if (r < clear + cloudy + wet) return season === 'winter' ? 'snow' : 'rain';
+  return 'fog';
+}
+
+// ── 季節與節氣 ──────────────────────────────────────────
+
+/** 春（正月到三月）、夏（四到六月）、秋（七到九月）、冬（十月到臘月） */
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+export const SEASONS: Season[] = ['spring', 'summer', 'autumn', 'winter'];
+export const SEASON_NAME: Record<Season, string> = { spring: '春', summer: '夏', autumn: '秋', winter: '冬' };
+export const seasonOf = (day: number): Season => SEASONS[Math.floor(dateOf(day).month / 3)];
+
+/** 二十四節氣：每月初一、十六各一個（月份 0 起算） */
+const SOLAR_TERMS = [
+  ['立春', '雨水'], ['驚蟄', '春分'], ['清明', '穀雨'], ['立夏', '小滿'], ['芒種', '夏至'], ['小暑', '大暑'],
+  ['立秋', '處暑'], ['白露', '秋分'], ['寒露', '霜降'], ['立冬', '小雪'], ['大雪', '冬至'], ['小寒', '大寒'],
+];
+/** 今天交什麼節氣（不是交節氣的日子就是 undefined） */
+export function solarTermOf(day: number): string | undefined {
+  const { month, date } = dateOf(day);
+  return date === 1 ? SOLAR_TERMS[month][0] : date === 16 ? SOLAR_TERMS[month][1] : undefined;
+}
+/** 現在落在哪個節氣裡（給提要、選單顯示） */
+export function currentTerm(day: number): string {
+  const { month, date } = dateOf(day);
+  return SOLAR_TERMS[month][date >= 16 ? 1 : 0];
 }
 
 // ── 時間流逝 ────────────────────────────────────────────
@@ -84,10 +120,11 @@ export function advance(w: World, ke: number, rand: () => number = Math.random):
     }
     const now = shichenOf(w.time);
     if (now === before) continue;
-    if (now === SHICHEN_INDEX.卯) w.weather = rollWeather(rand);
+    const season = seasonOf(w.day);
+    if (now === SHICHEN_INDEX.卯) w.weather = rollWeather(rand, season);
     else if (w.weather === 'fog' && now >= SHICHEN_INDEX.巳 && now <= SHICHEN_INDEX.申) w.weather = 'cloudy';
     else if (rand() < 0.12) {
-      const next = rollWeather(rand);
+      const next = rollWeather(rand, season);
       w.weather = next === 'fog' ? 'cloudy' : next;
     }
   }

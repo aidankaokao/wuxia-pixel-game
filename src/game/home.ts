@@ -31,6 +31,8 @@ export interface Estate {
   style: HomeStyle;
   /** 家具 id → 等級（沒寫就是 1） */
   furniture: Record<string, number>;
+  /** 晾魚架上掛著幾條魚、哪天掛上去的 */
+  rack?: { n: number; day: number };
 }
 
 /** 世界狀態（存檔）：日子、房產、每日次數 */
@@ -138,6 +140,10 @@ export const FURNITURE: FurnitureDef[] = [
     id: 'garden', name: '藥圃', tier: 4, maxLevel: 3, costs: [100, 220],
     effect: (lv, st) => `每天收成 ${GARDEN_HERBS[lv] + (st === 'plain' ? 1 : 0)} 株止血草。`,
   },
+  {
+    id: 'rack', name: '晾魚架', tier: 3, maxLevel: 1, costs: [],
+    effect: () => '把鮮魚掛上去，兩天後收魚乾（秋冬風乾得快，一天就好）。魚乾放多久都不壞，可以入菜，望江樓也收。',
+  },
   { id: 'guestbed', name: '客房', tier: 4, maxLevel: 1, costs: [], effect: () => '整理好的客房，等著將來的朋友來住。' },
 ];
 
@@ -149,7 +155,7 @@ export const furnitureOf = (e: Estate) => FURNITURE.filter((f) => f.tier <= e.ti
 /** 家具佔幾格寬（擺飾依風格而不同：兵器架兩格） */
 export function furnitureWidth(id: string, style: HomeStyle): number {
   if (id === 'deco') return style === 'martial' ? 2 : 1;
-  return { bed: 2, table: 2, stove: 2, shelf: 2, dummy: 1, furnace: 1, garden: 3, guestbed: 2 }[id] ?? 1;
+  return { bed: 2, table: 2, stove: 2, shelf: 2, dummy: 1, furnace: 1, garden: 3, guestbed: 2, rack: 2 }[id] ?? 1;
 }
 
 // ── 房間配置 ────────────────────────────────────────────
@@ -157,7 +163,7 @@ export function furnitureWidth(id: string, style: HomeStyle): number {
 /**
  * 每個等級一張配置圖。字元：W 牆、_ 地板、d 屋內的門（可走）、E 出口，
  * 院子沿用野外的字元（. 草地、f 籬笆、= 石板、~ 池塘）。
- * 數字與 a b c 是錨點：家具的左端放在這一格（往右佔 w 格），錨點本身的地形取左右最近的非錨點字元（優先取不是牆的那邊）。
+ * 數字與 a b c r 是錨點：家具的左端放在這一格（往右佔 w 格），錨點本身的地形取左右最近的非錨點字元（優先取不是牆的那邊）。
  * place 寫出各風格下，每件家具放在哪個錨點。
  */
 export interface LayoutDef {
@@ -206,15 +212,15 @@ export const LAYOUTS: LayoutDef[] = [
       'W_________W',
       'W4______5_W',
       'WWWWWdWWWWW',
-      'f.........f',
+      'f.......r.f',
       'f.6..8..7.f',
       'f.........f',
       'fffffEfffff',
     ],
     place: {
-      plain: { bed: '1', shelf: '3', table: '4', stove: '5', dummy: '7', deco: '6' },
-      scholar: { shelf: '2', bed: '3', table: '4', stove: '5', dummy: '6', deco: '9' },
-      martial: { bed: '1', shelf: '3', table: '4', stove: '5', dummy: '8', deco: '7' },
+      plain: { bed: '1', shelf: '3', table: '4', stove: '5', dummy: '7', deco: '6', rack: 'r' },
+      scholar: { shelf: '2', bed: '3', table: '4', stove: '5', dummy: '6', deco: '9', rack: 'r' },
+      martial: { bed: '1', shelf: '3', table: '4', stove: '5', dummy: '8', deco: '7', rack: 'r' },
     },
   },
   // 4 青磚宅院（右邊隔出客房）
@@ -226,16 +232,16 @@ export const LAYOUTS: LayoutDef[] = [
       'W________d____W',
       'W5__6___7W8___W',
       'WWWWWWdWWWWWWWW',
-      'f.............f',
+      'f..........r..f',
       'f.a...........f',
       'f......c..b...f',
       'f.............f',
       'ffffffEffffffff',
     ],
     place: {
-      plain: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'b', deco: '8' },
-      scholar: { shelf: '2', bed: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'b', deco: '9' },
-      martial: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: '8' },
+      plain: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'b', deco: '8', rack: 'r' },
+      scholar: { shelf: '2', bed: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'b', deco: '9', rack: 'r' },
+      martial: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: '8', rack: 'r' },
     },
   },
   // 5 大宅（院中演武場與池塘）
@@ -251,18 +257,18 @@ export const LAYOUTS: LayoutDef[] = [
       'f.a.....===.....f',
       'f.......=c=..~~.f',
       'f.....b.===..~~.f',
-      'f...............f',
+      'f.........r.....f',
       'fffffffEfffffffff',
     ],
     place: {
-      plain: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: 'b' },
-      scholar: { shelf: '2', bed: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: '9' },
-      martial: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: '8' },
+      plain: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: 'b', rack: 'r' },
+      scholar: { shelf: '2', bed: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: '9', rack: 'r' },
+      martial: { bed: '1', shelf: '3', table: '5', stove: '6', furnace: '7', guestbed: '4', garden: 'a', dummy: 'c', deco: '8', rack: 'r' },
     },
   },
 ];
 
-export const ANCHOR = /[0-9abc]/;
+export const ANCHOR = /[0-9abcr]/;
 
 /** 把配置圖的錨點換回地形字元，並找出各錨點的位置 */
 export function parseLayout(grid: string[]) {

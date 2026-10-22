@@ -10,6 +10,7 @@
  * - 還沒開放的地方（locked）顯示成「？」，走不過去，之後一個個建。
  */
 
+import { seasonOf, type Weather } from '../time';
 import { equippedLevel, type Character } from '../character';
 import { mountDef } from '../mounts';
 
@@ -61,6 +62,8 @@ export interface WorldEdge {
   danger: number;
   /** 路名（顯示用） */
   name: string;
+  /** 山路（走得慢的倍數）；冬天會積雪 */
+  slow?: number;
 }
 
 export const NODES: WorldNode[] = [
@@ -174,6 +177,30 @@ export function travelKe(ke: number, h: Character): number {
   return Math.max(1, Math.round(ke / (mount * light)));
 }
 
+/**
+ * 季節與天氣讓路變難走：冬天山路積雪（有 slow 的路）多花五成時間；下雪天所有路再多兩成，下雨天多一成。
+ * 回傳倍數與要顯示的小字（沒有影響就是 1 與空字串）。
+ */
+export function roadFactor(edge: WorldEdge, w: { day: number; weather: Weather }): { mult: number; note: string } {
+  let mult = 1;
+  const notes: string[] = [];
+  if (seasonOf(w.day) === 'winter' && edge.slow) {
+    mult *= 1.5;
+    notes.push('山路積雪');
+  }
+  if (w.weather === 'snow') {
+    mult *= 1.2;
+    notes.push('雪天路滑');
+  } else if (w.weather === 'rain') {
+    mult *= 1.1;
+    notes.push('雨天泥濘');
+  }
+  return { mult, note: notes.join('、') };
+}
+
+/** 走這條路實際花幾刻：照里數、季節天氣，再算騎馬與輕功 */
+export const roadKe = (edge: WorldEdge, h: Character, w: { day: number; weather: Weather }) => travelKe(Math.round(edge.ke * roadFactor(edge, w).mult), h);
+
 /** 道路：via 是手畫的轉折點，之後展開成一格一格 */
 const ROADS: { a: string; b: string; via: [number, number][]; li: number; slow?: number; danger: number; name: string }[] = [
   // 臨江縣內
@@ -214,7 +241,7 @@ function expand(points: [number, number][]): [number, number][] {
 export const EDGES: WorldEdge[] = ROADS.map((r) => {
   const a = nodeById(r.a);
   const b = nodeById(r.b);
-  return { a: r.a, b: r.b, path: expand([[a.x, a.y], ...r.via, [b.x, b.y]]), ke: keOf(r.li, r.slow), li: r.li, danger: r.danger, name: r.name };
+  return { a: r.a, b: r.b, path: expand([[a.x, a.y], ...r.via, [b.x, b.y]]), ke: keOf(r.li, r.slow), li: r.li, danger: r.danger, name: r.name, slow: r.slow };
 });
 
 /**
@@ -224,6 +251,7 @@ export const EDGES: WorldEdge[] = ROADS.map((r) => {
 /** 渡口能不能直接走過去（例如雲水渡口蓋好橋以後）；由劇情設定（story/bridge.ts），免得這裡引用劇情 */
 let crossingOpen: (id: string) => boolean = () => false;
 export const setCrossingOpen = (f: (id: string) => boolean) => (crossingOpen = f);
+export const isCrossingOpen = (id: string) => crossingOpen(id);
 
 export function edgesFrom(id: string, from?: string): { to: WorldNode; edge: WorldEdge; path: [number, number][] }[] {
   const crossing = nodeById(id).crossing && from && !crossingOpen(id);

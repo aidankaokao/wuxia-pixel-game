@@ -15,7 +15,7 @@ import { craftDef, craftOf, CraftId, gainCraft } from '../crafts';
 import { MQ_UNIFORMS } from '../gear';
 import { heroUnit } from '../battle/moves';
 import { setupDrill } from '../battle/enemies';
-import { dateText, inShichen, isXunxiu, keUntilDawn, shichenStart, SHICHEN_INDEX, timeText } from '../time';
+import { dateText, inShichen, isXunxiu, keUntilDawn, seasonOf, shichenStart, SHICHEN_INDEX, timeText } from '../time';
 import type { PersonDef } from './people';
 import { registerDailyTasks, type DayTask } from '../daily';
 import { registerReminder } from '../thought';
@@ -950,17 +950,18 @@ async function practice(ctx: EventCtx, amount: number, stamina: number) {
   await maybeDayEvent(ctx, 'drill');
 }
 
-/** 廣場的木樁在室外：下雨天練起來更累 */
+/** 廣場的木樁在室外：下雨、下雪天練起來更累 */
 const RAIN_EXTRA = 5;
-const yardStamina = (w: World = st().world) => STAMINA.dummy + (w.weather === 'rain' ? RAIN_EXTRA : 0);
+const wet = (w: World) => w.weather === 'rain' || w.weather === 'snow';
+const yardStamina = (w: World = st().world) => STAMINA.dummy + (wet(w) ? RAIN_EXTRA : 0);
 
-export const yardStake: Script = withCost(() => (member() ? { ke: 2, stamina: yardStamina(), note: st().world.weather === 'rain' ? '下雨，比平常累' : undefined } : null), async (ctx) => {
+export const yardStake: Script = withCost(() => (member() ? { ke: 2, stamina: yardStamina(), note: wet(st().world) ? (st().world.weather === 'snow' ? '下雪，比平常累' : '下雨，比平常累') : undefined } : null), async (ctx) => {
   if (!member()) {
     await ctx.say('木樁上滿是劍痕。\n（這是鳴泉弟子練功用的木樁，拜入門下之後才能用）');
     return;
   }
-  const rain = st().world.weather === 'rain';
-  const c = await ctx.ask(rain ? '廣場上的木樁林。雨打在身上，練起來格外吃力。' : '廣場上的木樁林。', [`練樁（兩刻・體力 ${yardStamina()}）`, `找同門過招（一刻・體力 ${STAMINA.spar}）`, '算了']);
+  const rain = wet(st().world);
+  const c = await ctx.ask(rain ? (st().world.weather === 'snow' ? '廣場上的木樁林積了一層雪，踩上去又冷又滑。' : '廣場上的木樁林。雨打在身上，練起來格外吃力。') : '廣場上的木樁林。', [`練樁（兩刻・體力 ${yardStamina()}）`, `找同門過招（一刻・體力 ${STAMINA.spar}）`, '算了']);
   if (c === 0) await practice(ctx, 30, yardStamina());
   else if (c === 1) await drill(ctx);
 });
@@ -1414,9 +1415,10 @@ export const mushroomAt =
     ctx.setFlag(`mq_mush_${spot}`, st().world.day);
     ctx.refresh();
     ctx.pass(1);
-    // 下雨天野菌冒得特別多
+    // 下雨天野菌冒得特別多；秋天也多一朵，冬天少一些
     const rain = st().world.weather === 'rain';
-    const n = 1 + Math.floor(Math.random() * 3) + (rain ? 2 : 0);
+    const season = seasonOf(st().world.day);
+    const n = Math.max(1, 1 + Math.floor(Math.random() * 3) + (rain ? 2 : 0) + (season === 'autumn' ? 1 : season === 'winter' ? -1 : 0));
     await ctx.say(rain ? '雨後的落葉底下冒出一大片野菌，你摘得手都滿了。' : '你撥開落葉，把肥嫩的野菌一朵朵摘了下來。');
     await ctx.hero((h) => giveItem(h, 'mushroom', n));
   };

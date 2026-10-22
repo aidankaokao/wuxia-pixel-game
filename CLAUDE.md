@@ -48,10 +48,11 @@
 - 商店面板（`ctx.panel({ kind: 'shop', ... })`）：`stock` 賣的東西、`sellRate` 收購價比例（預設一半）、`buys` 只收哪些、`sellOnly` 只收不賣。臨江城的店家在 `story/linjiang_city.ts`，鏢局、縣衙懸賞、漕幫在 `story/linjiang_jianghu.ts`（懸賞目標是地圖上 `when: f.lj_b_<id> === 1` 的 NPC）。
 - 隨劇情改變的地形用 `MapDef.patches`（`when` 成立時用幾列字元蓋掉原本的地形，空白不改），例如雲水渡口蓋好的橋；旗標變了要 `ctx.reload()` 才看得到。渡口在大地圖上能不能直接走過，用 `geo.ts` 的 `setCrossingOpen`（由劇情檔設定）。
 - 大一點的城分成幾區（例如臨江城的城南 `linjiang`、城北 `lj_north`），每區一張地圖，相鄰兩區同寬（或同高）、城牆在同一欄，用 `maps/city.ts` 的 `seam` 接起來（走過去接到同一個位置、不花時間）。
-- 天氣：地圖條件可讀 `rain`／`fog`／`clear`；雨天會重生的野獸約一半躲起來（`MapScene.refresh`）。做事受天氣影響時，代價（`withCost`）與日課表的體力（`stamina` 可以給函式）要一起算。
+- 季節：`time.ts` 的 `seasonOf(day)`（春夏秋冬依月份）、`currentTerm`／`solarTermOf`（二十四節氣，每月初一、十六）。地圖條件可讀 `season`（0 春…3 冬）與 `spring`／`summer`／`autumn`／`winter`。畫面換色在 `art/season.ts`（只改偏綠的像素；室外地形 `seasonCanvas`，樹木 `seasonTextureKey`）。新玩法要隨季節變時，直接讀 `seasonOf(world.day)`；魚的季節喜好寫在 `FishDef.likes`／`hides`；路程的季節天氣倍數是 `geo.ts` 的 `roadFactor`（大地圖花的時間一律用 `roadKe`）。
+- 天氣：地圖條件可讀 `rain`／`fog`／`clear`／`snow`（雪只在冬天）；雨天、雪天會重生的野獸約一半躲起來（`MapScene.refresh`）。做事受天氣影響時，代價（`withCost`）與日課表的體力（`stamina` 可以給函式）要一起算。
 - 釣魚：魚與釣竿在 `src/game/fishing.ts`（`FISH` 的釣點 `spots`、喜好時辰天氣 `likes`、難度 `fight`），釣點是地圖上 `ripple` 擺設掛 `story/biyi.ts` 的 `fishAt(釣點, 描述)`；小遊戲是 store 的 `playFishing()`（`ui/FishingGame.tsx`，回傳 perfect／ok／miss）。魚譜是 works 的 `fishing:魚id`。湖邊做完事呼叫 `maybeDayEvent(ctx, 'lake')`，只會碰上湖邊的小事（門派的小事不會跑到湖邊）。
 - 新地方的人物檔案若要放進 `PEOPLE`，資料寫在獨立的輕量檔（例如 `story/biyi_people.ts`，交談選單用 `await import('./biyi')` 動態載入腳本），不要讓 people.ts 直接引用會再引回 social／people 的劇情檔，免得循環引用時拿到 undefined。
-- 生活技能訂單：`src/game/orders.ts`（下單的人 `GIVERS`、`newOrder`），腳本 `story/orders.ts` 的 `orderTalk`（人際系統的交談會自動呼叫；沒有人物檔案的人在自己的腳本開頭呼叫）。
+- 生活技能訂單：`src/game/orders.ts`（下單的人 `GIVERS`、`newOrder`；訂單種類 dish 菜、woven 織品、goods 貨——望江樓收魚、魚乾、湖產），腳本 `story/orders.ts` 的 `orderTalk`（人際系統的交談會自動呼叫；沒有人物檔案的人在自己的腳本開頭呼叫）。
 - 到處翻找：`src/game/loot.ts`。只有描述（`lines`）、沒有 `script` 的擺設，以及花叢、石頭，每天隨機藏東西；不想讓人翻的擺設把貼圖名加進 `SKIP`。
 - 所有 NPC 都要有名字（劇情上刻意隱藏身分的除外，例如青衫客），不要用「守城兵」「小販」這類稱呼當名字。
 - 雜務都要順帶一點成長（`CHORE_DONE` 的 `grow`：裝備中的某類武功或某項生活技能）；有人交辦的先說 `intro` 再播動畫。

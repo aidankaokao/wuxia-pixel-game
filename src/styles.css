@@ -1556,6 +1556,11 @@ table.charter td {
   color: var(--gold);
 }
 
+.brief-term {
+  font-size: 14px;
+  color: var(--muted);
+}
+
 .brief-weather {
   margin-left: auto;
   font-size: 14px;

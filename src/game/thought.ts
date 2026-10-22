@@ -57,6 +57,7 @@ export const resetReminders = () => Object.keys(fired).forEach((k) => delete fir
 
 // 天氣變了：下雨、起霧時自言自語一句
 registerReminder({ id: 'rain', check: ({ world }) => (world.weather === 'rain' ? '下雨了……在外頭練功可要吃力些。' : null) });
+registerReminder({ id: 'snow', check: ({ world }) => (world.weather === 'snow' ? '下雪了……山路怕是不好走。' : null) });
 registerReminder({ id: 'fog', check: ({ world }) => (world.weather === 'fog' ? '好大的霧……' : null) });
 registerReminder({ id: 'dusk', check: ({ world }) => (inShichen(world.time, SHICHEN_INDEX.酉, SHICHEN_INDEX.酉) ? '天色暗下來了……' : null) });
 registerReminder({ id: 'late', check: ({ world }) => (inShichen(world.time, SHICHEN_INDEX.亥, SHICHEN_INDEX.亥) ? '夜深了，該找地方睡了。' : null) });

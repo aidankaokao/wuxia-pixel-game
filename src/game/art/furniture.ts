@@ -156,6 +156,21 @@ function garden(_p: Palette, lv: number): PropArt {
   return done(c, ctx);
 }
 
+/** 晾魚架：兩根木柱一根橫竿，掛著一排魚 */
+function rack(p: Palette): PropArt {
+  const [c, ctx] = makeCanvas(32, 24);
+  for (const x of [2, 29]) vline(ctx, x, 3, 23, p.woodDark);
+  hline(ctx, 1, 30, 4, p.wood);
+  hline(ctx, 1, 30, 5, p.woodDark);
+  for (let x = 6; x < 28; x += 5) {
+    vline(ctx, x + 1, 6, 7, '#c8b890');
+    px(ctx, x, 8, 3, 8, '#a87a48');
+    px(ctx, x + 1, 9, 1, 6, '#c89a60');
+    px(ctx, x - 1, 16, 5, 2, '#8a5a30');
+  }
+  return done(c, ctx);
+}
+
 function deco(p: Palette, style: string): PropArt {
   if (style === 'scholar') {
     // 牆上的字畫
@@ -231,6 +246,7 @@ export function furnitureProps(): Record<string, PropArt> {
     out[`f_table_${style}_1`] = table(p);
     out[`f_guestbed_${style}_1`] = bed(p, 1, true);
     out[`f_deco_${style}_1`] = deco(p, style);
+    out[`f_rack_${style}_1`] = rack(p);
   }
   return out;
 }

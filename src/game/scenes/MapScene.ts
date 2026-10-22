@@ -3,6 +3,7 @@ import { festivalIndex } from '../festival';
 import Phaser from 'phaser';
 import { Dir, NPC_WALK_MS, RUN_MS, TILE, VIEW_TILES_H, VIEW_TILES_W, WALK_MS } from '../constants';
 import { tileArt } from '../art/tiles';
+import { seasonCanvas, seasonTextureKey } from '../art/season';
 import { BUILDINGS } from '../art/props';
 import { hash, makeCanvas } from '../art/pixel';
 import { Actor } from '../entities/Actor';
@@ -17,7 +18,7 @@ import { DEFEAT } from './defeat';
 import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { autosave, setPositionProvider } from '../save';
-import { isXunxiu, npcPresent, periodOf, shichenStart, SHICHEN_INDEX, type Period } from '../time';
+import { isXunxiu, npcPresent, periodOf, seasonOf, SEASONS, shichenStart, SHICHEN_INDEX, type Period } from '../time';
 import { flag, uiBlocking, useGame } from '../../state/store';
 
 interface Npc {
@@ -79,6 +80,7 @@ export class MapScene extends Phaser.Scene {
   private shade!: Phaser.GameObjects.Rectangle;
   private fog!: Phaser.GameObjects.Rectangle;
   private rain: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+  private rainKind: 'rain' | 'snow' | null = null;
 
   constructor() {
     super('map');
@@ -219,7 +221,8 @@ export class MapScene extends Phaser.Scene {
     });
     const texKey = `tiles-${this.def.id}`;
     if (this.textures.exists(texKey)) this.textures.remove(texKey);
-    this.textures.addCanvas(texKey, canvas);
+    // 室外依季節換色：秋天草地枯黃、冬天覆雪（art/season.ts）
+    this.textures.addCanvas(texKey, (!this.def.theme && seasonCanvas(canvas, this.season(), 'ground')) || canvas);
 
     const map = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
     const tileset = map.addTilesetImage(texKey, texKey, TILE, TILE, 0, 0)!;
@@ -248,6 +251,11 @@ export class MapScene extends Phaser.Scene {
   }
 
   /** 樹、竹、石：底下是草地，上面另放一張會依前後排序的圖。 */
+  /** 現在的季節（地圖換色用） */
+  private season() {
+    return seasonOf(useGame.getState().world.day);
+  }
+
   private placeDecor() {
     const g = this.def.tiles;
     for (let y = 0; y < this.h; y++)
@@ -262,6 +270,8 @@ export class MapScene extends Phaser.Scene {
         } else if (c === 'Y') key = `bamboo${Math.floor(r * 3)}`;
         else if (c === 'o') key = 'rock';
         if (!key) continue;
+        // 樹木依季節換色：秋天紅葉、冬天樹梢積雪
+        if (key !== 'rock' && !this.def.theme) key = seasonTextureKey(this.textures, key, this.season());
         const bottom = (y + 1) * TILE;
         this.add.image(x * TILE + TILE / 2, bottom + (key === 'rock' ? -2 : 0), key).setOrigin(0.5, 1).setDepth(bottom);
       }
@@ -315,13 +325,20 @@ export class MapScene extends Phaser.Scene {
       rain: world.weather === 'rain' ? 1 : 0,
       fog: world.weather === 'fog' ? 1 : 0,
       clear: world.weather === 'clear' ? 1 : 0,
+      snow: world.weather === 'snow' ? 1 : 0,
+      // 季節：season 是 0 春、1 夏、2 秋、3 冬；另外各季也有自己的旗標（是就為 1）
+      season: SEASONS.indexOf(seasonOf(world.day)),
+      spring: seasonOf(world.day) === 'spring' ? 1 : 0,
+      summer: seasonOf(world.day) === 'summer' ? 1 : 0,
+      autumn: seasonOf(world.day) === 'autumn' ? 1 : 0,
+      winter: seasonOf(world.day) === 'winter' ? 1 : 0,
     };
     const now = Date.now();
     const outdoor = !this.def.theme;
     for (const n of this.npcs) {
       const down = (respawnAt[`${this.def.id}:${n.def.id}`] ?? 0) > now;
       // 下雨天野獸少：會重生的野獸約有一半躲起來
-      const sheltering = world.weather === 'rain' && !!n.def.respawn && hashText(n.def.id) % 2 === 0;
+      const sheltering = (world.weather === 'rain' || world.weather === 'snow') && !!n.def.respawn && hashText(n.def.id) % 2 === 0;
       const allowed = (!n.def.when || n.def.when(f)) && !down && !sheltering;
       const here = npcPresent(n.def, outdoor, world.time);
       // 出現時若主角剛好站在那一格，等下次再說
@@ -458,6 +475,7 @@ export class MapScene extends Phaser.Scene {
       this.textures.addCanvas('raindrop', c);
     }
     this.rain = null;
+    this.rainKind = null;
     this.updateAtmosphere(false);
   }
 
@@ -476,9 +494,9 @@ export class MapScene extends Phaser.Scene {
     let alpha = outdoor ? outAlpha : inAlpha;
     let tint = color;
     // 陰天、雨天：室外再暗一點、偏灰
-    if (outdoor && (weather === 'cloudy' || weather === 'rain') && alpha < 0.2) {
-      tint = alpha ? color : 0x505a68;
-      alpha = Math.max(alpha, weather === 'rain' ? 0.2 : 0.12);
+    if (outdoor && (weather === 'cloudy' || weather === 'rain' || weather === 'snow') && alpha < 0.2) {
+      tint = alpha ? color : weather === 'snow' ? 0x8a9ab8 : 0x505a68;
+      alpha = Math.max(alpha, weather === 'rain' ? 0.2 : weather === 'snow' ? 0.1 : 0.12);
     }
     // setFillStyle 不給透明度會變成不透明，要帶上目前的值
     this.shade.setFillStyle(tint, this.shade.fillAlpha);
@@ -490,13 +508,17 @@ export class MapScene extends Phaser.Scene {
       this.shade.fillAlpha = alpha;
       this.fog.fillAlpha = fogAlpha;
     }
-    const raining = outdoor && weather === 'rain';
-    if (raining && !this.rain) this.rain = this.makeRain();
-    else if (!raining && this.rain) {
+    // 雨絲、雪花（換天氣時把另一種收掉）
+    const want = outdoor && (weather === 'rain' || weather === 'snow') ? weather : null;
+    if (this.rain && this.rainKind !== want) {
       this.rain.stop();
       const r = this.rain;
-      this.time.delayedCall(1500, () => r.destroy());
+      this.time.delayedCall(2500, () => r.destroy());
       this.rain = null;
+    }
+    if (want && !this.rain) {
+      this.rain = want === 'snow' ? this.makeSnow() : this.makeRain();
+      this.rainKind = want;
     }
   }
 
@@ -516,6 +538,32 @@ export class MapScene extends Phaser.Scene {
         quantity: 3,
         frequency: 16,
         alpha: { start: 0.75, end: 0.25 },
+      })
+      .setDepth(900001);
+  }
+
+  /** 雪花：白色小點，慢慢飄落、左右擺動 */
+  private makeSnow() {
+    if (!this.textures.exists('snowflake')) {
+      const [c, ctx] = makeCanvas(2, 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 2, 2);
+      this.textures.addCanvas('snowflake', c);
+    }
+    const cam = this.cameras.main;
+    const vw = cam.width / cam.zoom;
+    const vh = cam.height / cam.zoom;
+    return this.add
+      .particles(cam.worldView.x, cam.worldView.y, 'snowflake', {
+        x: { min: -30, max: vw + 30 },
+        y: { min: -12, max: vh * 0.7 },
+        speedY: { min: 18, max: 34 },
+        speedX: { min: -12, max: 8 },
+        lifespan: { min: 2500, max: 5000 },
+        quantity: 1,
+        frequency: 45,
+        alpha: { start: 0.95, end: 0.4 },
+        scale: { min: 0.5, max: 1 },
       })
       .setDepth(900001);
   }

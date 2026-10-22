@@ -7,7 +7,7 @@ import { useGame } from '../../state/store';
 
 /**
  * 訂單的腳本：找下單的人說話時，先處理訂單（過期、交貨、接新單），處理了回傳 true。
- * 卜大勺、鍾嬸在人際系統的交談裡呼叫（story/social.ts），魏錦娘在布莊的選單裡呼叫。
+ * 卜大勺、鍾嬸在人際系統的交談裡呼叫（story/social.ts），魏錦娘在布莊的選單裡呼叫，汪福來在望江樓的選單裡呼叫。
  */
 
 const st = () => useGame.getState();
@@ -45,7 +45,7 @@ export async function orderTalk(ctx: EventCtx, giver: string, affinity?: (n: num
     });
     st().updateWorld((w) => delete w.orders![giver]);
     later();
-    await ctx.say(say(o.kind === 'dish' ? '好手藝！這味道，夠格！' : '針腳細密，料子也勻，好東西。'), `（銀兩 +${o.silver}）`);
+    await ctx.say(say(o.kind === 'dish' ? '好手藝！這味道，夠格！' : o.kind === 'goods' ? '新鮮！客人就愛這一味，我這就送進廚房。' : '針腳細密，料子也勻，好東西。'), `（銀兩 +${o.silver}）`);
     await ctx.hero((h) => Object.entries(o.items).map(([id, n]) => giveItem(h, id, n)));
     if (o.aff && affinity) await affinity(o.aff);
     return true;
@@ -57,7 +57,12 @@ export async function orderTalk(ctx: EventCtx, giver: string, affinity?: (n: num
   const gifts = Object.entries(next.items)
     .map(([id, n]) => `${ITEMS[id].name}×${n}`)
     .join('、');
-  const ask = g.kind === 'dish' ? `想託你做${orderText(next)}，${dateText(next.due)}以前送來。` : `有位客人訂了${orderText(next)}，我這兒忙不過來，${dateText(next.due)}以前織好送來，成不成？`;
+  const ask =
+    g.kind === 'goods'
+      ? `樓裡的客人點名要${orderText(next)}，市面上不好買。${dateText(next.due)}以前送來，價錢好說！`
+      : g.kind === 'dish'
+        ? `想託你做${orderText(next)}，${dateText(next.due)}以前送來。`
+        : `有位客人訂了${orderText(next)}，我這兒忙不過來，${dateText(next.due)}以前織好送來，成不成？`;
   const c = await ctx.ask(say(`${ask}\n（酬勞：銀兩 ${next.silver}、${gifts}）`), ['接下', '婉拒']);
   if (c !== 0) {
     later();

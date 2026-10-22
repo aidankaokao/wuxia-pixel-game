@@ -39,7 +39,7 @@ import { itemIconUrl } from '../game/art/items';
 import { MOVES } from '../game/battle/moves';
 import { QUESTS } from '../game/story/quests';
 import { todayTasks, WEATHER_LINE } from '../game/daily';
-import { dateText, festivalOf, isXunxiu, timeText, WEATHER_NAME } from '../game/time';
+import { currentTerm, dateText, festivalOf, isXunxiu, seasonOf, SEASON_NAME, timeText, WEATHER_NAME } from '../game/time';
 import { TaskList } from './MorningBrief';
 import { describeSave, MANUAL_SLOTS, readSave, SLOT_NAME, SlotId, writeSave } from '../game/save';
 import { loadGame, toTitle } from '../game/session';
@@ -758,7 +758,7 @@ function QuestsPage({ active, onExit, folio }: PageProps) {
   const fest = festivalOf(world.day);
   const left = (
     <>
-      <PageHead title={dateText(world.day)} sub={`${WEATHER_NAME[world.weather]}・${timeText(world.time)}`} />
+      <PageHead title={dateText(world.day)} sub={`${SEASON_NAME[seasonOf(world.day)]}・${currentTerm(world.day)}・${WEATHER_NAME[world.weather]}・${timeText(world.time)}`} />
       {(fest || isXunxiu(world.day)) && <p className="festival small">{[fest, isXunxiu(world.day) && '旬休'].filter(Boolean).join('・')}</p>}
       <p className="small">{WEATHER_LINE[world.weather]}</p>
       <h4 className="page-sec">今日</h4>
