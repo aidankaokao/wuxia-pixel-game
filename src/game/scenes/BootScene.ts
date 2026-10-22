@@ -37,6 +37,11 @@ export class BootScene extends Phaser.Scene {
       useGame.getState().setFlag(k, Number(v ?? 1));
     }
     const at = q.get('at')?.split(',').map(Number);
+    // ?map=world&node=linjiang：從大地圖的某個節點開始
+    if (q.get('map') === 'world') {
+      this.scene.start('world', { node: q.get('node') ?? 'linjiang' });
+      return;
+    }
     this.scene.start('map', {
       mapId: q.get('map') ?? 'qingzhu',
       spawn: at ? { x: at[0], y: at[1], facing: 'up' } : undefined,

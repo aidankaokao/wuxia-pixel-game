@@ -59,7 +59,7 @@ export function readSave(slot: SlotId): SaveData | null {
     const d = migrate(JSON.parse(raw));
     // 存在室內時，要那間房子還在才算數
     const inHome = d?.mapId.startsWith('home:') && d.world.estates[d.mapId.slice(5)];
-    if (!d || !(MAPS[d.mapId] || inHome)) return null;
+    if (!d || !(MAPS[d.mapId] || inHome || d.mapId === 'world')) return null;
     return d;
   } catch {
     return null;

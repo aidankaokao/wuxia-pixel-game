@@ -49,6 +49,8 @@ export interface World {
   sect?: SectState;
   /** 這份存檔的亂數種子（到處翻找時，哪裡藏東西由它與日子決定，見 loot.ts） */
   seed?: number;
+  /** 在大地圖上站在哪個節點、從哪個方向來（讀檔回到大地圖時用） */
+  wpos?: { node: string; from?: string };
   /** 生活技能訂單：下單的人 id → 訂單（見 orders.ts） */
   orders?: Record<string, Order>;
   /** 下單的人 id → 第幾天起才會再下單 */

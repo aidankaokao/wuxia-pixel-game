@@ -63,6 +63,8 @@ export interface EventCtx {
   refresh(): void;
   /** 重新載入目前的地圖（例如蓋好房子後要換上新建築），主角留在原地 */
   reload(arrive?: Line[]): void;
+  /** 移到某張地圖的某個位置（例如渡船載你到對岸）；腳本在這之後就不要再做別的事 */
+  warp(mapId: string, spawn: { x: number; y: number; facing: Dir }, arrive?: Line[]): void;
   /** 打開介面面板（商店、房屋），關閉後才繼續 */
   panel(p: Panel): Promise<void>;
 }

@@ -1783,3 +1783,84 @@ table.charter td {
 .fit-list .bad {
   color: var(--red);
 }
+
+/* 大地圖：地名、節點名與資訊卡（地名的位置由 WorldScene 擺） */
+.world-label {
+  position: absolute;
+  transform: translate(-50%, 10px);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--paper);
+  text-shadow:
+    1px 0 #17141f,
+    -1px 0 #17141f,
+    0 1px #17141f,
+    0 -1px #17141f;
+}
+
+.world-label.here {
+  color: var(--gold);
+}
+
+.world-label.locked {
+  color: var(--muted);
+}
+
+.world-label.area {
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-shadow: none;
+}
+
+.world-label.area.water {
+  color: #cfe6f6;
+  opacity: 0.85;
+}
+
+.world-label.area.mount {
+  color: #3a2e22;
+  opacity: 0.75;
+}
+
+.world-label.area.region {
+  color: #2a3a1e;
+  font-size: 15px;
+  opacity: 0.7;
+}
+
+.world-card {
+  position: absolute;
+  right: 16px;
+  bottom: 44px;
+  width: min(340px, calc(100vw - 32px));
+  padding: 10px 14px;
+  color: var(--paper);
+}
+
+.world-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.world-card-name {
+  font-size: 20px;
+  color: var(--gold);
+}
+
+.world-card p {
+  margin: 4px 0;
+}
+
+.world-roads {
+  margin: 4px 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+
+.world-roads li {
+  padding: 2px 0;
+}

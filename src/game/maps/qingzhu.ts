@@ -145,8 +145,11 @@ export const qingzhu: MapDef = {
   ],
 
   exits: [
-    { tiles: [[26, 0], [27, 0]], to: 'canglan', spawn: { x: 11, y: 42, facing: 'up' } },
-    { tiles: [[55, 20], [55, 21]], to: 'guandao', spawn: { x: 1, y: 7, facing: 'right' } },
-    { tiles: [[26, 39], [27, 39]], lines: [{ text: '南嶺古道荒草蔓生，不知通往何處。\n（地圖尚未開放）' }] },
+    // 北邊到村北（再往北出大地圖往蒼嵐山）
+    { tiles: [[26, 0], [27, 0]], to: 'qz_north', spawn: { x: 11, y: 14, facing: 'up' } },
+    // 東邊出村到大地圖，往雲水渡口、臨江城的方向
+    { tiles: [[55, 20], [55, 21]], world: 'qingzhu', worldFrom: 'ferry' },
+    // 村南的古道：走出去就到大地圖
+    { tiles: [[26, 39], [27, 39]], world: 'qingzhu' },
   ],
 };

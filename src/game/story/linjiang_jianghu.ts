@@ -117,7 +117,7 @@ interface Bounty {
 }
 
 export const BOUNTIES: Bounty[] = [
-  { id: 'dogs', title: '官道惡犬', where: '雲水官道，雲水橋東邊的林子', brief: '一頭惡犬領著野狗群，在官道上咬傷了好幾個過路人。', pay: 30, fame: 3, fameReq: 0 },
+  { id: 'dogs', title: '官道惡犬', where: '雲水渡口東岸的林子', brief: '一頭惡犬領著野狗群，在渡口邊咬傷了好幾個等船的人。', pay: 30, fame: 3, fameReq: 0 },
   { id: 'bandits', title: '山道毛賊', where: '鳴泉山道的半山腰', brief: '幾個毛賊在鳴泉山道上打劫上山的香客。', pay: 40, fame: 3, fameReq: 0 },
   { id: 'river', title: '江邊水匪', where: '臨江城南，碼頭西邊的江灘', brief: '一夥水匪夜裡摸上碼頭偷貨，漕幫也拿他們沒辦法。', pay: 60, fame: 5, fameReq: 10 },
 ];

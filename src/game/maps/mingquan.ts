@@ -81,7 +81,8 @@ export const mingquan: MapDef = {
     },
   ],
   exits: [
-    { tiles: [[16, 35], [17, 35]], to: 'linjiang', spawn: { x: 27, y: 1, facing: 'down' } },
+    // 山腳：走出去就到大地圖（往臨江城）
+    { tiles: [[16, 35], [17, 35]], world: 'mingquan', worldFrom: 'linjiang' },
     { tiles: [[12, 0], [13, 0], [14, 0], [15, 0]], to: 'mq_sect', spawn: { x: 23, y: 44, facing: 'up' } },
   ],
 };

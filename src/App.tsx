@@ -12,6 +12,7 @@ import { SchedulePanel } from './ui/SchedulePanel';
 import { ShopPanel } from './ui/ShopPanel';
 import { TitleScreen } from './ui/TitleScreen';
 import { ThoughtBubble } from './ui/ThoughtBubble';
+import { WorldOverlay } from './ui/WorldOverlay';
 import { Toast } from './ui/Toast';
 import { WorkAnim } from './ui/WorkAnim';
 
@@ -19,6 +20,7 @@ export function App() {
   return (
     <div className="stage">
       <GameCanvas />
+      <WorldOverlay />
       <ThoughtBubble />
       <Hud />
       <LocationBanner />

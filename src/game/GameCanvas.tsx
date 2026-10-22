@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { BootScene } from './scenes/BootScene';
 import { BattleScene } from './scenes/BattleScene';
 import { MapScene } from './scenes/MapScene';
+import { WorldScene } from './scenes/WorldScene';
 import { autosave } from './save';
 import { bindHotkeys, setGame } from './session';
 
@@ -18,7 +19,7 @@ export function GameCanvas() {
       roundPixels: true,
       backgroundColor: '#14121a',
       scale: { mode: Phaser.Scale.RESIZE, width: '100%', height: '100%' },
-      scene: [BootScene, MapScene, BattleScene],
+      scene: [BootScene, MapScene, WorldScene, BattleScene],
     });
     setGame(game);
     // 關閉或重新整理頁面前自動存檔

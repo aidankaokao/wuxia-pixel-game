@@ -2,7 +2,7 @@ import { bossFight, campChest, scoutsFight } from '../story/bandits';
 import type { MapDef } from './types';
 
 /**
- * 蒼嵐山道 —— 青竹村北邊的山路。
+ * 蒼嵐山道 —— 青竹村北邊的山路（從大地圖進來，山腳出去回大地圖）。
  * 中段有一處只容兩人並行的隘口；山頂是山賊盤據的斷崖寨。
  */
 const camp: [number, number][] = [];
@@ -99,5 +99,6 @@ export const canglan: MapDef = {
     { tiles: camp, when: (f) => !f.bandit_boss, script: bossFight },
   ],
 
-  exits: [{ tiles: [[11, 43], [12, 43]], to: 'qingzhu', spawn: { x: 26, y: 1, facing: 'down' } }],
+  // 山腳：走出去就到大地圖
+  exits: [{ tiles: [[11, 43], [12, 43]], world: 'canglan', worldFrom: 'qingzhu' }],
 };

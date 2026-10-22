@@ -13,6 +13,7 @@ import { looted, lootKey, lootToday, SEARCH_TEXT, SEARCH_TILES, searchableProp, 
 import { costText } from '../thought';
 import { Action, actionName, ACTIONS, availableActions, KEY_ACTION, personScript, personTitle } from '../story/social';
 import { canHold, derive, giveItem, ITEMS } from '../character';
+import { DEFEAT } from './defeat';
 import { ENCOUNTERS } from '../battle/enemies';
 import type { Outcome } from '../battle/types';
 import { autosave, setPositionProvider } from '../save';
@@ -704,7 +705,8 @@ export class MapScene extends Phaser.Scene {
       this.player.stand();
       // 在室外地圖之間移動花一刻；進出屋子不花時間（室內地圖都有 theme）
       if (exit.to && !this.def.theme && !getMap(exit.to)?.theme) useGame.getState().passTime(1);
-      if (exit.to) this.warp(exit.to, exit.spawn);
+      if (exit.world) this.toWorld(exit.world, exit.worldFrom);
+      else if (exit.to) this.warp(exit.to, exit.spawn);
       else if (exit.lines) this.runScript((ctx) => ctx.say(...exit.lines!));
       return;
     }
@@ -726,6 +728,16 @@ export class MapScene extends Phaser.Scene {
     useGame.getState().setHint(null);
     this.cameras.main.fadeOut(300, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.restart({ mapId, spawn, arrive }));
+  }
+
+  /** 走出這個區域，到大地圖上的某個節點 */
+  private toWorld(node: string, from?: string) {
+    if (this.leaving) return;
+    this.leaving = true;
+    useGame.getState().setPrompt(null);
+    useGame.getState().setHint(null);
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('world', { node, from }));
   }
 
   // ── 劇情腳本 ─────────────────────────────────────────────
@@ -795,6 +807,7 @@ export class MapScene extends Phaser.Scene {
       work: (kind, text, ms) => st().playWork(kind, text, ms),
       refresh: () => this.refresh(),
       reload: (arrive) => this.warp(this.def.id, { x: this.player.tx, y: this.player.ty, facing: this.player.facing }, arrive),
+      warp: (mapId, spawn, arrive) => this.warp(mapId, spawn, arrive),
       panel: (p) => st().openPanel(p),
     };
   }
@@ -836,11 +849,7 @@ export class MapScene extends Phaser.Scene {
           c.hp = Math.ceil(d.maxHp / 2);
           c.qi = Math.ceil(d.maxQi / 2);
         });
-        this.warp('qingzhu', { x: 23, y: 20, facing: 'up' }, [
-          { text: '……' },
-          { text: '你醒來時，已經躺在青竹村的老井旁。' },
-          { speaker: '鍾嬸', text: '總算醒啦！是上山砍柴的樵夫把你背回來的。年輕人，別逞強啊。' },
-        ]);
+        this.warp(DEFEAT.map, DEFEAT.spawn, DEFEAT.lines);
         throw new ScriptAbort();
       }
       return o;

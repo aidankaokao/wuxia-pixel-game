@@ -1,5 +1,6 @@
 import { canglan } from './canglan';
 import { guandao } from './guandao';
+import { gdTeahouse } from './guandao_rooms';
 import { linjiang } from './linjiang';
 import { LINJIANG_ROOMS } from './linjiang_rooms';
 import { mingquan } from './mingquan';
@@ -7,6 +8,7 @@ import { mqBack, mqSect } from './sect_mingquan';
 import { SECT_MINGQUAN_ROOMS } from './sect_mingquan_rooms';
 import { buildHomeMap, PlacedPlot, withPlots } from './home';
 import { qingzhu } from './qingzhu';
+import { qzNorth } from './qz_north';
 import { qzLiu, qzSmithy, qzTea, qzWang } from './qingzhu_rooms';
 import type { MapDef } from './types';
 import { registerPlotNames } from '../story/estate';
@@ -15,8 +17,10 @@ import { useGame } from '../../state/store';
 /** 所有地圖。新增地圖時在這裡註冊，出入口的 `to` 填這裡的 id。 */
 export const MAPS: Record<string, MapDef> = {
   [qingzhu.id]: qingzhu,
+  [qzNorth.id]: qzNorth,
   [canglan.id]: canglan,
   [guandao.id]: guandao,
+  [gdTeahouse.id]: gdTeahouse,
   [linjiang.id]: linjiang,
   [mingquan.id]: mingquan,
   [mqSect.id]: mqSect,

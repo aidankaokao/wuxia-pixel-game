@@ -5,7 +5,7 @@ import type { MapDef } from './types';
 
 /**
  * 臨江城 —— 縣城。雲水河在城南匯入大江，碼頭是漕幫的地盤；城中有縣衙、金刀鏢局、客棧酒樓。
- * 西門通雲水官道（回青竹村），北門出城上鳴泉山（鳴泉劍派），南門外是碼頭。東門尚未開放。
+ * 西門、北門、東門出城都到大地圖（往雲水渡口、鳴泉山、大埠頭的方向），南門外是碼頭。
  */
 export const linjiang: MapDef = {
   id: 'linjiang',
@@ -29,8 +29,8 @@ export const linjiang: MapDef = {
     '...H........::........==========..........::........H.TT',
     '.T.H......*.::........==========..........::........HTTT',
     '...H........::........==========..........::........H...',
-    'E::=========::============================::========HTT.',
-    'E::=========::============================::========H...',
+    'E::=========::============================::=========::E',
+    'E::=========::============================::=========::E',
     '...H........::........==========..........::........H..T',
     '..TH........::........==========..........::........H...',
     '...H........::........==========..........::........H...',
@@ -73,7 +73,7 @@ export const linjiang: MapDef = {
   props: [
     { sprite: 'paifang_city', x: 25, y: 3, w: 6, passable: true },
     { sprite: 'paifang_city', x: 25, y: 28, w: 6, passable: true },
-    { sprite: 'sign', x: 1, y: 15, lines: [{ text: '「臨江城」\n西 ── 雲水官道・青竹村' }] },
+    { sprite: 'sign', x: 1, y: 15, lines: [{ text: '「臨江城」\n西 ── 雲水渡口・青竹村' }] },
     { sprite: 'sign', x: 29, y: 1, lines: [{ text: '北 ── 鳴泉山\n山上有鳴泉劍派。' }] },
     {
       sprite: 'bulletin', x: 23, y: 12,
@@ -106,7 +106,7 @@ export const linjiang: MapDef = {
     },
     {
       id: 'lj_guard_w2', allDay: true, name: '魏大牛', sprite: 'guard', x: 4, y: 18, facing: 'up',
-      talks: [[{ speaker: '魏大牛', text: '東門？最近在修城牆，封了。要往東，得等些日子。' }]],
+      talks: [[{ speaker: '魏大牛', text: '東門修好啦。出了東門就上大路，往東順著大江走，聽說能一直走到海邊。' }]],
     },
     {
       id: 'lj_guard_n', allDay: true, name: '朱八斤', sprite: 'guard', x: 25, y: 4, facing: 'right',
@@ -190,7 +190,9 @@ export const linjiang: MapDef = {
   ],
 
   exits: [
-    { tiles: [[0, 16], [0, 17]], to: 'guandao', spawn: { x: 38, y: 7, facing: 'left' } },
-    { tiles: [[27, 0], [28, 0]], to: 'mingquan', spawn: { x: 16, y: 34, facing: 'up' } },
+    // 西門、北門、東門出城都到大地圖（各朝雲水渡口、鳴泉山、大埠頭的方向）
+    { tiles: [[0, 16], [0, 17]], world: 'linjiang', worldFrom: 'ferry' },
+    { tiles: [[27, 0], [28, 0]], world: 'linjiang', worldFrom: 'mingquan' },
+    { tiles: [[55, 16], [55, 17]], world: 'linjiang', worldFrom: 'dabutou' },
   ],
 };

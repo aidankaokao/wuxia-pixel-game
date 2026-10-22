@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import { autosave, canSave, describeSave, readSave, restoreHero, restoreWorld, SaveData, writeSave } from './save';
 import { useGame } from '../state/store';
 import { Attrs, newHero } from './character';
+import { NODES } from './world/geo';
 import { resetReminders } from './thought';
 
 /** 遊戲流程：開新遊戲、讀檔、回到標題。由 React 介面呼叫。 */
@@ -14,6 +15,15 @@ export const setGame = (g: Phaser.Game | null) => {
 function startMap(data: { mapId: string; spawn?: { x: number; y: number; facing: SaveData['facing'] } }) {
   if (!game) return;
   game.scene.stop('battle');
+  // 存在大地圖上：x、y 是節點的位置
+  if (data.mapId === 'world') {
+    game.scene.stop('map');
+    const w = useGame.getState().world.wpos;
+    const node = w?.node ?? NODES.find((n) => n.x === data.spawn?.x && n.y === data.spawn?.y)?.id;
+    game.scene.start('world', { node: node ?? 'linjiang', from: w?.from });
+    return;
+  }
+  game.scene.stop('world');
   // 地圖場景若已在執行，start 會先停掉再重新開始
   game.scene.start('map', data);
 }
@@ -53,6 +63,7 @@ export function toTitle() {
   autosave();
   game?.scene.stop('battle');
   game?.scene.stop('map');
+  game?.scene.stop('world');
   useGame.getState().resetGame();
   useGame.setState({ screen: 'title' });
 }

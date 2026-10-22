@@ -112,6 +112,10 @@ export interface ExitDef {
   to?: string;
   spawn?: { x: number; y: number; facing: Dir };
   lines?: Line[];
+  /** 走出去就到大地圖，站在這個節點上（見 world/geo.ts） */
+  world?: string;
+  /** 走到大地圖時，算是面向哪個節點的方向（再按 E 進來時從同一側進來；渡口靠它分兩岸） */
+  worldFrom?: string;
 }
 
 /** 踩到就觸發的區域（例如埋伏） */

@@ -79,6 +79,8 @@ interface GameState {
   eventRunning: boolean;
   /** 面前可互動的東西（顯示在畫面上的提示）：一句話，或人物的互動清單 */
   prompt: Prompt | null;
+  /** 在大地圖上：站在哪個節點（路上是 null）、正走往哪裡；不在大地圖是 null */
+  worldMap: { node: string | null; from?: string; to?: string } | null;
   /** 主角頭上的想法泡泡：面對的東西要花的代價（持續顯示） */
   hint: string | null;
   /** 主角頭上的想法泡泡：一閃而過的提醒（例如天黑了），比 hint 優先 */
@@ -150,6 +152,7 @@ export const useGame = create<GameState>((set, get) => ({
   prompt: null,
   hint: null,
   thought: null,
+  worldMap: null,
   uiClosedAt: 0,
   battle: null,
   battleInput: null,
@@ -257,6 +260,7 @@ export const useGame = create<GameState>((set, get) => ({
       prompt: null,
       hint: null,
       thought: null,
+      worldMap: null,
       battle: null,
       battleInput: null,
       battleTarget: null,
