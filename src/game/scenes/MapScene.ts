@@ -1,5 +1,6 @@
 import { mountDef } from '../mounts';
-import { festivalIndex } from '../festival';
+import { newBiz, townOfMap } from '../shop_manage';
+import { FEST, festivalIndex, festivePeriod, nianhuoDays, PERIOD } from '../festival';
 import Phaser from 'phaser';
 import { Dir, NPC_WALK_MS, RUN_MS, TILE, VIEW_TILES_H, VIEW_TILES_W, WALK_MS } from '../constants';
 import { tileArt } from '../art/tiles';
@@ -126,6 +127,7 @@ export class MapScene extends Phaser.Scene {
     cam.setRoundPixels(true);
     this.fitZoom();
     this.buildAtmosphere();
+    this.fireworks();
     // 時辰、天氣一變：NPC 陸續出門或回房，畫面跟著換顏色
     const unsub = useGame.subscribe((s, prev) => {
       if (this.leaving || (s.world.time === prev.world.time && s.world.weather === prev.world.weather)) return;
@@ -171,6 +173,13 @@ export class MapScene extends Phaser.Scene {
     this.events.once('shutdown', () => setPositionProvider(() => null));
     this.time.delayedCall(600, autosave);
     useGame.getState().enterMap(def.name, def.subtitle);
+    // 記下去過的地方（經營的供應商要去過才知道有哪些，見 shop_manage.ts 的 TOWNS）
+    const town = townOfMap(def.id);
+    if (town && !useGame.getState().world.biz?.visited.includes(town))
+      useGame.getState().updateWorld((w) => {
+        w.biz ??= newBiz();
+        w.biz.visited.push(town);
+      });
     cam.fadeIn(400, 0, 0, 0);
     const arrive = this.data_.arrive;
     if (arrive) this.time.delayedCall(450, () => this.runScript((ctx) => ctx.say(...arrive)));
@@ -292,6 +301,7 @@ export class MapScene extends Phaser.Scene {
       });
       if (st.chimney) this.smoke(img.x + img.width - 13, img.y - img.height + 1);
       this.placeSign(b, st, bottom);
+      this.decorateDoor(b, st, bottom);
     }
     // 匾額與幌子上的字由介面疊上去（ui/MapSigns.tsx）
     useGame.setState({ mapSigns: this.signs });
@@ -317,6 +327,73 @@ export class MapScene extends Phaser.Scene {
       this.add.rectangle(x, y + 11, 9, 16, 0xf1e7cf).setDepth(bottom + 1);
       this.signs.push({ key: `f:${b.x},${b.y}`, text: b.flag, kind: 'flag', x, y: y + 11 });
     }
+  }
+
+  /** 節期的門飾（只在室外）：年節貼春聯、門上倒貼福字；端午門邊插艾草 */
+  private decorateDoor(b: BuildingDef, st: BuildingStyle, bottom: number) {
+    if (this.def.theme) return;
+    const per = festivePeriod(useGame.getState().world.day);
+    const dx = (b.x + st.door) * TILE;
+    const depth = bottom + 0.5;
+    if (per === PERIOD.newyear) {
+      for (const x of [dx - 1, dx + 17]) {
+        this.add.rectangle(x, bottom - 12, 3, 13, 0xc8281e).setDepth(depth);
+        for (let y = bottom - 17; y <= bottom - 8; y += 3) this.add.rectangle(x, y, 1, 1, 0xf0c040).setDepth(depth);
+      }
+      this.add.rectangle(dx + 8, bottom - 12, 4, 4, 0xd83a2e).setAngle(45).setDepth(depth);
+      this.add.rectangle(dx + 8, bottom - 12, 1, 1, 0xf0c040).setDepth(depth);
+    } else if (per === PERIOD.duanwu) {
+      this.add.rectangle(dx, bottom - 13, 3, 11, 0x5a8a3a).setDepth(depth);
+      this.add.rectangle(dx + 1, bottom - 16, 2, 4, 0x7aaa4a).setDepth(depth);
+      this.add.rectangle(dx, bottom - 10, 3, 1, 0xc4483c).setDepth(depth);
+    }
+  }
+
+  /** 除夕、過年、元宵的夜裡，室外天上放煙火 */
+  private fireworks() {
+    if (this.def.theme) return;
+    const COLORS = [0xffd86a, 0xff7a5a, 0x8ad8ff, 0xc8ff8a, 0xff9ad8];
+    this.time.addEvent({
+      delay: 700,
+      loop: true,
+      callback: () => {
+        const { world } = useGame.getState();
+        const f = festivalIndex(world.day);
+        if (![FEST.過年, FEST.元宵, FEST.除夕].includes(f as 1 | 2 | 9) || periodOf(world.time) !== 'night' || Math.random() < 0.35) return;
+        const v = this.cameras.main.worldView;
+        const x = v.x + v.width * (0.2 + Math.random() * 0.6);
+        const y = v.y + v.height * (0.15 + Math.random() * 0.3);
+        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        const n = 14 + Math.floor(Math.random() * 6);
+        const size = 22 + Math.random() * 16;
+        const g = this.add.graphics().setDepth(900001);
+        this.tweens.addCounter({
+          from: 0,
+          to: 1,
+          duration: 1300,
+          onUpdate: (tw) => {
+            const t = tw.getValue() ?? 0;
+            g.clear();
+            for (let i = 0; i < n; i++) {
+              const a = (i / n) * Math.PI * 2;
+              const r = Math.sqrt(t) * size;
+              const px = x + Math.cos(a) * r;
+              const py = y + Math.sin(a) * r + t * t * 10;
+              // 火星與後面拖的一點尾巴
+              g.fillStyle(color, 1 - t * t);
+              g.fillRect(Math.round(px) - 1, Math.round(py) - 1, 2, 2);
+              g.fillStyle(0xffffff, (1 - t) * 0.5);
+              g.fillRect(Math.round(x + Math.cos(a) * r * 0.7), Math.round(y + Math.sin(a) * r * 0.7 + t * t * 7), 1, 1);
+            }
+            if (t < 0.2) {
+              g.fillStyle(0xffffff, 1);
+              g.fillRect(x - 2, y - 2, 4, 4);
+            }
+          },
+          onComplete: () => g.destroy(),
+        });
+      },
+    });
   }
 
   /** 匾額、幌子上的字跟著鏡頭走（字的大小隨縮放倍率） */
@@ -360,6 +437,9 @@ export class MapScene extends Phaser.Scene {
       festival: festivalIndex(world.day),
       today: world.day,
       xunxiu: isXunxiu(world.day) ? 1 : 0,
+      // 節期：1 年節、2 端午、3 中秋（見 festival.ts 的 festivePeriod）
+      period: festivePeriod(world.day),
+      nianhuo: nianhuoDays(world.day) ? 1 : 0,
       // 天氣：雨、霧、晴（給練功房下雨人多、霧裡的奇事之類用）
       rain: world.weather === 'rain' ? 1 : 0,
       fog: world.weather === 'fog' ? 1 : 0,

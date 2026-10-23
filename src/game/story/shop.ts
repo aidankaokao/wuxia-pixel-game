@@ -9,7 +9,6 @@ import { by } from '../maps/rooms';
 import { propertyDef, propertyOf, refreshMarket } from '../property';
 import {
   canOpen,
-  PRICE_TIERS,
   settleDay,
   SHOP_FEE,
   SHOP_LEVELS,
@@ -18,12 +17,14 @@ import {
   shopsOf,
   shopTypeDef,
   staffDef,
-  STAFF,
   type ShopState,
 } from '../shop';
 import { dateText, onNewDay } from '../time';
 import { useGame } from '../../state/store';
 import { exert } from './estate';
+import { handleShopEvent, rollEvents, shopEventLabel } from './shop_events';
+import { manageDaily } from './managers';
+import { BIZ_TITLE, hasBizTitle } from '../shop_manage';
 
 /**
  * 經營的腳本（資料與結算在 shop.ts）：
@@ -39,9 +40,25 @@ const surname = () => [...st().hero.name][0] ?? '無';
 // 每天半夜：結算昨天的帳、房產市場換告示
 onNewDay((w) => {
   refreshMarket(w);
-  const fame = st().hero.fame;
-  for (const [id, s] of Object.entries(shopsOf(w))) settleDay(s, id, w.day - 1, w, fame);
+  const hero = st().hero;
+  for (const [id, s] of Object.entries(shopsOf(w))) settleDay(s, id, w.day - 1, w, hero);
+  rollEvents(w);
+  manageDaily(w);
 });
+
+// ── 稱號與經營手冊 ──────────────────────────────────────
+
+/** 第一次買下店面或老店：得到稱號「東家」，翻開經營手冊（之後隨時能從選單「系統」或店裡櫃台翻） */
+export async function grantBizTitle(ctx: EventCtx) {
+  if (hasBizTitle(st().hero)) return;
+  st().updateHero((h) => (h.titles = [...(h.titles ?? []), BIZ_TITLE]));
+  st().showToast(`得到稱號「${BIZ_TITLE}」`);
+  await ctx.say(
+    `（得到稱號「${BIZ_TITLE}」：從今天起你是有產業的人了）`,
+    '（開店、跟供應商簽約、請掌櫃代管……經營的事都記在《經營手冊》裡，隨時可以從選單的「系統」或店裡的櫃台翻閱）',
+  );
+  await ctx.panel({ kind: 'handbook' });
+}
 
 // ── 開店（縣衙師爺） ────────────────────────────────────
 
@@ -89,6 +106,8 @@ const update = (id: string, f: (s: ShopState) => void) => st().updateWorld((w) =
 export const shopCounter =
   (id: string): Script =>
   async (ctx) => {
+    // 舊存檔：已經有店卻還沒有稱號，補上
+    await grantBizTitle(ctx);
     for (;;) {
       const s = shopOf(id);
       if (!s) return;
@@ -98,12 +117,15 @@ export const shopCounter =
       const count = Object.values(s.stock).reduce((a, n) => a + n, 0);
       const next = SHOP_LEVELS[s.level];
       const served = usedToday(st().world, `shop:${id}:serve`);
+      const trouble = shopEventLabel(id);
       const opts: [string, () => Promise<void | 'quit'>][] = [
+        ...(trouble ? [[`【有事】${trouble}`, () => handleShopEvent(ctx, id)] as [string, () => Promise<void>]] : []),
+        [`經營管理（定價、帳目、夥計 ${s.staff.length}/${lv.staff}、進貨、保鏢）`, () => ctx.panel({ kind: 'shopManage', id })],
+        [`總號帳簿（所有店、掌櫃、供應商、方針${st().world.biz?.vault ? `・帳房 ${st().world.biz!.vault} 兩` : ''}）`, () => ctx.panel({ kind: 'bizHQ' })],
         ['看帳本', () => ledger(ctx, s)],
+        ['翻經營手冊', () => ctx.panel({ kind: 'handbook' })],
         [`上架（架上 ${kinds}/${lv.slots} 種、${count} 件）`, () => stockUp(ctx, id)],
         ...(kinds ? [['下架', () => unstock(ctx, id)] as [string, () => Promise<void>]] : []),
-        [`定價（目前：${PRICE_TIERS[s.price].name}）`, () => setPrice(ctx, id)],
-        [`夥計（${s.staff.length}/${lv.staff}）`, () => staffMenu(ctx, id)],
         ...(s.till ? [[s.till > 0 ? `收帳（櫃上 ${s.till} 兩）` : `補上欠的工錢（${-s.till} 兩）`, () => collect(ctx, id)] as [string, () => Promise<void>]] : []),
         [served ? '親自招呼客人（今天招呼過了）' : '親自招呼客人（兩刻、體力 8）', () => serve(ctx, id)],
         ...(next ? [[`擴店為「${next.name}」（${next.cost} 兩）`, () => upgrade(ctx, id)] as [string, () => Promise<void>]] : []),
@@ -120,7 +142,13 @@ async function ledger(ctx: EventCtx, s: ShopState) {
   const stock = Object.entries(s.stock).map(([k, n]) => `${ITEMS[k].name}×${n}（${shopPrice(s, k)} 兩）`).join('、');
   await ctx.say(
     rows.length
-      ? rows.map((r) => (r.closed ? `${dateText(r.day)}：關門（沒人顧店）` : `${dateText(r.day)}：客人 ${r.customers}、賣出 ${r.sold}${r.short ? `、缺貨跑了 ${r.short}` : ''}；進帳 ${r.income}、工錢 ${r.wages}、稅 ${r.tax}`)).join('\n')
+      ? rows
+          .map((r) =>
+            r.closed
+              ? `${dateText(r.day)}：關門（沒人顧店）`
+              : `${dateText(r.day)}${r.fest ? `（${r.fest}）` : ''}：客人 ${r.customers}、賣出 ${r.sold}${r.short ? `、缺貨跑了 ${r.short}` : ''}${r.pricey ? `、嫌貴走了 ${r.pricey}` : ''}；進帳 ${r.income}、工錢 ${r.wages}、稅 ${r.tax}${r.trouble ? `\n　　※ ${r.trouble}` : ''}`,
+          )
+          .join('\n')
       : '帳本還是空的。開張以後，每天半夜結算一次。',
     `架上：${stock || '空的'}`,
   );
@@ -166,41 +194,6 @@ async function unstock(ctx: EventCtx, id: string) {
   update(id, (x) => delete x.stock[k]);
   st().updateHero((h) => (h.items[k] = (h.items[k] ?? 0) + n));
   await ctx.say(`${ITEMS[k].name}×${n} 收回行囊了。`);
-}
-
-async function setPrice(ctx: EventCtx, id: string) {
-  const c = await ctx.ask('要怎麼定價？', ['便宜（賣價九成，客人多兩成五）', '公道（照行情）', '高價（賣價一成二五，客人少兩成五）', '算了']);
-  if (c > 2) return;
-  update(id, (x) => (x.price = c));
-  await ctx.say(`定價改成「${PRICE_TIERS[c].name}」了。`);
-}
-
-async function staffMenu(ctx: EventCtx, id: string) {
-  const s = shopOf(id)!;
-  const lv = SHOP_LEVELS[s.level - 1];
-  const hired = new Set(Object.values(shopsOf(st().world)).flatMap((x) => x.staff));
-  const c = await ctx.ask(
-    s.staff.length ? `店裡的夥計：${s.staff.map((n) => `${n}（${staffDef(n).trait}，一天 ${staffDef(n).wage} 兩）`).join('、')}` : '店裡還沒有夥計。沒人顧店就做不了生意。',
-    [...(s.staff.length < lv.staff ? ['雇人'] : []), ...(s.staff.length ? ['辭退'] : []), '算了'],
-  );
-  const label = [...(s.staff.length < lv.staff ? ['雇人'] : []), ...(s.staff.length ? ['辭退'] : [])][c];
-  if (label === '雇人') {
-    const pool = STAFF.filter((x) => !hired.has(x.name));
-    if (!pool.length) {
-      await ctx.say('城裡找得到的夥計都被雇走了。');
-      return;
-    }
-    const i = await ctx.ask('牙行介紹了幾個人：', [...pool.map((x) => `${x.name}（${x.trait}，一天 ${x.wage} 兩）：${x.desc}`), '算了']);
-    if (i >= pool.length) return;
-    update(id, (x) => x.staff.push(pool[i].name));
-    await ctx.say({ speaker: pool[i].name, text: '東家！往後就跟著您了，一定好好幹！' });
-  } else if (label === '辭退') {
-    const i = await ctx.ask('要辭退誰？', [...s.staff, '算了']);
-    if (i >= s.staff.length) return;
-    const name = s.staff[i];
-    update(id, (x) => x.staff.splice(i, 1));
-    await ctx.say({ speaker: name, text: '……東家保重。' }, `（${name}收拾東西走了）`);
-  }
 }
 
 async function collect(ctx: EventCtx, id: string) {
@@ -320,11 +313,12 @@ registerDailyTasks(({ world }) =>
   Object.entries(shopsOf(world)).flatMap(([id, s]) => {
     const out: { text: string; state: 'todo' | 'done'; note?: string }[] = [];
     const y = s.ledger.find((r) => r.day === world.day - 1);
-    if (y) out.push({ text: y.closed ? `${s.name}：昨天沒人顧店，關門一天` : `${s.name}：昨天客人 ${y.customers}、賣出 ${y.sold}，進帳 ${y.income} 兩`, state: y.closed ? 'todo' : 'done', note: y.short ? `缺貨跑了 ${y.short} 位客人` : undefined });
+    if (y) out.push({ text: y.closed ? `${s.name}：昨天沒人顧店，關門一天` : `${s.name}：昨天客人 ${y.customers}、賣出 ${y.sold}，進帳 ${y.income} 兩${y.fest ? `（${y.fest}生意好）` : ''}`, state: y.closed ? 'todo' : 'done', note: y.short ? `缺貨跑了 ${y.short} 位客人` : y.trouble });
     if (s.till >= 20) out.push({ text: `${s.name}：櫃上有 ${s.till} 兩可收`, state: 'todo', note: propertyDef(id)?.name });
     const count = Object.values(s.stock).reduce((a, n) => a + n, 0);
     if (count < 5) out.push({ text: `${s.name}：貨快賣光了（架上 ${count} 件）`, state: 'todo' });
     if (!s.staff.length) out.push({ text: `${s.name}：還沒雇夥計`, state: 'todo' });
+    if (s.till < -50) out.push({ text: `${s.name}：櫃上欠了 ${-s.till} 兩，快要進不了貨`, state: 'todo', note: '到櫃台補錢，或總號帳簿的「帳房」撥款' });
     return out;
   }),
 );

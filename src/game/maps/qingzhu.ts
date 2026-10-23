@@ -1,4 +1,5 @@
-import { LANTERN_DAYS } from '../festival';
+import { supplierTalk } from '../story/supplier';
+import { lanternTime } from '../festival';
 import { carpenterTalk } from '../story/estate';
 import { aniuTalk, kidTalk, steleRead, strangerTalk, wellUse } from '../story/bandits';
 import type { MapDef } from './types';
@@ -82,8 +83,8 @@ export const qingzhu: MapDef = {
 
   props: [
     // 過年、元宵、中秋掛燈籠
-    { sprite: 'lantern_post', x: 21, y: 16, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '村裡掛起了紅燈籠，孩子們提著小燈跑來跑去。' }] },
-    { sprite: 'lantern_post', x: 33, y: 16, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '燈籠紙上畫著福字。' }] },
+    { sprite: 'lantern_post', x: 21, y: 16, when: lanternTime, lines: [{ text: '村裡掛起了紅燈籠，孩子們提著小燈跑來跑去。' }] },
+    { sprite: 'lantern_post', x: 33, y: 16, when: lanternTime, lines: [{ text: '燈籠紙上畫著福字。' }] },
     { sprite: 'well', x: 23, y: 19, script: wellUse, label: '打水' },
     {
       sprite: 'bulletin', x: 29, y: 17,
@@ -130,7 +131,7 @@ export const qingzhu: MapDef = {
       ],
     },
     {
-      id: 'aniu', name: '阿牛', sprite: 'farmer', x: 9, y: 33, wander: 3, script: aniuTalk,
+      id: 'aniu', name: '阿牛', sprite: 'farmer', x: 9, y: 33, wander: 3, script: supplierTalk('qz_farm', aniuTalk),
     },
     {
       id: 'du', name: '杜大樑', sprite: 'carpenter', x: 17, y: 19, facing: 'down', script: carpenterTalk,

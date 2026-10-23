@@ -369,6 +369,8 @@ export interface Character {
   name: string;
   /** 名聲：稱號由它決定（social.ts 的 fameTitle） */
   fame: number;
+  /** 身分稱號（名聲稱號之外的，例如買下店面後的「東家」，見 shop_manage.ts 的 BIZ_TITLE） */
+  titles?: string[];
   silver: number;
   /** 擲骰決定的五維底值 */
   base: Attrs;

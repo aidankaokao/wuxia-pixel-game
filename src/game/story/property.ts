@@ -25,6 +25,9 @@ import {
 } from '../property';
 import { dateText } from '../time';
 import { useGame } from '../../state/store';
+import { contractTalk, hireManagerTalk } from './supplier';
+import { grantBizTitle } from './shop';
+import { hasBizTitle } from '../shop_manage';
 import { setClerkHook } from './yamen';
 import { openableShops, openShop } from './shop';
 
@@ -204,6 +207,8 @@ async function purchase(ctx: EventCtx, who: Who, p: PropertyDef, price: number, 
     ),
     `（買下了${p.name}，花了 ${price + fee} 兩）`,
   );
+  // 第一次買下店面或老店：成了「東家」
+  if (p.kind !== 'house') await grantBizTitle(ctx);
 }
 
 // ── 賣屋 ────────────────────────────────────────────────
@@ -327,8 +332,10 @@ async function collectRent(ctx: EventCtx, who: Who) {
     const pm = propertyOf(w);
     for (const [id, o] of Object.entries(pm.owned)) {
       const p = propertyDef(id)!;
+      if (o.event?.kind === 'late') lines.push(`${p.name}：${tenantOf(id)}說手頭緊，這旬交不出來（去房子裡找他談）`);
       const d = rentDue(p, o, w.day);
       if (!d.xun) continue;
+      if (o.event?.kind === 'leak' && w.day - o.event.day > 5) lines.push(`${p.name}：屋頂漏雨一直沒修，${tenantOf(id)}只肯交一半`);
       total += d.silver;
       if (p.kind === 'business') {
         lines.push(`${p.name}：${d.xun} 旬的分紅，${d.silver} 兩`);
@@ -350,6 +357,13 @@ export const interiorSpawn = (p: PropertyDef) => (p.kind === 'shop' ? { x: 5, y:
 // ── 牙行 ────────────────────────────────────────────────
 
 export const agentTalk: Script = async (ctx) => {
+  // 開了店的東家：牙行也供貨、介紹掌櫃（story/supplier.ts）
+  if (hasBizTitle(st().hero)) {
+    const c = await ctx.ask(qian('東家今天要辦什麼事？')[0], ['房子的事', '談供貨合約', '找掌櫃', '沒事']);
+    if (c === 1) return contractTalk(ctx, 'lj_agent');
+    if (c === 2) return hireManagerTalk(ctx);
+    if (c === 3) return;
+  }
   if (await propertyMenu(ctx, 'agent')) return;
   await ctx.say(
     ...qian(

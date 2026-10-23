@@ -1,3 +1,4 @@
+import { hasBizTitle } from '../game/shop_manage';
 import { useEffect, useRef, useState } from 'react';
 import {
   attrName,
@@ -138,10 +139,10 @@ export function GameMenu() {
 }
 
 /** 翻過去的那張紙切成幾條，一條接一條各彎一點，整張紙就有弧度 */
-const LEAF_STRIPS = 10;
+export const LEAF_STRIPS = 10;
 
 /** 一條紙：正反兩面，後面接著下一條（巢狀，彎曲角度會一路累加） */
-function LeafStrip({ n }: { n: number }) {
+export function LeafStrip({ n }: { n: number }) {
   return (
     <div className="turn-strip">
       <div className="leaf-face front" />
@@ -798,11 +799,12 @@ function QuestsPage({ active, onExit, folio }: PageProps) {
 
 // ── 系統 ────────────────────────────────────────────────
 
-type SysRow = 'save' | 'load' | 'settings' | 'title';
+type SysRow = 'save' | 'load' | 'settings' | 'handbook' | 'title';
 const SYS_ROWS: { id: SysRow; label: string; note: string }[] = [
   { id: 'save', label: '存檔', note: '存到手動存檔欄' },
   { id: 'load', label: '讀檔', note: '即時、自動或手動存檔' },
   { id: 'settings', label: '遊戲設定', note: '戰鬥模式、自動戰鬥' },
+  { id: 'handbook', label: '經營手冊', note: '東家的生意經' },
   { id: 'title', label: '回到標題畫面', note: '會先自動存檔' },
 ];
 
@@ -818,7 +820,10 @@ function SystemPage({ active, onExit, folio }: PageProps) {
   }, [active]);
 
   const st = useGame.getState();
-  const layer = SYS_ROWS[root].id;
+  // 經營手冊：有「東家」稱號才有
+  const hero = useGame((g) => g.hero);
+  const sysRows = SYS_ROWS.filter((r) => r.id !== 'handbook' || hasBizTitle(hero));
+  const layer = sysRows[Math.min(root, sysRows.length - 1)].id;
   const setSetting = (s: Partial<Settings>) => st.setSettings(s);
   const slotList: SlotId[] = layer === 'save' ? MANUAL_SLOTS : ['quick', 'auto', ...MANUAL_SLOTS];
   // 存檔：先確認（已經有存檔的要確認覆蓋）
@@ -867,11 +872,13 @@ function SystemPage({ active, onExit, folio }: PageProps) {
               run: () => setSetting({ autoItems: !settings.autoItems }),
             },
           ]
-        : [{ label: '闔上書，回到標題畫面', run: toTitleScreen }];
+        : layer === 'handbook'
+          ? [{ label: '翻開《經營手冊》', run: () => (st.setMenu(false), useGame.setState({ panel: { kind: 'handbook', close: () => useGame.setState({ panel: null }) } })) }]
+          : [{ label: '闔上書，回到標題畫面', run: toTitleScreen }];
 
   useKeys(active, (k) => {
     if (side === 'left') {
-      const n = SYS_ROWS.length;
+      const n = sysRows.length;
       if (isUp(k)) setRoot((r) => (r + n - 1) % n);
       else if (isDown(k)) setRoot((r) => (r + 1) % n);
       else if (isConfirm(k) || isRight(k)) (setSide('right'), setCursor(0));
@@ -890,7 +897,7 @@ function SystemPage({ active, onExit, folio }: PageProps) {
     <>
       <PageHead title="系統" />
       <ul className="row-list sys-rows">
-        {SYS_ROWS.map((r, i) => (
+        {sysRows.map((r, i) => (
           <li key={r.id} className={`${i === root ? 'current' : ''} ${active && side === 'left' && i === root ? 'active' : ''}`} onClick={() => (setRoot(i), setSide('right'), setCursor(0))}>
             <span>
               {active && side === 'left' && i === root ? '▸ ' : '　'}
@@ -906,12 +913,13 @@ function SystemPage({ active, onExit, folio }: PageProps) {
   );
   const right = (
     <>
-      <PageHead title={SYS_ROWS[root].label} />
+      <PageHead title={sysRows[Math.min(root, sysRows.length - 1)].label} />
       {layer === 'save' || layer === 'load' ? (
         <SlotBars slots={slotList} cursor={rightOn ? cursor : -1} mode={layer} onPick={(i) => (setSide('right'), setCursor(i), rows[i].disabled || rows[i].run())} />
       ) : (
         <>
           {layer === 'title' && <p className="small">離開目前的遊戲回到標題畫面，離開前會自動存檔。</p>}
+          {layer === 'handbook' && <p className="small">買房置產、開店、帳簿、供應商、夥計、店裡的事、掌櫃與總號、生意經，一章一章寫在手冊裡。</p>}
           <RowList rows={rows} cursor={rightOn ? cursor : -1} onPick={(i) => (setSide('right'), setCursor(i), rows[i].disabled || rows[i].run())} />
         </>
       )}

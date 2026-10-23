@@ -4,6 +4,8 @@ import { useGame } from '../../state/store';
 import { by, exitTo, room } from './rooms';
 import { shopsOf, shopTypeDef, SHOP_LEVELS } from '../shop';
 import { shopCounter, staffLines } from '../story/shop';
+import { shopEventNpc, tenantTalk } from '../story/shop_events';
+import { guardDef } from '../shop_manage';
 import type { BuildingDef, MapDef } from './types';
 
 /**
@@ -39,6 +41,22 @@ export function buildPropertyMap(p: PropertyDef, b: BuildingDef): MapDef {
         { sprite: 'f_table_plain_1', x: 7, y: 4, w: 2, lines: [{ text: '桌上留著客人喝剩的半碗茶。' }] },
       ],
       npcs: [
+        // 店裡出的事：地痞堵在門口、老饕坐在角落（跟他說話就是處理這件事，見 story/shop_events.ts）
+        ...(shop.event?.kind === 'ruffian' && shop.event.day <= w.day
+          ? [
+              { id: `ruffian_${p.id}`, allDay: true, name: '蔡三', sprite: 'bandit', x: 6, y: 4, facing: 'down' as const, script: shopEventNpc(p.id) },
+              { id: `ruffian_${p.id}_2`, allDay: true, name: '跟班', sprite: 'beggar', x: 4, y: 6, facing: 'right' as const, script: shopEventNpc(p.id) },
+            ]
+          : []),
+        ...(shop.event?.kind === 'critic' && shop.event.day <= w.day
+          ? [{ id: `critic_${p.id}`, allDay: true, name: '郝一嚐', sprite: 'elder', x: 9, y: 4, facing: 'left' as const, script: shopEventNpc(p.id) }]
+          : []),
+        // 專管這家店的掌櫃站在櫃台旁（大掌櫃管整座城，不常在店裡）
+        ...((w.biz?.managers ?? []).filter((m) => m.shop === p.id).map((m) => ({ id: `mgr_${p.id}`, allDay: true, name: m.name, sprite: 'storyteller', x: 2, y: 3, facing: 'down' as const, talks: [by(m.name)('東家來了！店裡一切照方針辦，帳都記在總號帳簿上，您過目。')] }))),
+        // 坐鎮的保鏢（shop_manage.ts 的 GUARDS）
+        ...(shop.guard
+          ? [{ id: `guard_${p.id}`, allDay: true, name: shop.guard.name, sprite: guardDef(shop.guard.source).sprite, x: 9, y: 6, facing: 'left' as const, talks: [by(shop.guard.name)(`東家放心，有我${guardDef(shop.guard.source).title}${shop.guard.name}在，誰也別想在這兒撒野。`)] }]
+          : []),
         ...shop.staff.map((name, i) => ({ id: `staff_${p.id}_${i}`, allDay: true, name, sprite: i % 2 ? 'girl' : 'servant', x: 4 + i * 2, y: 2, facing: 'down' as const, talks: [staffLines(name)] })),
         ...(open && goods
           ? [
@@ -87,7 +105,7 @@ export function buildPropertyMap(p: PropertyDef, b: BuildingDef): MapDef {
       ? [
           {
             id: `tenant_${p.id}`, allDay: true, name: tenant, sprite: 'lady', x: 3, y: 3, facing: 'down',
-            talks: [by(tenant)('東家來啦！屋子住得挺好的。', '房租我都按旬交到縣衙，您去收就是了。'), by(tenant)('東家，屋頂有一處漏雨……不急，您有空再修。')],
+            script: tenantTalk(p.id),
           },
         ]
       : [],

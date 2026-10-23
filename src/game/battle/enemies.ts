@@ -39,6 +39,9 @@ export const ENEMIES: Record<string, EnemyDef> = {
   fierce_dog: { name: '惡犬', sprite: 'dog', hp: 160, atk: 26, def: 4, spd: 15, eva: 0.1, moves: ['e_bite', 'e_pounce'], ai: 'grunt', drops: [{ item: 'dog_pelt', chance: 1 }] },
   // 大地圖路上碰到的遊俠（見 story/road.ts）
   wanderer: { name: '甘十一', sprite: 'swordsman', hp: 170, atk: 24, def: 5, spd: 15, eva: 0.1, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  // 臨江城到店裡收保護費的地痞（見 story/shop_events.ts）
+  ruffian: { name: '地痞', sprite: 'beggar', hp: 75, atk: 16, def: 3, spd: 11, eva: 0.05, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
+  ruffian_lead: { name: '過江龍蔡三', sprite: 'bandit', hp: 170, atk: 22, def: 5, spd: 12, eva: 0.06, moves: ['e_slash', 'e_rush'], ai: 'grunt' },
   boss: { name: '祁三刀', sprite: 'boss', hp: 240, atk: 22, def: 6, spd: 12, eva: 0.06, moves: ['e_slash', 'e_heavy'], ai: 'boss' },
 };
 
@@ -86,6 +89,7 @@ export const ENCOUNTERS: Record<string, EncounterDef> = {
   bounty_dogs: { enemies: ['fierce_dog', 'dog', 'dog'], background: 'mountain', intro: '一頭比牛犢還大的惡犬領著狗群，低吼著圍了上來！', canFlee: true, silver: 0, growth: 0.6, points: 3 },
   bounty_bandits: { enemies: ['robber', 'robber', 'robber'], background: 'mountain', intro: '三個毛賊從樹後鑽出來：「上山的？把錢袋交出來！」', canFlee: true, silver: 6, points: 3 },
   bounty_river: { enemies: ['water_bandit', 'water_bandit', 'water_bandit'], background: 'mountain', intro: '幾條黑影從船上躍上岸，手裡的魚叉閃著寒光！', canFlee: true, silver: 10, points: 5 },
+  shop_ruffians: { enemies: ['ruffian_lead', 'ruffian'], background: 'mountain', intro: '蔡三把茶碗往地上一摔：「敬酒不吃吃罰酒！兄弟們，砸了它！」', canFlee: true, silver: 5, points: 2, spar: true },
   camp: { enemies: ['boss', 'grunt', 'grunt'], background: 'camp', intro: '祁三刀提著大刀，帶著手下圍了上來！', canFlee: false, silver: 25, points: 10, boss: true },
 };
 

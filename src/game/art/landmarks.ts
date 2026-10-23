@@ -245,6 +245,44 @@ function mushrooms(): PropArt {
   return done(c, ctx);
 }
 
+/** 龍舟：細長的船身，船頭龍首、船尾龍尾，一排槳手 */
+function dragonBoat(): PropArt {
+  const [c, ctx] = makeCanvas(64, 18);
+  px(ctx, 6, 10, 52, 5, '#b8342a');
+  hline(ctx, 6, 57, 10, '#e0a040');
+  hline(ctx, 6, 57, 14, '#7a1e18');
+  for (let x = 8; x < 56; x += 4) px(ctx, x, 12, 2, 1, '#f0c040');
+  // 龍首
+  px(ctx, 56, 5, 6, 6, '#3a8a4a');
+  px(ctx, 60, 4, 3, 2, '#3a8a4a');
+  px(ctx, 58, 6, 1, 1, '#f0c040');
+  px(ctx, 62, 9, 2, 1, '#c42e24');
+  vline(ctx, 57, 2, 5, '#3a8a4a');
+  // 龍尾
+  px(ctx, 0, 6, 7, 5, '#3a8a4a');
+  px(ctx, 0, 3, 3, 4, '#3a8a4a');
+  // 槳手
+  for (let x = 12; x < 52; x += 6) {
+    px(ctx, x, 5, 3, 3, '#e8c8a0');
+    px(ctx, x, 8, 3, 2, '#4a6a9a');
+    vline(ctx, x - 1, 9, 17, '#7a5232');
+  }
+  // 鼓手
+  px(ctx, 50, 4, 4, 4, '#c42e24');
+  return done(c, ctx);
+}
+
+/** 河燈：紙糊的蓮花燈，中間一點燭火 */
+function riverLamp(): PropArt {
+  const [c, ctx] = makeCanvas(12, 10);
+  ellipse(ctx, 6, 7, 5, 2, '#a8d0ec');
+  for (const x of [2, 5, 8]) px(ctx, x, 4, 2, 3, '#f4c0c8');
+  px(ctx, 4, 5, 4, 2, '#f8e0e4');
+  px(ctx, 5, 1, 2, 3, '#ffd86a');
+  px(ctx, 5, 2, 1, 1, '#fff4c0');
+  return done(c, ctx);
+}
+
 /** 石獅子：蹲在石座上，捲毛的鬃 */
 function stoneLion(): PropArt {
   const [c, ctx] = makeCanvas(16, 26);
@@ -310,6 +348,8 @@ export function landmarkProps(): Record<string, PropArt> {
   return {
     lantern_post: lanternPost(),
     stone_lion: stoneLion(),
+    dragon_boat: dragonBoat(),
+    river_lamp: riverLamp(),
     drum: grievanceDrum(),
     wild_herb: wildHerb(),
     mushrooms: mushrooms(),

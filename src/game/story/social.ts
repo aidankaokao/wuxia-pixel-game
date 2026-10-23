@@ -1,3 +1,4 @@
+import { festGreeting } from './festival_city';
 import { gainInsight, giveItem, ITEMS, nextMove, skillDef } from '../character';
 import { ART_ACTION } from '../arts';
 import { craftOf, gainCraft } from '../crafts';
@@ -124,6 +125,8 @@ const talk =
     }
     // 生活技能訂單：過期、交貨、接新單（見 orders.ts）
     if (GIVERS.some((g) => g.person === p.id) && (await orderTalk(withFormat(ctx, fmt), p.id, (n) => addAffinity(ctx, p, n)))) return;
+    // 節慶當天第一次見面：拜年、互道佳節（story/festival_city.ts）
+    if (await festGreeting(withFormat(ctx, fmt), p, fmt)) return;
     if (p.story && (await p.story(ctx))) return;
 
     // 熟悉度到了的事件，下次交談時觸發

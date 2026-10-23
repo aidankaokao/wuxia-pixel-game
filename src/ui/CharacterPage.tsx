@@ -108,6 +108,9 @@ export function CharacterPage({ active, onExit, folio }: { active: boolean; onEx
         <div>
           <div className="namecard-name">{hero.name}</div>
           <div className="namecard-title">{fameTitle(hero.fame)}</div>
+          {hero.titles?.map((t) => (
+            <span key={t} className="namecard-badge">{t}</span>
+          ))}
           <div className="small muted">{sect ? `${sectDef(sect.id)?.name}・${rankName(sect)}` : '無門無派'}</div>
         </div>
       </div>

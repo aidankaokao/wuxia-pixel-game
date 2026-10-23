@@ -4,6 +4,8 @@ import { seam } from './city';
 import { STALLS, stallAt } from '../story/market';
 import { bountyTarget, escortGuardLines } from '../story/linjiang_jianghu';
 import { huichunDelivery } from '../story/sect_mingquan';
+import { FEST, lanternTime, PERIOD } from '../festival';
+import { dragonBoat, nianhuoStall, riddleStall, riverLamps } from '../story/festival_city';
 import type { MapDef } from './types';
 
 /**
@@ -94,6 +96,17 @@ export const linjiang: MapDef = {
     { sprite: 'stall', x: 34, y: 25, w: 2, script: stallAt('silk'), label: '江南絲行', when: (f) => f.xunxiu === 1 },
     { sprite: 'stall', x: 38, y: 25, w: 2, script: stallAt('books'), label: '舊書攤', when: (f) => f.xunxiu === 1 },
     { sprite: 'stall', x: 41, y: 25, w: 2, script: stallAt('goods'), label: '舊貨攤', when: (f) => f.xunxiu === 1 },
+    // 節慶（story/festival_city.ts）：廣場四角的燈籠、年貨攤、端午的龍舟、中元的河燈
+    { sprite: 'lantern_post', x: 22, y: 12, when: lanternTime, lines: [{ text: '廣場上掛起了紅燈籠，燈下垂著紙條。' }] },
+    { sprite: 'lantern_post', x: 31, y: 12, when: lanternTime, lines: [{ text: '燈籠上畫著嫦娥奔月、鯉躍龍門。' }] },
+    { sprite: 'lantern_post', x: 22, y: 21, when: lanternTime, lines: [{ text: '紅燈籠在風裡輕輕搖晃。' }] },
+    { sprite: 'lantern_post', x: 31, y: 21, when: lanternTime, lines: [{ text: '孩子們提著兔子燈在燈下跑來跑去。' }] },
+    { sprite: 'stall', x: 24, y: 13, w: 2, script: nianhuoStall, label: '年貨攤', when: (f) => f.nianhuo === 1 },
+    { sprite: 'dragon_boat', x: 10, y: 33, w: 4, when: (f) => f.period === PERIOD.duanwu, lines: [{ text: '漁戶們的龍舟，龍頭漆得青綠發亮。' }] },
+    { sprite: 'dragon_boat', x: 30, y: 34, w: 4, when: (f) => f.period === PERIOD.duanwu, lines: [{ text: '漕幫的龍舟，船身比別人長一截。' }] },
+    { sprite: 'dragon_boat', x: 46, y: 33, w: 4, when: (f) => f.festival === FEST.端午, lines: [{ text: '金刀鏢局的龍舟，船頭插著一面金刀旗。' }] },
+    { sprite: 'stall', x: 8, y: 30, w: 2, script: riverLamps, label: '河燈攤', when: (f) => f.festival === FEST.中元 },
+    ...[[6, 33], [13, 34], [20, 32], [27, 35], [35, 33], [44, 35], [50, 32]].map(([x, y]) => ({ sprite: 'river_lamp', x, y, when: (f: { festival?: number }) => f.festival === FEST.中元, lines: [{ text: '一盞河燈順著江水漂遠了。' }] })),
     { sprite: 'flag', x: 31, y: 7, lines: [{ text: '金刀鏢局的鏢旗，旗上一把金刀。' }] },
     { sprite: 'boat', x: 23, y: 33, w: 3, lines: [{ text: '漕幫的運糧船。' }] },
     { sprite: 'boat', x: 41, y: 34, w: 3, lines: [{ text: '一艘烏篷小船，船家正在補網。' }] },
@@ -109,6 +122,9 @@ export const linjiang: MapDef = {
         by('雷小五')('最近上頭發了海捕文書，抓一個左眉帶疤的傢伙。你要是看見了，可別自己逞強。'),
       ],
     },
+    // 節慶：元宵燈謎攤（入夜）、端午龍舟會首
+    { id: 'lj_zhu', night: true, name: '祝老秀才', sprite: 'scholar', x: 27, y: 13, facing: 'down', script: riddleStall, when: (f) => f.festival === FEST.元宵 },
+    { id: 'lj_hong', work: true, name: '洪大槳', sprite: 'boatman', x: 30, y: 31, facing: 'down', script: dragonBoat, when: (f) => f.festival === FEST.端午 },
     // 鳴泉委託「回春堂送藥」：掌櫃在店門口等藥
     { id: 'lj_huichun', name: '白濟仁', sprite: 'storyteller', x: 8, y: 16, facing: 'down', script: huichunDelivery, when: (f) => f.mq_c_med === 1 },
     {

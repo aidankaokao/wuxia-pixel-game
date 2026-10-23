@@ -1,3 +1,4 @@
+import { supplierTalk } from '../story/supplier';
 import { bpCookTalk, bpInnTalk, fisherTalk, fishStall, shipOfficeTalk, shrineTalk, tideWatch, traderTalk } from '../story/dabutou';
 import { by, exitTo, room } from './rooms';
 import type { MapDef } from './types';
@@ -75,7 +76,7 @@ export const dabutou: MapDef = {
     { sprite: 'boat', x: 25, y: 30, w: 3, lines: [{ text: '往來大江的客船，船頭插著船行的旗子。' }] },
   ],
   npcs: [
-    { id: 'bp_pang', name: '龐老大', sprite: 'fisher', x: 21, y: 27, facing: 'down', script: fisherTalk },
+    { id: 'bp_pang', name: '龐老大', sprite: 'fisher', x: 21, y: 27, facing: 'down', script: supplierTalk('bp_pang', fisherTalk) },
     { id: 'bp_luo_vendor', name: '鍾小螺', sprite: 'lady', x: 25, y: 25, facing: 'down', talks: [by('鍾小螺')('買魚到攤子前面挑！早上的最新鮮！')] },
     { id: 'bp_lang', name: '龐小浪', sprite: 'child', x: 28, y: 25, facing: 'down', talks: [by('龐小浪')('我爹說，等我長大了就帶我出海！')] },
     {
@@ -135,7 +136,7 @@ export const bpTrader: MapDef = {
     { sprite: 'jars', x: 1, y: 1, w: 2, lines: [{ text: '木箱上烙著看不懂的外國字，裡頭飄出一股香料味。' }] },
     { sprite: 'f_shelf_scholar_2', x: 6, y: 1, w: 2, lines: [{ text: '架上擺著海圖和幾個奇形怪狀的貝殼。' }] },
   ],
-  npcs: [{ id: 'bpt_luo', allDay: true, name: '駱千帆', sprite: 'scholar', x: 4, y: 1, facing: 'down', script: traderTalk }],
+  npcs: [{ id: 'bpt_luo', allDay: true, name: '駱千帆', sprite: 'scholar', x: 4, y: 1, facing: 'down', script: supplierTalk('bp_trader', traderTalk) }],
   exits: [exitTo('dabutou', 14, 13, 4, 7)],
 };
 

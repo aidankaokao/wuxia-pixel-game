@@ -218,6 +218,9 @@ export const FESTIVALS: { name: string; month: number; date: number }[] = [
   { name: '中元', month: 6, date: 15 },
   { name: '中秋', month: 7, date: 15 },
   { name: '掌門壽辰', month: 9, date: 12 },
+  // 後來加的節慶接在後面（條件旗標 festival 是這裡的序號，前面的不能動）
+  { name: '冬至', month: 10, date: 16 },
+  { name: '除夕', month: 11, date: 30 },
 ];
 
 /** 旬休：每月初十、二十、三十（每十天一次）。門派不上晨課，臨江城趕集 */

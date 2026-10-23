@@ -11,6 +11,9 @@ import { LocationBanner } from './ui/LocationBanner';
 import { MapSigns } from './ui/MapSigns';
 import { MorningBrief } from './ui/MorningBrief';
 import { NoticeBoard } from './ui/NoticeBoard';
+import { ShopManager } from './ui/ShopManager';
+import { BizHQ } from './ui/BizHQ';
+import { Handbook } from './ui/Handbook';
 import { SchedulePanel } from './ui/SchedulePanel';
 import { ShopPanel } from './ui/ShopPanel';
 import { TitleScreen } from './ui/TitleScreen';
@@ -35,6 +38,9 @@ export function App() {
       <HomePanel />
       <SchedulePanel />
       <NoticeBoard />
+      <ShopManager />
+      <BizHQ />
+      <Handbook />
       <FishingGame />
       <MorningBrief />
       <TitleScreen />

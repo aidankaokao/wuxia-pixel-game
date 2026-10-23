@@ -1,4 +1,4 @@
-# 扶搖行：相忘江湖（像素武俠 RPG）
+# 扶搖江湖（像素武俠 RPG）
 
 整體規劃與里程碑見 `PLAN.md`，開始新階段前先讀它。
 
@@ -29,7 +29,7 @@
 - 時間：`src/game/time.ts`（刻、時辰、日夜、天氣、NPC 作息）。做事要花時間就在腳本裡呼叫 `ctx.pass(刻數)`，場景內走動與交談不花時間；練功類的事用 `exert()` 花體力，不要再加「每天一次」的限制（只有作物生長、晨課這種自然限制才用 `useDaily`）。NPC 作息用 `allDay`、`work`、`night`，要固定出門時間（例如帶晨課的人）用 `out`（白天、夜裡兩份填一樣）；照作息出門、回來的人會自己走到門口或從門口走回原位（`MapScene` 的找路），新 NPC 的位置要能從門口走到。
 - 系統選單是一本書（`ui/GameMenu.tsx`）：上緣書籤是分頁，←→ 翻頁（`.tome-turn` 翻頁動畫：`LeafStrip` 巢狀紙條各彎一點做出弧度，角度在 `bend-next`／`bend-prev`），E／↓ 進入這一頁，頁裡 X 回到書籤，Tab／[ ] 隨時翻頁。每一頁用 `ui/Paper.tsx` 的 `Spread` 畫左右兩面的概覽，選中一項按 E 才把細節攤開成一張紙（`Paper`，從摺好的小方塊展開；`Sheet` 可以是說明加一排動作 `actions`、紙上的小型分層瀏覽 `browse`、名冊 `ledger`，或圖示格子 `grid`——一格一個 `IconCell`，左格右細節）。能用圖像就不用字：物品效果用 `ui/ItemEffects.tsx` 的小章，招式用卡片（`SkillDetail`），委託貼成告示；物品、菜、書、技能都用 `IconTile`（圖示＋右下角數字，沒有的變暗），圖示加在 `art/items.ts` 的 `ItemIcon`（不是物品的也可以，例如技能 `c_*`、書冊 `book_*`、坐騎 `horse`）。「人物」右頁是人形與裝備框（`CharacterPage` 的 `DOLL`，空框畫 `gear.ts` 的 `GEAR_ICON`）；生活技能與雅藝在「技能」頁（`ui/CraftsPage.tsx`，新技能的細目加在 `cellsFor`、圖示加在 `CRAFT_ICON`）。紙開著時，那一頁自己的按鍵要停（`useKeys(active && !open, …)`）。內容多、要分類的頁面用 `ui/Browser.tsx` 的分層瀏覽（書本模式：左頁上一層、右頁這一層，沒有下一層的項目攤開成紙），例如「門派」「交遊」；一人一列的名單用 `ledger`（名冊式表格），例如弟子名冊。紙與書頁是淺底深字，配色在 `.tome`／`.paper` 底下另外覆寫（`.muted`、`.tag`、品級顏色等）。
 - 行囊 36 格、每格疊 99 個（`character.ts` 的 `bagCapacity`，`bagExtra` 留給之後擴增行囊的道具）。給物品一律走 `giveItem`（裝不下會回提示而不給）；商店等要先算數量的地方用 `holdable`／`canHold`。
-- 日期用 `time.ts` 的 `dateText(day)` 顯示（遊戲從二月初一開始，一月 30 天），節慶在 `FESTIVALS`；不要再寫「第 N 日」。節慶活動在 `story/festival.ts`（掛在 NPC 的 `story` 或物件腳本前面，處理了就回傳 true），節令點心在 `festival.ts`；只在節慶出現的擺設用條件旗標 `festival`（今天第幾個節慶，平日 0）。
+- 日期用 `time.ts` 的 `dateText(day)` 顯示（遊戲從二月初一開始，一月 30 天），節慶在 `FESTIVALS`；不要再寫「第 N 日」。節慶活動在 `story/festival.ts`（掛在 NPC 的 `story` 或物件腳本前面，處理了就回傳 true），節令點心在 `festival.ts`；只在節慶出現的擺設用條件旗標 `festival`（今天第幾個節慶，平日 0；用 `FEST.端午` 這種對照，新節慶接在 `FESTIVALS` 最後面，前面的序號不能動）。節慶前後的節期用 `period`（`festivePeriod`：1 年節、2 端午、3 中秋）與 `nianhuo`（年貨攤），燈籠用 `lanternTime`；室外門飾（春聯、艾草）與煙火在 MapScene 依節期自動畫。城裡（不分門派）的節慶活動在 `story/festival_city.ts`，節慶當天第一次跟人交談會先互道佳節（`festGreeting`，記在 relation.events 的 `fest:日`）。
 - 生活技能（烹飪、紡織、學識、琴棋書畫）在 `src/game/crafts.ts`：技能 0–10 級，底下的項目（例如每道菜）熟練度 1–5 級；跟武功分開。門派生活的整體規劃見 PLAN.md 4.7。裝備欄位是 `GEAR_SLOTS`。
 - 烹飪：食材與菜餚在 `src/game/cooking.ts`（菜的三種品質是三個物品：`菜id`、`菜id_2`、`菜id_3`，由 `FOOD_ITEMS` 產生併入 `ITEMS`），做菜與學菜的腳本在 `story/cooking.ts`（`cookAt`、`teachDishes`）。菜餚跟藥品一樣平時、戰鬥中都能吃（戰鬥中能用的看 `usableInBattle`：能回氣血或內力的；行囊裡能用的看 `usable`）。
 - 服飾：部位與品級在 `src/game/gear.ts`（數值查 `GEAR_TABLE`，新增服飾只填部位與品級），穿脫用 `character.ts` 的 `equipGear`／`unequipGear`，穿著的存在 `hero.gear`（不佔行囊），戰鬥數值在 `heroUnit` 加上 `gearStats`。門派發的服飾帶 `sect`（綁定），離開門派用 `takeSectGear` 收回。
@@ -51,6 +51,10 @@
 - 店家招牌：建築填 `sign`（門楣匾額，寫店名）與 `flag`（簷下幌子，寫一個字）；新的店、官府、祠堂都填上，讓人一眼看出是什麼地方。板子在 MapScene 畫，字在 `ui/MapSigns.tsx`。
 - 公告欄：`notices.ts` 的 `registerNotices`（三欄：big 重要大事、urgent 懸賞公告（id 沿用 urgent）、daily 日常公告；依狀態算出來，不存檔）。要貼新的告示（懸賞、官府消息、招租）就註冊一個來源；告示可帶 `act`（在公告欄上按 E 執行）。打開公告欄用 `story/yamen.ts` 的 `noticeBoard(欄, 標題)`。
 - 房產與經營：物件在 `property.ts` 的 `PROPERTIES`（民居 house、空店面 shop、照舊經營的老店 business；地圖上的哪棟建築用 map＋bx／by 對到），狀態在 world.property；師爺與牙人的選單在 `story/property.ts`。開店在 `shop.ts`（店種 `SHOP_TYPES`、等級、夥計、`settleDay`）與 `story/shop.ts`，狀態在 world.shops。房子裡面的地圖是 `prop:物件id`（`maps/property.ts`）。新的城要開放房產：在 `PROPERTIES` 加物件、在那個城的衙門放師爺。
+- 經營管理：帳簿介面 `ui/ShopManager.tsx`（店裡櫃台的「經營管理」，panel kind `shopManage`），規則與數值在 `shop_manage.ts`（保鏢 `GUARDS`、各城請得到哪些 `TOWN_GUARDS`、批貨 `wholesale`、士氣、帳目），介面的操作在 `shop_admin.ts`（回傳 `{ ok, msg }`，直接改 store）。夥計進出一律用 `shop.ts` 的 `hireStaff`／`dropStaff`、士氣用 `addMorale`；結算 `settleDay` 會先批貨、再算客人、最後記每日／每月帳。新的城開放經營時，記得在 `TOWN_GUARDS` 填那裡有哪些保鏢來源。注意全域 CSS 已經有 `.cost` 等通用類名，新介面的類名都加前綴（例如 `biz-`）。
+- 稱號與手冊：經營相關的功能（簽供應商、找掌櫃）要有稱號「東家」（`hasBizTitle`，第一次買下店面時 `story/shop.ts` 的 `grantBizTitle` 給，並翻開 `ui/Handbook.tsx` 的經營手冊）；身分稱號存在 `hero.titles`（之後別的身分稱號也放這裡，人物頁名片會顯示）。經營規則改了，手冊 `CHAPTERS` 的內容也要一起改。不經過腳本直接打開面板時（例如從選單），`close` 要自己把 `panel` 清成 null。
+- 供應商與掌櫃：城在 `shop_manage.ts` 的 `TOWNS`（地圖 id 開頭對到城，進地圖就記進 `world.biz.visited`），供應商在 `SUPPLIERS`（新地方的供應商加在這裡，地圖上負責的人用 `story/supplier.ts` 的 `supplierTalk(id, 原本的腳本)` 包起來，才能親自上門簽約）；進貨來源一律用 `shop.ts` 的 `sourcesOf`（看合約、分號、掌櫃才幹）。掌櫃的資料在 `world.biz.managers`，每天的代管在 `story/managers.ts` 的 `manageDaily`（結算、擲事件之後），方針在 `Policy`；新增店裡的事件種類時，掌櫃的處理也要在 `handleEvent` 補上。總號帳簿是 `ui/BizHQ.tsx`（panel kind `bizHQ`）。經濟數值改了要重跑模擬：最好的情況一家批貨的店一個月淨賺一千兩上下（偶爾一千五、兩千可以），不要太誇張。
+- 經營的小事件在 `story/shop_events.ts`：店的事記在 `ShopState.event`（對生意的影響寫在 `shop.ts` 的 `eventEffect`，節慶加成在 `festDraw`），房子的事記在 `Owned.event`（影響房租寫在 `rentDue`）；新增事件種類時，三處（擲事件、處理腳本、今日事）一起加。
 - 每天半夜要做的事用 `time.ts` 的 `onNewDay`（例如店鋪結算、房產市場換告示）；只改 world，不要問話。
 - 大一點的城分成幾區（例如臨江城的城南 `linjiang`、城北 `lj_north`），每區一張地圖，相鄰兩區同寬（或同高）、城牆在同一欄，用 `maps/city.ts` 的 `seam` 接起來（走過去接到同一個位置、不花時間）。
 - 季節：`time.ts` 的 `seasonOf(day)`（春夏秋冬依月份）、`currentTerm`／`solarTermOf`（二十四節氣，每月初一、十六）。地圖條件可讀 `season`（0 春…3 冬）與 `spring`／`summer`／`autumn`／`winter`。畫面換色在 `art/season.ts`（只改偏綠的像素；室外地形 `seasonCanvas`，樹木 `seasonTextureKey`）。新玩法要隨季節變時，直接讀 `seasonOf(world.day)`；魚的季節喜好寫在 `FishDef.likes`／`hides`；路程的季節天氣倍數是 `geo.ts` 的 `roadFactor`（大地圖花的時間一律用 `roadKe`）。

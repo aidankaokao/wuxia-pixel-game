@@ -50,7 +50,13 @@ export type Panel =
   | { kind: 'shop'; person?: string; stock?: string[]; title?: string; sellRate?: number; buys?: string[]; sellOnly?: boolean; discount?: number }
   | { kind: 'home'; plot: string }
   | { kind: 'schedule' }
-  | { kind: 'notices'; tab?: NoticeTab; title?: string };
+  | { kind: 'notices'; tab?: NoticeTab; title?: string }
+  /** 店裡櫃台的經營管理（ui/ShopManager.tsx） */
+  | { kind: 'shopManage'; id: string }
+  /** 總號帳簿：所有店、掌櫃、供應商、方針、帳房（ui/BizHQ.tsx） */
+  | { kind: 'bizHQ' }
+  /** 經營手冊（ui/Handbook.tsx） */
+  | { kind: 'handbook' };
 
 interface GameState {
   /** 標題畫面、建立角色或遊戲中 */

@@ -17,7 +17,8 @@ import type { Flags } from '../../state/store';
  * 建築、告示牌、NPC 等不寫在字元裡，另外列在 buildings / props / npcs。
  * 空地（可以買下蓋房子）列在 plots，房子蓋好後由 maps/index.ts 的 getMap() 動態加上建築與室內地圖。
  * 會隨劇情變化的東西用 when（依旗標決定是否存在）與 script（互動時執行的劇情腳本）。
- * when 除了劇情旗標，還能讀 festival、today、xunxiu，以及天氣 rain／fog／clear（是就為 1）。
+ * when 除了劇情旗標，還能讀 festival、today、xunxiu，以及天氣 rain／fog／clear（是就為 1）；
+ * 節期 period（1 年節、2 端午、3 中秋，見 festival.ts）與 nianhuo（臘月十五到除夕擺年貨攤）。
  */
 
 /** 一段對話：可以是旁白，也可以標出說話的人。 */

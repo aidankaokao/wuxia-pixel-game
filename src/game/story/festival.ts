@@ -125,11 +125,15 @@ const RIDDLES = [
   { q: '上不在上，下不在下', a: '卡', wrong: ['一', '中'] },
   { q: '四個山字山靠山，四個川字川連川', a: '田', wrong: ['出', '州'] },
   { q: '一人一張口，口下長隻手', a: '拿', wrong: ['拾', '合'] },
+  { q: '十字對十字，太陽對月亮', a: '朝', wrong: ['明', '早'] },
+  { q: '一加一，不是二', a: '王', wrong: ['十', '土'] },
+  { q: '人在山邊', a: '仙', wrong: ['岸', '屾'] },
+  { q: '半個月亮', a: '胖', wrong: ['朋', '腓'] },
+  { q: '兩個月亮並排走', a: '朋', wrong: ['明', '胖'] },
 ];
 
-async function riddles(ctx: EventCtx) {
-  once('lantern');
-  await ctx.say('大殿前掛滿了花燈，每一盞底下都垂著一張紙條。', ...wen('元宵猜燈謎，是本門的老規矩。猜三個，猜中有賞。'));
+/** 猜三個燈謎，回傳猜中幾個（學識 3 級起每題先刪掉一個錯的答案）；鳴泉大殿與臨江城燈會共用 */
+export async function guessRiddles(ctx: EventCtx): Promise<number> {
   const pool = [...RIDDLES].sort(() => Math.random() - 0.5).slice(0, 3);
   const smart = learningLevel(st().hero) >= 3;
   let right = 0;
@@ -142,6 +146,13 @@ async function riddles(ctx: EventCtx) {
       await ctx.say(`你答「${r.a}」。——猜中了！`);
     } else await ctx.say(`你答「${options[c]}」。——不對，謎底是「${r.a}」。`);
   }
+  return right;
+}
+
+async function riddles(ctx: EventCtx) {
+  once('lantern');
+  await ctx.say('大殿前掛滿了花燈，每一盞底下都垂著一張紙條。', ...wen('元宵猜燈謎，是本門的老規矩。猜三個，猜中有賞。'));
+  const right = await guessRiddles(ctx);
   await ctx.say(...wen(right === 3 ? '三個全中！讀書果然沒白讀。' : right ? `中了 ${right} 個，不錯。` : '一個也沒中？多讀點書吧。'));
   if (right) {
     await ctx.hero((h) => {

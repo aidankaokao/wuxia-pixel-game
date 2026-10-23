@@ -15,7 +15,7 @@ export type ItemIcon =
   | 'sword' | 'blade'
   | 'painting'
   // 節令點心
-  | 'dumpling' | 'qingtuan' | 'zongzi' | 'mooncake' | 'shoutao'
+  | 'dumpling' | 'qingtuan' | 'zongzi' | 'mooncake' | 'shoutao' | 'tangyuan' | 'niangao' | 'firecracker' | 'red_lantern'
   // 紡織材料
   | 'thread' | 'silk'
   // 坐騎（不是物品，選單裡用）
@@ -386,6 +386,40 @@ const DRAW: Record<ItemIcon, (ctx: CanvasRenderingContext2D) => void> = {
     hline(ctx, 4, 12, 9, '#c4483c');
     vline(ctx, 8, 4, 13, '#3a6a2a');
     px(ctx, 6, 7, 1, 2, '#6a9a4a');
+  },
+  // 湯圓：一碗紅白湯圓
+  tangyuan(ctx) {
+    bowl(ctx);
+    for (const [x, y, c] of [[5, 7, '#f4f0e8'], [8, 6, '#e87a7a'], [11, 7, '#f4f0e8'], [7, 9, '#e87a7a'], [10, 9, '#f4f0e8']] as const) ellipse(ctx, x, y, 2, 2, c);
+  },
+  // 年糕：一疊紅糖年糕
+  niangao(ctx) {
+    px(ctx, 3, 9, 10, 4, '#a8642a');
+    hline(ctx, 3, 12, 9, '#c88440');
+    px(ctx, 4, 5, 8, 4, '#b8743a');
+    hline(ctx, 4, 11, 5, '#d8a060');
+    px(ctx, 7, 3, 2, 2, '#c4483c');
+    hline(ctx, 2, 13, 13, '#6a3a1a');
+  },
+  // 鞭炮：一串紅色小炮仗
+  firecracker(ctx) {
+    vline(ctx, 8, 1, 3, '#5a3a20');
+    for (let i = 0; i < 5; i++) {
+      px(ctx, 5, 3 + i * 2, 3, 2, '#d83a2e');
+      px(ctx, 9, 4 + i * 2, 3, 2, '#c42e24');
+      px(ctx, 5, 3 + i * 2, 1, 1, '#f0b830');
+    }
+    vline(ctx, 8, 3, 14, '#3a2a1a');
+  },
+  // 紅燈籠
+  red_lantern(ctx) {
+    vline(ctx, 8, 1, 2, '#3a2a1a');
+    hline(ctx, 5, 11, 3, '#f0b830');
+    ellipse(ctx, 8, 8, 5, 4, '#d83a2e');
+    vline(ctx, 8, 5, 11, '#a82418');
+    px(ctx, 6, 7, 1, 2, '#ff8a6a');
+    hline(ctx, 5, 11, 12, '#f0b830');
+    vline(ctx, 8, 13, 15, '#f0b830');
   },
   // 月餅：圓餅，印著花紋
   mooncake(ctx) {

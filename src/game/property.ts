@@ -93,6 +93,12 @@ export interface Owned {
   /** 出租：哪天開始招租（租客幾天後住進來）、租金算到哪天 */
   rentFrom?: number;
   rentPaidTo?: number;
+  /**
+   * 租客那邊的事（story/shop_events.ts）：leak 屋漏要修（拖過五天，房租只收一半）、
+   * late 手頭緊交不出租（談好之前收不到租）、gift 租客送東西來（去屋裡拿）。
+   */
+  event?: { kind: 'leak' | 'late' | 'gift'; day: number };
+  lastEvent?: number;
 }
 
 export interface Sale {
@@ -144,10 +150,11 @@ export function rentDue(p: PropertyDef, o: Owned, day: number): { silver: number
     const xun = Math.floor((day - (o.rentPaidTo ?? o.day)) / XUN);
     return { silver: xun * rentOf(p, o.cond), xun };
   }
-  if (!tenantIn(o, day)) return { silver: 0, xun: 0 };
+  if (!tenantIn(o, day) || o.event?.kind === 'late') return { silver: 0, xun: 0 };
   const from = o.rentPaidTo ?? o.rentFrom! + TENANT_DAYS;
   const xun = Math.floor((day - from) / XUN);
-  return { silver: xun * rentOf(p, o.cond), xun };
+  const leaking = o.event?.kind === 'leak' && day - o.event.day > 5;
+  return { silver: Math.round(xun * rentOf(p, o.cond) * (leaking ? 0.5 : 1)), xun };
 }
 
 /**

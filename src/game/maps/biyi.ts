@@ -1,3 +1,4 @@
+import { supplierTalk } from '../story/supplier';
 import { fishAt, isleBack, isleBoat, lotusPond, moonPavilion, qiaoCounter, ruanStall } from '../story/biyi';
 import { by, exitTo, room } from './rooms';
 import type { MapDef } from './types';
@@ -77,7 +78,7 @@ export const biyi: MapDef = {
   ],
   npcs: [
     { id: 'by_qin', work: true, name: '秦老漢', sprite: 'fisher', x: 36, y: 13, facing: 'right', person: 'qinlao' },
-    { id: 'by_ruan', work: true, name: '阮大水', sprite: 'boatman', x: 27, y: 14, facing: 'down', script: ruanStall },
+    { id: 'by_ruan', work: true, name: '阮大水', sprite: 'boatman', x: 27, y: 14, facing: 'down', script: supplierTalk('by_ruan', ruanStall) },
     {
       id: 'by_xiaohe', work: true, name: '喬小荷', sprite: 'girl', x: 10, y: 20, wander: 2,
       talks: [

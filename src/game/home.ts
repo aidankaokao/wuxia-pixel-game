@@ -10,6 +10,7 @@
 
 import type { PropertyState } from './property';
 import type { ShopState } from './shop';
+import type { BizState } from './shop_manage';
 import type { Order } from './orders';
 import type { SectState } from './sect';
 import { START_TIME, type Weather } from './time';
@@ -67,6 +68,8 @@ export interface World {
   property?: PropertyState;
   /** 自己開的店：物件 id → 店（見 shop.ts） */
   shops?: Record<string, ShopState>;
+  /** 經營的整體狀態：去過的地方、供應商合約、掌櫃、方針、總號帳房（見 shop_manage.ts） */
+  biz?: BizState;
 }
 
 export const newWorld = (): World => ({ day: 1, time: START_TIME, weather: 'clear', estates: {}, daily: {}, relations: {}, seed: Math.floor(Math.random() * 2 ** 31) });

@@ -1,7 +1,7 @@
 import { wellUse } from '../story/bandits';
 import { fogElder, greeterTalk, herbAt, mushroomAt, mushroomGrown, herbVisible, MQ, sweeperTalk, taskBoard, yardStake } from '../story/sect_mingquan';
 import { practiceAt } from '../story/arts';
-import { LANTERN_DAYS } from '../festival';
+import { lanternTime } from '../festival';
 import { graveAt, moonAt, poolAt } from '../story/festival';
 import type { MapDef } from './types';
 
@@ -84,8 +84,8 @@ export const mqSect: MapDef = {
 
   props: [
     // 過年、元宵、中秋掛燈籠
-    { sprite: 'lantern_post', x: 21, y: 10, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '大殿前掛起了紅燈籠，燈下垂著紙條。' }] },
-    { sprite: 'lantern_post', x: 25, y: 10, when: (f) => LANTERN_DAYS.includes(f.festival), lines: [{ text: '紅燈籠在風裡輕輕搖晃。' }] },
+    { sprite: 'lantern_post', x: 21, y: 10, when: lanternTime, lines: [{ text: '大殿前掛起了紅燈籠，燈下垂著紙條。' }] },
+    { sprite: 'lantern_post', x: 25, y: 10, when: lanternTime, lines: [{ text: '紅燈籠在風裡輕輕搖晃。' }] },
     { sprite: 'ding', x: 23, y: 19, w: 2, lines: [{ text: '一座青銅大鼎，鼎中香火不斷。' }, { text: '鼎身鑄著四個字：「劍鳴如泉」。' }] },
     { sprite: 'sect_flag', x: 20, y: 16, lines: [{ text: '鳴泉劍派的旗幟，青底白紋，像一道泉水。' }] },
     { sprite: 'sect_flag', x: 27, y: 16, lines: [{ text: '鳴泉劍派的旗幟，青底白紋，像一道泉水。' }] },

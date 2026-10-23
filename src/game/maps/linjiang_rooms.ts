@@ -1,3 +1,4 @@
+import { supplierTalk } from '../story/supplier';
 import { clothShopTalk } from '../story/linjiang';
 import { loomAt } from '../story/weaving';
 import { by, exitTo, room } from './rooms';
@@ -23,7 +24,7 @@ export const ljCloth: MapDef = {
     { sprite: 'mannequin', x: 7, y: 4, lines: [{ text: '一件錦緞外袍，袖口繡著雲紋，標價九十兩。' }] },
     { sprite: 'loom', x: 5, y: 4, w: 2, script: loomAt('一架織布機，經線繃得整整齊齊。老闆娘說，學了手藝的客人可以借用。'), label: '織布' },
   ],
-  npcs: [{ id: 'lj_jin', work: true, name: '魏錦娘', sprite: 'lady', x: 4, y: 3, facing: 'down', script: clothShopTalk }],
+  npcs: [{ id: 'lj_jin', work: true, name: '魏錦娘', sprite: 'lady', x: 4, y: 3, facing: 'down', script: supplierTalk('lj_cloth', clothShopTalk) }],
   exits: [exitTo('linjiang', 47, 8, 4, 7)],
 };
 
@@ -107,7 +108,7 @@ export const ljClinic: MapDef = {
   ],
   npcs: [
     // 委託「回春堂送藥」進行中時，白濟仁在店門口等（見 linjiang.ts），屋裡就不在
-    { id: 'ljc_bai', work: true, name: '白濟仁', sprite: 'storyteller', x: 5, y: 2, facing: 'down', script: clinicTalk, when: (f) => f.mq_c_med !== 1 },
+    { id: 'ljc_bai', work: true, name: '白濟仁', sprite: 'storyteller', x: 5, y: 2, facing: 'down', script: supplierTalk('lj_clinic', clinicTalk), when: (f) => f.mq_c_med !== 1 },
     {
       id: 'ljc_shao', work: true, name: '白小芍', sprite: 'child', x: 3, y: 3, facing: 'down', wander: 1,
       talks: [by('白小芍')('我在幫爺爺搗藥！這是止血草，這是……這是……我忘了。'), by('白小芍')('爺爺說，止血草送來回春堂，比賣給貨郎划算多了。')],

@@ -1,3 +1,4 @@
+import { innFestival, moonBanquet } from './festival_city';
 import { orderTalk } from './orders';
 import { propertyOf } from '../property';
 import { derive, ITEMS } from '../character';
@@ -62,6 +63,7 @@ const OWNER_DISCOUNT = 0.2;
 
 export const innTalk: Script = async (ctx) => {
   const owner = isOwner('ljb_inn');
+  if (await innFestival(ctx, owner)) return;
   const c = await ctx.ask(he(owner ? '東家來了！今天客房住了七成，帳都記好了。您要歇一晚？' : '客官，住店還是打尖？')[0], [owner ? '住店（東家免費）' : `住店（${INN_PRICE} 兩，睡到天亮）`, `打尖（喝壺茶 ${TEA_PRICE} 兩，聽聽傳聞）`, '不用了']);
   if (c === 0) {
     if (!owner && !(await pay(ctx, INN_PRICE, he))) return;
@@ -91,6 +93,7 @@ export const towerTalk: Script = async (ctx) => {
   // 訂貨：魚、魚乾、湖產、湖鮮海鮮菜（orders.ts 的 tower）
   if (await orderTalk(ctx, 'tower')) return;
   const owner = isOwner('ljb_tower');
+  if (await moonBanquet(ctx, owner)) return;
   const c = await ctx.ask(wangjiang(owner ? '東家！您樓上請，雅座給您留著。' : '客官樓上請！望江樓的菜，臨江城頭一份。')[0], ['點菜', '不用了']);
   if (c !== 0) return;
   await ctx.panel({ kind: 'shop', title: '望江樓・菜單', stock: TOWER_MENU.filter((id) => DISHES.some((d) => d.id === id)).map((id) => dishItem(id)), discount: owner ? OWNER_DISCOUNT : 0 });
