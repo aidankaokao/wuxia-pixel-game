@@ -8,7 +8,6 @@
 - 開發用網址參數：`?zoom=1` 看整張地圖；`?map=canglan&at=15,11` 從指定地圖與位置開始；`?map=world&node=linjiang` 從大地圖的某個節點開始；`?flags=q_bandits:1,bandit_scouts:1` 預設劇情旗標。帶這些參數時會跳過標題畫面、且不自動存檔。開發模式下 `window.__wuxia` 可讀主角位置、NPC 位置與狀態，`__wuxia.battle('dog')` 可直接開打指定的遭遇戰、`__wuxia.warp('qingzhu', 26, 22)` 可瞬間移動、`__wuxia.state().passTime(8)` 可讓時間往前走幾刻（給自動化測試用）。
 - 操作：方向鍵/WASD 移動、Shift 奔跑、E（或 Space/Enter）對話與確認、X/Esc 選單、面對人物時 F／G／R／T／H 切磋／贈禮／請教／交易／雅趣；Ctrl/⌘+S 即時存檔、F9 讀取即時存檔；戰鬥中 Q 切換自動戰鬥。
 - `npm run typecheck`、`npm run build`
-- 3D／2.5D 試作品（4.34）：開發伺服器開 http://localhost:5180/proto/（`proto/index.html` + `src/proto/`，three.js；網址參數 `?view=25d|3d&look=normal|toon&scene=village|world|battle|plain|river&time=0-3&weather=clear|rain|snow|fog`；風格只留低多邊形，畫風（一般、卡通描邊；預設卡通描邊）在 `src/proto/look.ts`，不想被描邊的物件標 `userData.noOutline`；對話框與商店在 `src/proto/ui.ts`）。試作品只讀遊戲本體的資料，不改它；要載入地圖或劇情時先 `import '../game/maps/index'`（直接載入 life_towns 等劇情檔會碰上循環引用）。
 
 ## 與使用者合作的約定
 
