@@ -95,6 +95,70 @@ const ICONS: Record<string, (c: Ctx) => void> = {
     px(c, 8, 4, 3, 2, '#6aaa4a');
     hline(c, 3, 11, 9, '#8b5e3c');
   },
+  // ── 城裡、漁村、港口的人（4.29） ──
+  fish: (c) => {
+    ellipse(c, 6, 6, 4, 2, '#7aa0c0');
+    px(c, 10, 4, 2, 5, '#5a80a0');
+    px(c, 4, 5, 1, 1, '#1a1a2a');
+    hline(c, 3, 8, 8, '#5a80a0');
+  },
+  net: (c) => {
+    for (let x = 3; x <= 11; x += 2) vline(c, x, 2, 10, '#8a7a5a');
+    for (let y = 2; y <= 10; y += 2) hline(c, 3, 11, y, '#8a7a5a');
+    px(c, 6, 5, 2, 2, '#fbf6e8');
+  },
+  boat: (c) => {
+    px(c, 2, 7, 11, 2, '#8a5a32');
+    hline(c, 3, 11, 9, '#6a4228');
+    vline(c, 7, 2, 6, '#5a4228');
+    px(c, 8, 3, 3, 3, '#e8e0c8');
+    hline(c, 1, 13, 10, '#3f7fc0');
+  },
+  coin: (c) => {
+    ellipse(c, 7, 6, 4, 4, '#d8a83a');
+    ellipse(c, 7, 6, 3, 3, '#f0c858');
+    px(c, 6, 5, 3, 3, '#8a6a20');
+    px(c, 7, 6, 1, 1, '#f0c858');
+  },
+  ball: (c) => {
+    ellipse(c, 7, 6, 4, 4, '#c4483c');
+    hline(c, 3, 11, 6, '#f4e0a0');
+    vline(c, 7, 2, 10, '#f4e0a0');
+  },
+  crate: (c) => {
+    px(c, 3, 3, 9, 7, '#a87a48');
+    hline(c, 3, 11, 3, '#6a4a28');
+    hline(c, 3, 11, 9, '#6a4a28');
+    for (let i = 0; i < 7; i++) px(c, 4 + i, Math.round(4 + i * 0.8), 1, 1, '#6a4a28');
+  },
+  cup: (c) => {
+    px(c, 4, 4, 6, 5, '#e8e4dc');
+    hline(c, 4, 9, 5, '#6a9a6a');
+    hline(c, 3, 10, 9, '#8a8a9a');
+    px(c, 10, 5, 1, 2, '#e8e4dc');
+    vline(c, 6, 1, 2, '#c8c8c8');
+    vline(c, 8, 0, 2, '#c8c8c8');
+  },
+  chess: (c) => {
+    px(c, 2, 2, 11, 9, '#d8b878');
+    for (let x = 3; x <= 11; x += 2) vline(c, x, 3, 9, '#8a6a32');
+    for (let y = 3; y <= 9; y += 2) hline(c, 3, 11, y, '#8a6a32');
+    px(c, 4, 4, 2, 2, '#1a1a2a');
+    px(c, 8, 6, 2, 2, '#f4f4f4');
+  },
+  lotus: (c) => {
+    ellipse(c, 7, 8, 5, 2, '#4a8a3a');
+    px(c, 6, 3, 3, 4, '#f0a0b8');
+    px(c, 4, 5, 2, 2, '#f0a0b8');
+    px(c, 9, 5, 2, 2, '#f0a0b8');
+    px(c, 7, 4, 1, 2, '#f8d0dc');
+  },
+  incense: (c) => {
+    px(c, 4, 7, 7, 3, '#8a6a42');
+    for (const x of [5, 7, 9]) vline(c, x, 3, 6, '#c4483c');
+    px(c, 6, 1, 1, 1, '#b8b8c8');
+    px(c, 8, 0, 1, 2, '#b8b8c8');
+  },
 };
 
 export function lifeIcon(scene: Phaser.Scene, name: string): string {

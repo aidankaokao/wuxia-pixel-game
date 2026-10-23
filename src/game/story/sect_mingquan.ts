@@ -346,6 +346,17 @@ async function morningDrill(ctx: EventCtx) {
 
 // ── 拜師：大殿見掌門聞松年 ────────────────────────────
 
+/** 職位的差事（story/mq_posts.ts 掛進來）：值殿那裡多一個選項；有職位才出現 */
+let postHook: { can: () => boolean; run: (ctx: EventCtx) => Promise<void> } | null = null;
+export const setPostHook = (h: { can: () => boolean; run: (ctx: EventCtx) => Promise<void> }) => (postHook = h);
+/** 大殿正中的掌門座位：你當了掌門，在這裡處理門派事務（story/mq_posts.ts 掛進來） */
+let chairHook: ((ctx: EventCtx) => Promise<boolean>) | null = null;
+export const setChairHook = (f: (ctx: EventCtx) => Promise<boolean>) => (chairHook = f);
+export const leaderChair: Script = async (ctx) => {
+  if (chairHook && (await chairHook(ctx))) return;
+  await ctx.say('掌門的座位。座前的蒲團上，跪過一代又一代入門的弟子。');
+};
+
 /** 掌門的劇情鉤子（年會、傳位等，story/mq_order.ts 掛進來）；處理了回傳 true */
 let wenHook: ((ctx: EventCtx) => Promise<boolean>) | null = null;
 export const setWenHook = (f: (ctx: EventCtx) => Promise<boolean>) => (wenHook = f);
@@ -887,7 +898,10 @@ export const dutyTalk: Script = async (ctx) => {
     await issueUniform(ctx, s.rank);
   }
   const ready = day() >= nextStipendDay(s);
-  const c = await ctx.ask(duty('師兄弟有什麼事？')[0], ['請教門規', ready ? '領月例' : '領月例（還沒到日子）', '弟子名冊', '離開師門', '沒事']);
+  const posts = postHook?.can() ? ['職位的差事'] : [];
+  const c0 = await ctx.ask(duty('師兄弟有什麼事？')[0], [...posts, '請教門規', ready ? '領月例' : '領月例（還沒到日子）', '弟子名冊', '離開師門', '沒事']);
+  if (posts.length && c0 === 0) return postHook!.run(ctx);
+  const c = c0 - posts.length;
   if (c === 2) await readRoster(ctx);
   else if (c === 3) await leaveSect(ctx);
   else if (c === 0) {

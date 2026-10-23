@@ -113,16 +113,19 @@ const AWAY_WHY = ['下山歷練', '回鄉探親', '隨蘇長老下山行醫'];
 
 // ── 比武小會、講武、守夜的時間 ──────────────────────────
 
-const MEET = { from: T('未'), to: T('申') };
-const LECTURE = { from: T('申'), to: T('酉') };
-const isMeetDay = (day: number) => isXunxiu(day);
-const isLectureDay = (day: number) => dateOf(day).date % 10 === 5;
+export const MEET = { from: T('未'), to: T('申') };
+export const LECTURE = { from: T('申'), to: T('酉') };
+export const isMeetDay = (day: number) => isXunxiu(day);
+export const isLectureDay = (day: number) => dateOf(day).date % 10 === 5;
 /** 守夜：亥時初到子時末（過了半夜算前一天的班） */
 const nightNow = (t: number) => t >= T('亥') || t < (T('子') + 8) % 96;
 const watchDayOf = (w: World) => (w.time < 48 ? w.day - 1 : w.day);
 /** 守夜輪值的順序；'hero' 是你（拜入門下才排進去） */
-const WATCH_ORDER = ['qiao', 'zheng', 'hou', 'bao', 'tang', 'gu', 'cao', 'he', 'wei'];
+export const WATCH_ORDER = ['qiao', 'zheng', 'hou', 'bao', 'tang', 'gu', 'cao', 'he', 'wei'];
 export function watcherOn(day: number, w: World = st().world): string {
+  // 巡山執事排過的那一晚，照他排的
+  const pick = w.life?.watchPick;
+  if (pick && pick.day === day) return pick.who;
   const order = inSect(w, 'mingquan') ? [...WATCH_ORDER, 'hero'] : WATCH_ORDER;
   const free = order.filter((id) => {
     const m = w.life?.members[id];
@@ -132,7 +135,7 @@ export function watcherOn(day: number, w: World = st().world): string {
 }
 
 /** 比武小會：這一個時段誰跟誰比 */
-const FIGHTERS = ['gu', 'bao', 'tang', 'zheng', 'hou', 'qiao', 'he', 'wei', 'cao'];
+export const FIGHTERS = ['gu', 'bao', 'tang', 'zheng', 'hou', 'qiao', 'he', 'wei', 'cao'];
 function meetPair(day: number, time: number): [string, string] {
   const block = Math.floor((time - MEET.from) / 4);
   const order = [...FIGHTERS].sort((a, b) => ((a.charCodeAt(0) * 31 + day) % 17) - ((b.charCodeAt(0) * 31 + day) % 17));
@@ -159,6 +162,9 @@ const ANNUAL_SPOTS: [string, number, number, 'up' | 'down' | 'left' | 'right'][]
   ['gu', 2, 8, 'up'], ['bao', 4, 8, 'up'], ['tang', 5, 8, 'up'], ['cao', 9, 8, 'up'], ['zheng', 10, 8, 'up'], ['hou', 12, 8, 'up'],
 ];
 
+/** 某個職位是不是某人擔任（沒改過就照預設） */
+const heldBy = (w: World, post: string, who: string) => (w.life?.posts?.[post] ?? (post === 'elder_teach' ? 'han' : '')) === who;
+
 function events(w: World): Record<string, Assign> {
   const t = w.time;
   const out: Record<string, Assign> = {};
@@ -175,7 +181,8 @@ function events(w: World): Record<string, Assign> {
     for (const id of FIGHTERS) if (!out[id] && !away(id) && i < MEET_SPOTS.crowd.length) out[id] = { act: 'watch', at: MEET_SPOTS.crowd[i++] };
   }
   if (isLectureDay(w.day) && inT(t, LECTURE.from, LECTURE.to)) {
-    out.han = { act: 'lead', at: LECTURE_SPOTS.lead };
+    // 你當了傳功長老，就由你主講（找聽講的人開講），韓靖秋不再上台
+    if (w.sect?.post !== 'elder_teach' && heldBy(w, 'elder_teach', 'han')) out.han = { act: 'lead', at: LECTURE_SPOTS.lead };
     let i = 0;
     for (const id of ['gu', 'tang', 'bao', 'zheng', 'hou', 'wei']) if (!away(id) && i < LECTURE_SPOTS.crowd.length) out[id] = { act: 'listen', at: LECTURE_SPOTS.crowd[i++] };
   }
@@ -183,6 +190,10 @@ function events(w: World): Record<string, Assign> {
   const d = dateOf(w.day);
   if (d.month === 0 && d.date === 16 && w.life?.meetingYear !== d.year && inT(t, T('辰'), T('午'))) {
     for (const [id, x, y, f] of ANNUAL_SPOTS) if (!away(id)) out[id] = { act: id === 'han' ? 'watch' : 'listen', at: at('mq_hall', x, y, f) };
+    // 現任掌門坐在正中；卸任的掌門坐右手邊
+    const leader = Object.entries(w.life?.ranks ?? {}).find(([, r]) => r.rank === '掌門')?.[0];
+    if (leader && leader !== 'wen' && out[leader]) out[leader] = { act: 'lead', at: at('mq_hall', 7, 4, 'down') };
+    if (w.life?.ranks?.wen?.rank === '太上長老') out.wen = { act: 'watch', at: at('mq_hall', 10, 4, 'left') };
   }
   // 守夜：輪到的人在廣場巡（輪到你就沒人巡）
   if (nightNow(t)) {
@@ -336,18 +347,20 @@ registerLife({
       id: 'wen', name: MQ.wen, sprite: 'sect_master', person: 'wen', power: 300, rank: 4,
       home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
       wake: T('卯'), sleep: T('戌'),
-      // 辰時到酉時在大殿（午時不在）；未時到後山散步
-      duty: (t) =>
-        inT(t, T('未'), T('申')) ? { act: 'stroll', at: at('mq_back', 18, 11, 'up') } : inT(t, T('辰'), T('酉')) && !inT(t, T('午'), T('未')) ? { act: 'read', at: at('mq_hall', 7, 4, 'down') } : { act: 'sleep', at: at(AWAY, 0, 0) },
+      // 辰時到酉時在大殿（午時不在）；未時到後山散步。卸任以後整天在後山清修
+      duty: (t, w) =>
+        w.life?.ranks?.wen?.rank === '太上長老' && inT(t, T('辰'), T('酉'))
+          ? inT(t, T('午'), T('未')) ? null : { act: inT(t, T('未'), T('申')) ? 'stroll' : 'meditate', at: at('mq_back', 18, 11, 'up') }
+          : inT(t, T('未'), T('申')) ? { act: 'stroll', at: at('mq_back', 18, 11, 'up') } : inT(t, T('辰'), T('酉')) && !inT(t, T('午'), T('未')) ? { act: 'read', at: at('mq_hall', 7, 4, 'down') } : { act: 'sleep', at: at(AWAY, 0, 0) },
       likes: {},
     },
   ],
 });
 
 const GROUP = () => lifeGroups().find((g) => g.id === 'mingquan')!;
-const NAME: Record<string, string> = Object.fromEntries(GROUP().npcs.map((n) => [n.id, n.name]));
+export const NAME: Record<string, string> = Object.fromEntries(GROUP().npcs.map((n) => [n.id, n.name]));
 const npcDef = (id: string) => GROUP().npcs.find((n) => n.id === id)!;
-const mem = (w: World, id: string) => memberOf(w, id, { power: npcDef(id).power, rank: npcDef(id).rank });
+export const mem = (w: World, id: string) => memberOf(w, id, { power: npcDef(id).power, rank: npcDef(id).rank });
 const isAway = (w: World, id: string) => {
   const m = w.life?.members[id];
   return !!m?.away && m.away.until >= w.day;
@@ -382,7 +395,7 @@ const INNER_AT = 90;
 function news(w: World, text: string, who: string[]) {
   w.life!.news = [...w.life!.news, { day: w.day, text, who }].slice(-20);
 }
-const ensure = (w: World, id: string): LifeMember => ((w.life ??= { members: {}, news: [] }).members[id] ??= { power: npcDef(id).power ?? 10, rank: npcDef(id).rank ?? 0 });
+export const ensure = (w: World, id: string): LifeMember => ((w.life ??= { members: {}, news: [] }).members[id] ??= { power: npcDef(id).power ?? 10, rank: npcDef(id).rank ?? 0 });
 
 onNewDay((w) => {
   w.life ??= { members: {}, news: [] };
@@ -394,8 +407,9 @@ onNewDay((w) => {
       delete m.away;
     }
     if (m.away) continue;
-    // 你收的徒弟長得快五成
-    m.power += g * (0.6 + Math.random() * 0.8) * (m.master === 'hero' ? 1.5 : 1);
+    // 你收的徒弟長得快五成；掌門的方針：重武長得快、寬和慢一點
+    const pol = w.life.policy === 'martial' ? 1.2 : w.life.policy === 'gentle' ? 0.95 : 1;
+    m.power += g * (0.6 + Math.random() * 0.8) * (m.master === 'hero' ? 1.5 : 1) * pol;
     const before = m.rank;
     // 升正式弟子、內門弟子
     if (m.rank === 0 && m.power >= PROMOTE_AT && Math.random() < 0.25) {
@@ -411,7 +425,7 @@ onNewDay((w) => {
       news(w, `你的徒弟${NAME[id]}出息了，你也得了門派貢獻 10`, [id]);
     }
     // 正式弟子偶爾下山（大師兄、守山門的何守一不走）
-    if (m.rank === 1 && id !== 'he' && id !== 'lu' && Math.random() < 0.02) {
+    if (m.rank === 1 && id !== 'he' && id !== 'lu' && Math.random() < (w.life.policy === 'gentle' ? 0.04 : 0.02)) {
       const why = AWAY_WHY[Math.floor(Math.random() * AWAY_WHY.length)];
       m.away = { until: w.day + 5 + Math.floor(Math.random() * 6), why };
       news(w, `${NAME[id]}${why}去了`, [id]);
@@ -420,7 +434,8 @@ onNewDay((w) => {
   // 較勁的人偶爾吵架
   for (const b of BONDS.filter((x) => x.kind === 'rival')) {
     const ma = ensure(w, b.a);
-    if (ma.away || (ma.feud && ma.feud.until >= w.day) || Math.random() >= 0.06) continue;
+    const fc = w.life.policy === 'martial' ? 0.12 : w.life.policy === 'gentle' ? 0.02 : 0.06;
+    if (ma.away || (ma.feud && ma.feud.until >= w.day) || Math.random() >= fc) continue;
     const until = w.day + 1 + Math.floor(Math.random() * 3);
     ma.feud = { with: b.b, until };
     ensure(w, b.b).feud = { with: b.a, until };
@@ -529,13 +544,20 @@ GROUP().hooks = {
 
 // ── 比武小會、講武（找主持的人） ──────────────────────────
 
+/** 典儀執事主持比武（mq_posts.ts 設定） */
+let riteHost: ((ctx: EventCtx) => Promise<void>) | null = null;
+export const setRiteHost = (f: (ctx: EventCtx) => Promise<void>) => (riteHost = f);
+
 /** 比武小會：連戰三場，從弱到強；照勝場排名次，有賞 */
 async function tournament(ctx: EventCtx) {
   const lu = by(MQ.lu);
   const w = st().world;
   if (!member()) return void (await ctx.say(...lu('本門的比武小會，外人只能在旁邊看。')));
   if (lifeState(w).meetDay === w.day) return void (await ctx.say(...lu('今天你已經比過了。下一旬再來！')));
-  if ((await ctx.ask(lu('比武小會開始了。要上場嗎？連戰三場，點到為止。')[0], ['上場', '在旁邊看就好'])) !== 0) return;
+  const host = riteHost && w.sect?.post === 'st_rite' && !w.daily[`mq:host:${w.day}`];
+  const pick = await ctx.ask(lu(host ? '典儀執事來了！今天的比試由你唱名主持，還是你也上場？' : '比武小會開始了。要上場嗎？連戰三場，點到為止。')[0], ['上場', ...(host ? ['主持比試（典儀執事）'] : []), '在旁邊看就好']);
+  if (host && pick === 1) return void (await riteHost!(ctx));
+  if (pick !== 0) return;
   if (!(await exert(ctx, STAMINA.spar, '已經累得喘不過氣，這時候上場只會挨打。'))) return;
   const pool = FIGHTERS.filter((id) => !isAway(w, id))
     .map((id) => ({ id, p: mem(w, id).power, r: mem(w, id).rank }))
@@ -638,7 +660,7 @@ registerDailyTasks(({ world }) => {
   const out: { text: string; state: 'todo' | 'done'; note?: string }[] = [];
   for (const n of (world.life?.news ?? []).filter((x) => world.day - x.day <= 1)) out.push({ text: `門派消息：${n.text}`, state: 'done' });
   if (isMeetDay(world.day)) out.push({ text: '比武小會（未時，演武廣場找陸鳴川）', state: world.life?.meetDay === world.day ? 'done' : 'todo' });
-  if (isLectureDay(world.day)) out.push({ text: '韓長老講武（申時，練功房）', state: world.daily[`mq:lecture:${world.day}`] ? 'done' : 'todo' });
+  if (isLectureDay(world.day) && world.sect?.post !== 'elder_teach') out.push({ text: '韓長老講武（申時，練功房）', state: world.daily[`mq:lecture:${world.day}`] ? 'done' : 'todo' });
   if (watcherOn(world.day, world) === 'hero') out.push({ text: '今晚輪你守夜（亥時到子時，大殿前敲更鼓）', state: world.daily[`mq:watch:${world.day}`] ? 'done' : 'todo' });
   return out;
 });

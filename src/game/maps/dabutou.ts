@@ -1,5 +1,5 @@
 import { supplierTalk } from '../story/supplier';
-import { bpCookTalk, bpInnTalk, fisherTalk, fishStall, shipOfficeTalk, shrineTalk, tideWatch, traderTalk } from '../story/dabutou';
+import { bpCookTalk, bpInnTalk, fishStall, shipOfficeTalk, shrineTalk, tideWatch, traderTalk } from '../story/dabutou';
 import { by, exitTo, room } from './rooms';
 import type { MapDef } from './types';
 
@@ -76,21 +76,6 @@ export const dabutou: MapDef = {
     { sprite: 'boat', x: 25, y: 30, w: 3, lines: [{ text: '往來大江的客船，船頭插著船行的旗子。' }] },
   ],
   npcs: [
-    { id: 'bp_pang', name: '龐老大', sprite: 'fisher', x: 21, y: 27, facing: 'down', script: supplierTalk('bp_pang', fisherTalk) },
-    { id: 'bp_luo_vendor', name: '鍾小螺', sprite: 'lady', x: 25, y: 25, facing: 'down', talks: [by('鍾小螺')('買魚到攤子前面挑！早上的最新鮮！')] },
-    { id: 'bp_lang', name: '龐小浪', sprite: 'child', x: 28, y: 25, facing: 'down', talks: [by('龐小浪')('我爹說，等我長大了就帶我出海！')] },
-    {
-      id: 'bp_tan', name: '譚大力', sprite: 'farmer', x: 41, y: 15, facing: 'left', wander: 1,
-      talks: [by('譚大力')('扛了一早上的貨，海船上的箱子一個比一個重。'), by('譚大力')('漕幫的人說，碼頭上的活兒都得先跟他們打招呼。')],
-    },
-    {
-      id: 'bp_yin', name: '殷海客', sprite: 'boatman', x: 45, y: 15, facing: 'left',
-      talks: [
-        by('殷海客')('我跑了二十年的海，從來沒見過這麼囂張的海盜。', '他們的船快得像飛，掛的是黑帆……'),
-        by('殷海客')('東海上有幾座小島，以前漁民在上頭曬網，現在都沒人敢去了。'),
-      ],
-    },
-    { id: 'bp_mei_kid', name: '梅小貝', sprite: 'child', x: 12, y: 25, wander: 2, talks: [by('梅小貝')('奶奶的籤很準喔！上回王伯伯求了下籤，第二天就跌了一跤。')] },
     { id: 'bp_cao1', allDay: true, name: '樊鐵', sprite: 'bandit', x: 36, y: 13, facing: 'down', talks: [by('樊鐵')('漕幫總舵，閒人止步。')] },
     { id: 'bp_cao2', allDay: true, name: '樊石', sprite: 'bandit', x: 38, y: 13, facing: 'down', talks: [by('樊石')('看什麼看？總舵主不見外人。')] },
   ],

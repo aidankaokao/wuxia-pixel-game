@@ -31,7 +31,7 @@ import { MINGQUAN, MQ, MQ_MEMBERS, setTeachExamHook, setWenHook } from './sect_m
 const st = () => useGame.getState();
 const member = () => inSect(st().world, 'mingquan');
 const sect = () => st().world.sect!;
-type Key = keyof typeof MQ_MEMBERS;
+export type Key = keyof typeof MQ_MEMBERS;
 
 // ── 年齡與體力 ──────────────────────────────────────────
 
@@ -63,7 +63,7 @@ export const POSTS: PostDef[] = [
   { id: 'st_patrol', name: '巡山執事', kind: 'steward', holder: 'he', bonus: 8, desc: '排守山門、守夜的班，管山上的安危。' },
   { id: 'st_rite', name: '典儀執事', kind: 'steward', holder: '', bonus: 8, desc: '籌辦年會、比武小會、節慶與入門拜師的典禮。' },
 ];
-const postDef = (id: string) => POSTS.find((p) => p.id === id)!;
+export const postDef = (id: string) => POSTS.find((p) => p.id === id)!;
 
 const lifeOf = (w: World): LifeState => (w.life ??= { members: {}, news: [] });
 /** 職位現在誰擔任 */
@@ -75,20 +75,20 @@ export const postOf = (w: World, who: string) => POSTS.find((p) => holderOf(w, p
 const STATIC_POWER: Partial<Record<Key, number>> = { qi: 62, fang: 50, ke: 55, song: 45, miao: 48, meng: 58, ye: 95, yan: 160, su: 120, han: 200, wen: 300 };
 /** 實力：日常系統裡記的；還沒記（剛開新檔）就用日常人物設定的底值 */
 const lifePower = (k: string) => lifeGroups().find((g) => g.id === 'mingquan')?.npcs.find((n) => n.id === k)?.power;
-const powerOf = (w: World, k: string) => w.life?.members[k]?.power ?? lifePower(k) ?? STATIC_POWER[k as Key] ?? 20;
+export const powerOf = (w: World, k: string) => w.life?.members[k]?.power ?? lifePower(k) ?? STATIC_POWER[k as Key] ?? 20;
 /** 你的實力（粗估：武功重數、名聲） */
 const heroPower = (h: Character) => h.skills.reduce((a, s) => a + s.level, 0) * 4 + h.fame / 2;
 const key = (name: string) => (Object.entries(MQ_MEMBERS).find(([, m]) => m.name === name)?.[0] ?? '') as Key | '';
-const nameOf = (k: string) => (k === 'hero' ? st().hero.name : MQ_MEMBERS[k as Key]?.name ?? k);
+export const nameOf = (k: string) => (k === 'hero' ? st().hero.name : MQ_MEMBERS[k as Key]?.name ?? k);
 
 /** 某人現在的位階（年會上可能改了） */
-const rankNow = (w: World, k: string) => w.life?.ranks?.[k]?.rank ?? MQ_MEMBERS[k as Key]?.rank ?? '';
-const away = (w: World, k: string) => {
+export const rankNow = (w: World, k: string) => w.life?.ranks?.[k]?.rank ?? MQ_MEMBERS[k as Key]?.rank ?? '';
+export const away = (w: World, k: string) => {
   const m = w.life?.members[k];
   return (!!m?.away && m.away.until >= w.day) || !!(MQ_MEMBERS[k as Key] as SectMember | undefined)?.note?.includes('下山');
 };
 const RANK_ORDER = ['記名弟子', '正式弟子', '內門弟子', '真傳弟子', '長老', '太上長老', '掌門'];
-const atLeast = (r: string, min: string) => RANK_ORDER.indexOf(r) >= RANK_ORDER.indexOf(min);
+export const atLeast = (r: string, min: string) => RANK_ORDER.indexOf(r) >= RANK_ORDER.indexOf(min);
 
 /** 有投票權的同門（內門以上、人在山上） */
 function voters(w: World) {
@@ -138,7 +138,7 @@ function tally(w: World, post: PostDef, cands: string[], heroVote: string | null
 }
 
 /** 職位交接（也改名冊上的位階、職司） */
-function seat(w: World, post: PostDef, winner: string) {
+export function seat(w: World, post: PostDef, winner: string) {
   const ls = lifeOf(w);
   ls.posts = { ...ls.posts, [post.id]: winner };
   ls.ranks ??= {};
@@ -158,7 +158,6 @@ const isMeetingDay = (day: number) => {
   const d = dateOf(day);
   return d.month === 0 && d.date === 16;
 };
-const wen = by('聞松年');
 
 /** 退位：七十二歲以上的長老，年會上一半機會退下（成了太上長老、空出長老席） */
 function retirements(w: World): { who: string; post: PostDef }[] {
@@ -173,7 +172,7 @@ function retirements(w: World): { who: string; post: PostDef }[] {
 }
 
 /** 掌門要不要傳位：七十五歲，或體力衰到五成五以下 */
-const leaderKey = (w: World) => (Object.entries(w.life?.ranks ?? {}).find(([, r]) => r.rank === '掌門')?.[0] ?? 'wen') as Key;
+export const leaderKey = (w: World) => (Object.entries(w.life?.ranks ?? {}).find(([, r]) => r.rank === '掌門')?.[0] ?? 'wen') as Key;
 const wantsToRetire = (w: World) => {
   if (w.sect?.leader) return false;
   const k = leaderKey(w);
@@ -200,17 +199,28 @@ function handOver(w: World, heir: string) {
   ls.ranks ??= {};
   const old = leaderKey(w);
   ls.ranks[old] = { rank: '太上長老', role: '卸任的掌門，在後山清修' };
+  // 接任的人原本兼的職位空出來（年會接著改選）
+  for (const p of POSTS) if (holderOf(w, p.id) === heir) ls.posts = { ...ls.posts, [p.id]: '' };
   if (heir === 'hero') {
-    if (w.sect) w.sect.leader = true;
+    if (w.sect) {
+      w.sect.leader = true;
+      delete w.sect.post;
+    }
   } else ls.ranks[heir] = { rank: '掌門', role: `鳴泉劍派第八代掌門` };
   ls.news = [...ls.news, { day: w.day, text: `${nameOf(old)}傳位給${nameOf(heir)}`, who: [] }].slice(-20);
 }
 
-/** 年會的過程（有你在場）：退位、傳位、選舉 */
-async function annualMeeting(ctx: EventCtx) {
+/** 年會的過程（有你在場）：退位、傳位、選舉。由現任掌門主持；你是掌門就由你主持（平票由你定） */
+export async function annualMeeting(ctx: EventCtx) {
   const w = st().world;
-  const say = (...t: string[]) => ctx.say(...wen(...t));
-  await ctx.say('大殿裡站滿了人。長老們坐在兩側，內門以上的弟子站在前排，記名弟子擠在殿門口張望。', ...wen('今年的年會，開始吧。'));
+  const chair = w.sect?.leader ? 'hero' : leaderKey(w);
+  // 主持人的話：你主持時寫成旁白
+  const host = (...t: string[]) => (chair === 'hero' ? t.map((x) => `你說：「${x}」`) : by(nameOf(chair))(...t));
+  const say = (...t: string[]) => ctx.say(...host(...t));
+  await ctx.say(
+    chair === 'hero' ? '大殿裡站滿了人。你在正中的座位坐下，長老們分坐兩側，弟子們齊齊行禮。' : '大殿裡站滿了人。長老們坐在兩側，內門以上的弟子站在前排，記名弟子擠在殿門口張望。',
+    ...host('今年的年會，開始吧。'),
+  );
   // 退位
   for (const r of retirements(w)) {
     await say(`${nameOf(r.who)}年事已高，今年起卸下${r.post.name}之職，留在山上清修。`);
@@ -222,9 +232,9 @@ async function annualMeeting(ctx: EventCtx) {
     });
   }
   // 傳位
-  if (wantsToRetire(st().world)) {
+  if (chair !== 'hero' && wantsToRetire(st().world)) {
     const heir = successor(st().world);
-    await say('老夫年紀大了，劍也提不太動了。是時候把鳴泉交給年輕人。', '這些年來，真傳弟子們的品行、武功，老夫都看在眼裡。');
+    await say('我年紀大了，劍也提不太動了。是時候把鳴泉交給年輕人。', '這些年來，真傳弟子們的品行、武功，我都看在眼裡。');
     st().updateWorld((x) => handOver(x, heir));
     if (heir === 'hero') {
       await say(`${st().hero.name}，鳴泉劍派第八代掌門，由你來當。`);
@@ -249,9 +259,18 @@ async function annualMeeting(ctx: EventCtx) {
       vote = opts[i] ?? null;
     }
     const r = tally(x, p, cands, vote);
-    st().updateWorld((y) => seat(y, p, r.winner));
-    await ctx.say(`開票：${cands.map((c) => `${nameOf(c)} ${r.count[c]} 票`).join('、')}。`, ...(r.tie ? wen('票數相同，由我來定。') : []), ...wen(`${p.name}由${r.winner === 'hero' ? '你' : nameOf(r.winner)}擔任。`));
-    if (r.winner === 'hero') await ctx.hero((h) => ((h.fame += 3), `（當選${p.name}：月例多 ${p.bonus} 兩。名聲 +3）`));
+    let winner = r.winner;
+    await ctx.say(`開票：${cands.map((c) => `${nameOf(c)} ${r.count[c]} 票`).join('、')}。`);
+    if (r.tie && chair === 'hero') {
+      // 你是掌門：平票由你裁定
+      const tied = cands.filter((c) => r.count[c] === r.count[r.winner]);
+      winner = tied[await ctx.ask('票數相同，由掌門裁定。你選誰？', tied.map(nameOf))] ?? r.winner;
+    } else if (r.tie) await say('票數相同，由我來定。');
+    st().updateWorld((y) => seat(y, p, winner));
+    await ctx.say(...host(`${p.name}由${winner === 'hero' ? (chair === 'hero' ? '我' : '你') : nameOf(winner)}擔任。`));
+    if (winner !== r.winner) addAffOf(winner, 3);
+    const rWinner = winner;
+    if (rWinner === 'hero') await ctx.hero((h) => ((h.fame += 3), `（當選${p.name}：月例多 ${p.bonus} 兩。名聲 +3）`));
   }
   st().updateWorld((y) => {
     lifeOf(y).meetingYear = yearOf(y.day);
@@ -266,7 +285,7 @@ function meetingWithoutHero(w: World) {
     ls.posts = { ...ls.posts, [r.post.id]: '' };
     (ls.ranks ??= {})[r.who] = { rank: '太上長老', role: `前${r.post.name}` };
   }
-  if (wantsToRetire(w)) handOver(w, successor(w));
+  if (!w.sect?.leader && wantsToRetire(w)) handOver(w, successor(w));
   for (const p of POSTS.filter((x) => x.kind === 'steward' || !holderOf(w, x.id))) {
     const cands = candidates(w, p, false);
     if (cands.length) seat(w, p, tally(w, p, cands, null).winner);
@@ -281,10 +300,33 @@ onNewDay((w) => {
   if (isMeetingDay(y) && w.life?.meetingYear !== yearOf(y)) meetingWithoutHero(w);
 });
 
+/** 有人物檔案的同門，交情加一點 */
+function addAffOf(k: string, n: number) {
+  const person = (MQ_MEMBERS[k as Key] as SectMember | undefined)?.person;
+  if (!person) return;
+  st().updateWorld((w) => {
+    const r = w.relations[person];
+    if (r) r.aff = Math.min(100, r.aff + n);
+  });
+}
+
+/** 年會那天找現任掌門（不是聞松年時，例如陸鳴川接任以後）就開年會 */
+const prevTalk = lifeGroups().find((g) => g.id === 'mingquan')!.hooks?.talk;
+lifeGroups().find((g) => g.id === 'mingquan')!.hooks!.talk = async (ctx, id, a) => {
+  const w = st().world;
+  if (id !== 'wen' && id === leaderKey(w) && !w.sect?.leader && member() && isMeetingDay(w.day) && w.life?.meetingYear !== yearOf(w.day)) {
+    await annualMeeting(ctx);
+    return true;
+  }
+  return prevTalk ? prevTalk(ctx, id, a) : false;
+};
+export const meetingPending = (w: World) => isMeetingDay(w.day) && w.life?.meetingYear !== yearOf(w.day);
+
 setWenHook(async (ctx) => {
   const w = st().world;
   if (!isMeetingDay(w.day) || w.life?.meetingYear === yearOf(w.day)) return false;
-  if (!member()) return false;
+  // 聞松年卸任以後，年會不歸他主持
+  if (!member() || leaderKey(w) !== 'wen' || w.sect?.leader) return false;
   await annualMeeting(ctx);
   return true;
 });
@@ -411,7 +453,7 @@ registerDailyTasks(({ world }) => {
   if (!inSect(world, 'mingquan')) return [];
   const out: { text: string; state: 'todo' | 'done'; note?: string }[] = [];
   for (let d = 0; d <= 5; d++)
-    if (isMeetingDay(world.day + d) && world.life?.meetingYear !== yearOf(world.day + d))
+    if (!world.sect?.leader && isMeetingDay(world.day + d) && world.life?.meetingYear !== yearOf(world.day + d))
       out.push({ text: d ? `${d} 天後是門派年會（正月十六，大殿找掌門）` : '今天是門派年會（辰時到午時，大殿找掌門）', state: 'todo', note: (world.sect?.rank ?? 0) >= 2 ? '你有投票權，也能競選執事' : undefined });
   for (const k of apprentices(world)) if (world.life?.members[k]?.taughtDay !== world.day) out.push({ text: `指點徒弟${nameOf(k)}`, state: 'todo' });
   return out;

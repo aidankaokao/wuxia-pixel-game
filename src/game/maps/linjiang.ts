@@ -153,32 +153,6 @@ export const linjiang: MapDef = {
       id: 'lj_ferry', name: '董阿七', sprite: 'fisher', x: 19, y: 31, facing: 'down',
       talks: [[{ speaker: '董阿七', text: '要過江？今天風大，不開船囉。（尚未開放）' }]],
     },
-    {
-      id: 'lj_scholar', name: '蕭子墨', sprite: 'scholar', x: 24, y: 20, wander: 2,
-      talks: [
-        [
-          { speaker: '蕭子墨', text: '小生進城趕考，盤纏卻在路上丟了大半……' },
-          { speaker: '蕭子墨', text: '聽說望江樓的掌櫃愛才，或許能讓小生題幾句詩，換頓飯吃。' },
-        ],
-      ],
-    },
-    {
-      id: 'lj_vendor', name: '胡來喜', sprite: 'farmer', x: 17, y: 26, facing: 'up',
-      talks: [[{ speaker: '胡來喜', text: '糖人兒——又甜又好看的糖人兒——' }]],
-    },
-    {
-      id: 'lj_beggar', allDay: true, name: '何六', sprite: 'beggar', x: 13, y: 26, facing: 'down',
-      talks: [
-        [
-          { speaker: '何六', text: '行行好，賞口飯吃吧……' },
-          { speaker: '何六', text: '……小子，看你腳步虛浮，下盤不穩。要上鳴泉山，可得多練練。' },
-        ],
-      ],
-    },
-    {
-      id: 'lj_woman', name: '孫大娘', sprite: 'lady', x: 45, y: 24, wander: 3,
-      talks: [[{ speaker: '孫大娘', text: '布莊的料子又漲價了，這日子怎麼過喲。' }]],
-    },
     // 旬休趕集的攤主與逛市集的人
     ...(['food', 'silk', 'books', 'goods'] as const).map((id, i) => ({
       id: `lj_market_${id}`,
@@ -192,14 +166,6 @@ export const linjiang: MapDef = {
     })),
     // 縣衙懸賞「江邊水匪」：揭了榜才出現
     { id: 'lj_b_river', allDay: true, name: '江匪', sprite: 'boatman', x: 8, y: 30, facing: 'right', script: bountyTarget('river'), when: (f) => f.lj_b_river === 1 },
-    {
-      id: 'lj_shopper', name: '余二嫂', sprite: 'lady', x: 36, y: 27, wander: 3, when: (f) => f.xunxiu === 1,
-      talks: [[{ speaker: '余二嫂', text: '一旬才一回集，不早點來，好東西都讓人挑走了！' }]],
-    },
-    {
-      id: 'lj_kid', name: '阿寶', sprite: 'child', x: 10, y: 24, wander: 2,
-      talks: [[{ speaker: '阿寶', text: '我長大了要上鳴泉山學劍！' }, { speaker: '阿寶', text: '可是我娘說，山上的師父很兇……' }]],
-    },
   ],
 
   exits: [

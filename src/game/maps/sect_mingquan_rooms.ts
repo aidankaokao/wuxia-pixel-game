@@ -1,4 +1,4 @@
-import { armoryTalk, cellBed, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, isMember, keeperTalk, kitchenStove, libShelf } from '../story/sect_mingquan';
+import { armoryTalk, cellBed, choreAt, MQ, roomBed, cushion, dormBed, dutyTalk, herbalistTalk, ironStake, isMember, keeperTalk, kitchenStove, leaderChair, libShelf } from '../story/sect_mingquan';
 import { by, exitTo, room } from './rooms';
 import { readingShelf } from '../story/reading';
 import { practiceAt } from '../story/arts';
@@ -27,7 +27,7 @@ export const mqHall: MapDef = {
   props: [
     { sprite: 'portrait', x: 6, y: 0, w: 2, lines: [{ text: '開派祖師的畫像。畫中人青衫背劍，立於泉邊，神情淡然。' }] },
     { sprite: 'altar', x: 6, y: 1, w: 3, lines: [{ text: '供桌上供著祖師的牌位與一柄古劍。劍鞘上刻著「鳴泉」二字。' }] },
-    { sprite: 'chair', x: 7, y: 3, lines: [{ text: '掌門的座位。座前的蒲團上，跪過一代又一代入門的弟子。' }] },
+    { sprite: 'chair', x: 7, y: 3, script: leaderChair },
     { sprite: 'chair', x: 3, y: 4, lines: [{ text: '長老的座位。' }] },
     { sprite: 'chair', x: 11, y: 4, lines: [{ text: '長老的座位。' }] },
     { sprite: 'chair', x: 3, y: 6, lines: [{ text: '長老的座位。' }] },

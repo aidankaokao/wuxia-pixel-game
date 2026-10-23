@@ -6,6 +6,7 @@ import { graveAt, moonAt, poolAt } from '../story/festival';
 import type { MapDef } from './types';
 import { nightDrum } from '../story/life_mingquan';
 import '../story/mq_order';
+import '../story/mq_posts';
 
 /**
  * 鳴泉劍派 —— 門派院落。從山門進來，正中是大殿，殿前是演武廣場（銅鼎、木樁林），

@@ -4,7 +4,6 @@ import { by, exitTo, room } from './rooms';
 import { readingShelf } from '../story/reading';
 import { practiceAt } from '../story/arts';
 import { seam } from './city';
-import { northTeaTalk } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -81,25 +80,10 @@ export const ljNorth: MapDef = {
       id: 'ljn_guard', allDay: true, name: '朱八斤', sprite: 'guard', x: 25, y: 4, facing: 'right',
       talks: [by('朱八斤')('北門出去，往北是鳴泉山，往東北是北嶺官道。'), by('朱八斤')('天黑以後北門就關了，要出城趁早。')],
     },
-    // 北門口賣涼茶的老漢：問他才說山上的門派在收徒（以前站在這裡的是鳴泉弟子韋季安）
-    { id: 'ljn_tea', name: '黃阿順', sprite: 'elder', x: 30, y: 4, facing: 'down', script: northTeaTalk },
-    {
-      id: 'ljn_he', name: '何婆婆', sprite: 'aunt', x: 34, y: 15, facing: 'down',
-      talks: [
-        by('何婆婆')('我在城北住了六十年囉。以前這兒沒這麼多房子，都是菜田。'),
-        by('何婆婆')('城南熱鬧是熱鬧，可我還是喜歡城北，夜裡安安靜靜的，聽得見更夫打更。'),
-      ],
-    },
-    { id: 'ljn_kid', name: '何小石', sprite: 'child', x: 22, y: 15, wander: 3, talks: [by('何小石')('奶奶說我長大要去書院念書，可我想去鏢局當鏢師！')] },
-    {
-      id: 'ljn_du', name: '杜三嫂', sprite: 'lady', x: 37, y: 27, facing: 'left', wander: 1,
-      talks: [by('杜三嫂')('城北的井水比城南的甜，洗衣裳也乾淨。'), by('杜三嫂')('聽說漕幫跟鏢局又吵起來了，唉，城南那邊老是不太平。')],
-    },
     // 萬通牙行的牙人錢六：買房、賣房、招租都能找他（story/property.ts）
     { id: 'ljn_qian', work: true, name: '錢六', sprite: 'peddler', x: 9, y: 9, facing: 'down', script: agentTalk },
     // 石匠魯一鑿（石岳的師兄）：蓋橋的支線要請他出馬；動工那幾天在渡口
     { id: 'ljn_lu', allDay: true, name: '魯一鑿', sprite: 'smith', x: 31, y: 25, facing: 'right', script: masonTalk, when: (f) => f.bridge !== 2 || bridgeBuilt(f) },
-    { id: 'ljn_qu', name: '曲老爹', sprite: 'elder', x: 11, y: 24, facing: 'right', talks: [by('曲老爹')('年輕人，坐下來陪老頭子下盤棋？……唉，今天手氣不好，改天吧。')] },
     {
       id: 'ljn_watch', night: true, name: '邱更生', sprite: 'peddler', x: 28, y: 14, wander: 4,
       talks: [by('邱更生')('天乾物燥——小心火燭——'), by('邱更生')('我打了三十年的更，城北哪家幾點熄燈，我都知道。')],

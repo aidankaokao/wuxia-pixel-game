@@ -19,7 +19,8 @@ import { isMealTime, isXunxiu } from './time';
 
 export type LifeAct =
   | 'sleep' | 'eat' | 'class' | 'lead' | 'stake' | 'sword' | 'read' | 'meditate' | 'chat' | 'sweep' | 'water' | 'garden' | 'stroll'
-  | 'watch' | 'listen' | 'patrol' | 'guard' | 'spar' | 'shop';
+  | 'watch' | 'listen' | 'patrol' | 'guard' | 'spar' | 'shop'
+  | 'boat' | 'fish' | 'mend' | 'stall' | 'play' | 'haul' | 'tea' | 'chess' | 'beg' | 'pick' | 'wash' | 'study' | 'pray';
 
 /** 每件事的名字、頭上的小圖示、在原地走動的範圍、是不是室外 */
 export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number; outdoor?: boolean; busy?: boolean }> = {
@@ -42,6 +43,20 @@ export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number
   guard: { name: '守山門', icon: 'spear' },
   spar: { name: '比武', icon: 'sword', busy: true },
   shop: { name: '採買', icon: 'sack', wander: 2 },
+  // 城裡、漁村、港口的人（4.29）
+  boat: { name: '出船', icon: 'boat' },
+  fish: { name: '釣魚', icon: 'fish', outdoor: true, busy: true },
+  mend: { name: '補網', icon: 'net', outdoor: true, busy: true },
+  stall: { name: '擺攤', icon: 'coin', outdoor: true },
+  play: { name: '玩耍', icon: 'ball', wander: 3, outdoor: true },
+  haul: { name: '搬貨', icon: 'crate', wander: 2, outdoor: true, busy: true },
+  tea: { name: '喝茶聽書', icon: 'cup' },
+  chess: { name: '下棋', icon: 'chess', outdoor: true, busy: true },
+  beg: { name: '討飯', icon: 'bowl' },
+  pick: { name: '採蓮', icon: 'lotus', wander: 1, outdoor: true, busy: true },
+  wash: { name: '洗衣洗菜', icon: 'bucket', outdoor: true, busy: true },
+  study: { name: '唸書', icon: 'book' },
+  pray: { name: '上香', icon: 'incense' },
 };
 
 export interface Spot {
@@ -122,6 +137,12 @@ export interface LifeState {
   ranks?: Record<string, { rank?: string; role?: string }>;
   /** 上次開年會是第幾年 */
   meetingYear?: number;
+  /** 外務執事的差事：買什麼、幾件、哪天前交（4.28） */
+  errand?: { item: string; n: number; day: number; due: number; done?: boolean };
+  /** 巡山執事排的守夜：哪一晚、誰 */
+  watchPick?: { day: number; who: string };
+  /** 掌門定的門派方針：重武、守成（預設）、寬和 */
+  policy?: 'martial' | 'steady' | 'gentle';
 }
 export const lifeState = (w: World): LifeState => w.life ?? { members: {}, news: [] };
 export const memberOf = (w: World, id: string, base: Partial<LifeMember> = {}): LifeMember => w.life?.members[id] ?? { power: base.power ?? 10, rank: base.rank ?? 0 };
@@ -180,7 +201,7 @@ export function lifeNow(g: LifeGroup, w: World, flags: Flags): Record<string, As
   const block = Math.floor(w.time / LIFE_BLOCK);
   const wet = w.weather === 'rain' || w.weather === 'snow';
   const ls = lifeState(w);
-  const ver = JSON.stringify(Object.entries(ls.members).map(([k, m]) => [k, m.rank, m.away?.until ?? 0, m.feud?.until ?? 0]));
+  const ver = JSON.stringify([Object.entries(ls.members).map(([k, m]) => [k, m.rank, m.away?.until ?? 0, m.feud?.until ?? 0]), ls.meetingYear, ls.posts, ls.ranks, ls.watchPick, w.sect?.post, w.sect?.leader]);
   const key = `${g.id}:${w.day}:${block}:${wet ? 1 : 0}:${isMealTime(w.time) ? 1 : 0}:${ver}`;
   const hit = cache.get(key);
   if (hit) return hit;

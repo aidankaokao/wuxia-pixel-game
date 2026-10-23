@@ -1,15 +1,12 @@
-import { supplierTalk } from '../story/supplier';
 import { fishAt, isleBack, isleBoat, lotusPond, moonPavilion, qiaoCounter, ruanStall } from '../story/biyi';
-import { by, exitTo, room } from './rooms';
+import { exitTo, room } from './rooms';
 import type { MapDef } from './types';
 
 /**
  * 碧漪湖漁村 —— 碧漪湖西岸的小漁村（大地圖上的 biyi）。西邊的小路出去回大地圖（往青竹村）；
  * 東邊是湖，棧橋伸進湖裡，秦老漢的小船從這裡撐去湖心島。南邊有荷塘與蘆葦蕩。
- * 玩法與人物見 story/biyi.ts，釣魚見 fishing.ts。
+ * 玩法與人物見 story/biyi.ts，釣魚見 fishing.ts；村裡的人自己過日子，見 story/life_towns.ts。
  */
-
-const xiaohe = by('喬小荷');
 
 export const biyi: MapDef = {
   id: 'biyi',
@@ -77,23 +74,6 @@ export const biyi: MapDef = {
     { sprite: 'lotus', x: 5, y: 23, w: 2, lines: [{ text: '一朵粉白的荷花，花瓣上停著一隻蜻蜓。' }] },
   ],
   npcs: [
-    { id: 'by_qin', work: true, name: '秦老漢', sprite: 'fisher', x: 36, y: 13, facing: 'right', person: 'qinlao' },
-    { id: 'by_ruan', work: true, name: '阮大水', sprite: 'boatman', x: 27, y: 14, facing: 'down', script: supplierTalk('by_ruan', ruanStall) },
-    {
-      id: 'by_xiaohe', work: true, name: '喬小荷', sprite: 'girl', x: 10, y: 20, wander: 2,
-      talks: [
-        xiaohe('荷塘裡的蓮藕可大了！你要不要下來挖？', '……褲腳要挽高一點喔。'),
-        xiaohe('秦爺爺說湖裡有一條白色的大鯉魚。', '我每天都在找，可是只看到白鵝。'),
-        xiaohe('娘做的菱角糕最好吃了！比城裡的桂花糕還好吃！'),
-      ],
-    },
-    {
-      id: 'by_wang', work: true, name: '汪七', sprite: 'farmer', x: 6, y: 14, facing: 'right', wander: 2,
-      talks: [
-        by('汪七')('往西走湖畔小路，一刻鐘就到青竹村。', '我每隔幾天就挑魚過去賣，鍾嬸那兒收得最多。'),
-        by('汪七')('這幾年湖裡的魚少了些。秦老爺子說，是有人在湖東頭下了密網。'),
-      ],
-    },
   ],
   exits: [
     // 西邊的湖畔小路：走出去就到大地圖，往青竹村的方向
@@ -119,7 +99,6 @@ export const byTavern: MapDef = {
   ],
   npcs: [
     { id: 'byt_qiao', allDay: true, name: '喬嫂', sprite: 'aunt', x: 2, y: 2, facing: 'down', person: 'qiao' },
-    { id: 'byt_xiaohe', night: true, name: '喬小荷', sprite: 'girl', x: 6, y: 3, facing: 'down', talks: [xiaohe('（打了個哈欠）明天……明天我還要去荷塘……')] },
   ],
   exits: [exitTo('biyi', 16, 10, 5, 8)],
 };
@@ -140,7 +119,8 @@ export const byQinHome: MapDef = {
       lines: [{ text: '架上一排釣竿，最舊的那根竹節都磨亮了。' }, { text: '牆上掛著一張褪色的畫：一尾白鯉躍出湖面，旁邊題著「十七歲記」。' }],
     },
   ],
-  npcs: [{ id: 'byq_qin', night: true, name: '秦老漢', sprite: 'fisher', x: 3, y: 2, facing: 'down', person: 'qinlao' }],
+  // 秦老漢自己過日子（story/life_towns.ts），夜裡回這裡睡
+  npcs: [],
   exits: [exitTo('biyi', 26, 10, 3, 6)],
 };
 

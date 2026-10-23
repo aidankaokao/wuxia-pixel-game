@@ -19,6 +19,8 @@ import { propertyDef, propertyOf, PROPERTIES } from '../property';
 import { shopTypeDef } from '../shop';
 import { registerPlotNames } from '../story/estate';
 import { useGame } from '../../state/store';
+// 城裡、漁村、港口的人自己過日子
+import '../story/life_towns';
 
 /** 所有地圖。新增地圖時在這裡註冊，出入口的 `to` 填這裡的 id。 */
 export const MAPS: Record<string, MapDef> = {
