@@ -38,7 +38,6 @@ export const mqHall: MapDef = {
     { sprite: 'sect_flag', x: 13, y: 1, lines: [{ text: '殿內的門派旗幟。' }] },
   ],
   npcs: [
-    { id: 'mqh_wen', work: true, name: '聞松年', sprite: 'sect_master', x: 7, y: 4, facing: 'down', person: 'wen' },
     { id: 'mqh_duty', work: true, name: MQ.ke, sprite: 'disciple', x: 10, y: 2, facing: 'down', script: dutyTalk },
   ],
   exits: [back(23, 10, 7, 9)],
@@ -63,7 +62,6 @@ export const mqDorm: MapDef = {
   ],
   npcs: [
     // 天黑後回來睡覺的記名弟子
-    { id: 'mqd_qiao', name: MQ.qiao, sprite: 'disciple', x: 3, y: 5, facing: 'up', night: true, talks: [by(MQ.qiao)('站了一天山門，腿都是腫的。')] },
   ],
   exits: [back(6, 14, 7, 7)],
 };
@@ -92,7 +90,7 @@ export const mqRoomA = innerRoom('mq_room_a', '弟子房・甲', [4, 21], '桌�
 ]);
 export const mqRoomB = innerRoom('mq_room_b', '弟子房・乙', [9, 21], '桌上攤著一封家書，字跡歪歪扭扭：「爹，女兒在山上很好……」寫到一半。');
 // 夜裡回房的人：何守一住甲房；乙房住著蘇青苗，記名女弟子少，顧小滿暫住這裡
-mqRoomA.npcs.push({ id: 'mqra_he', name: MQ.he, sprite: 'disciple', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.he)('守了一天山門，總算能躺一下了。', '先說好，我打呼你別嫌吵。')] });
+// 何守一、韋季安住甲房（日常系統安排，story/life_mingquan.ts）
 mqRoomB.npcs.push(
   { id: 'mqrb_miao', name: MQ.miao, sprite: 'lady', x: 2, y: 2, facing: 'down', night: true, talks: [by(MQ.miao)('這麼晚了還沒睡？明天還要早起呢。')] },
 );
@@ -146,7 +144,6 @@ export const mqTrain: MapDef = {
         by(MQ.qi)('練功房裡的木人樁是包了鐵皮的，給正式弟子練。記名弟子可以用蒲團打坐。'),
       ],
     },
-    { id: 'mqt_han', work: true, name: '韓靖秋', sprite: 'sect_elder', x: 10, y: 4, facing: 'left', person: 'han' },
     // 下雨天，平常在廣場練劍的弟子都擠進練功房（廣場那一份這時不在）
   ],
   exits: [back(40, 14, 6, 9)],

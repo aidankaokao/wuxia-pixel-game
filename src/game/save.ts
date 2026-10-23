@@ -23,7 +23,7 @@ export const SLOT_NAME: Record<SlotId, string> = Object.fromEntries(
 ) as Record<SlotId, string>;
 
 /** 存檔格式有不相容的改變時遞增；舊版本在 migrate() 裡轉換，無法轉換的舊檔會被忽略 */
-const VERSION = 6;
+const VERSION = 7;
 
 export interface Position {
   mapId: string;
@@ -155,6 +155,11 @@ function migrate(d: any): SaveData | null {
     delete d.hero.title;
     d.world.relations = {};
     d.version = 6;
+  }
+  if (d?.version === 6) {
+    // v6：門派身分只有記名、正式、真傳三級。v7 在正式與真傳之間加了內門弟子，舊檔的真傳弟子往後移一級
+    if (d.world?.sect && d.world.sect.rank >= 2) d.world.sect.rank += 1;
+    d.version = 7;
   }
   return d?.version === VERSION ? (d as SaveData) : null;
 }

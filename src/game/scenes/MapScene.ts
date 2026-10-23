@@ -1,7 +1,8 @@
 import { mountDef } from '../mounts';
 import { newBiz, townOfMap } from '../shop_manage';
-import { ACTS, lifeGroups, lifeNow, LIFE_BLOCK, type LifeAct, type LifeGroup } from '../life';
+import { ACTS, lifeGroups, lifeNow, type LifeAct, type LifeGroup } from '../life';
 import { lifeIcon } from '../art/lifeicons';
+import { lifeTalk } from '../story/life_talk';
 import { FEST, festivalIndex, festivePeriod, nianhuoDays, PERIOD } from '../festival';
 import Phaser from 'phaser';
 import { Dir, NPC_WALK_MS, RUN_MS, TILE, VIEW_TILES_H, VIEW_TILES_W, WALK_MS } from '../constants';
@@ -530,33 +531,14 @@ export class MapScene extends Phaser.Scene {
 
   // ── 自己過日子的人 ─────────────────────────────────────
 
-  /** 跟正在做事的人說話：有人物檔案的先說一句他在做什麼（同一時段只說一次），再照人際系統交談 */
+  /** 跟正在做事的人說話（一起練、湊過去聽聊天……見 story/life_talk.ts） */
   private talkLife(npc: Npc) {
     const life = npc.life!;
-    const def = life.group.npcs.find((x) => x.id === life.id)!;
-    const act = life.act ?? 'stroll';
-    const block = Math.floor(useGame.getState().world.time / LIFE_BLOCK);
-    const intro = ACTS[act].busy && life.told !== block ? `（${def.name}正在${ACTS[act].name}，見你過來，停了下來。）` : null;
-    life.told = block;
-    if (def.person) {
-      const talk = personScript(def.person, 'talk')!;
-      this.runScript(async (ctx) => {
-        if (intro) await ctx.say(intro);
-        await talk(ctx);
-      });
-      return;
-    }
-    if (def.script) {
-      this.runScript(def.script);
-      return;
-    }
-    const pool = def.talks?.[act] ?? def.talks?.default ?? [];
-    if (!pool.length) return;
-    const lines = pool[npc.talkIndex % pool.length];
-    npc.talkIndex++;
+    const state = { talkIndex: npc.talkIndex, told: life.told };
     this.runScript(async (ctx) => {
-      if (intro) await ctx.say(intro);
-      await ctx.say(...lines);
+      await lifeTalk(life.group, life.id, state)(ctx);
+      npc.talkIndex = state.talkIndex;
+      life.told = state.told;
     });
   }
 

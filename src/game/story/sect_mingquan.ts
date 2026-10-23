@@ -55,29 +55,29 @@ const by =
     texts.map((text) => ({ speaker, text }));
 /** 鳴泉劍派的人：弟子名冊與各處的台詞都用這份名字 */
 export const MQ_MEMBERS = {
-  wen: { name: '聞松年', rank: '掌門', role: '鳴泉劍派第七代掌門', person: 'wen' },
-  han: { name: '韓靖秋', rank: '長老', role: '傳功長老，在練功房指點弟子', person: 'han' },
-  yan: { name: '嚴守拙', rank: '長老', role: '執法長老', note: '坐鎮後山，看守思過崖', person: 'yan' },
-  su: { name: '蘇芷蘅', rank: '長老', role: '藥堂長老', note: '常下山行醫', person: 'su' },
-  lu: { name: '陸鳴川', rank: '真傳弟子', role: '大弟子，主持晨課與入門考驗', person: 'lu' },
-  ye: { name: '葉疏桐', rank: '真傳弟子', role: '二弟子', note: '下山歷練，久未回山' },
-  qi: { name: '齊振遠', rank: '正式弟子', role: '教習，在練功房教基本功' },
-  fang: { name: '方硯清', rank: '正式弟子', role: '知客，在山門內迎客' },
-  ke: { name: '柯靜言', rank: '正式弟子', role: '值殿，掌管門規與月例' },
-  song: { name: '宋知微', rank: '正式弟子', role: '管書' },
-  miao: { name: '蘇青苗', rank: '正式弟子', role: '管藥，蘇長老的姪女' },
-  meng: { name: '孟鐸', rank: '正式弟子', role: '管武器房' },
-  he: { name: '何守一', rank: '正式弟子', role: '守山門' },
-  wei: { name: '韋季安', rank: '正式弟子', role: '採買', note: '常下山到臨江城' },
-  gu: { name: '顧小滿', rank: '記名弟子', role: '上個月入門', person: 'xiaoman' },
-  qiao: { name: '喬木生', rank: '記名弟子', role: '守山門' },
-  bao: { name: '包小川', rank: '記名弟子', role: '練劍' },
-  tang: { name: '唐秋生', rank: '記名弟子', role: '練劍' },
-  cao: { name: '曹小豆', rank: '記名弟子', role: '掃殿前' },
-  zheng: { name: '鄭大壯', rank: '記名弟子' },
-  hou: { name: '侯三郎', rank: '記名弟子' },
-  bu: { name: '卜大勺', rank: '雜役', role: '伙房師傅，管廚房與菜圃', person: 'bu' },
-  shao: { name: '邵長庚', rank: '雜役', role: '守山人，在後山守了四十年' },
+  wen: { name: '聞松年', rank: '掌門', age: 68, role: '鳴泉劍派第七代掌門', person: 'wen' },
+  han: { name: '韓靖秋', rank: '長老', age: 52, role: '傳功長老，在練功房指點弟子', person: 'han' },
+  yan: { name: '嚴守拙', rank: '長老', age: 71, role: '執法長老', note: '坐鎮後山，看守思過崖', person: 'yan' },
+  su: { name: '蘇芷蘅', rank: '長老', age: 45, role: '藥堂長老', note: '常下山行醫', person: 'su' },
+  lu: { name: '陸鳴川', rank: '真傳弟子', age: 27, role: '大弟子，主持晨課與入門考驗', person: 'lu' },
+  ye: { name: '葉疏桐', rank: '真傳弟子', age: 24, role: '二弟子', note: '下山歷練，久未回山' },
+  qi: { name: '齊振遠', rank: '內門弟子', age: 31, role: '教習，在練功房教基本功' },
+  fang: { name: '方硯清', rank: '內門弟子', age: 26, role: '知客，在山門內迎客' },
+  ke: { name: '柯靜言', rank: '內門弟子', age: 29, role: '值殿，掌管門規與月例' },
+  song: { name: '宋知微', rank: '內門弟子', age: 25, role: '管書' },
+  miao: { name: '蘇青苗', rank: '內門弟子', age: 21, role: '管藥，蘇長老的姪女' },
+  meng: { name: '孟鐸', rank: '內門弟子', age: 30, role: '管武器房' },
+  he: { name: '何守一', rank: '正式弟子', age: 24, role: '守山門' },
+  wei: { name: '韋季安', rank: '正式弟子', age: 23, role: '採買', note: '常下山到臨江城' },
+  gu: { name: '顧小滿', rank: '記名弟子', age: 16, role: '上個月入門', person: 'xiaoman' },
+  qiao: { name: '喬木生', rank: '記名弟子', age: 18, role: '守山門' },
+  bao: { name: '包小川', rank: '記名弟子', age: 17, role: '練劍' },
+  tang: { name: '唐秋生', rank: '記名弟子', age: 17, role: '練劍' },
+  cao: { name: '曹小豆', rank: '記名弟子', age: 15, role: '掃殿前' },
+  zheng: { name: '鄭大壯', rank: '記名弟子', age: 20 },
+  hou: { name: '侯三郎', rank: '記名弟子', age: 19 },
+  bu: { name: '卜大勺', rank: '雜役', age: 52, role: '伙房師傅，管廚房與菜圃', person: 'bu' },
+  shao: { name: '邵長庚', rank: '雜役', age: 74, role: '守山人，在後山守了四十年' },
 } satisfies Record<string, SectMember>;
 /** 名字：MQ.ke → 柯靜言 */
 export const MQ = Object.fromEntries(Object.entries(MQ_MEMBERS).map(([k, v]) => [k, v.name])) as Record<keyof typeof MQ_MEMBERS, string>;
@@ -112,12 +112,20 @@ export const MINGQUAN: SectDef = {
       perks: ['練功房的鐵木人樁', '書房抄錄「踏石步」', '更多下山委託'],
       stipend: { silver: 12, items: { jinchuang: 2 } },
       leave: [{ kind: 'fine', silver: 500 }, { kind: 'trial', name: '泉音劍陣', encounter: 'mq_array' }],
+      promote: { days: 45, merit: 400, skills: [{ id: 'mingquan', level: 6 }], test: '內門試劍（條件齊了就到練功房找傳功長老）' },
+    },
+    {
+      name: '內門弟子',
+      dorm: '弟子房（兩人一間）',
+      perks: ['門派年會上選舉長老、執事，也能出來競選執事', '通過授徒考驗後可以收徒弟', '內門弟子的泉紋護腕'],
+      stipend: { silver: 18, items: { jinchuang: 2 } },
+      leave: [{ kind: 'fine', silver: 800 }, { kind: 'trial', name: '泉音劍陣', encounter: 'mq_array' }],
       promote: { days: 60, merit: 600, skills: [{ id: 'mingquan', level: 8 }, { id: 'chengquan', level: 5 }], test: '真傳拜師試煉（條件齊了就去拜見掌門）' },
     },
     {
       name: '真傳弟子',
       dorm: '真傳弟子房（一人一間）',
-      perks: ['拜長老為師，學上乘武功', '每天向師父請教', '真傳弟子房的床鋪（精神飽滿更久）'],
+      perks: ['拜長老為師，學上乘武功', '每天向師父請教', '真傳弟子房的床鋪（精神飽滿更久）', '內門弟子的一切權利（選舉、收徒）', '掌門傳位時有資格繼承'],
       stipend: { silver: 25, items: { jinchuang: 3 } },
       leave: [{ kind: 'trial', name: '泉音劍陣', encounter: 'mq_array' }],
     },
@@ -338,7 +346,12 @@ async function morningDrill(ctx: EventCtx) {
 
 // ── 拜師：大殿見掌門聞松年 ────────────────────────────
 
+/** 掌門的劇情鉤子（年會、傳位等，story/mq_order.ts 掛進來）；處理了回傳 true */
+let wenHook: ((ctx: EventCtx) => Promise<boolean>) | null = null;
+export const setWenHook = (f: (ctx: EventCtx) => Promise<boolean>) => (wenHook = f);
+
 async function wenStory(ctx: EventCtx): Promise<boolean> {
+  if (wenHook && (await wenHook(ctx))) return true;
   if (ctx.flag('mq_left')) {
     await ctx.say(...wen('你我師徒緣分已盡，不必多言。'));
     return true;
@@ -348,7 +361,7 @@ async function wenStory(ctx: EventCtx): Promise<boolean> {
       await promotionCeremony(ctx);
       return true;
     }
-    if (sect().rank !== 1) return false;
+    if (sect().rank !== 2) return false;
     if (ctx.flag('mq_master')) {
       await trueCeremony(ctx);
       return true;
@@ -356,7 +369,7 @@ async function wenStory(ctx: EventCtx): Promise<boolean> {
     if (trueReady() && !ctx.flag('mq_true_hint')) {
       ctx.setFlag('mq_true_hint');
       await ctx.say(
-        ...wen('你成了正式弟子以來，功績、武功都長進了不少。是時候拜師了。'),
+        ...wen('你入了內門以來，功績、武功都長進了不少。是時候拜師了。'),
         ...wen(
           `本門三位長老，各有一門上乘武功：靖秋的「疊泉劍」、守拙的「斷流掌」、芷蘅的「寒潭心經」。`,
           `靖秋在練功房，守拙在後山思過崖前，芷蘅在藥房。想拜誰為師，就去找誰。`,
@@ -468,7 +481,9 @@ async function examFail(ctx: EventCtx, why: string) {
 
 /** 韓靖秋的劇情部分：記名弟子條件齊了就能報考 */
 async function hanStory(ctx: EventCtx): Promise<boolean> {
-  if (member() && sect().rank === 1) return masterStory(ctx, 0);
+  if (member() && sect().rank === 1) return innerExam(ctx);
+  if (member() && sect().rank >= 2 && (await teachExamHook?.(ctx))) return true;
+  if (member() && sect().rank === 2) return masterStory(ctx, 0);
   if (!member() || sect().rank !== 0) return false;
   if (ctx.flag('mq_exam') === 1) {
     await ctx.say(...han('考核過了，還愣在這裡做什麼？去大殿見掌門。'));
@@ -511,6 +526,52 @@ async function hanStory(ctx: EventCtx): Promise<boolean> {
     ...han('門規、武功都過了。去大殿見掌門，由掌門親自升你為正式弟子。'),
   );
   await ctx.hero((h) => addFame(h, 5));
+  return true;
+}
+
+/** 授徒考驗（內門弟子以上，story/mq_order.ts 掛進來） */
+let teachExamHook: ((ctx: EventCtx) => Promise<boolean>) | null = null;
+export const setTeachExamHook = (f: (ctx: EventCtx) => Promise<boolean>) => (teachExamHook = f);
+
+/** 內門試劍的三問：內門弟子要管事、要帶人 */
+const INNER_QUESTIONS = [
+  { q: '同門師弟私下鬥毆，被你撞見了，你怎麼做？', a: ['先把兩人分開，再稟報值殿', '讓他們打完再說', '各打五十大板'], right: 0 },
+  { q: '記名弟子練劍偷懶，你身為內門弟子該如何？', a: ['罵他一頓', '陪他練一回，看他卡在哪裡', '不關我的事'], right: 1 },
+  { q: '門派年會選執事，你最看重候選人的什麼？', a: ['跟我交情好不好', '武功最高', '肯不肯擔事、處事公不公道'], right: 2 },
+];
+
+/** 內門試劍：正式弟子條件齊了，找韓靖秋；先跟何守一過招，再答三問 */
+async function innerExam(ctx: EventCtx): Promise<boolean> {
+  if (!examReady()) return false;
+  const last = ctx.flag('mq_inner_day');
+  if (last && day() < last + EXAM_RETRY) {
+    await ctx.say(...han(`上回的試劍才過去沒幾天。${dateText(last + EXAM_RETRY)}再來。`));
+    return true;
+  }
+  const c = await ctx.ask(han('你的功績、劍法都夠了。要試內門嗎？內門弟子能在年會上選長老、選執事，往後還能收徒。')[0], ['請長老考我', '改天再說']);
+  if (c !== 0) return true;
+  ctx.setFlag('mq_inner_day', day());
+  await ctx.say(...han(`先試劍。${MQ.he}守了六年山門，劍法紮實，你跟他過一場。`), '何守一被叫了過來，抱拳一禮。');
+  const h = st().hero;
+  if ((await ctx.battle(setupDrill(heroUnit(h, derive(h)), { name: MQ.he, sprite: 'disciple' }, ['e_slash', 'quanyong', 'feipu'], Math.random, 1.05))) !== 'win') {
+    await ctx.say(...han('劍還不夠穩。', `${EXAM_RETRY} 天後再來。`));
+    return true;
+  }
+  await ctx.say({ speaker: MQ.he, text: '好劍！我服。' }, ...han('再問你三件事。內門弟子要管事、要帶人，光會打不夠。'));
+  let right = 0;
+  for (const { q, a, right: r } of INNER_QUESTIONS) if ((await ctx.ask({ speaker: '韓靖秋', text: q }, a)) === r) right++;
+  if (right < 2) {
+    await ctx.say(...han(`三問只對了 ${right} 問。心性還要再磨一磨。`, `${EXAM_RETRY} 天後再來。`));
+    return true;
+  }
+  st().updateWorld((w) => {
+    promote(w);
+    w.life ??= { members: {}, news: [] };
+    w.life.news = [...w.life.news, { day: w.day, text: `${st().hero.name}升為內門弟子`, who: [] }].slice(-20);
+  });
+  await ctx.say(...han(right === 3 ? '三問全對。好！' : '答對兩問，過了。', '從今日起，你是鳴泉的內門弟子。年會上有你一票，往後也能出來競選執事。', '想收徒的話，先過了我這裡的授徒考驗。'));
+  await issueUniform(ctx, 2);
+  await ctx.hero((h2) => addFame(h2, 5));
   return true;
 }
 
@@ -567,7 +628,7 @@ const MASTERS: Master[] = [
 const MASTER_LINES = [han, yan, su];
 
 /** 真傳弟子的條件（試煉以外）是不是都齊了 */
-const trueReady = () => sect().rank === 1 && examReady();
+const trueReady = () => sect().rank === 2 && examReady();
 
 async function trialFail(ctx: EventCtx, i: number, why: string) {
   ctx.setFlag('mq_mt', 0);
@@ -587,7 +648,7 @@ async function trialPass(ctx: EventCtx, i: number) {
 async function masterStory(ctx: EventCtx, i: number): Promise<boolean> {
   const m = MASTERS[i];
   const say = MASTER_LINES[i];
-  if (!member() || sect().rank !== 1) return false;
+  if (!member() || sect().rank !== 2) return false;
   const passed = ctx.flag('mq_master');
   if (passed) {
     if (passed !== i + 1) return false;
@@ -705,7 +766,7 @@ async function trueCeremony(ctx: EventCtx) {
   ctx.setFlag('mq_true');
   await ctx.hero((h) => [learnSkill(h, m.skill), giveItem(h, 'jinchuang', 3)]);
   await ctx.say('師父親手替你披上一件青紋道袍。');
-  await issueUniform(ctx, 2);
+  await issueUniform(ctx, 3);
   await ctx.say(
     ...MASTER_LINES[MASTERS.indexOf(m)](`這門「${SKILLS[m.skill].name}」，往後每天來找我請教。`),
     ...wen('疏桐下山多年，她的房間空著，你先搬進真傳弟子房・二吧。'),
@@ -715,7 +776,7 @@ async function trueCeremony(ctx: EventCtx) {
 
 /** 真傳弟子房・二的床 */
 export const cellBed: Script = async (ctx) => {
-  if (!member() || sect().rank < 2) {
+  if (!member() || sect().rank < 3) {
     await ctx.say('真傳弟子的床鋪，被褥是上好的棉布。');
     return;
   }
@@ -805,7 +866,7 @@ async function readRoster(ctx: EventCtx) {
   const hero = st().hero;
   await ctx.say(
     ...duty('弟子名冊在這兒，本門上下都記在上頭。'),
-    ...roster(MINGQUAN, st().world.sect, hero.name).map((g) => ({
+    ...roster(MINGQUAN, st().world.sect, hero.name, st().world).map((g) => ({
       text: `【${g.rank}】\n${g.members.map((m) => `${m.name}${m.role && !m.me ? `　${m.role}` : ''}${m.me ? '（你）' : ''}${m.note ? `（${m.note}）` : ''}`).join('\n')}`,
     })),
     ...duty('記名弟子還有十來個，名冊上就不一一列了。'),
@@ -841,11 +902,13 @@ export const dutyTalk: Script = async (ctx) => {
       return;
     }
     const pay = MINGQUAN.ranks[s.rank].stipend;
+    // 擔任職位（執事、長老、掌門）另有加給
+    const bonus = MINGQUAN.stipendBonus?.(st().world) ?? 0;
     st().updateWorld((w) => (w.sect!.stipendDay = w.day));
-    await ctx.say(...duty(`這是${rankName(s)}的月例，收好。`));
+    await ctx.say(...duty(`這是${rankName(s)}的月例${bonus ? '，連同職位的加給' : ''}，收好。`));
     await ctx.hero((h) => {
-      h.silver += pay.silver;
-      return [`獲得銀兩 ${pay.silver} 兩。`, ...Object.entries(pay.items ?? {}).map(([id, n]) => giveItem(h, id, n))];
+      h.silver += pay.silver + bonus;
+      return [`獲得銀兩 ${pay.silver + bonus} 兩。`, ...Object.entries(pay.items ?? {}).map(([id, n]) => giveItem(h, id, n))];
     });
   }
 };
@@ -931,7 +994,8 @@ function gainSkillText(h: Character, id: string, amount: number): (string | null
 }
 
 /** 練樁：選一門裝備中、還沒練到上限的外功；一次兩刻 */
-async function practice(ctx: EventCtx, amount: number, stamina: number) {
+/** 練外功（木樁、鐵木樁、跟同門一起練都用這個）：bonus 是另外多的成長比例 */
+export async function practice(ctx: EventCtx, amount: number, stamina: number, bonus = 0) {
   const list = st().hero.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'outer' && s.level < skillCap(s));
   if (!list.length) {
     await ctx.say('（要裝備著還沒練到上限的外功，才能在這裡練）');
@@ -940,7 +1004,7 @@ async function practice(ctx: EventCtx, amount: number, stamina: number) {
   const i = await ctx.ask('要練哪一門？（本門武功收穫更多）', [...list.map((s) => `${skillDef(s).name}（第 ${s.level} 重）`), '算了']);
   if (i >= list.length) return;
   const id = list[i].id;
-  const per = isSectSkill(id) ? amount + 10 : amount;
+  const per = Math.round((isSectSkill(id) ? amount + 10 : amount) * (1 + bonus));
   const n = await askRounds(ctx, stamina, '練', roundsToCap(list[i], Math.round(per * (1 + attrs(st().hero).insight / 40))));
   if (!n) return;
   if (!(await exert(ctx, stamina * n, '手臂都快抬不起來了，虎口也震得發麻。'))) return;
@@ -1002,8 +1066,13 @@ export const cushion: Script = withCost(() => (member() ? { ke: 2, stamina: STAM
     await ctx.say('打坐用的蒲團。\n（拜入鳴泉之後，可以在這裡打坐修練內功）');
     return;
   }
+  await sitDown(ctx);
+});
+
+/** 打坐（蒲團、跟同門一起打坐都用這個）：bonus 是另外多的成長比例 */
+export async function sitDown(ctx: EventCtx, bonus = 0) {
   const list = st().hero.skills.filter((s) => isEquipped(s) && slotOf(skillDef(s).kind) === 'inner' && s.level < skillCap(s));
-  const per = (id: string) => (isSectSkill(id) ? 30 : 20);
+  const per = (id: string) => Math.round((isSectSkill(id) ? 30 : 20) * (1 + bonus));
   const gain = (s: (typeof list)[number]) => Math.round(per(s.id) * (1 + attrs(st().hero).insight / 40));
   // 內功都練到上限了，打坐只為回內力：一回就夠
   const max = list.length ? Math.max(...list.map((s) => roundsToCap(s, gain(s)))) : 1;
@@ -1022,7 +1091,7 @@ export const cushion: Script = withCost(() => (member() ? { ke: 2, stamina: STAM
     return out;
   });
   await maybeDayEvent(ctx, 'rest');
-});
+}
 
 // ── 宿舍 ────────────────────────────────────────────────
 
@@ -1500,6 +1569,30 @@ export const gateTalk =
     if (ctx.flag('mq_left')) return void (await ctx.say(...fill(g.left)));
     await ctx.say(...g.outsider[gateIdx[who]++ % g.outsider.length]);
   };
+
+/** 臨江城北門口賣涼茶的黃阿順：問他才說山上的鳴泉劍派在收徒（以前在這裡的是下山採買的韋季安） */
+export const northTeaTalk: Script = async (ctx) => {
+  const huang = by('黃阿順');
+  const c = await ctx.ask(huang('客官，來碗涼茶？一兩銀子一大碗，解渴又消暑。')[0], ['打聽北邊的事', '來一碗（1 兩）', '不用了']);
+  if (c === 1) {
+    if (st().hero.silver < 1) return void (await ctx.say(...huang('……沒帶錢？那就算啦，下回再來。')));
+    st().updateHero((h) => {
+      h.silver -= 1;
+      h.stamina = Math.min(derive(h).maxStamina, h.stamina + 10);
+    });
+    return void (await ctx.say('一碗涼茶下肚，暑氣全消。（體力 +10）'));
+  }
+  if (c !== 0) return;
+  if (member()) return void (await ctx.say(...huang('客官是鳴泉山上的？難怪看著精神。', `前兩天${MQ.wei}還下山來喝茶，說山上的晨課一天都不能少。`)));
+  if (ctx.flag('mq_left')) return void (await ctx.say(...huang('鳴泉劍派？……客官不是從山上下來的嗎？老漢就不多嘴了。')));
+  await ctx.say(
+    ...huang(
+      '北邊？出了北門往北走，就是鳴泉山。',
+      '山上有個鳴泉劍派，這陣子正在收徒弟，不拘時日。上個月隔壁老顧家的閨女就上山去了，聽說考過了，現在是記名弟子囉。',
+      '想去的話，出城往北走一段山路就到。山門口有知客的弟子接待，說你是來應考的就成。',
+    ),
+  );
+};
 
 export const sweeperTalk = choreAt('sweep', [
   { speaker: MQ.cao, text: '我是記名弟子曹小豆，每天得把大殿前掃三遍。' },

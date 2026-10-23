@@ -6,6 +6,36 @@ import { ellipse, hline, makeCanvas, px, vline } from './pixel';
  */
 type Ctx = CanvasRenderingContext2D;
 const ICONS: Record<string, (c: Ctx) => void> = {
+  eye: (c) => {
+    ellipse(c, 7, 6, 4, 2, '#f4f0e8');
+    hline(c, 3, 11, 4, '#3a2a2a');
+    hline(c, 3, 11, 8, '#3a2a2a');
+    px(c, 6, 5, 3, 3, '#3a5a8a');
+    px(c, 7, 6, 1, 1, '#1a1a2a');
+  },
+  ear: (c) => {
+    px(c, 5, 2, 4, 8, '#e8b88a');
+    px(c, 6, 4, 2, 4, '#b8865a');
+    px(c, 9, 4, 1, 1, '#4a3a2a');
+    px(c, 10, 3, 1, 1, '#4a3a2a');
+    px(c, 10, 6, 1, 1, '#4a3a2a');
+  },
+  lantern: (c) => {
+    vline(c, 7, 1, 2, '#3a2a1a');
+    ellipse(c, 7, 6, 3, 3, '#e8a83a');
+    px(c, 6, 5, 2, 2, '#fff0a0');
+    hline(c, 5, 9, 9, '#3a2a1a');
+  },
+  spear: (c) => {
+    vline(c, 7, 3, 10, '#7a5232');
+    px(c, 6, 1, 3, 2, '#c8ccd4');
+    px(c, 6, 3, 3, 1, '#c4483c');
+  },
+  sack: (c) => {
+    ellipse(c, 7, 7, 4, 3, '#c8a868');
+    px(c, 6, 2, 3, 2, '#b8985a');
+    hline(c, 5, 9, 4, '#7a5a32');
+  },
   zzz: (c) => {
     for (const [x, y, s] of [[3, 7, 3], [7, 4, 2]] as const) {
       hline(c, x, x + s, y, '#4a5a8a');

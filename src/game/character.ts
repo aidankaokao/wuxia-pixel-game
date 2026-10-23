@@ -371,6 +371,8 @@ export interface Character {
   fame: number;
   /** 身分稱號（名聲稱號之外的，例如買下店面後的「東家」，見 shop_manage.ts 的 BIZ_TITLE） */
   titles?: string[];
+  /** 遊戲第一年的年紀（之後每過一年長一歲：heroAge） */
+  age?: number;
   silver: number;
   /** 擲骰決定的五維底值 */
   base: Attrs;
@@ -733,6 +735,7 @@ export function newHero(opts: { surname?: string; given?: string; base?: Attrs }
     given,
     name: surname + given,
     fame: 0,
+    age: 18,
     silver: 12,
     base: { ...(opts.base ?? DEFAULT_BASE) },
     extra: zeroAttrs(),

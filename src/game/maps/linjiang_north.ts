@@ -4,7 +4,7 @@ import { by, exitTo, room } from './rooms';
 import { readingShelf } from '../story/reading';
 import { practiceAt } from '../story/arts';
 import { seam } from './city';
-import { MQ } from '../story/sect_mingquan';
+import { northTeaTalk } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -69,7 +69,7 @@ export const ljNorth: MapDef = {
     { style: 'house', x: 45, y: 21, name: '民居', door: [{ text: '門上掛著一塊「囍」字，看來剛辦過喜事。' }] },
   ],
   props: [
-    { sprite: 'paifang_city', x: 25, y: 3, w: 6, passable: true },
+    { sprite: 'stall', x: 31, y: 4, w: 2, lines: [{ text: '一個涼茶攤，竹簍裡插著幾支蒲扇，壺嘴冒著熱氣。' }] },
     { sprite: 'sign', x: 29, y: 2, lines: [{ text: '北 ── 鳴泉山\n山上有鳴泉劍派。' }] },
     { sprite: 'well', x: 9, y: 26, lines: [{ text: '巷口的水井，一早就有人排隊打水。' }] },
     { sprite: 'well', x: 38, y: 26, lines: [{ text: '井邊的石板被磨得光滑，幾個大嬸邊洗菜邊聊天。' }] },
@@ -79,18 +79,10 @@ export const ljNorth: MapDef = {
   npcs: [
     {
       id: 'ljn_guard', allDay: true, name: '朱八斤', sprite: 'guard', x: 25, y: 4, facing: 'right',
-      talks: [[{ speaker: '朱八斤', text: '出北門往上走就是鳴泉山。' }, { speaker: '朱八斤', text: '最近上山的年輕人特別多，都是去拜師的。' }]],
+      talks: [by('朱八斤')('北門出去，往北是鳴泉山，往東北是北嶺官道。'), by('朱八斤')('天黑以後北門就關了，要出城趁早。')],
     },
-    {
-      id: 'ljn_disciple', name: MQ.wei, sprite: 'disciple', x: 31, y: 5, facing: 'down',
-      talks: [
-        [
-          { speaker: MQ.wei, text: '在下鳴泉劍派弟子韋季安，奉師命下山採買。' },
-          { speaker: MQ.wei, text: '本派正開山收徒，不拘時日。閣下若有意，出北門沿山道往上走，山門就在鳴泉旁。' },
-        ],
-        [{ speaker: MQ.wei, text: '鳴泉山上有一眼泉水，水擊山石，其聲如鳴，本派因此得名。' }],
-      ],
-    },
+    // 北門口賣涼茶的老漢：問他才說山上的門派在收徒（以前站在這裡的是鳴泉弟子韋季安）
+    { id: 'ljn_tea', name: '黃阿順', sprite: 'elder', x: 30, y: 4, facing: 'down', script: northTeaTalk },
     {
       id: 'ljn_he', name: '何婆婆', sprite: 'aunt', x: 34, y: 15, facing: 'down',
       talks: [

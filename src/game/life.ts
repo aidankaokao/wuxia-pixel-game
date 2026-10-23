@@ -12,11 +12,14 @@
  */
 
 import type { Line } from './maps/types';
+import type { EventCtx } from './events';
 import type { Flags } from '../state/store';
 import type { World } from './home';
 import { isMealTime, isXunxiu } from './time';
 
-export type LifeAct = 'sleep' | 'eat' | 'class' | 'lead' | 'stake' | 'sword' | 'read' | 'meditate' | 'chat' | 'sweep' | 'water' | 'garden' | 'stroll';
+export type LifeAct =
+  | 'sleep' | 'eat' | 'class' | 'lead' | 'stake' | 'sword' | 'read' | 'meditate' | 'chat' | 'sweep' | 'water' | 'garden' | 'stroll'
+  | 'watch' | 'listen' | 'patrol' | 'guard' | 'spar' | 'shop';
 
 /** 每件事的名字、頭上的小圖示、在原地走動的範圍、是不是室外 */
 export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number; outdoor?: boolean; busy?: boolean }> = {
@@ -33,6 +36,12 @@ export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number
   water: { name: '挑水', icon: 'bucket', outdoor: true },
   garden: { name: '整理菜圃', icon: 'sprout', wander: 1, outdoor: true },
   stroll: { name: '散步', icon: '', wander: 3, outdoor: true },
+  watch: { name: '看比武', icon: 'eye' },
+  listen: { name: '聽長老講武', icon: 'ear', busy: true },
+  patrol: { name: '守夜', icon: 'lantern', wander: 3, outdoor: true },
+  guard: { name: '守山門', icon: 'spear' },
+  spar: { name: '比武', icon: 'sword', busy: true },
+  shop: { name: '採買', icon: 'sack', wander: 2 },
 };
 
 export interface Spot {
@@ -68,10 +77,54 @@ export interface LifeNpc {
   sleep: number;
   /** 固定的職責：回傳這個時刻要做的事與地點（沒有就照喜好抽） */
   duty?: (time: number, w: World) => { act: LifeAct; at: Spot } | null;
-  /** 晨課：記名弟子要上（卯時到巳時，旬休沒有） */
+  /** 晨課：記名弟子要上（卯時到巳時，旬休沒有）；升了正式弟子就不用（看 world.life 的 rank） */
   pupil?: boolean;
+  /** 一開始的實力與身分（之後存在 world.life） */
+  power?: number;
+  rank?: number;
+  /** 不在門派裡的時候（下山歷練、下山採買）在哪；沒有就是哪裡都看不到 */
+  awayAt?: Spot;
   when?: (f: Flags) => boolean;
 }
+
+/** 同門之間的交情：要好、較勁、仰慕（a 仰慕 b） */
+export interface Bond {
+  a: string;
+  b: string;
+  kind: 'friend' | 'rival' | 'admire';
+  note: string;
+}
+
+/**
+ * 每個人存檔的狀態（world.life[id]）：實力（每天依做的事慢慢長）、身分（0 記名、1 正式）、
+ * 下山歷練到哪天、今天跟誰吵了架。
+ */
+export interface LifeMember {
+  power: number;
+  rank: number;
+  away?: { until: number; why: string };
+  /** 吵架：跟誰、到哪天和好 */
+  feud?: { with: string; until: number };
+  /** 拜了誰為師（'hero' 是你）；上次被師父指點是哪天 */
+  master?: string;
+  taughtDay?: number;
+}
+export interface LifeState {
+  members: Record<string, LifeMember>;
+  /** 門派消息（升了正式弟子、下山歷練、回山、吵架和好……），給聊天、今日事用 */
+  news: { day: number; text: string; who: string[] }[];
+  /** 比武小會的名次（life id，'hero' 是你）與上次舉辦的日子 */
+  ranking?: string[];
+  meetDay?: number;
+  /** 門派職位：職位 id → 誰擔任（名冊 key，'hero' 是你；沒有人就空著）；沒寫的照預設 */
+  posts?: Record<string, string>;
+  /** 誰升了什麼位階、誰退了下來（名冊 key → 位階或職司的覆寫） */
+  ranks?: Record<string, { rank?: string; role?: string }>;
+  /** 上次開年會是第幾年 */
+  meetingYear?: number;
+}
+export const lifeState = (w: World): LifeState => w.life ?? { members: {}, news: [] };
+export const memberOf = (w: World, id: string, base: Partial<LifeMember> = {}): LifeMember => w.life?.members[id] ?? { power: base.power ?? 10, rank: base.rank ?? 0 };
 
 export interface LifeGroup {
   id: string;
@@ -81,6 +134,21 @@ export interface LifeGroup {
   spots: LifeSpot[];
   /** 晨課：哪段時間、帶班的人站哪、學生站哪幾格 */
   lesson?: { from: number; to: number; lead: string; leadAt: Spot; at: Spot[] };
+  bonds?: Bond[];
+  /** 跟他們互動（story/life_talk.ts 用）：主持活動的人先處理、一起練、一起打坐、對練、湊過去聽聊天 */
+  hooks?: {
+    talk?: (ctx: EventCtx, id: string, a: Assign | undefined) => Promise<boolean>;
+    practiceWith?: (ctx: EventCtx, id: string) => Promise<void>;
+    sitWith?: (ctx: EventCtx, id: string) => Promise<void>;
+    sparWith?: (ctx: EventCtx, id: string) => Promise<void>;
+    listen?: (ctx: EventCtx, a: string, b: string) => Promise<void>;
+    /** 能不能一起練（例如要是本門弟子） */
+    member?: () => boolean;
+    /** 另外的選項（例如收徒、指點徒弟）：回傳 [選項文字, 要做的事] */
+    extra?: (ctx: EventCtx, id: string, a: Assign | undefined) => [string, () => Promise<void>][];
+  };
+  /** 特別的活動（比武小會、講武……）：這個時段要誰去哪、做什麼，回傳要覆蓋的安排 */
+  event?: (w: World, flags: Flags) => Record<string, Assign> | null;
 }
 
 const GROUPS: LifeGroup[] = [];
@@ -111,7 +179,9 @@ const cache = new Map<string, Record<string, Assign>>();
 export function lifeNow(g: LifeGroup, w: World, flags: Flags): Record<string, Assign> {
   const block = Math.floor(w.time / LIFE_BLOCK);
   const wet = w.weather === 'rain' || w.weather === 'snow';
-  const key = `${g.id}:${w.day}:${block}:${wet ? 1 : 0}:${isMealTime(w.time) ? 1 : 0}`;
+  const ls = lifeState(w);
+  const ver = JSON.stringify(Object.entries(ls.members).map(([k, m]) => [k, m.rank, m.away?.until ?? 0, m.feud?.until ?? 0]));
+  const key = `${g.id}:${w.day}:${block}:${wet ? 1 : 0}:${isMealTime(w.time) ? 1 : 0}:${ver}`;
   const hit = cache.get(key);
   if (hit) return hit;
   if (cache.size > 64) cache.clear();
@@ -122,18 +192,30 @@ export function lifeNow(g: LifeGroup, w: World, flags: Flags): Record<string, As
   const free: LifeNpc[] = [];
   const lesson = g.lesson && !isXunxiu(w.day) && w.time >= g.lesson.from && w.time < g.lesson.to && !wet ? g.lesson : null;
   let seatIdx = 0;
+  const ev = g.event?.(w, flags) ?? {};
   for (const n of npcs) {
+    const m = memberOf(w, n.id, { power: n.power, rank: n.rank });
     const awake = w.time >= n.wake && w.time < n.sleep;
-    if (!awake) out[n.id] = { act: 'sleep', at: n.home };
+    if (m.away && m.away.until >= w.day) {
+      if (n.awayAt) out[n.id] = { act: 'stroll', at: n.awayAt };
+      continue;
+    }
+    if (ev[n.id] && awake) out[n.id] = ev[n.id];
+    else if (!awake) out[n.id] = { act: 'sleep', at: n.home };
     else if (isMealTime(w.time)) out[n.id] = { act: 'eat', at: n.seat };
     else if (lesson && n.id === lesson.lead) out[n.id] = { act: 'lead', at: lesson.leadAt };
-    else if (lesson && n.pupil && seatIdx < lesson.at.length) out[n.id] = { act: 'class', at: lesson.at[seatIdx++] };
+    else if (lesson && n.pupil && m.rank === 0 && seatIdx < lesson.at.length) out[n.id] = { act: 'class', at: lesson.at[seatIdx++] };
     else {
       const d = n.duty?.(w.time, w);
       // 下雨天室外的差事就免了
       if (d && !(wet && isOutdoorMap(d.at.map))) out[n.id] = d;
       else free.push(n);
     }
+  }
+  // 先排好的（活動、晨課、差事、吃飯）佔掉的格子，抽的時候不能再用
+  for (const a of Object.values(out)) {
+    const hit = g.spots.find((sp) => sp.map === a.at.map && sp.x === a.at.x && sp.y === a.at.y);
+    if (hit) taken.add(hit.id);
   }
   // 照喜好抽；聊天的人等一下兩兩配對
   const chatters: LifeNpc[] = [];
@@ -166,10 +248,39 @@ export function lifeNow(g: LifeGroup, w: World, flags: Flags): Record<string, As
     out[n.id] = { act, at: s };
   }
   // 聊天：兩兩一組站到一對面對面的位置；落單的去散步（或在屋裡讀書）
-  const pairs = g.spots.filter((s) => s.acts.includes('chat') && s.pair && s.id < s.pair && !taken.has(s.id) && (!wet || !isOutdoorMap(s.map)));
+  const pairs = g.spots.filter((s) => s.acts.includes('chat') && s.pair && s.id < s.pair && !taken.has(s.id) && !taken.has(s.pair) && (!wet || !isOutdoorMap(s.map)));
+  // 要好的先湊一對；吵了架的不湊在一起
+  const feud = (a: string, b: string) => {
+    const fa = ls.members[a]?.feud;
+    return !!fa && fa.with === b && fa.until >= w.day;
+  };
+  const score = (a: string, b: string) => {
+    if (feud(a, b) || feud(b, a)) return -1;
+    const bd = g.bonds?.find((x) => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+    return (bd?.kind === 'friend' ? 3 : bd ? 2 : 1) + rand(seed, w.day, block, a, b);
+  };
+  const sorted: LifeNpc[] = [];
+  const pool = [...chatters];
+  while (pool.length) {
+    const a = pool.shift()!;
+    let best = -1;
+    let bi = -1;
+    pool.forEach((b, i) => {
+      const v = score(a.id, b.id);
+      if (v > best) (best = v), (bi = i);
+    });
+    sorted.push(a);
+    if (bi >= 0 && best > 0) sorted.push(...pool.splice(bi, 1));
+  }
+  chatters.length = 0;
+  chatters.push(...sorted);
   for (let i = 0; i + 1 < chatters.length; i += 2) {
     const a = chatters[i];
     const b = chatters[i + 1];
+    if (feud(a.id, b.id) || feud(b.id, a.id)) {
+      chatters.push(a, b);
+      break;
+    }
     const p = pairs[Math.floor(rand(seed, w.day, block, a.id, b.id) * pairs.length)];
     if (!p) {
       chatters.push(a, b);

@@ -5,6 +5,7 @@ import { choreKey, leaveRuleText, nextStipendDay, promotionChecks, recruitText, 
 import { stageOf, STAGES } from '../game/social';
 import { PEOPLE } from '../game/story/people';
 import { MINGQUAN } from '../game/story/sect_mingquan';
+import { heroAge, heroStanding } from '../game/story/mq_order';
 import { dateText } from '../game/time';
 import { useGame } from '../state/store';
 import { BrowseItem, Browser } from './Browser';
@@ -45,7 +46,8 @@ export function SectPage({ active, onExit, folio }: { active: boolean; onExit: (
   const checks = promotionChecks(s, world.day, level, (id) => SKILLS[id].name);
   const chore = s.chore && def.chores.find((c) => c.id === s.chore);
   const learned = def.skills.filter((k) => hero.skills.some((h) => h.id === k.id)).length;
-  const groups = roster(def, s, hero.name);
+  const groups = roster(def, s, hero.name, world);
+  const standing = heroStanding(world);
 
   const items: BrowseItem[] = [
     {
@@ -59,6 +61,14 @@ export function SectPage({ active, onExit, folio }: { active: boolean; onExit: (
           </h3>
           <dl className="kv">
             {s.master && <Row k="師父" v={PEOPLE[s.master]?.name} />}
+            {standing.leader && <Row k="職位" v="鳴泉劍派掌門" />}
+            {standing.post && <Row k="職位" v={standing.post} />}
+            <Row k="年齡" v={`${heroAge(hero, world)} 歲`} />
+            <Row
+              k="權利"
+              v={[standing.vote ? '年會選舉（投票、競選執事）' : '', standing.teach ? '收徒' : standing.vote ? '收徒（要先過授徒考驗）' : '', standing.heir ? '掌門傳位的繼承資格' : ''].filter(Boolean).join('、') || '內門弟子起有選舉權'}
+            />
+            {standing.apprentices.length > 0 && <Row k="徒弟" v={standing.apprentices.join('、')} />}
             <Row k="入門" v={`${world.day - s.joinedDay} 天`} />
             <Row k="門派貢獻" v={`${s.contrib}（可以花在抄錄武功等）`} />
             <Row k="累計功績" v={`${s.merit}（只增不減，晉升看這個）`} />
@@ -152,7 +162,7 @@ export function SectPage({ active, onExit, folio }: { active: boolean; onExit: (
       tag: `${groups.reduce((n, g) => n + g.members.length, 0)} 人`,
       ledger: () => ({
         title: `${def.name}弟子名冊`,
-        columns: ['位階', '姓名', '職司', '近況', '交情'],
+        columns: ['位階', '姓名', '年齡', '職司', '近況', '交情'],
         rows: groups.flatMap((g) =>
           g.members.map((m, i) => {
             const rel = m.person ? world.relations[m.person] : undefined;
@@ -164,7 +174,8 @@ export function SectPage({ active, onExit, folio }: { active: boolean; onExit: (
                 // 同一位階只在第一列寫，像書上的排法
                 i === 0 ? g.rank : '',
                 m.me ? `${m.name}（你）` : m.name,
-                m.me ? (s.master ? `${PEOPLE[s.master]?.name}門下` : '—') : (m.role ?? '—'),
+                m.me ? `${heroAge(hero, world)}` : m.age ? `${m.age}` : '—',
+                m.me ? [m.role !== '你' ? m.role : '', s.master ? `${PEOPLE[s.master]?.name}門下` : ''].filter(Boolean).join('・') || '—' : (m.role ?? '—'),
                 m.note ?? '在山上',
                 rel ? `${STAGES[stageOf(rel.aff)].name}（${rel.aff}）` : m.person ? '還沒說過話' : '',
               ],

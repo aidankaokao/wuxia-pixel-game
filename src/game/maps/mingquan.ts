@@ -1,6 +1,6 @@
 import { bountyTarget } from '../story/linjiang_jianghu';
 import { coachmanTalk } from '../story/stable';
-import { gateTalk, MQ, pathDogs } from '../story/sect_mingquan';
+import { pathDogs } from '../story/sect_mingquan';
 import type { MapDef } from './types';
 
 /**
@@ -60,8 +60,7 @@ export const mingquan: MapDef = {
     { sprite: 'stele', x: 19, y: 9, lines: [{ text: '石上刻著兩個大字：「鳴泉」。' }, { text: '一旁的泉水從山石間奔流而下，叮咚作響，果然如同鳴聲。' }] },
   ],
   npcs: [
-    { id: 'mq_guard1', name: MQ.he, sprite: 'disciple', x: 10, y: 4, facing: 'right', script: gateTalk('he') },
-    { id: 'mq_guard2', name: MQ.qiao, sprite: 'disciple', x: 17, y: 4, facing: 'left', script: gateTalk('qiao') },
+    // 守山門的何守一（上午）、喬木生（下午）由日常系統安排（story/life_mingquan.ts）
     // 馬車行：之後有其他大城時，花錢就能直達
     {
       id: 'mq_coachman', name: '梁老四', sprite: 'peddler', x: 8, y: 10, facing: 'left', script: coachmanTalk,

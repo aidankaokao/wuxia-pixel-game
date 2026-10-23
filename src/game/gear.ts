@@ -154,12 +154,14 @@ export const GEAR_ITEMS: Record<string, ItemDef> = {
   mq_robe_gray: gear('鳴泉灰布服', 'top', 1, '鳴泉劍派記名弟子穿的灰布衣，袖口繡著小小的泉紋。', { sect: 'mingquan', icon: 'robe_gray' }),
   mq_robe_white: gear('月白道袍', 'top', 2, '鳴泉劍派正式弟子的月白道袍，素淨挺括。', { sect: 'mingquan', icon: 'robe_white' }),
   mq_boots: gear('鳴泉布靴', 'shoes', 1, '鳴泉劍派發給正式弟子的布靴。', { sect: 'mingquan' }),
+  mq_bracer: gear('泉紋護腕', 'hand', 2, '鳴泉劍派內門弟子的護腕，皮面上燙著泉紋，是內門的記號。', { sect: 'mingquan' }),
   mq_robe_blue: gear('青紋道袍', 'top', 3, '鳴泉劍派真傳弟子的道袍，衣襬繡著青色泉紋，一看就知道是師門看重的人。', { sect: 'mingquan', icon: 'robe_blue' }),
 };
 
 /** 鳴泉劍派各身分發的服飾 */
 /** 鳴泉劍派各身分發的服飾與佩劍 */
-export const MQ_UNIFORMS = [['mq_robe_gray', 'mq_sword_1'], ['mq_robe_white', 'mq_boots', 'mq_sword_2'], ['mq_robe_blue', 'mq_boots', 'mq_sword_3']];
+/** 各身分的弟子服：記名、正式、內門、真傳 */
+export const MQ_UNIFORMS = [['mq_robe_gray', 'mq_sword_1'], ['mq_robe_white', 'mq_boots', 'mq_sword_2'], ['mq_robe_white', 'mq_boots', 'mq_sword_2', 'mq_bracer'], ['mq_robe_blue', 'mq_boots', 'mq_sword_3', 'mq_bracer']];
 
 /** 每個裝備欄空著時畫的淡淡圖示 */
 export const GEAR_ICON: Record<GearSlotId, ItemDef['icon']> = {

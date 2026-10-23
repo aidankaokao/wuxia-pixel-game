@@ -11,6 +11,7 @@
 import type { PropertyState } from './property';
 import type { ShopState } from './shop';
 import type { BizState } from './shop_manage';
+import type { LifeState } from './life';
 import type { Order } from './orders';
 import type { SectState } from './sect';
 import { START_TIME, type Weather } from './time';
@@ -70,6 +71,8 @@ export interface World {
   shops?: Record<string, ShopState>;
   /** 經營的整體狀態：去過的地方、供應商合約、掌櫃、方針、總號帳房（見 shop_manage.ts） */
   biz?: BizState;
+  /** 自己過日子的 NPC：實力、身分、下山歷練、吵架、門派消息、比武名次（見 life.ts） */
+  life?: LifeState;
 }
 
 export const newWorld = (): World => ({ day: 1, time: START_TIME, weather: 'clear', estates: {}, daily: {}, relations: {}, seed: Math.floor(Math.random() * 2 ** 31) });

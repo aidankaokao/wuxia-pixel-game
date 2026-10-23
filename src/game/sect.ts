@@ -75,6 +75,8 @@ export interface SectMember {
   role?: string;
   /** 備註（例如下山歷練、不在山上） */
   note?: string;
+  /** 第一年（遊戲開始那年）的年紀；之後每過一年（正月初一）長一歲，見 story/mq_order.ts 的 ageNow */
+  age?: number;
   /** 有人物檔案的人（名冊上顯示熟悉度） */
   person?: string;
 }
@@ -103,6 +105,13 @@ export interface SectDef {
   choresPerDay: number;
   /** 弟子名冊（主角不寫在裡面，依目前身分自動排進去） */
   members: SectMember[];
+  /** 名冊上的人現在的樣子（同門自己升了身分、下山歷練、比武名次……，見 life.ts）；沒有就照 members */
+  memberNow?: (m: SectMember, w: World) => Partial<SectMember>;
+  /** 你在名冊上排在哪一組（當了掌門、長老）、職司寫什麼；沒有就照身分 */
+  heroRankNow?: (s: SectState, w: World) => string | undefined;
+  heroRoleNow?: (s: SectState, w: World) => string | undefined;
+  /** 月例的加給（擔任職位） */
+  stipendBonus?: (w: World) => number;
 }
 
 /** 玩家在門派裡的狀態（存在 world.sect） */
@@ -122,6 +131,10 @@ export interface SectState {
   stipendDay: number;
   /** 手上接了、還沒做完的雜務 id */
   chore?: string;
+  /** 門派裡擔任的職位（年會選上的執事、長老；見 story/mq_order.ts 的 POSTS） */
+  post?: string;
+  /** 接任掌門 */
+  leader?: boolean;
   /** 拜的師父（人物 id；真傳弟子才有） */
   master?: string;
 }
@@ -152,12 +165,14 @@ export const inSect = (w: World, id: string) => w.sect?.id === id;
 export const rankName = (s: SectState) => SECTS[s.id]?.ranks[s.rank]?.name ?? '';
 
 /** 弟子名冊：掌門、長老在前，弟子依身分由高到低，雜役在最後；主角排進自己的身分 */
-export function roster(def: SectDef, s: SectState | undefined, me: string) {
-  const order = ['掌門', '長老', ...def.ranks.map((r) => r.name).reverse(), '雜役'];
+export function roster(def: SectDef, s: SectState | undefined, me: string, w?: World) {
+  const order = ['掌門', '太上長老', '長老', ...def.ranks.map((r) => r.name).reverse(), '雜役'];
+  const now = def.members.map((m) => (w && def.memberNow ? { ...m, ...def.memberNow(m, w) } : m));
+  const mine = s?.id === def.id ? ((w && def.heroRankNow?.(s, w)) ?? def.ranks[s.rank].name) : null;
   return order
     .map((rank) => {
-      const members: (SectMember & { me?: boolean })[] = def.members.filter((m) => m.rank === rank);
-      if (s?.id === def.id && def.ranks[s.rank].name === rank) members.push({ name: me, rank, role: '你', me: true });
+      const members: (SectMember & { me?: boolean })[] = now.filter((m) => m.rank === rank);
+      if (s && mine === rank) members.push({ name: me, rank, role: (w && def.heroRoleNow?.(s, w)) ?? '你', me: true });
       return { rank, members };
     })
     .filter((g) => g.members.length);

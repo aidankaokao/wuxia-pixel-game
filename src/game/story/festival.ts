@@ -107,7 +107,7 @@ export async function wenFestival(ctx: EventCtx): Promise<boolean> {
 async function newYear(ctx: EventCtx) {
   once('newyear');
   const rank = st().world.sect!.rank;
-  const silver = [10, 20, 40][rank] ?? 10;
+  const silver = [10, 20, 30, 40][rank] ?? 10;
   await ctx.say('你向聞松年跪下拜年：「祝師父新年安康！」', ...wen('起來起來。又長了一歲，劍也要長進一些。'), '聞松年從袖中取出一個紅包。');
   await ctx.hero((h) => {
     h.silver += silver;

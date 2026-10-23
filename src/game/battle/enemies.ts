@@ -102,8 +102,10 @@ export function setupDrill(
   who: { name: string; sprite: string },
   moves: string[],
   rand: () => number = Math.random,
+  /** 對手的實力倍數（同門自己練功變強，見 life.ts；1 是跟你差不多） */
+  power = 1,
 ): string {
-  const r = 0.85 + rand() * 0.25;
+  const r = (0.85 + rand() * 0.25) * power;
   ENEMIES.drill = {
     name: who.name,
     sprite: who.sprite,

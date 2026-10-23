@@ -4,7 +4,8 @@ import { practiceAt } from '../story/arts';
 import { lanternTime } from '../festival';
 import { graveAt, moonAt, poolAt } from '../story/festival';
 import type { MapDef } from './types';
-import '../story/life_mingquan';
+import { nightDrum } from '../story/life_mingquan';
+import '../story/mq_order';
 
 /**
  * 鳴泉劍派 —— 門派院落。從山門進來，正中是大殿，殿前是演武廣場（銅鼎、木樁林），
@@ -104,6 +105,8 @@ export const mqSect: MapDef = {
     { sprite: 'bulletin', x: 26, y: 21, script: taskBoard, label: '任務榜' },
     { sprite: 'sign', x: 14, y: 21, lines: [{ text: '「木樁林」\n本門弟子每天在此練樁，一日一回，貴在不輟。' }] },
     { sprite: 'well', x: 34, y: 29, script: wellUse, label: '打水' },
+    // 守夜的更鼓：輪到你值夜時，亥時到子時來敲（story/life_mingquan.ts）
+    { sprite: 'drum', x: 31, y: 12, script: nightDrum, label: '更鼓' },
     { sprite: 'sign', x: 39, y: 29, lines: [{ text: '膳房菜圃。\n（伙房師傅：「誰踩壞了我的菜，晚飯就別吃了！」）' }] },
   ],
 
