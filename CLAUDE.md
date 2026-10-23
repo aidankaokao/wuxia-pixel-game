@@ -44,6 +44,7 @@
 - 想法泡泡：要花時間、體力的腳本用 `events.ts` 的 `withCost` 標上代價（面對時主角頭上冒出「兩刻・體力 20」），包一層的腳本（例如 `moonAt`）要把裡面的代價傳出來（`scriptCost`）；時間或體力到某個點的自言自語用 `thought.ts` 的 `registerReminder`。一個時辰是 8 刻，寫「花了多久」時照 `ctx.pass` 的刻數寫（4 刻是半個時辰，可以用 `keText`）。
 - 重複的事：練樁、打坐、研讀、讀書、練雅藝、織布這類可以連做的事，用 `estate.ts` 的 `askRounds` 問回數（一回／三回／做到體力剩三成），再依回數扣體力、過時間、加成長；結尾的說明用 `roundsNote`。
 - 日課表：`src/game/schedule.ts`。新門派或新的固定作息要能照表做，就 `registerActivity`（`run` 只結算並回傳總結的話，不要問話；體力與時間由 `runSchedule` 扣）；有人找用 `registerInterrupt`；日常小事用 `registerDayEvent`（`after` 填場合，聊天是 `chat`，`with` 限定人物），由 `story/schedule.ts` 的 `maybeDayEvent` 觸發——新的做事腳本做完時也呼叫它（做事、聊天各一天最多一件，不要每天都有）。
+- 自己過日子的 NPC：`life.ts`（排程核心：每個時段 4 刻排一件事、地點 `LifeSpot`、兩人聊天配對、下雨換室內）＋各門派的 `story/life_*.ts`（`registerLife`：人物的床位、飯廳座位、起床就寢、喜好 `likes`、差事 `duty`、依事情說的話 `talks`；地點；晨課 `lesson`）。MapScene 會自動把這群人放進他們活動範圍內的地圖（`maps`），照排程出現、走動、離開，頭上的小圖示在 `art/lifeicons.ts`。改成自己過日子的人，要把他原本散在各地圖的分身（白天、雨天、吃飯、夜裡那幾份）拿掉；新的地點要能從門口走到（可以用類似 check-life 的腳本檢查）。
 - 用餐：午時、酉時（`isMealTime`）。要讓人到飯廳吃飯，就在飯廳加一份 `meal: 'eat'` 的 NPC，並把他平常那幾份標 `meal: 'away'`；人物檔案可填 `meal` 台詞，新的飯廳地圖加進 `story/social.ts` 的 `DINING`。
 - 商店面板（`ctx.panel({ kind: 'shop', ... })`）：`stock` 賣的東西、`sellRate` 收購價比例（預設一半）、`buys` 只收哪些、`sellOnly` 只收不賣。臨江城的店家在 `story/linjiang_city.ts`，鏢局、縣衙懸賞、漕幫在 `story/linjiang_jianghu.ts`（懸賞目標是地圖上 `when: f.lj_b_<id> === 1` 的 NPC）。
 - 隨劇情改變的地形用 `MapDef.patches`（`when` 成立時用幾列字元蓋掉原本的地形，空白不改），例如雲水渡口蓋好的橋；旗標變了要 `ctx.reload()` 才看得到。渡口在大地圖上能不能直接走過，用 `geo.ts` 的 `setCrossingOpen`（由劇情檔設定）。

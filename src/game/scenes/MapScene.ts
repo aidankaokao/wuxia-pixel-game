@@ -1,5 +1,7 @@
 import { mountDef } from '../mounts';
 import { newBiz, townOfMap } from '../shop_manage';
+import { ACTS, lifeGroups, lifeNow, LIFE_BLOCK, type LifeAct, type LifeGroup } from '../life';
+import { lifeIcon } from '../art/lifeicons';
 import { FEST, festivalIndex, festivePeriod, nianhuoDays, PERIOD } from '../festival';
 import Phaser from 'phaser';
 import { Dir, NPC_WALK_MS, RUN_MS, TILE, VIEW_TILES_H, VIEW_TILES_W, WALK_MS } from '../constants';
@@ -33,6 +35,11 @@ interface Npc {
   leaving?: boolean;
   /** 路被擋住時等了幾次 */
   waited?: number;
+  /** 自己過日子的人（life.ts）：哪一群、哪一個、現在在做什麼、跟誰聊天 */
+  life?: { group: LifeGroup; id: string; act?: LifeAct; with?: string; told?: number };
+  /** 頭上的小圖示 */
+  bubble?: Phaser.GameObjects.Image;
+  bubbleUntil?: number;
 }
 
 interface Prop {
@@ -115,7 +122,17 @@ export class MapScene extends Phaser.Scene {
     this.placeProps();
 
     this.npcs = def.npcs.map((n) => ({ def: n, actor: null, talkIndex: 0, nextWander: 0 }));
-    if (def.npcs.some((n) => n.respawn)) {
+    // 自己過日子的人：這張地圖在他們的活動範圍內，就先放進來（在不在這裡由 refresh 依 life.ts 決定）
+    for (const g of lifeGroups().filter((x) => x.maps.includes(def.id)))
+      for (const n of g.npcs)
+        this.npcs.push({
+          def: { id: `life_${g.id}_${n.id}`, name: n.name, sprite: n.sprite, x: n.home.x, y: n.home.y, facing: n.home.facing, person: n.person, script: n.script, allDay: true },
+          actor: null,
+          talkIndex: 0,
+          nextWander: 0,
+          life: { group: g, id: n.id },
+        });
+    if (def.npcs.some((n) => n.respawn) || this.npcs.some((n) => n.life)) {
       this.time.addEvent({ delay: 1000, loop: true, callback: () => !uiBlocking() && this.refresh() });
     }
     const spawn = this.data_.spawn ?? def.spawn;
@@ -458,8 +475,25 @@ export class MapScene extends Phaser.Scene {
       const down = (respawnAt[`${this.def.id}:${n.def.id}`] ?? 0) > now;
       // 下雨天野獸少：會重生的野獸約有一半躲起來
       const sheltering = (world.weather === 'rain' || world.weather === 'snow') && !!n.def.respawn && hashText(n.def.id) % 2 === 0;
-      const allowed = (!n.def.when || n.def.when(f)) && !down && !sheltering;
-      const here = npcPresent(n.def, outdoor, world.time);
+      let allowed = (!n.def.when || n.def.when(f)) && !down && !sheltering;
+      let here = npcPresent(n.def, outdoor, world.time);
+      if (n.life) {
+        // 自己過日子的人：照 life.ts 排的事，現在該在這張地圖的哪一格
+        const a = lifeNow(n.life.group, world, f)[n.life.id];
+        allowed = !!a;
+        here = !!a && a.at.map === this.def.id;
+        if (a) {
+          const moved = a.at.x !== n.def.x || a.at.y !== n.def.y;
+          Object.assign(n.def, { x: a.at.x, y: a.at.y, facing: a.at.facing, wander: ACTS[a.act].wander });
+          n.life.act = a.act;
+          n.life.with = a.with;
+          // 換了事情、還在同一張地圖：走過去
+          if (here && n.actor && !n.leaving && moved && !initial) {
+            n.path = this.findPath(n.actor.tx, n.actor.ty, (x, y) => x === a.at.x && y === a.at.y) ?? undefined;
+            n.waited = 0;
+          }
+        }
+      }
       // 出現時若主角剛好站在那一格，等下次再說
       const occupied = !n.actor && this.player && this.player.tx === n.def.x && this.player.ty === n.def.y;
       const show = allowed && here && !occupied;
@@ -492,6 +526,70 @@ export class MapScene extends Phaser.Scene {
       p.image.setVisible(p.visible);
       if (typeof p.def.sprite === 'function') p.image.setTexture(p.def.sprite(f));
     }
+  }
+
+  // ── 自己過日子的人 ─────────────────────────────────────
+
+  /** 跟正在做事的人說話：有人物檔案的先說一句他在做什麼（同一時段只說一次），再照人際系統交談 */
+  private talkLife(npc: Npc) {
+    const life = npc.life!;
+    const def = life.group.npcs.find((x) => x.id === life.id)!;
+    const act = life.act ?? 'stroll';
+    const block = Math.floor(useGame.getState().world.time / LIFE_BLOCK);
+    const intro = ACTS[act].busy && life.told !== block ? `（${def.name}正在${ACTS[act].name}，見你過來，停了下來。）` : null;
+    life.told = block;
+    if (def.person) {
+      const talk = personScript(def.person, 'talk')!;
+      this.runScript(async (ctx) => {
+        if (intro) await ctx.say(intro);
+        await talk(ctx);
+      });
+      return;
+    }
+    if (def.script) {
+      this.runScript(def.script);
+      return;
+    }
+    const pool = def.talks?.[act] ?? def.talks?.default ?? [];
+    if (!pool.length) return;
+    const lines = pool[npc.talkIndex % pool.length];
+    npc.talkIndex++;
+    this.runScript(async (ctx) => {
+      if (intro) await ctx.say(intro);
+      await ctx.say(...lines);
+    });
+  }
+
+  /** 做事的樣子：練功的一頓一頓、聊天的面對面，頭上不時冒出小圖示 */
+  private animateLife(n: Npc, time: number) {
+    const a = n.actor;
+    const life = n.life!;
+    if (!a || a.moving || n.path?.length) {
+      n.bubble?.setVisible(false);
+      return;
+    }
+    const act = life.act;
+    if (!act) return;
+    const atSpot = a.tx === n.def.x && a.ty === n.def.y;
+    // 練樁、練劍、晨課：每隔一會兒往前一頓
+    if (atSpot && (act === 'stake' || act === 'sword' || act === 'class' || act === 'lead') && time >= n.nextWander) {
+      n.nextWander = time + 500 + Math.random() * 500;
+      this.tweens.add({ targets: a.sprite, y: a.sprite.y - 2, duration: 90, yoyo: true });
+    }
+    // 聊天：面向對方
+    if (act === 'chat' && life.with) {
+      const other = this.npcs.find((x) => x.life?.id === life.with && x.life?.group === life.group)?.actor;
+      if (other && !other.moving) a.face(other.tx > a.tx ? 'right' : other.tx < a.tx ? 'left' : other.ty > a.ty ? 'down' : 'up');
+    }
+    // 頭上的小圖示：亮兩秒、停幾秒，各人錯開
+    const icon = ACTS[act].icon;
+    if (!icon) return n.bubble?.setVisible(false);
+    if (!n.bubble) n.bubble = this.add.image(0, 0, lifeIcon(this, icon)).setOrigin(0.5, 1);
+    else n.bubble.setTexture(lifeIcon(this, icon));
+    const phase = (time + hashText(n.def.id) * 37) % 6000;
+    const show = act === 'chat' ? phase < 3000 === (life.id < (life.with ?? '')) : phase < 2200;
+    n.bubble.setVisible(show && atSpot);
+    n.bubble.setPosition(a.sprite.x, a.sprite.y - 24).setDepth(a.sprite.depth + 1);
   }
 
   // ── 照作息走動 ───────────────────────────────────────────
@@ -748,6 +846,10 @@ export class MapScene extends Phaser.Scene {
     const npc = this.npcAt(f.x, f.y);
     if (npc?.actor) {
       npc.actor.face(OPPOSITE[this.player.facing]);
+      if (npc.life) {
+        this.talkLife(npc);
+        return;
+      }
       if (npc.def.encounter) {
         this.fightBeast(npc);
       } else if (npc.def.person) {
@@ -1136,6 +1238,10 @@ export class MapScene extends Phaser.Scene {
     const morning = clock >= shichenStart(SHICHEN_INDEX.卯) && clock < shichenStart(SHICHEN_INDEX.午);
     for (const n of this.npcs) {
       const a = n.actor;
+      if (n.life) {
+        if (!a) n.bubble?.setVisible(false);
+        else this.animateLife(n, time);
+      }
       if (a && n.path) {
         if (!a.moving && time >= n.nextWander) this.followPath(n);
         continue;
