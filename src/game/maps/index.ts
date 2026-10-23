@@ -8,6 +8,7 @@ import { linjiang } from './linjiang';
 import { LINJIANG_ROOMS } from './linjiang_rooms';
 import { mingquan } from './mingquan';
 import { mqBack, mqSect } from './sect_mingquan';
+import { mqFarm } from './mq_farm';
 import { SECT_MINGQUAN_ROOMS } from './sect_mingquan_rooms';
 import { buildHomeMap, PlacedPlot, withPlots } from './home';
 import { qingzhu } from './qingzhu';
@@ -33,6 +34,7 @@ export const MAPS: Record<string, MapDef> = {
   [mingquan.id]: mingquan,
   [mqSect.id]: mqSect,
   [mqBack.id]: mqBack,
+  [mqFarm.id]: mqFarm,
   ...Object.fromEntries(SECT_MINGQUAN_ROOMS.map((m) => [m.id, m])),
   ...Object.fromEntries(LINJIANG_ROOMS.map((m) => [m.id, m])),
   ...Object.fromEntries(DABUTOU_MAPS.map((m) => [m.id, m])),

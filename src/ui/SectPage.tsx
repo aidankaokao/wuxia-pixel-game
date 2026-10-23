@@ -6,6 +6,8 @@ import { stageOf, STAGES } from '../game/social';
 import { PEOPLE } from '../game/story/people';
 import { MINGQUAN } from '../game/story/sect_mingquan';
 import { heroAge, heroStanding } from '../game/story/mq_order';
+import { canSeeBooks } from '../game/story/mq_fund';
+import { FUND_IN, FUND_OUT, fundMood, monthIn, monthLabel, monthOut, MOOD_NAME, type SectFund } from '../game/sect_fund';
 import { dateText } from '../game/time';
 import { useGame } from '../state/store';
 import { BrowseItem, Browser } from './Browser';
@@ -198,6 +200,7 @@ export function SectPage({ active, onExit, folio }: { active: boolean; onExit: (
         </>
       ),
     },
+    ...(s.id === 'mingquan' && world.life?.fund ? [fundItem(world.life.fund, canSeeBooks(world))] : []),
     {
       key: 'rules',
       label: '門規',
@@ -218,6 +221,74 @@ export function SectPage({ active, onExit, folio }: { active: boolean; onExit: (
     { key: 'charter', label: '門派規矩', tag: def.size + '門派', detail: () => <Charter def={def} /> },
   ];
   return <Browser title={def.name} items={items} active={active} onExit={onExit} folio={folio} />;
+}
+
+const MOOD_TEXT = {
+  rich: '庫裡銀子夠撐上半年，伙食裡常見得到肉，大家練功也起勁。',
+  ok: '收支大致打平，日子過得去。',
+  tight: '存銀不到兩個月的開銷，柯靜言什麼都要省著用。',
+  broke: '公庫見底了，月例只發得出一半，人心有些浮動。',
+};
+
+/** 公庫：內門弟子以上（或擔任職位、掌門）看得到細帳；其他人只聽說個大概 */
+function fundItem(f: SectFund, insider: boolean): BrowseItem {
+  const mood = fundMood(f);
+  const n = (x: number) => Math.round(x).toLocaleString();
+  const rows = (r: Record<string, number>, names: Record<string, string>) =>
+    Object.keys(names)
+      .filter((k) => r[k])
+      .map((k) => <Row key={k} k={names[k]} v={`${n(r[k])} 兩`} />);
+  return {
+    key: 'fund',
+    label: '公庫',
+    tag: MOOD_NAME[mood],
+    detail: () =>
+      insider ? (
+        <>
+          <h3>
+            公庫　<small>{MOOD_NAME[mood]}</small>
+          </h3>
+          <p className="small">{MOOD_TEXT[mood]}</p>
+          <dl className="kv">
+            <Row k="存銀" v={`${n(f.silver)} 兩`} />
+            <Row k="存糧" v={`${n(f.grain)} 石`} />
+            <Row k="茶葉" v={`${n(f.tea)} 斤（約值 ${n(f.teaValue)} 兩，等下山時賣）`} />
+            <Row k="藥材" v={`${n(f.herb)} 份`} />
+          </dl>
+          <h4>這個月（{monthLabel(f.month.key)}）</h4>
+          <dl className="kv small">
+            {rows(f.month.in, FUND_IN)}
+            <Row k="收入合計" v={`${n(monthIn(f.month))} 兩`} />
+            {rows(f.month.out, FUND_OUT)}
+            <Row k="支出合計" v={`${n(monthOut(f.month))} 兩`} />
+          </dl>
+          {f.books.length > 0 && <p className="page-help">E 展開月帳</p>}
+        </>
+      ) : (
+        <>
+          <h3>公庫</h3>
+          <p className="small">聽師兄們說，公庫眼下{MOOD_NAME[mood]}。{MOOD_TEXT[mood]}</p>
+          <p className="small muted">細帳要內門弟子以上，或擔任職位才看得到。</p>
+        </>
+      ),
+    ledger:
+      insider && f.books.length
+        ? () => ({
+            title: '鳴泉劍派公庫月帳',
+            columns: ['月份', '收入', '支出', '盈虧', '月底存銀', '大宗'],
+            rows: [...f.books].reverse().map((b) => {
+              const net = monthIn(b) - monthOut(b);
+              const big = Object.entries(b.in).sort((x, y) => y[1] - x[1])[0];
+              return {
+                key: String(b.key),
+                muted: net < 0,
+                cells: [monthLabel(b.key), n(monthIn(b)), n(monthOut(b)), `${net >= 0 ? '+' : ''}${n(net)}`, n(b.silver), big ? `${FUND_IN[big[0]]} ${n(big[1])}` : '—'],
+              };
+            }),
+            note: '收入：賣茶、田租、香火、委託行醫、捐輸；支出：月例、伙食、買糧、買藥材、修繕雜項。',
+          })
+        : undefined,
+  };
 }
 
 /** 門派規矩：收徒、兵器、各身分的住處、月例與脫離方式 */

@@ -42,6 +42,11 @@ const C = {
   soilDark: '#6c4729',
   sprout: '#86c255',
   sproutDark: '#5f9b3a',
+  tea: '#4f8a3c',
+  teaDark: '#356628',
+  teaLight: '#7ab45a',
+  herbLeaf: '#6aa65a',
+  herbFlower: '#e8e0a0',
   fence: '#9a6a3a',
   fenceDark: '#5f3d1e',
 } as const;
@@ -132,6 +137,10 @@ export function tileArt(g: Grid, x: number, y: number, frame = 0, theme?: string
     }
     case 'n':
       return { key: `field${v % 2}`, draw: (ctx) => drawField(ctx, v % 2) };
+    case 'c':
+      return { key: `tea${v % 2}`, draw: (ctx) => drawTea(ctx, v % 2) };
+    case 'g':
+      return { key: `herbbed${v % 2}`, draw: (ctx) => drawHerbBed(ctx, v % 2) };
     case 'f': {
       const m = mask(g, x, y, (n) => n === 'f');
       return { key: `fence${m}`, draw: (ctx) => drawFence(ctx, m, v) };
@@ -384,6 +393,33 @@ function drawField(ctx: Ctx, v: number) {
     for (let x = 1 + (v + y / 4) % 2; x < TILE; x += 3) {
       px(ctx, x, y + 1, 1, 2, C.sproutDark);
       px(ctx, x, y, 1, 1, C.sprout);
+    }
+  }
+}
+
+/** 茶壟：一行行修剪成圓頂的茶叢，叢間露出泥土 */
+function drawTea(ctx: Ctx, v: number) {
+  px(ctx, 0, 0, TILE, TILE, C.dirtDark);
+  for (let i = 0; i < 2; i++) {
+    const x = i * 8 + (v ? 1 : 0);
+    px(ctx, x + 1, 3, 6, 9, C.tea);
+    px(ctx, x, 5, 8, 6, C.tea);
+    px(ctx, x + 1, 11, 6, 2, C.teaDark);
+    px(ctx, x + 2, 4, 3, 2, C.teaLight);
+    px(ctx, x + 5, 7, 1, 1, C.teaLight);
+    px(ctx, x + 3, 13, 2, 2, C.soilDark);
+  }
+}
+
+/** 藥畦：土壟上一株株矮藥草，偶爾開著小白花 */
+function drawHerbBed(ctx: Ctx, v: number) {
+  px(ctx, 0, 0, TILE, TILE, C.soil);
+  for (let y = 0; y < TILE; y += 8) {
+    hline(ctx, 0, 15, y + 7, C.soilDark);
+    for (let x = 2 + v * 2; x < TILE; x += 6) {
+      px(ctx, x, y + 2, 3, 3, C.herbLeaf);
+      px(ctx, x + 1, y + 1, 1, 5, C.sproutDark);
+      if ((x + y + v) % 3 === 0) px(ctx, x + 1, y + 1, 1, 1, C.herbFlower);
     }
   }
 }

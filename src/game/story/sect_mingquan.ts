@@ -3,6 +3,7 @@ import { addFame, attrs, canHold, roundsToCap, Character, type Slot, derive, equ
 import { withCost, type EventCtx, type Script } from '../events';
 import { usedToday, type World } from '../home';
 import type { Line } from '../maps/types';
+import { book, fundMood, fundOf, MOOD_NAME, payRate } from '../sect_fund';
 import { addContrib, choreKey, inSect, promote, promotionChecks, roster, SectMember, leaveRuleText, nextStipendDay, newSectState, rankName, registerSect, SectDef, STIPEND_DAYS } from '../sect';
 import { clampAff, newRelation, STAGE, stageOf } from '../social';
 import { useGame } from '../../state/store';
@@ -78,6 +79,7 @@ export const MQ_MEMBERS = {
   hou: { name: '侯三郎', rank: '記名弟子', age: 19 },
   bu: { name: '卜大勺', rank: '雜役', age: 52, role: '伙房師傅，管廚房與菜圃', person: 'bu' },
   shao: { name: '邵長庚', rank: '雜役', age: 74, role: '守山人，在後山守了四十年' },
+  gan: { name: '甘伯禾', rank: '雜役', age: 61, role: '管後山東坡的茶園、山田與藥圃' },
 } satisfies Record<string, SectMember>;
 /** 名字：MQ.ke → 柯靜言 */
 export const MQ = Object.fromEntries(Object.entries(MQ_MEMBERS).map(([k, v]) => [k, v.name])) as Record<keyof typeof MQ_MEMBERS, string>;
@@ -899,11 +901,12 @@ export const dutyTalk: Script = async (ctx) => {
   }
   const ready = day() >= nextStipendDay(s);
   const posts = postHook?.can() ? ['職位的差事'] : [];
-  const c0 = await ctx.ask(duty('師兄弟有什麼事？')[0], [...posts, '請教門規', ready ? '領月例' : '領月例（還沒到日子）', '弟子名冊', '離開師門', '沒事']);
+  const c0 = await ctx.ask(duty('師兄弟有什麼事？')[0], [...posts, '請教門規', ready ? '領月例' : '領月例（還沒到日子）', '弟子名冊', '捐銀給公庫', '離開師門', '沒事']);
   if (posts.length && c0 === 0) return postHook!.run(ctx);
   const c = c0 - posts.length;
   if (c === 2) await readRoster(ctx);
-  else if (c === 3) await leaveSect(ctx);
+  else if (c === 3) await donateSilver(ctx);
+  else if (c === 4) await leaveSect(ctx);
   else if (c === 0) {
     await ctx.say(
       ...duty('門規就掛在祖師像旁，一共五條：'),
@@ -916,16 +919,44 @@ export const dutyTalk: Script = async (ctx) => {
       return;
     }
     const pay = MINGQUAN.ranks[s.rank].stipend;
-    // 擔任職位（執事、長老、掌門）另有加給
+    // 擔任職位（執事、長老、掌門）另有加給；月例從公庫出，公庫見底只發一半
     const bonus = MINGQUAN.stipendBonus?.(st().world) ?? 0;
-    st().updateWorld((w) => (w.sect!.stipendDay = w.day));
-    await ctx.say(...duty(`這是${rankName(s)}的月例${bonus ? '，連同職位的加給' : ''}，收好。`));
+    const rate = payRate(fundOf(st().world));
+    const silver = Math.ceil((pay.silver + bonus) * rate);
+    st().updateWorld((w) => {
+      w.sect!.stipendDay = w.day;
+      book(fundOf(w), 'out', 'pay', silver);
+    });
+    await ctx.say(
+      ...duty(
+        rate < 1
+          ? `公庫見底了，這回的月例${bonus ? '連同加給' : ''}只能先發一半，委屈你了。`
+          : `這是${rankName(s)}的月例${bonus ? '，連同職位的加給' : ''}，收好。`,
+      ),
+    );
     await ctx.hero((h) => {
-      h.silver += pay.silver + bonus;
-      return [`獲得銀兩 ${pay.silver + bonus} 兩。`, ...Object.entries(pay.items ?? {}).map(([id, n]) => giveItem(h, id, n))];
+      h.silver += silver;
+      return [`獲得銀兩 ${silver} 兩。`, ...Object.entries(pay.items ?? {}).map(([id, n]) => giveItem(h, id, n))];
     });
   }
 };
+
+/** 捐銀給公庫：每 20 兩換 1 點門派貢獻（只加貢獻，不算功績） */
+async function donateSilver(ctx: EventCtx) {
+  const f = fundOf(st().world);
+  const have = st().hero.silver;
+  const amounts = [50, 200, 1000].filter((n) => n <= have);
+  if (!amounts.length) return void (await ctx.say(...duty('心意領了。你身上的銀子還是留著自己用吧。')));
+  const i = await ctx.ask(duty(`公庫眼下${MOOD_NAME[fundMood(f)]}。要捐多少？（每 20 兩記 1 點門派貢獻）`)[0], [...amounts.map((n) => `${n} 兩`), '算了']);
+  if (i >= amounts.length) return;
+  const n = amounts[i];
+  st().updateHero((h) => (h.silver -= n));
+  st().updateWorld((w) => {
+    book(fundOf(w), 'in', 'donate', n);
+    w.sect!.contrib += Math.floor(n / 20);
+  });
+  await ctx.say(...duty(`${n} 兩，我記在帳上了。`), `（門派貢獻 +${Math.floor(n / 20)}；捐輸只算貢獻，不算功績）`);
+}
 
 // ── 書房 ────────────────────────────────────────────────
 
@@ -1195,7 +1226,7 @@ const CHORE_DONE: Record<
 };
 
 /** 雜務順帶的成長：武功挑裝備中、還沒到上限的那一門；生活技能直接加經驗 */
-function choreGrowth(h: Character, g: (typeof CHORE_DONE)[string]['grow']): (string | null)[] {
+export function choreGrowth(h: Character, g: (typeof CHORE_DONE)[string]['grow']): (string | null)[] {
   if ('craft' in g) {
     const up = gainCraft(h, g.craft, g.exp);
     return [`（${craftDef(g.craft).name}經驗 +${g.exp}）`, up];

@@ -95,6 +95,13 @@ const ICONS: Record<string, (c: Ctx) => void> = {
     px(c, 8, 4, 3, 2, '#6aaa4a');
     hline(c, 3, 11, 9, '#8b5e3c');
   },
+  // 採茶：一芽兩葉
+  leaf: (c) => {
+    vline(c, 7, 3, 10, '#4a7a2a');
+    ellipse(c, 5, 7, 2, 1, '#5aa03a');
+    ellipse(c, 9, 5, 2, 1, '#5aa03a');
+    px(c, 7, 2, 1, 2, '#9ad06a');
+  },
   // ── 城裡、漁村、港口的人（4.29） ──
   fish: (c) => {
     ellipse(c, 6, 6, 4, 2, '#7aa0c0');

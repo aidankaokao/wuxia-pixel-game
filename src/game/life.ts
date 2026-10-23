@@ -15,13 +15,14 @@ import type { Line } from './maps/types';
 import type { EventCtx } from './events';
 import type { Flags } from '../state/store';
 import type { World } from './home';
+import type { SectFund } from './sect_fund';
 import { isMealTime, isXunxiu } from './time';
 
 export type LifeAct =
   | 'sleep' | 'eat' | 'class' | 'lead' | 'stake' | 'sword' | 'read' | 'meditate' | 'chat' | 'sweep' | 'water' | 'garden' | 'stroll'
   | 'watch' | 'listen' | 'patrol' | 'guard' | 'spar' | 'shop'
   | 'boat' | 'fish' | 'mend' | 'stall' | 'play' | 'haul' | 'tea' | 'chess' | 'beg' | 'pick' | 'wash' | 'study' | 'pray'
-  | 'farm' | 'forge' | 'carve' | 'sew' | 'home';
+  | 'farm' | 'forge' | 'carve' | 'sew' | 'home' | 'pluck' | 'tend';
 
 /** 每件事的名字、頭上的小圖示、在原地走動的範圍、是不是室外 */
 export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number; outdoor?: boolean; busy?: boolean }> = {
@@ -63,6 +64,9 @@ export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number
   forge: { name: '打鐵', icon: 'hammer', busy: true },
   carve: { name: '做木工', icon: 'hammer', outdoor: true, busy: true },
   sew: { name: '做針線', icon: 'needle' },
+  // 鳴泉山田（4.31）
+  pluck: { name: '採茶', icon: 'leaf', wander: 1, outdoor: true, busy: true },
+  tend: { name: '照料藥圃', icon: 'sprout', wander: 1, outdoor: true, busy: true },
   // 醒著、沒事做（下雨天、想做的事沒位子）：在自己的床位那裡歇著
   home: { name: '在家歇著', icon: '' },
 };
@@ -151,6 +155,8 @@ export interface LifeState {
   watchPick?: { day: number; who: string };
   /** 掌門定的門派方針：重武、守成（預設）、寬和 */
   policy?: 'martial' | 'steady' | 'gentle';
+  /** 門派公庫：銀兩、存糧、茶葉、藥材、月帳（4.31，見 sect_fund.ts） */
+  fund?: SectFund;
 }
 export const lifeState = (w: World): LifeState => w.life ?? { members: {}, news: [] };
 export const memberOf = (w: World, id: string, base: Partial<LifeMember> = {}): LifeMember => w.life?.members[id] ?? { power: base.power ?? 10, rank: base.rank ?? 0 };

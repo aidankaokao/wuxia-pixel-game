@@ -13,6 +13,7 @@ import { dateOf, festivalOf, isXunxiu, onNewDay, SHICHEN_INDEX, shichenStart } f
 import { useGame } from '../../state/store';
 import { exert, STAMINA, studyable, studyInsight } from './estate';
 import { gateTalk, MINGQUAN, MQ, practice, sitDown, sweeperTalk } from './sect_mingquan';
+import { fundGrowth, teaSeason } from '../sect_fund';
 
 /**
  * 鳴泉劍派的日常（life.ts）：同門自己過日子，還有交情、成長與門派活動。
@@ -33,6 +34,8 @@ import { gateTalk, MINGQUAN, MQ, practice, sitDown, sweeperTalk } from './sect_m
 const st = () => useGame.getState();
 const member = () => inSect(st().world, 'mingquan');
 const S = 'mq_sect';
+/** 山田（maps/mq_farm.ts） */
+const F = 'mq_farm';
 /** 看不到的地方（掌門居、長老居）：在這裡的人哪張地圖都不顯示 */
 const AWAY = '_away';
 const spot = (id: string, map: string, x: number, y: number, facing: Spot['facing'], acts: LifeAct[], pair?: string): LifeSpot => ({ id, map, x, y, facing, acts, pair });
@@ -40,7 +43,7 @@ const at = (map: string, x: number, y: number, facing: Spot['facing'] = 'down'):
 const T = (s: keyof typeof SHICHEN_INDEX, ke = 0) => shichenStart(SHICHEN_INDEX[s]) + ke;
 const inT = (t: number, a: number, b: number) => t >= a && t < b;
 
-setOutdoorMaps([S, 'mq_back', 'mingquan', 'linjiang']);
+setOutdoorMaps([S, 'mq_back', 'mq_farm', 'mingquan', 'linjiang']);
 
 const SPOTS: LifeSpot[] = [
   // 木樁林：站在樁前面
@@ -87,6 +90,12 @@ const SPOTS: LifeSpot[] = [
   spot('wt2', S, 33, 29, 'right', ['water']),
   spot('gd1', S, 38, 32, 'down', ['garden']),
   spot('gd2', S, 42, 33, 'down', ['garden']),
+  // 山田（後山東坡）：水田、藥圃；茶壟只在茶季由 events 排人去採
+  spot('fm1', F, 6, 17, 'down', ['farm']),
+  spot('fm2', F, 12, 18, 'down', ['farm']),
+  spot('fm3', F, 16, 16, 'down', ['farm']),
+  spot('hb1', F, 25, 17, 'down', ['tend']),
+  spot('hb2', F, 31, 18, 'down', ['tend']),
   // 散步
   spot('st1', S, 12, 29, 'down', ['stroll']),
   spot('st2', S, 30, 38, 'down', ['stroll']),
@@ -162,6 +171,14 @@ const ANNUAL_SPOTS: [string, number, number, 'up' | 'down' | 'left' | 'right'][]
   ['gu', 2, 8, 'up'], ['bao', 4, 8, 'up'], ['tang', 5, 8, 'up'], ['cao', 9, 8, 'up'], ['zheng', 10, 8, 'up'], ['hou', 12, 8, 'up'],
 ];
 
+/** 甘伯禾的對話（山田的活兒，story/mq_fund.ts 設定；那邊要 import 這裡，所以用鉤子） */
+let farmTalk: Script = async () => {};
+export const setFarmTalk = (f: Script) => (farmTalk = f);
+
+/** 採茶的位置：茶壟之間的走道，面向茶叢 */
+const TEA_SPOTS = [at(F, 6, 4, 'up'), at(F, 19, 4, 'up'), at(F, 30, 6, 'up'), at(F, 9, 6, 'up'), at(F, 21, 8, 'up')];
+const wet = (w: World) => w.weather === 'rain' || w.weather === 'snow';
+
 /** 某個職位是不是某人擔任（沒改過就照預設） */
 const heldBy = (w: World, post: string, who: string) => (w.life?.posts?.[post] ?? (post === 'elder_teach' ? 'han' : '')) === who;
 
@@ -195,6 +212,12 @@ function events(w: World): Record<string, Assign> {
     if (leader && leader !== 'wen' && out[leader]) out[leader] = { act: 'lead', at: at('mq_hall', 7, 4, 'down') };
     if (w.life?.ranks?.wen?.rank === '太上長老') out.wen = { act: 'watch', at: at('mq_hall', 10, 4, 'left') };
   }
+  // 茶季：巳時、未時兩個時辰，沒事的記名弟子到山田採茶（下雨不採）；甘伯禾自己的差事在 duty
+  const busy = (id: string) => out[id] || away(id) || (w.life?.members[id]?.rank ?? 0) >= 1;
+  if (teaSeason(w.day) && !wet(w) && (inT(t, T('巳'), T('午')) || inT(t, T('未'), T('申')))) {
+    let i = 0;
+    for (const id of ['zheng', 'hou', 'cao', 'qiao']) if (!busy(id) && i < TEA_SPOTS.length) out[id] = { act: 'pluck', at: TEA_SPOTS[i++] };
+  }
   // 守夜：輪到的人在廣場巡（輪到你就沒人巡）
   if (nightNow(t)) {
     const who = watcherOn(watchDayOf(w), w);
@@ -205,7 +228,7 @@ function events(w: World): Record<string, Assign> {
 
 registerLife({
   id: 'mingquan',
-  maps: [S, 'mq_dorm', 'mq_train', 'mq_lib', 'mq_kitchen', 'mq_room_a', 'mq_room_b', 'mq_cell_1', 'mq_hall', 'mq_back', 'mingquan', 'linjiang'],
+  maps: [S, 'mq_dorm', 'mq_train', 'mq_lib', 'mq_kitchen', 'mq_room_a', 'mq_room_b', 'mq_cell_1', 'mq_hall', 'mq_back', F, 'mingquan', 'linjiang'],
   spots: SPOTS,
   bonds: BONDS,
   event: (w) => events(w),
@@ -278,10 +301,12 @@ registerLife({
       id: 'zheng', name: MQ.zheng, sprite: 'farmer', pupil: true, power: 20,
       home: at('mq_dorm', 2, 2), seat: at('mq_kitchen', 4, 3, 'right'),
       wake: wake(0), sleep: bed(0),
-      likes: { water: 3, garden: 3, stake: 2, chat: 1 },
+      likes: { water: 3, garden: 3, farm: 2, stake: 2, chat: 1 },
       talks: {
         water: say(MQ.zheng)('挑水俺最在行！在家一天挑二十擔，這點算啥。'),
         garden: say(MQ.zheng)('卜師傅的菜圃，俺幫著鬆鬆土。種地跟練功一樣，急不得。'),
+        farm: say(MQ.zheng)('山田的稻子跟俺家的一樣，得天天看水。甘伯說俺是天生的莊稼把式。'),
+        pluck: say(MQ.zheng)('採茶比插秧難多了！一芽一葉，俺這手指頭太粗……'),
         stake: say(MQ.zheng)('嘿！嘿！……這木樁比俺家的牛還結實。'),
         chat: say(MQ.zheng)('大通鋪住了十幾個人，晚上打呼聲此起彼落……'),
         sleep: say(MQ.zheng)('呼……呼……（鄭大壯已經睡得打呼了）'),
@@ -293,11 +318,13 @@ registerLife({
       id: 'hou', name: MQ.hou, sprite: 'farmer', pupil: true, power: 15,
       home: at('mq_dorm', 6, 3, 'down'), seat: at('mq_kitchen', 6, 2, 'down'),
       wake: wake(2), sleep: bed(5),
-      likes: { chat: 3, stroll: 2, garden: 1, stake: 1, read: 1 },
+      likes: { chat: 3, stroll: 2, garden: 1, farm: 1, stake: 1, read: 1 },
       talks: {
         chat: say(MQ.hou)('聽說二師姐葉疏桐下山快一年了，到現在都沒個消息……'),
         stroll: say(MQ.hou)('出來透透氣。大通鋪悶得很。'),
         read: say(MQ.hou)('字認得不多，看看圖也好。'),
+        farm: say(MQ.hou)('出家……不對，上山學劍，結果還是在種田。我娘知道了要笑死。'),
+        pluck: say(MQ.hou)('甘伯說明前茶一斤賣十幾兩！這一簍子，夠我半年的月例了。'),
         sleep: say(MQ.hou)('（翻了個身）……再五刻……再睡五刻就起來……'),
         default: [
           by(MQ.hou)('我是侯三郎，家裡排行老三。記名弟子都住大通鋪，一人一個床位。'),
@@ -327,12 +354,25 @@ registerLife({
       wake: wake(0), sleep: bed(2),
       // 旬休前一天下山到臨江城採買（辰時到申時）
       duty: (t, w) => (dateOf(w.day).date % 10 === 9 && inT(t, T('辰'), T('申')) ? { act: 'shop', at: at('linjiang', 30, 26, 'down') } : null),
-      likes: { garden: 2, water: 1, chat: 2, read: 1, sword: 1 },
+      likes: { garden: 2, tend: 1, water: 1, chat: 2, read: 1, sword: 1 },
       talks: {
         shop: say(MQ.wei)('奉師命下山採買：米、鹽、燈油、傷藥……還有卜師傅交代的花椒。', '明天旬休，山上的師弟們也會下來趕集。'),
         garden: say(MQ.wei)('採買的差事做久了，對菜價比對劍法還熟。'),
         default: [by(MQ.wei)('在下韋季安，管採買。山上缺什麼，跟我說一聲，下山時順道帶。')],
       },
+    },
+    {
+      // 管山田的雜役：住在製茶房（看不到），白天照時節採茶、下田、照料藥圃
+      id: 'gan', name: MQ.gan, sprite: 'farmer', script: (ctx) => farmTalk(ctx),
+      home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
+      wake: T('寅', 4), sleep: T('戌'),
+      duty: (t, w) => {
+        if (!inT(t, T('卯'), T('酉')) || inT(t, T('午'), T('未'))) return { act: inT(t, T('卯'), T('酉')) ? 'home' : 'sleep', at: at(AWAY, 0, 0) };
+        if (teaSeason(w.day)) return { act: 'pluck', at: at(F, 32, 4, 'up') };
+        const m = dateOf(w.day).month;
+        return m >= 3 && m <= 8 ? { act: 'farm', at: at(F, 9, 19, 'down') } : { act: 'tend', at: at(F, 28, 17, 'down') };
+      },
+      likes: {},
     },
     {
       id: 'han', name: MQ.han, sprite: 'sect_elder', person: 'han', power: 200, rank: 3,
@@ -408,7 +448,8 @@ onNewDay((w) => {
     }
     if (m.away) continue;
     // 你收的徒弟長得快五成；掌門的方針：重武長得快、寬和慢一點
-    const pol = w.life.policy === 'martial' ? 1.2 : w.life.policy === 'gentle' ? 0.95 : 1;
+    // 公庫寬裕、見底也有影響（sect_fund.ts）
+    const pol = (w.life.policy === 'martial' ? 1.2 : w.life.policy === 'gentle' ? 0.95 : 1) * fundGrowth(w.life.fund);
     m.power += g * (0.6 + Math.random() * 0.8) * (m.master === 'hero' ? 1.5 : 1) * pol;
     const before = m.rank;
     // 升正式弟子、內門弟子

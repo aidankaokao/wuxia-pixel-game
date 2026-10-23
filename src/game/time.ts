@@ -209,6 +209,9 @@ export function dateText(day: number): string {
   return `${year > 1 ? `第${year <= 10 ? NUM[year] : year}年` : ''}${MONTH_NAMES[month]}${dateName(date)}`;
 }
 
+/** 月份的名字，例如「三月」；第二年起加上年份（year 1 起算、month 0 起算） */
+export const monthText = (year: number, month: number) => `${year > 1 ? `第${year <= 10 ? NUM[year] : year}年` : ''}${MONTH_NAMES[month]}`;
+
 /** 節慶（月份 0 起算）。節慶當天的活動在之後的「節慶」階段加上 */
 export const FESTIVALS: { name: string; month: number; date: number }[] = [
   { name: '過年', month: 0, date: 1 },
