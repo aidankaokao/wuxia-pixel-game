@@ -171,6 +171,18 @@ const ICONS: Record<string, (c: Ctx) => void> = {
     px(c, 7, 1, 5, 3, '#8a8e98');
     px(c, 7, 1, 5, 1, '#c8ccd4');
   },
+  axe: (c) => {
+    for (let i = 0; i < 7; i++) px(c, 3 + i, 10 - i, 1, 1, '#7a5232');
+    px(c, 8, 1, 3, 5, '#8a8e98');
+    px(c, 11, 2, 1, 3, '#c8ccd4');
+  },
+  pick: (c) => {
+    for (let i = 0; i < 7; i++) px(c, 7, 3 + i, 1, 1, '#7a5232');
+    hline(c, 3, 11, 2, '#8a8e98');
+    px(c, 2, 3, 1, 1, '#8a8e98');
+    px(c, 12, 3, 1, 1, '#8a8e98');
+    hline(c, 4, 10, 1, '#c8ccd4');
+  },
   needle: (c) => {
     for (let i = 0; i < 7; i++) px(c, 3 + i, 9 - i, 1, 1, '#a8acb4');
     px(c, 9, 2, 1, 1, '#fbf6e8');

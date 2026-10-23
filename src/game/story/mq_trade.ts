@@ -11,6 +11,7 @@ import { useGame } from '../../state/store';
 import { exert } from './estate';
 import { collectRent, heroOut, SHOP, shopSell } from './mq_fund';
 import { choreGrowth } from './sect_mingquan';
+import { thugsOption } from './mq_industry';
 // 青竹村那群人要先註冊好，才能在柳承安身上掛收租的選項
 import './life_towns';
 
@@ -87,6 +88,7 @@ async function deliverTea(ctx: EventCtx) {
 async function business(ctx: EventCtx) {
   const f = fundOf(st().world);
   const shop = f.shop!;
+  if (shop.closed) return void (await ctx.say(...liang('掌門吩咐把茶莊收了，山上的茶改成整批賣給茶行。我在這兒看著鋪子，等哪天重新開張。')));
   const got = Math.round(f.month.in.shop ?? 0);
   await ctx.say(
     ...liang(
@@ -125,7 +127,9 @@ export const liangTalk: Script = async (ctx) => {
   }
   const w = st().world;
   const tea = teaErrand(w);
+  const thugs = thugsOption(ctx);
   const opts: [string, () => Promise<void>][] = [
+    ...(thugs ? [thugs] : []),
     ...(tea ? ([[`交茶（${tea.n} 斤）`, () => deliverTea(ctx)]] as [string, () => Promise<void>][]) : []),
     ['買茶（本門八折）', async () => void (await ctx.panel({ kind: 'shop', title: '泉霧茶莊', stock: STOCK, discount: 0.2 }))],
     ['茶莊的生意', () => business(ctx)],

@@ -7,7 +7,7 @@ import { PEOPLE } from '../game/story/people';
 import { MINGQUAN } from '../game/story/sect_mingquan';
 import { heroAge, heroStanding } from '../game/story/mq_order';
 import { canSeeBooks } from '../game/story/mq_fund';
-import { FUND_IN, FUND_OUT, fundMood, monthIn, monthLabel, monthOut, MOOD_NAME, type SectFund } from '../game/sect_fund';
+import { FACILITIES, FAC_IDS, facLevel, FUND_IN, FUND_OUT, fundMood, monthIn, monthLabel, monthOut, MOOD_NAME, type SectFund } from '../game/sect_fund';
 import { dateText } from '../game/time';
 import { useGame } from '../state/store';
 import { BrowseItem, Browser } from './Browser';
@@ -254,6 +254,10 @@ function fundItem(f: SectFund, insider: boolean): BrowseItem {
             <Row k="存糧" v={`${n(f.grain)} 石`} />
             <Row k="茶葉" v={`${n(f.tea)} 斤（約值 ${n(f.teaValue)} 兩，等下山時賣）`} />
             <Row k="藥材" v={`${n(f.herb)} 份`} />
+            <Row k="木料" v={`${n(f.wood ?? 0)} 根`} />
+            <Row k="石料" v={`${n(f.stone ?? 0)} 方`} />
+            <Row k="產業" v={FAC_IDS.filter((id) => facLevel(f, id)).map((id) => `${FACILITIES[id].name}${['', '一級', '二級'][facLevel(f, id)]}`).join('、') || '沒有'} />
+            {f.build && <Row k="營造中" v={`${FACILITIES[f.build.id].name}（到${dateText(f.build.done)}）`} />}
           </dl>
           <h4>這個月（{monthLabel(f.month.key)}）</h4>
           <dl className="kv small">
@@ -285,7 +289,7 @@ function fundItem(f: SectFund, insider: boolean): BrowseItem {
                 cells: [monthLabel(b.key), n(monthIn(b)), n(monthOut(b)), `${net >= 0 ? '+' : ''}${n(net)}`, n(b.silver), big ? `${FUND_IN[big[0]]} ${n(big[1])}` : '—'],
               };
             }),
-            note: '收入：賣茶、田租、香火、委託行醫、捐輸；支出：月例、伙食、買糧、買藥材、修繕雜項。',
+            note: '收入：茶莊、賣茶、賣木料石料藥材、田租、香火、委託行醫、捐輸；支出：月例、伙食、買糧、買藥材、修繕雜項、茶莊與產業工錢、營造。',
           })
         : undefined,
   };

@@ -105,7 +105,9 @@ function preference(w: World, voter: string, cand: string, post: PostDef) {
     const aff = person ? (w.relations[person]?.aff ?? 0) : 0;
     // 功績、名聲有上限；入門不到一年的新人，大家還信不過
     const fresh = w.day - (w.sect?.joinedDay ?? w.day) < 360 ? 10 : 0;
-    return heroPower(h) / 2 + heroAge(h, w) / 3 + Math.min(8, (w.sect?.merit ?? 0) / 100) + Math.min(10, h.fame / 8) + aff / 3 + incumbent - fresh + r * 15;
+    // 當掌門時支用公款被查到，風評（scandal）還沒淡掉的話票會少（4.33）
+    const scandal = Math.min(20, w.life?.fund?.scandal ?? 0);
+    return heroPower(h) / 2 + heroAge(h, w) / 3 + Math.min(8, (w.sect?.merit ?? 0) / 100) + Math.min(10, h.fame / 8) + aff / 3 + incumbent - fresh - scandal + r * 15;
   }
   const bondish = voter === 'lu' && cand === 'he' ? 5 : 0;
   return powerOf(w, cand) / 2 + ageNow(MQ_MEMBERS[cand as Key]?.age, w) / 3 + incumbent + bondish + r * 15;

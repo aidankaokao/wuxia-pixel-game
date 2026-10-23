@@ -22,7 +22,7 @@ export type LifeAct =
   | 'sleep' | 'eat' | 'class' | 'lead' | 'stake' | 'sword' | 'read' | 'meditate' | 'chat' | 'sweep' | 'water' | 'garden' | 'stroll'
   | 'watch' | 'listen' | 'patrol' | 'guard' | 'spar' | 'shop'
   | 'boat' | 'fish' | 'mend' | 'stall' | 'play' | 'haul' | 'tea' | 'chess' | 'beg' | 'pick' | 'wash' | 'study' | 'pray'
-  | 'farm' | 'forge' | 'carve' | 'sew' | 'home' | 'pluck' | 'tend';
+  | 'farm' | 'forge' | 'carve' | 'sew' | 'home' | 'pluck' | 'tend' | 'chop' | 'quarry';
 
 /** 每件事的名字、頭上的小圖示、在原地走動的範圍、是不是室外 */
 export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number; outdoor?: boolean; busy?: boolean }> = {
@@ -67,6 +67,9 @@ export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number
   // 鳴泉山田（4.31）
   pluck: { name: '採茶', icon: 'leaf', wander: 1, outdoor: true, busy: true },
   tend: { name: '照料藥圃', icon: 'sprout', wander: 1, outdoor: true, busy: true },
+  // 鳴泉南嶺的產業（4.33）
+  chop: { name: '伐木', icon: 'axe', wander: 1, outdoor: true, busy: true },
+  quarry: { name: '採石', icon: 'pick', wander: 1, outdoor: true, busy: true },
   // 醒著、沒事做（下雨天、想做的事沒位子）：在自己的床位那裡歇著
   home: { name: '在家歇著', icon: '' },
 };

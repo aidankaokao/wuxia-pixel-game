@@ -5,7 +5,7 @@ import { ellipse, hline, makeCanvas, outline, px, vline } from './pixel';
  * 每種 4 格，64×40，由介面放大顯示（見 ui/WorkAnim.tsx）。
  */
 
-export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read' | 'sleep' | 'drill' | 'sit' | 'eat' | 'fish';
+export type WorkKind = 'sweep' | 'water' | 'herbs' | 'books' | 'garden' | 'cook' | 'weave' | 'read' | 'sleep' | 'drill' | 'sit' | 'eat' | 'fish' | 'chop' | 'stone';
 export const WORK_W = 64;
 export const WORK_H = 40;
 export const WORK_FRAMES = 4;
@@ -213,10 +213,46 @@ const DRAW: Record<WorkKind, (ctx: Ctx, f: number) => void> = {
       px(ctx, tipX, 23, 3, 2, '#c4483c');
       for (const [x, y] of [[36, 24], [47, 22], [44, 27]] as const) px(ctx, x, y, 1, 1, '#a8d0f0');
     }
-  },};
+  },
+  // 伐木：斧頭舉起、劈下，木屑飛出，最後木頭裂成兩半
+  chop(ctx, f) {
+    ground(ctx);
+    px(ctx, 34, 28, 14, 6, '#7a5232');
+    ellipse(ctx, 41, 28, 7, 2, '#c8a06a');
+    const split = f === 3 ? 2 : 0;
+    px(ctx, 37 - split, 22, 4, 6, '#a8804a');
+    px(ctx, 41 + split, 22, 4, 6, '#a8804a');
+    figure(ctx, 24, 34, f === 0 ? -1 : 1);
+    // 斧柄與斧頭：舉高、劈下
+    const high = f === 0;
+    if (high) {
+      vline(ctx, 25, 8, 19, '#6a4428');
+      px(ctx, 23, 6, 5, 3, '#8a8e98');
+    } else {
+      for (let i = 0; i < 12; i++) px(ctx, 26 + i, 18 + Math.round(i * 0.3), 1, 1, '#6a4428');
+      px(ctx, 37, 19, 3, 5, '#8a8e98');
+    }
+    if (f === 2) for (const [x, y] of [[44, 17], [48, 20], [35, 15]] as const) px(ctx, x, y, 2, 1, '#c8a06a');
+  },
+  // 採石：鐵鑿抵著石壁，錘子一下下敲，碎石掉落
+  stone(ctx, f) {
+    ground(ctx, '#8a8478');
+    px(ctx, 40, 4, 24, 30, '#9a9a94');
+    for (const [x, y] of [[44, 10], [52, 18], [47, 26], [58, 8]] as const) hline(ctx, x, x + 5, y, '#7a7a74');
+    vline(ctx, 40, 4, 33, '#6a6a66');
+    figure(ctx, 30, 34, 1);
+    // 鑿子
+    hline(ctx, 33, 39, 20, '#c8ccd4');
+    // 錘子：舉起、敲下
+    const up = f % 2 === 0;
+    vline(ctx, 32, up ? 12 : 16, up ? 18 : 22, '#6a4428');
+    px(ctx, 30, up ? 10 : 14, 5, 3, '#5a5e68');
+    if (f % 2 === 1) for (const [x, y] of [[41, 23], [42, 27], [44, 31]] as const) px(ctx, x, y + (f === 3 ? 1 : 0), 2, 2, '#b8b8b0');
+  },
+};
 
 /** 在室外做的事（背景畫天空與遠山），其他的在室內（牆與窗） */
-const OUTDOOR: WorkKind[] = ['sweep', 'water', 'herbs', 'garden', 'drill'];
+const OUTDOOR: WorkKind[] = ['sweep', 'water', 'herbs', 'garden', 'drill', 'chop', 'stone'];
 
 function backdrop(ctx: Ctx, outdoor: boolean, night = false) {
   if (outdoor) {

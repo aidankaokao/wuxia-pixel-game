@@ -185,6 +185,62 @@ function dryingRack(): PropArt {
   return done(c, ctx);
 }
 
+/** 木料堆：一層層橫放的松木，切口朝外（寬兩格） */
+function logPile(): PropArt {
+  const [c, ctx] = makeCanvas(32, 22);
+  const rows = [
+    { y: 14, xs: [1, 8, 15, 22] },
+    { y: 8, xs: [4, 11, 18] },
+    { y: 2, xs: [8, 15] },
+  ];
+  for (const r of rows) {
+    // 木身（往後延伸）
+    px(ctx, r.xs[0] + 2, r.y + 1, r.xs[r.xs.length - 1] - r.xs[0] + 6, 5, '#7a5232');
+    for (const x of r.xs) {
+      ellipse(ctx, x + 4, r.y + 3, 3, 3, '#c8a06a');
+      ellipse(ctx, x + 4, r.y + 3, 1, 1, '#9a7442');
+      px(ctx, x + 1, r.y, 1, 7, '#5a3a20');
+    }
+  }
+  vline(ctx, 0, 12, 21, '#5a3a20');
+  vline(ctx, 31, 12, 21, '#5a3a20');
+  return done(c, ctx);
+}
+
+/** 石料堆：打好的方正青石，疊成兩層（寬兩格） */
+function stonePile(): PropArt {
+  const [c, ctx] = makeCanvas(32, 20);
+  const block = (x: number, y: number, w: number) => {
+    px(ctx, x, y, w, 7, '#9a9a94');
+    hline(ctx, x, x + w - 1, y, '#c4c4bc');
+    hline(ctx, x, x + w - 1, y + 6, '#6a6a66');
+    vline(ctx, x + w - 1, y, y + 6, '#6a6a66');
+  };
+  block(1, 12, 10);
+  block(11, 12, 10);
+  block(21, 12, 10);
+  block(5, 5, 10);
+  block(15, 5, 10);
+  block(10, 0, 10);
+  // 鑿痕
+  for (const [x, y] of [[4, 15], [15, 14], [24, 16], [9, 8], [19, 7]] as const) px(ctx, x, y, 2, 1, '#7a7a74');
+  return done(c, ctx);
+}
+
+/** 樹墩：砍過的松樹，上面插著一把斧頭 */
+function stump(): PropArt {
+  const [c, ctx] = makeCanvas(16, 14);
+  px(ctx, 2, 5, 12, 8, '#7a5232');
+  vline(ctx, 4, 6, 12, '#5a3a20');
+  vline(ctx, 10, 6, 12, '#5a3a20');
+  ellipse(ctx, 8, 5, 6, 3, '#c8a06a');
+  ellipse(ctx, 8, 5, 3, 1, '#a8804a');
+  // 斧頭
+  vline(ctx, 11, 0, 5, '#6a4428');
+  px(ctx, 9, 0, 2, 3, '#8a8e98');
+  return done(c, ctx);
+}
+
 /** 祖師畫像（掛在牆上） */
 function portrait(): PropArt {
   const [c, ctx] = makeCanvas(32, 18);
@@ -362,6 +418,9 @@ export function landmarkProps(): Record<string, PropArt> {
     sect_flag: sectFlag(),
     cushion: cushion(),
     drying_rack: dryingRack(),
+    log_pile: logPile(),
+    stone_pile: stonePile(),
+    stump: stump(),
     portrait: portrait(),
     paifang_city: paifang('#8a2e26', '#5a1a14', '#3f4a5e', '#2a3242', '#2a3242'),
     paifang_sect: paifang('#b8b2a4', '#8a8478', '#3e6656', '#284638', '#284638'),

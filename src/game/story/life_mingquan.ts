@@ -13,7 +13,7 @@ import { dateOf, festivalOf, isXunxiu, onNewDay, SHICHEN_INDEX, shichenStart } f
 import { useGame } from '../../state/store';
 import { exert, STAMINA, studyable, studyInsight } from './estate';
 import { gateTalk, MINGQUAN, MQ, practice, sitDown, sweeperTalk } from './sect_mingquan';
-import { fundGrowth, teaSeason } from '../sect_fund';
+import { eventOn, facLevel, fundGrowth, teaSeason } from '../sect_fund';
 
 /**
  * 鳴泉劍派的日常（life.ts）：同門自己過日子，還有交情、成長與門派活動。
@@ -36,6 +36,8 @@ const member = () => inSect(st().world, 'mingquan');
 const S = 'mq_sect';
 /** 山田（maps/mq_farm.ts） */
 const F = 'mq_farm';
+/** 南嶺：伐木場、採石場（maps/mq_ridge.ts） */
+const R = 'mq_ridge';
 /** 看不到的地方（掌門居、長老居）：在這裡的人哪張地圖都不顯示 */
 const AWAY = '_away';
 const spot = (id: string, map: string, x: number, y: number, facing: Spot['facing'], acts: LifeAct[], pair?: string): LifeSpot => ({ id, map, x, y, facing, acts, pair });
@@ -43,7 +45,7 @@ const at = (map: string, x: number, y: number, facing: Spot['facing'] = 'down'):
 const T = (s: keyof typeof SHICHEN_INDEX, ke = 0) => shichenStart(SHICHEN_INDEX[s]) + ke;
 const inT = (t: number, a: number, b: number) => t >= a && t < b;
 
-setOutdoorMaps([S, 'mq_back', 'mq_farm', 'mingquan', 'linjiang']);
+setOutdoorMaps([S, 'mq_back', 'mq_farm', R, 'mingquan', 'linjiang']);
 
 const SPOTS: LifeSpot[] = [
   // 木樁林：站在樁前面
@@ -175,6 +177,29 @@ const ANNUAL_SPOTS: [string, number, number, 'up' | 'down' | 'left' | 'right'][]
 let farmTalk: Script = async () => {};
 export const setFarmTalk = (f: Script) => (farmTalk = f);
 
+/** 伐木場、採石場的工頭（山下請來的匠人，工錢記在公庫的「產業工錢」） */
+export const FOREMAN = { lumber: '樊守林', quarry: '鄔石生' };
+/** 工頭的對話（story/mq_industry.ts 設定） */
+let foremanTalk: (ctx: EventCtx, fac: 'lumber' | 'quarry') => Promise<void> = async () => {};
+export const setForemanTalk = (f: typeof foremanTalk) => (foremanTalk = f);
+
+/** 伐木場、採石場今天輪到哪個記名弟子去幫工（茶季採茶的那幾個不派；結算產量也看這個） */
+const CREW = ['qiao', 'cao', 'hou', 'zheng', 'bao', 'tang', 'gu'];
+const TEA_PICKERS = ['zheng', 'hou', 'cao', 'qiao'];
+export function crewOf(w: World, day = w.day): Partial<Record<'lumber' | 'quarry', string>> {
+  const f = w.life?.fund;
+  if (!f) return {};
+  const tea = !!teaSeason(day);
+  const pool = CREW.filter((id) => (w.life?.members[id]?.rank ?? 0) === 0 && !isAway(w, id) && !(tea && TEA_PICKERS.includes(id)));
+  const out: Partial<Record<'lumber' | 'quarry', string>> = {};
+  let i = day;
+  for (const fac of ['lumber', 'quarry'] as const)
+    if (facLevel(f, fac) > 0 && i - day < pool.length) out[fac] = pool[i++ % pool.length];
+  return out;
+}
+/** 幫工的人站哪裡 */
+const CREW_AT = { lumber: at(R, 6, 10, 'left'), quarry: at(R, 31, 10, 'right') };
+
 /** 採茶的位置：茶壟之間的走道，面向茶叢 */
 const TEA_SPOTS = [at(F, 6, 4, 'up'), at(F, 19, 4, 'up'), at(F, 30, 6, 'up'), at(F, 9, 6, 'up'), at(F, 21, 8, 'up')];
 const wet = (w: World) => w.weather === 'rain' || w.weather === 'snow';
@@ -218,6 +243,14 @@ function events(w: World): Record<string, Assign> {
     let i = 0;
     for (const id of ['zheng', 'hou', 'cao', 'qiao']) if (!busy(id) && i < TEA_SPOTS.length) out[id] = { act: 'pluck', at: TEA_SPOTS[i++] };
   }
+  // 南嶺的伐木場、採石場：辰時到午時、未時到申時，輪到的記名弟子去幫工（旬休、下雨不去；出事停工時也不去）
+  if (!isXunxiu(w.day) && !wet(w) && (inT(t, T('辰'), T('午')) || inT(t, T('未'), T('申')))) {
+    const f = w.life?.fund;
+    for (const [fac, id] of Object.entries(crewOf(w)) as ['lumber' | 'quarry', string][]) {
+      const stopped = f && eventOn(f, fac === 'lumber' ? 'fire' : 'collapse');
+      if (id && !out[id] && !stopped) out[id] = { act: fac === 'lumber' ? 'chop' : 'quarry', at: CREW_AT[fac] };
+    }
+  }
   // 守夜：輪到的人在廣場巡（輪到你就沒人巡）
   if (nightNow(t)) {
     const who = watcherOn(watchDayOf(w), w);
@@ -228,7 +261,7 @@ function events(w: World): Record<string, Assign> {
 
 registerLife({
   id: 'mingquan',
-  maps: [S, 'mq_dorm', 'mq_train', 'mq_lib', 'mq_kitchen', 'mq_room_a', 'mq_room_b', 'mq_cell_1', 'mq_hall', 'mq_back', F, 'mingquan', 'linjiang'],
+  maps: [S, 'mq_dorm', 'mq_train', 'mq_lib', 'mq_kitchen', 'mq_room_a', 'mq_room_b', 'mq_cell_1', 'mq_hall', 'mq_back', F, R, 'mingquan', 'linjiang'],
   spots: SPOTS,
   bonds: BONDS,
   event: (w) => events(w),
@@ -374,6 +407,20 @@ registerLife({
       },
       likes: {},
     },
+    // 南嶺的兩個工頭：設施蓋好了才上山；白天在場子裡幹活（午時吃飯），下雨天、夜裡在工寮（看不到）
+    ...(['lumber', 'quarry'] as const).map((fac) => ({
+      id: fac === 'lumber' ? 'fan' : 'wu', name: FOREMAN[fac], sprite: fac === 'lumber' ? 'carpenter' : 'smith',
+      script: (ctx: EventCtx) => foremanTalk(ctx, fac),
+      home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
+      wake: T('寅', 4), sleep: T('戌'),
+      duty: (t: number, w: World): Assign => {
+        const work = inT(t, T('卯'), T('酉')) && !inT(t, T('午'), T('未'));
+        const built = !!w.life?.fund && facLevel(w.life.fund, fac) > 0;
+        if (!built || !work || wet(w)) return { act: built && work ? 'home' : 'sleep', at: at(AWAY, 0, 0) };
+        return fac === 'lumber' ? { act: 'chop', at: at(R, 5, 8, 'left') } : { act: 'quarry', at: at(R, 31, 8, 'right') };
+      },
+      likes: {},
+    })),
     {
       id: 'han', name: MQ.han, sprite: 'sect_elder', person: 'han', power: 200, rank: 3,
       home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),

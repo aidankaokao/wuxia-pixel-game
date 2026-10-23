@@ -3,15 +3,15 @@ import type { EventCtx, Script } from '../events';
 import type { World } from '../home';
 import { lifeGroups, type Assign } from '../life';
 import { by } from '../maps/rooms';
-import { inSect, roster } from '../sect';
-import { book, fundMood, fundOf, monthKey, payRate, teaSeason, type FundMood, type SectFund } from '../sect_fund';
+import { addContrib, inSect, roster } from '../sect';
+import { book, eventOn, FAC_IDS, facNow, fundMood, fundOf, MATERIAL, monthKey, payRate, teaSeason, type FundMood, type SectFund } from '../sect_fund';
 import { dateOf, festivalOf, isXunxiu, onNewDay } from '../time';
 import { useGame } from '../../state/store';
 import type { WorkKind } from '../art/work';
 import { exert, STAMINA } from './estate';
 import { maybeDayEvent } from './schedule';
 import { choreGrowth, MINGQUAN, MQ } from './sect_mingquan';
-import { setFarmTalk } from './life_mingquan';
+import { crewOf, setFarmTalk } from './life_mingquan';
 import './mq_order';
 
 /**
@@ -26,6 +26,10 @@ import './mq_order';
  * - 山田：水田五月初十夏收麥、九月初一秋收稻，藥圃每天長一點（冬天幾乎不長）；
  *   甘伯禾照管，你可以找他幫忙（採茶、下田、照料藥圃），一天兩回。下田的照料讓今年收成多一成到兩成。
  * - 公庫寬裕、吃緊、見底會影響同門長進（sect_fund.ts 的 fundGrowth）；見底時月例只發一半。
+ * - 門派產業（4.33）：南嶺的伐木場、採石場每天出木料、石料（看有沒有記名弟子幫工、天氣、旬休），
+ *   擴建的藥圃多長藥材、擴建的茶園多採茶；設施每天付工錢。木料、石料先拿來修繕（修繕雜項少一兩），
+ *   多的跟藥材一起逢九送下山賣。掌門定的用度（節儉／開源）、月例成數、茶莊開關也在這裡生效。
+ *   營造、小事件、掌門的決策在 story/mq_industry.ts（用 onSettle 掛進每天的結算）。
  * 開銷、收入的數值都在這個檔的開頭。
  */
 
@@ -57,8 +61,17 @@ const RENT = { summer: { month: 5, date: 1, silver: 3000 }, winter: { month: 9, 
 const RENT_DAYS = 10;
 /** 泉霧茶莊：架上最多擺幾斤、一天平均賣幾斤、零賣比整批賣多幾成、夥計與掌櫃一天的工錢 */
 export const SHOP = { cap: 150, demand: 5, retail: 1.5, wage: 2 };
-/** 能接委託的人一天平均帶回多少（兩） */
-const WORK_PER_HEAD = 0.8;
+/** 能接委託的人一天平均帶回多少（兩）；產業做起來以後調回較低的水準（4.33） */
+const WORK_PER_HEAD = 0.45;
+/** 留著自己用的木料、石料、藥材，多的才賣 */
+const KEEP = { wood: 30, stone: 20, herb: 40 };
+/** 多的藥材賣給藥鋪的價錢 */
+const HERB_SELL = 1.5;
+/** 修繕用自己的木料、石料：一天用多少，修繕雜項少幾兩 */
+const REPAIR = { wood: 0.3, stone: 0.08, save: 1 };
+/** 用度：節儉時伙食、修繕的成數；開源時委託、產業的成數 */
+const THRIFT = { food: 0.8, upkeep: 0.7 };
+const ENTERPRISE = { work: 1.4, fac: 1.15 };
 /** 你幫忙一回：採茶多幾斤、照料加幾成收成、藥圃多幾份；一天最多幾回 */
 const HELP = { tea: 3, care: 0.01, careMax: 0.2, herb: 3, perDay: 2, contrib: 2 };
 
@@ -103,9 +116,17 @@ export function shopSell(f: SectFund, want: number): { n: number; silver: number
   shop.tea -= n;
   shop.teaValue -= v;
   shop.sold += n;
-  book(f, 'in', 'shop', v * SHOP.retail);
-  return { n, silver: v * SHOP.retail };
+  const silver = v * SHOP.retail * teaPrice(f);
+  book(f, 'in', 'shop', silver);
+  return { n, silver };
 }
+
+/** 茶價：碰上茶價大起大落時的倍數 */
+export const teaPrice = (f: SectFund) => eventOn(f, 'teaprice')?.mult ?? 1;
+
+/** 每天結算時順帶要做的事（營造完工、小事件、掌門的決策；story/mq_industry.ts 掛進來，模擬也會跑到） */
+const SETTLE_HOOKS: ((w: World, rand: () => number) => void)[] = [];
+export const onSettle = (f: (w: World, rand: () => number) => void) => void SETTLE_HOOKS.push(f);
 
 /** 收下田租（cut 是減免幾成，0–1） */
 export function collectRent(w: World, cut: number): number {
@@ -139,15 +160,18 @@ export function settleFund(w: World, rand: () => number = Math.random) {
   // 換年：擲今年的年成
   if (f.crop.year !== d.year) f.crop = { year: d.year, f: 0.8 + rand() * 0.35, care: 0 };
   const wet = w.weather === 'rain' || w.weather === 'snow';
-  // 昨天採的茶（下雨不採）
+  const eco = f.economy ?? 'normal';
+  // 昨天採的茶（下雨不採；擴建過的茶園採得多）
   const tea = teaSeason(w.day - 1);
   if (tea && !wet) {
-    const n = tea.per * (0.8 + rand() * 0.4);
+    const n = tea.per * (0.8 + rand() * 0.4) * (1 + (facNow(f, 'teagarden')?.out ?? 0));
     f.tea += n;
     f.teaValue += n * tea.price;
   }
-  // 藥圃長的、藥房用的
-  f.herb += (winter(w.day - 1) ? HERB_WINTER : HERB_GROW) - HERB_USE;
+  // 藥圃長的（擴建的藥畦多長；鬧蟲害時不長）、藥房用的
+  const herbF = winter(w.day - 1) ? HERB_WINTER / HERB_GROW : 1;
+  if (!eventOn(f, 'blight')) f.herb += (HERB_GROW + (facNow(f, 'herbs')?.out ?? 0)) * herbF;
+  f.herb -= HERB_USE;
   if (f.herb < 0) {
     book(f, 'out', 'med', -f.herb * HERB_PRICE);
     f.herb = 0;
@@ -159,13 +183,33 @@ export function settleFund(w: World, rand: () => number = Math.random) {
     book(f, 'out', 'grain', -f.grain * GRAIN_PRICE);
     f.grain = 0;
   }
-  book(f, 'out', 'food', n * FOOD_PER_HEAD);
-  // 月例（每天攤一份；見底只發一半）、修繕雜項
+  book(f, 'out', 'food', n * FOOD_PER_HEAD * (eco === 'thrift' ? THRIFT.food : 1));
+  // 月例（每天攤一份；照掌門定的成數，見底只發一半）
   book(f, 'out', 'pay', (weeklyPay(w) / 7) * payRate(f));
-  book(f, 'out', 'upkeep', 1.5 + rand());
-  // 香火（節慶多）、委託行醫
+  // 修繕雜項：有自己的木料、石料就少花一些
+  let upkeep = 1.5 + rand();
+  if ((f.wood ?? 0) >= REPAIR.wood && (f.stone ?? 0) >= REPAIR.stone) {
+    f.wood! -= REPAIR.wood;
+    f.stone! -= REPAIR.stone;
+    upkeep -= REPAIR.save;
+  }
+  book(f, 'out', 'upkeep', upkeep * (eco === 'thrift' ? THRIFT.upkeep : 1));
+  // 香火（節慶多）、委託行醫（開源時多接）
   book(f, 'in', 'incense', (3 + rand() * 6) * (festivalOf(w.day) ? 4 : 1));
-  book(f, 'in', 'work', capable(w) * WORK_PER_HEAD * (0.5 + rand()));
+  book(f, 'in', 'work', capable(w) * WORK_PER_HEAD * (0.5 + rand()) * (eco === 'enterprise' ? ENTERPRISE.work : 1));
+  // 南嶺的伐木場、採石場：昨天的產出（有人幫工才出得足；下雨、旬休少；失火、塌方停工），每座設施付工錢
+  const crew = crewOf(w, w.day - 1);
+  for (const id of FAC_IDS) {
+    const lv = facNow(f, id);
+    if (!lv) continue;
+    book(f, 'out', 'facility', lv.upkeep);
+    if (id !== 'lumber' && id !== 'quarry') continue;
+    if (eventOn(f, id === 'lumber' ? 'fire' : 'collapse')) continue;
+    const vein = id === 'quarry' ? (eventOn(f, 'vein')?.mult ?? 1) : 1;
+    const got = lv.out * (crew[id] ? 1 : 0.7) * (wet ? 0.3 : 1) * (isXunxiu(w.day - 1) ? 0.5 : 1) * (eco === 'enterprise' ? ENTERPRISE.fac : 1) * vein * (0.85 + rand() * 0.3);
+    if (id === 'lumber') f.wood = (f.wood ?? 0) + got;
+    else f.stone = (f.stone ?? 0) + got;
+  }
   // 收成
   const yieldOf = (g: number) => Math.round(g * (f.crop.f + f.crop.care));
   for (const [k, h] of Object.entries(HARVEST))
@@ -192,25 +236,43 @@ export function settleFund(w: World, rand: () => number = Math.random) {
     news(w, `${f.rentDue.season}租拖著沒收，${MQ.wei}代外務執事下山收了 ${f.rentDue.amount} 兩`);
     delete f.rentDue;
   }
-  // 初九、十九、廿九：韋季安下山時把製茶房的茶送進城裡的茶莊；茶莊架上擺不下的整批賣給茶行
+  // 初九、十九、廿九：韋季安下山時把製茶房的茶送進城裡的茶莊；茶莊架上擺不下的（或茶莊收了）整批賣給茶行
+  // 多的木料、石料、藥材也一起帶下山賣
   const shop = f.shop!;
-  if (d.date % 10 === 9 && f.tea >= 1) {
-    shop.tea += f.tea;
-    shop.teaValue += f.teaValue;
-    news(w, `${MQ.wei}把 ${Math.round(f.tea)} 斤茶送進臨江城的泉霧茶莊`);
-    f.tea = 0;
-    f.teaValue = 0;
+  if (d.date % 10 === 9) {
+    if (f.tea >= 1) {
+      shop.tea += f.tea;
+      shop.teaValue += f.teaValue;
+      news(w, shop.closed ? `${MQ.wei}把 ${Math.round(f.tea)} 斤茶整批賣給了城裡的茶行` : `${MQ.wei}把 ${Math.round(f.tea)} 斤茶送進臨江城的泉霧茶莊`);
+      f.tea = 0;
+      f.teaValue = 0;
+    }
+    for (const k of ['wood', 'stone'] as const) {
+      const extra = (f[k] ?? 0) - KEEP[k];
+      if (extra < 1) continue;
+      book(f, 'in', k, Math.floor(extra) * MATERIAL[k].sell * (0.9 + rand() * 0.2));
+      f[k] = (f[k] ?? 0) - Math.floor(extra);
+    }
+    if (f.herb - KEEP.herb >= 1) {
+      const extra = Math.floor(f.herb - KEEP.herb);
+      book(f, 'in', 'herbsale', extra * HERB_SELL * (0.9 + rand() * 0.2));
+      f.herb -= extra;
+    }
   }
-  if (shop.tea > SHOP.cap) {
-    const n = shop.tea - SHOP.cap;
+  const cap = shop.closed ? 0 : SHOP.cap;
+  if (shop.tea > cap) {
+    const n = shop.tea - cap;
     const v = (shop.teaValue / shop.tea) * n;
-    book(f, 'in', 'tea', v * (0.9 + rand() * 0.2));
+    book(f, 'in', 'tea', v * (0.9 + rand() * 0.2) * teaPrice(f));
     shop.tea -= n;
     shop.teaValue -= v;
   }
-  // 茶莊零賣：一天幾斤（旬休趕集、節慶多），比整批賣給茶行多五成；夥計工錢照付
-  shopSell(f, SHOP.demand * (0.6 + rand() * 0.8) * (isXunxiu(w.day) ? 1.8 : 1) * (festivalOf(w.day) ? 1.5 : 1));
-  book(f, 'out', 'shopwage', SHOP.wage);
+  // 茶莊零賣：一天幾斤（旬休趕集、節慶多），比整批賣給茶行多五成；夥計工錢照付（地痞鬧事時沒生意）；收起來就不用付
+  if (!shop.closed) {
+    if (!eventOn(f, 'thugs')) shopSell(f, SHOP.demand * (0.6 + rand() * 0.8) * (isXunxiu(w.day) ? 1.8 : 1) * (festivalOf(w.day) ? 1.5 : 1));
+    book(f, 'out', 'shopwage', SHOP.wage);
+  }
+  for (const h of SETTLE_HOOKS) h(w, rand);
   // 公庫好壞變了，門派裡會傳開
   const mood = fundMood(f);
   if (f.mood && mood !== f.mood) {
@@ -259,6 +321,20 @@ async function helpOnce(ctx: EventCtx, who?: string) {
   if (helped(w) >= HELP.perDay) return void (await ctx.say(...gan('今天的活兒差不多了，剩下的我自己來。明天再來吧。')));
   if (w.weather === 'rain' || w.weather === 'snow') return void (await ctx.say(...gan('下著雨，茶菁採下來會悶壞，田裡也踩不得。改天吧。')));
   if (!(await exert(ctx, STAMINA.chore, '累得腰都直不起來，這活兒今天是幹不動了。'))) return;
+  // 藥圃鬧蟲害（mq_industry.ts 的小事件）：先除蟲，事情就解決了
+  if (eventOn(fundOf(w), 'blight')) {
+    await ctx.say(...gan('先別管別的，藥圃的蟲要緊！拿這把草木灰，一株株撒在葉子底下。'));
+    await ctx.work('herbs', '除蟲中……');
+    ctx.pass(8);
+    st().updateWorld((x) => {
+      x.daily[helpKey(x)] = { day: x.day, n: helped(x) + 1 };
+      delete fundOf(x).event;
+    });
+    const grow = st().updateHero((h) => choreGrowth(h, { craft: 'learning', exp: 6 }));
+    await ctx.say('你蹲在藥畦間，一片片翻開葉子撒灰、捉蟲。一個時辰下來，蟲總算除乾淨了。', ...gan('好！這一季的藥材保住了。'), '（做了一個時辰）');
+    await ctx.say([...grow, st().updateWorld((x) => addContrib(x, 8))].filter(Boolean).join('\n'));
+    return;
+  }
   if (who) await ctx.say(`你在${who}旁邊跟著${job.name}，兩人一邊做一邊閒聊。`);
   else await ctx.say(...gan(job.id === 'tea' ? '來得正好！竹簍在那兒，只採一芽一葉，老葉別碰。' : job.id === 'field' ? '田裡正缺人手。鞋脫了，跟我下來。' : '冬天沒什麼好採的，幫我把藥圃和田埂收拾收拾。'));
   await ctx.work(job.work, `${job.name}中……`);
@@ -306,8 +382,9 @@ const ganTalk: Script = async (ctx) => {
     return;
   }
   const job = jobNow(w.day);
-  const c = await ctx.ask(gan(`${job.id === 'tea' ? '茶季忙得很' : job.id === 'field' ? '田裡活兒多' : '冬天山田清閒些'}。有什麼事？`)[0], [
-    `幫忙${job.name}（一個時辰・體力 ${STAMINA.chore}）${helped(w) >= HELP.perDay ? '（今天做夠了）' : ''}`,
+  const blight = !!eventOn(fundOf(w), 'blight');
+  const c = await ctx.ask(gan(blight ? '藥圃鬧蟲害了，愁死人！' : `${job.id === 'tea' ? '茶季忙得很' : job.id === 'field' ? '田裡活兒多' : '冬天山田清閒些'}。有什麼事？`)[0], [
+    `${blight ? '幫忙除蟲' : `幫忙${job.name}`}（一個時辰・體力 ${STAMINA.chore}）${helped(w) >= HELP.perDay ? '（今天做夠了）' : ''}`,
     '山田的情形',
     '沒事',
   ]);

@@ -13,6 +13,7 @@ import { annualMeeting, atLeast, away, leaderKey, meetingPending, nameOf, postDe
 import { MINGQUAN, MQ, MQ_MEMBERS, setChairHook, setPostHook } from './sect_mingquan';
 import { fundOf } from '../sect_fund';
 import { takeTeaRun, TEA_RUN_MIN } from './mq_trade';
+import { industryMenu } from './mq_industry';
 
 /**
  * 職位的差事（4.28）：當上執事、長老、掌門以後，每天多了自己的事。
@@ -400,7 +401,7 @@ setChairHook(async (ctx) => {
   const w = st().world;
   const opts: [string, () => Promise<void>][] = [];
   if (meetingPending(w)) opts.push(['主持年會', () => annualMeeting(ctx)]);
-  opts.push(['任免職位', () => appointMenu(ctx)], ['門派方針', () => policyMenu(ctx)], ['門派近況', () => sectNews(ctx)]);
+  opts.push(['任免職位', () => appointMenu(ctx)], ['門派方針', () => policyMenu(ctx)], ['門派產業', () => industryMenu(ctx)], ['門派近況', () => sectNews(ctx)]);
   const i = await ctx.ask('你在掌門的座位坐下。殿裡的香煙繚繞，祖師像靜靜地看著你。', [...opts.map((o) => o[0]), '起身']);
   if (i < opts.length) await opts[i][1]();
   return true;

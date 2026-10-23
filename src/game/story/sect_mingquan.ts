@@ -930,9 +930,11 @@ export const dutyTalk: Script = async (ctx) => {
     });
     await ctx.say(
       ...duty(
-        rate < 1
+        fundOf(st().world).silver <= 0
           ? `公庫見底了，這回的月例${bonus ? '連同加給' : ''}只能先發一半，委屈你了。`
-          : `這是${rankName(s)}的月例${bonus ? '，連同職位的加給' : ''}，收好。`,
+          : `這是${rankName(s)}的月例${bonus ? '，連同職位的加給' : ''}，收好。${
+              (fundOf(st().world).payScale ?? 1) > 1 ? '掌門吩咐，這陣子月例多發兩成。' : (fundOf(st().world).payScale ?? 1) < 1 ? '掌門吩咐，這陣子月例先少發兩成。' : ''
+            }`,
       ),
     );
     await ctx.hero((h) => {

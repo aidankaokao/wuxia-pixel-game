@@ -1,4 +1,5 @@
 import { canglan } from './canglan';
+import { worldConds } from '../conds';
 import { guandao } from './guandao';
 import { gdTeahouse } from './guandao_rooms';
 import { DABUTOU_MAPS } from './dabutou';
@@ -9,6 +10,7 @@ import { LINJIANG_ROOMS } from './linjiang_rooms';
 import { mingquan } from './mingquan';
 import { mqBack, mqSect } from './sect_mingquan';
 import { mqFarm } from './mq_farm';
+import { mqRidge } from './mq_ridge';
 import { SECT_MINGQUAN_ROOMS } from './sect_mingquan_rooms';
 import { buildHomeMap, PlacedPlot, withPlots } from './home';
 import { qingzhu } from './qingzhu';
@@ -35,6 +37,7 @@ export const MAPS: Record<string, MapDef> = {
   [mqSect.id]: mqSect,
   [mqBack.id]: mqBack,
   [mqFarm.id]: mqFarm,
+  [mqRidge.id]: mqRidge,
   ...Object.fromEntries(SECT_MINGQUAN_ROOMS.map((m) => [m.id, m])),
   ...Object.fromEntries(LINJIANG_ROOMS.map((m) => [m.id, m])),
   ...Object.fromEntries(DABUTOU_MAPS.map((m) => [m.id, m])),
@@ -95,7 +98,7 @@ function withProperties(def: MapDef): MapDef {
 function withPatches(def: MapDef): MapDef {
   if (!def.patches?.length) return def;
   const { flags, world } = useGame.getState();
-  const f = { ...flags, today: world.day };
+  const f = { ...flags, ...worldConds(world), today: world.day };
   const on = def.patches.filter((p) => p.when(f));
   if (!on.length) return def;
   const tiles = def.tiles.map((r) => [...r]);

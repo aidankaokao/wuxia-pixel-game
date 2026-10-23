@@ -1,4 +1,5 @@
 import { mountDef } from '../mounts';
+import { worldConds } from '../conds';
 import { newBiz, townOfMap } from '../shop_manage';
 import { ACTS, lifeGroups, lifeNow, type LifeAct, type LifeGroup } from '../life';
 import { lifeIcon } from '../art/lifeicons';
@@ -452,6 +453,8 @@ export class MapScene extends Phaser.Scene {
     // 條件旗標另外加上 festival（今天是第幾個節慶）與 today（今天是第幾日），給節慶擺設、會再長出來的東西用
     const f = {
       ...flags,
+      // 從 world 算出來的條件（例如門派設施的等級，conds.ts）
+      ...worldConds(world),
       festival: festivalIndex(world.day),
       today: world.day,
       xunxiu: isXunxiu(world.day) ? 1 : 0,

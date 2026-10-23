@@ -34,7 +34,7 @@ export const mqFarm: MapDef = {
     '^^.fnnnnnnnnnnnnnnf...fffffffffffff..T^^',
     '^^.ffffffffffffffff...................^^',
     '^^.................T..................^^',
-    '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^',
+    '^^^^^^^^^^EE^^^^^^^^^^^^^^^^^^^^^^^^^^^^',
   ],
   spawn: { x: 1, y: 11, facing: 'right' },
   battleBg: 'mountain',
@@ -51,5 +51,16 @@ export const mqFarm: MapDef = {
   npcs: [
     // 甘伯禾與來幫忙的同門自己過日子（story/life_mingquan.ts）
   ],
-  exits: [{ tiles: [[0, 11], [0, 12]], to: 'mq_back', spawn: { x: 30, y: 11, facing: 'left' } }],
+  exits: [
+    { tiles: [[0, 11], [0, 12]], to: 'mq_back', spawn: { x: 30, y: 11, facing: 'left' } },
+    // 往南翻過坡是南嶺（伐木場、採石場，maps/mq_ridge.ts）
+    { tiles: [[10, 23], [11, 23]], to: 'mq_ridge', spawn: { x: 15, y: 1, facing: 'down' } },
+  ],
+  // 門派產業（4.33）：茶園擴建多開的茶壟、藥圃擴建多闢的藥畦（條件見 story/mq_industry.ts 的 registerConds）
+  patches: [
+    { when: (f) => f.mq_teagarden >= 1, x: 16, y: 9, rows: ['cccccccccc..ccccccc'] },
+    { when: (f) => f.mq_teagarden >= 2, x: 3, y: 9, rows: ['cccccccc'] },
+    { when: (f) => f.mq_herbs >= 1, x: 28, y: 21, rows: ['fgggggg.', 'ffffffff'] },
+    { when: (f) => f.mq_herbs >= 2, x: 23, y: 21, rows: ['fggggggggggg.', 'fffffffffffff'] },
+  ],
 };
