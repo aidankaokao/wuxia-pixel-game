@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "godot:data": "esbuild godot/tools/export_data.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/export_data.mjs --log-level=error --loader:.png=empty && node node_modules/.cache/export_data.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0",

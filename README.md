@@ -75,8 +75,17 @@ npm run build      # 打包到 dist/
 
 開發小技巧：網址加上 `?zoom=1` 可以縮小看到整張地圖；`?map=mq_sect&at=22,22` 直接從指定地圖與位置開始（其他參數見 [CLAUDE.md](CLAUDE.md)）。
 
+## Godot 版（評估中）
+
+正在評估改用 Godot 4 重做畫面：低多邊形、卡通描邊、2.5D 固定俯角。試作品在 `godot/`，有青竹村（跟村民說話、跟陶四和鍾嬸買賣）、三種六角格戰場（平地、河湖、山道）、時辰與下雨。
+
+- 執行：裝好 Godot 4（免費），用編輯器匯入 `godot/project.godot` 後按 F5，或在終端機跑 `/Applications/Godot.app/Contents/MacOS/Godot --path godot`。
+- 操作：方向鍵或 WASD 走路、Shift 跑、E 交談與確認、Q／R 轉鏡頭、滾輪或 Z／X 拉遠近、T 換時辰、Y 下雨、Tab 換場景；戰鬥用滑鼠點。
+- 網頁版的資料改了以後，跑 `npm run godot:data` 重新匯出給 Godot。
+
 ## 技術
 
+- **Godot 4**（評估中的新版本）：低多邊形 3D、卡通描邊（`godot/`）
 - **Phaser 3**：地圖、人物與動畫
 - **React 18**：所有文字介面（對話框、選單、狀態列）
 - **Zustand**：遊戲與介面之間的共用狀態

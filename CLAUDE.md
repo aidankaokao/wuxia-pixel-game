@@ -8,6 +8,7 @@
 - 開發用網址參數：`?zoom=1` 看整張地圖；`?map=canglan&at=15,11` 從指定地圖與位置開始；`?map=world&node=linjiang` 從大地圖的某個節點開始；`?flags=q_bandits:1,bandit_scouts:1` 預設劇情旗標。帶這些參數時會跳過標題畫面、且不自動存檔。開發模式下 `window.__wuxia` 可讀主角位置、NPC 位置與狀態，`__wuxia.battle('dog')` 可直接開打指定的遭遇戰、`__wuxia.warp('qingzhu', 26, 22)` 可瞬間移動、`__wuxia.state().passTime(8)` 可讓時間往前走幾刻（給自動化測試用）。
 - 操作：方向鍵/WASD 移動、Shift 奔跑、E（或 Space/Enter）對話與確認、X/Esc 選單、面對人物時 F／G／R／T／H 切磋／贈禮／請教／交易／雅趣；Ctrl/⌘+S 即時存檔、F9 讀取即時存檔；戰鬥中 Q 切換自動戰鬥。
 - `npm run typecheck`、`npm run build`
+- Godot 版（4.35，正在評估改版）：專案在 `godot/`（Godot 4.3 起，GDScript，Forward+），執行 `/Applications/Godot.app/Contents/MacOS/Godot --path godot`，或用 Godot 編輯器匯入 `godot/project.godot`。資料從網頁版匯出：`npm run godot:data`（`godot/tools/export_data.ts` → `godot/data/*.json`），Godot 只讀這些 JSON，不直接讀 TypeScript。檢查腳本錯誤：`Godot --headless --path godot --quit-after 60 -- --scene=village`（`Parameter "m" is null` 是無畫面模式的雜訊，可以忽略）。自動操作與截圖：`SHOT_DIR=輸出資料夾 Godot --path godot -- --scene=plain "--do=wait:60;click:1,3;shot:a.png;quit"`（指令見 `scripts/dev_shot.gd`，會跳出視窗幾秒）。
 
 ## 與使用者合作的約定
 
@@ -17,6 +18,16 @@
 - 每次改完功能，直接一併更新 CLAUDE.md（新的慣例）、PLAN.md（設計、數值、里程碑）與 README.md（目前進度），不用等使用者提醒。
 
 ## 慣例
+
+### Godot 版（godot/）
+
+- 畫風是低多邊形加卡通描邊：模型全部用程式產生（`scripts/mk.gd` 的方塊、圓柱、圓錐、球、屋頂，成批的同款模型用 `Mk.Batch`／MultiMesh），材質一律用 `Mk.mat(顏色)`（Godot 的卡通明暗）；描邊是鏡頭底下的全畫面後製（`shaders/outline.gdshader`，要 Forward+）。半透明的東西（水、標記、字）會畫在描邊之後，不會被描邊。
+- 人物是 `scripts/chibi.gd` 的 Q 版小人（面向 +Z，`face(方向)` 轉身，`walking` 控制走路動畫），配色照網頁版的人物貼圖名填在 `LOOKS`。
+- 鏡頭 `scripts/cam.gd`：正交、固定俯角，方向鍵要用 `ground_dir` 換成地面方向。
+- 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`，開著時 `ui.busy()` 為真；中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
+- 程式註解、介面文字一樣用繁體中文；GDScript 用 tab 縮排、型別推斷（`:=`）時遇到 Variant 要用 `maxf`／`minf` 這類有型別的函式。
+
+### 網頁版
 
 - 技術：Phaser 3 負責地圖與人物，React 負責所有文字介面（對話、選單、HUD、戰鬥指令），兩邊透過 `src/state/store.ts`（Zustand）溝通。Phaser 裡不畫文字（戰鬥傷害數字用自己畫的像素數字）。
 - 美術全部在 `src/game/art/` 以程式逐像素繪製，不使用外部圖檔（連分頁圖示也是，見 `art/favicon.ts`）。瓦片 16px、人物 16×24，畫面只用整數倍放大。
