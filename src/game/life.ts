@@ -20,7 +20,8 @@ import { isMealTime, isXunxiu } from './time';
 export type LifeAct =
   | 'sleep' | 'eat' | 'class' | 'lead' | 'stake' | 'sword' | 'read' | 'meditate' | 'chat' | 'sweep' | 'water' | 'garden' | 'stroll'
   | 'watch' | 'listen' | 'patrol' | 'guard' | 'spar' | 'shop'
-  | 'boat' | 'fish' | 'mend' | 'stall' | 'play' | 'haul' | 'tea' | 'chess' | 'beg' | 'pick' | 'wash' | 'study' | 'pray';
+  | 'boat' | 'fish' | 'mend' | 'stall' | 'play' | 'haul' | 'tea' | 'chess' | 'beg' | 'pick' | 'wash' | 'study' | 'pray'
+  | 'farm' | 'forge' | 'carve' | 'sew' | 'home';
 
 /** 每件事的名字、頭上的小圖示、在原地走動的範圍、是不是室外 */
 export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number; outdoor?: boolean; busy?: boolean }> = {
@@ -57,6 +58,13 @@ export const ACTS: Record<LifeAct, { name: string; icon: string; wander?: number
   wash: { name: '洗衣洗菜', icon: 'bucket', outdoor: true, busy: true },
   study: { name: '唸書', icon: 'book' },
   pray: { name: '上香', icon: 'incense' },
+  // 青竹村（4.30）
+  farm: { name: '下田', icon: 'sprout', wander: 1, outdoor: true, busy: true },
+  forge: { name: '打鐵', icon: 'hammer', busy: true },
+  carve: { name: '做木工', icon: 'hammer', outdoor: true, busy: true },
+  sew: { name: '做針線', icon: 'needle' },
+  // 醒著、沒事做（下雨天、想做的事沒位子）：在自己的床位那裡歇著
+  home: { name: '在家歇著', icon: '' },
 };
 
 export interface Spot {
@@ -247,7 +255,7 @@ export function lifeNow(g: LifeGroup, w: World, flags: Flags): Record<string, As
     let r = rand(seed, w.day, block, n.id, 'act') * total;
     const act = opts.find(([, v]) => (r -= v) < 0)?.[0] ?? opts[0]?.[0];
     if (!act) {
-      out[n.id] = { act: 'sleep', at: n.home };
+      out[n.id] = { act: 'home', at: n.home };
       continue;
     }
     if (act === 'chat') {
@@ -262,7 +270,7 @@ export function lifeNow(g: LifeGroup, w: World, flags: Flags): Record<string, As
       if (alt) {
         taken.add(alt.id);
         out[n.id] = { act: alt.acts.find((a) => a === 'read' || a === 'meditate' || a === 'stroll')!, at: alt };
-      } else out[n.id] = { act: 'sleep', at: n.home };
+      } else out[n.id] = { act: 'home', at: n.home };
       continue;
     }
     taken.add(s.id);
@@ -317,7 +325,7 @@ export function lifeNow(g: LifeGroup, w: World, flags: Flags): Record<string, As
   for (const n of chatters.filter((c) => !out[c.id])) {
     const alt = g.spots.find((s) => s.acts.includes(wet ? 'read' : 'stroll') && !taken.has(s.id));
     if (alt) taken.add(alt.id);
-    out[n.id] = alt ? { act: wet ? 'read' : 'stroll', at: alt } : { act: 'sleep', at: n.home };
+    out[n.id] = alt ? { act: wet ? 'read' : 'stroll', at: alt } : { act: 'home', at: n.home };
   }
   cache.set(key, out);
   return out;

@@ -35,18 +35,11 @@ export const qzLiu: MapDef = {
   ],
   npcs: [
     {
-      // 天黑後柳村長回到家裡
-      id: 'liu_night', name: '柳承安', sprite: 'elder', x: 5, y: 3, facing: 'down', person: 'liu', night: true,
-    },
-    {
       id: 'fu', name: '老福', sprite: 'servant', x: 7, y: 4, facing: 'left', wander: 1,
       talks: [
         fu('客人請坐。老爺平時都在外頭廣場上跟鄉親們說話，難得回屋。'),
         fu('柳家在青竹村住了五代人了。老太爺那一輩，還出過一位在臨江城開武館的。', '可惜後來……唉，不提了。'),
       ],
-    },
-    {
-      id: 'qinghe', name: '柳青禾', sprite: 'girl', x: 2, y: 2, facing: 'down', wander: 1, person: 'qinghe',
     },
   ],
   exits: [exitTo('qingzhu', 20, 16, 5, 7)],
@@ -73,9 +66,6 @@ export const qzTea: MapDef = {
     { sprite: 'f_deco_plain_1', x: 9, y: 5, lines: [{ text: '一盆青竹，跟茶寮的名字很相配。' }] },
   ],
   npcs: [
-    {
-      id: 'zhong_night', name: '鍾嬸', sprite: 'aunt', x: 5, y: 3, facing: 'down', person: 'zhong', night: true,
-    },
     {
       id: 'ge', work: true, name: '葛先生', sprite: 'storyteller', x: 5, y: 2, facing: 'down',
       talks: [
@@ -145,9 +135,6 @@ export const qzSmithy: MapDef = {
   ],
   npcs: [
     {
-      id: 'shi_night', name: '石岳', sprite: 'smith', x: 5, y: 5, facing: 'up', person: 'shi', night: true,
-    },
-    {
       id: 'xiaohu', name: '石小虎', sprite: 'apprentice', x: 5, y: 3, facing: 'down', wander: 1, person: 'xiaohu',
     },
   ],
@@ -155,8 +142,6 @@ export const qzSmithy: MapDef = {
 };
 
 // ── 王家 ────────────────────────────────────────────────
-
-const wang = by('王嫂');
 
 export const qzWang: MapDef = {
   id: 'qz_wang',
@@ -173,14 +158,6 @@ export const qzWang: MapDef = {
     { sprite: 'f_table_plain_1', x: 5, y: 3, w: 2, lines: [{ text: '桌上擺著幾件縫到一半的小衣裳。' }] },
   ],
   npcs: [
-    {
-      id: 'wangsao', name: '王嫂', sprite: 'lady', x: 3, y: 3, facing: 'down', wander: 1,
-      talks: [
-        wang('噓，小聲點，娃兒好不容易才睡著。'),
-        wang('我家那口子是阿牛，整天在田裡忙。', '他啊，心思全在莊稼上，連娃兒哭都聽不見。'),
-        wang('北邊山上不太平，阿牛上山砍柴，我總要提心吊膽一整天。'),
-      ],
-    },
   ],
   exits: [exitTo('qingzhu', 32, 30, 2, 6)],
 };

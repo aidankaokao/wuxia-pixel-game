@@ -10,7 +10,9 @@ import { gainCraft } from '../crafts';
 import { useGame } from '../../state/store';
 import { playChess } from './arts';
 import { ruanStall } from './biyi';
+import { aniuTalk, kidTalk } from './bandits';
 import { fisherTalk } from './dabutou';
+import { carpenterTalk } from './estate';
 import { northTeaTalk } from './sect_mingquan';
 import { supplierTalk } from './supplier';
 
@@ -26,6 +28,7 @@ import { supplierTalk } from './supplier';
  *   譚大力（白天在東海碼頭扛貨）、殷海客（老水手，喝茶看海）、梅小貝（跟奶奶上香、玩耍）。
  * - 下雨天，室外的事就免了（在家裡，看不到）；夜裡回家（家在地圖外的寫 `_away`，何六睡在城南牆角）。
  * - 兩個人站著聊天時可以湊過去聽（townGossip）：依時事、節慶、你的名聲、你開的店、各地的傳聞。
+ * - 青竹村（4.30，村子、村北、柳宅、茶寮、鐵鋪、王家）：柳承安、鍾嬸、石岳、小石頭、阿牛、杜大樑、陶四、童老根、柳青禾、王嫂、鄒老實。
  * 改成自己過日子的人，地圖檔裡原本的那一份已經拿掉。
  */
 
@@ -49,7 +52,7 @@ function addAff(person: string | undefined, n: number) {
 
 // ── 街頭閒聊 ────────────────────────────────────────────
 
-type Place = 'city' | 'lake' | 'port';
+type Place = 'city' | 'lake' | 'port' | 'village';
 function townGossip(place: Place, a: LifeNpc, b: LifeNpc): Line[][] {
   const w = st().world;
   const f = st().flags;
@@ -79,6 +82,14 @@ function townGossip(place: Place, a: LifeNpc, b: LifeNpc): Line[][] {
   if (place === 'port') {
     out.push([A('黑帆的船昨天又在外海晃了一圈。'), B('船行說這個月的海船都要結伴走了。')]);
     out.push([A('今天潮水大，龐老大的船回得晚。'), B('他那條老船，也該修修了。')]);
+  }
+  if (place === 'village') {
+    const f2 = st().flags;
+    if (!f2.bandit_boss) out.push([A('北邊山上的山賊又下來搶了兩頭豬。'), B('村長說要請能人來，可誰敢上斷崖寨？')]);
+    else out.push([A('山賊沒了，今年上山砍柴總算不用提心吊膽。'), B('多虧了那位少俠。')]);
+    out.push([A('葛先生昨天說聽濤閣那一段，說到一半就停了，氣死人。'), B('他就是要你今天再去喝茶。')]);
+    out.push([A('今年的秧苗長得好，阿牛說秋天要多收兩擔。'), B('那你可得幫他割稻，他一個人哪割得完。')]);
+    out.push([A('陶四說臨江城的糖一斤又漲了兩文。'), B('那過年的年糕得少放點糖了。')]);
   }
   return out;
 }
@@ -429,4 +440,132 @@ const PORT_NPCS: LifeNpc[] = [
 
 registerLife({ id: 'dabutou', maps: [BP, BPI, SHRINE], spots: PORT_SPOTS, npcs: PORT_NPCS, hooks: { listen: listenWith('port', PORT_NPCS) } });
 
-setOutdoorMaps([S, N, BY, BP]);
+// ── 青竹村（4.30） ──────────────────────────────────────
+
+const QZ = 'qingzhu';
+const QN = 'qz_north';
+const LIU = 'qz_liu';
+const TEA = 'qz_tea';
+const SMITH = 'qz_smithy';
+const WANG = 'qz_wang';
+
+const VILLAGE_SPOTS: LifeSpot[] = [
+  // 聊天
+  spot('v_chat1a', QZ, 24, 20, 'right', ['chat'], 'v_chat1b'), spot('v_chat1b', QZ, 25, 20, 'left', ['chat'], 'v_chat1a'),
+  spot('v_chat2a', QZ, 21, 23, 'right', ['chat'], 'v_chat2b'), spot('v_chat2b', QZ, 22, 23, 'left', ['chat'], 'v_chat2a'),
+  spot('v_chat3a', QZ, 34, 24, 'right', ['chat'], 'v_chat3b'), spot('v_chat3b', QZ, 35, 24, 'left', ['chat'], 'v_chat3a'),
+  spot('v_chat4a', QN, 12, 12, 'right', ['chat'], 'v_chat4b'), spot('v_chat4b', QN, 13, 12, 'left', ['chat'], 'v_chat4a'),
+  // 散步、玩耍
+  spot('v_walk1', QZ, 18, 30, 'down', ['stroll']), spot('v_walk2', QZ, 24, 8, 'down', ['stroll']), spot('v_walk3', QZ, 40, 21, 'down', ['stroll']),
+  spot('v_play1', QZ, 25, 23, 'down', ['play']), spot('v_play2', QZ, 19, 21, 'down', ['play']), spot('v_play3', QZ, 27, 28, 'down', ['play']),
+  // 下田、洗衣、釣魚
+  spot('v_farm1', QZ, 9, 33, 'down', ['farm']), spot('v_farm2', QZ, 12, 32, 'down', ['farm']), spot('v_farm3', QZ, 7, 34, 'down', ['farm']),
+  spot('v_farm4', QN, 8, 10, 'right', ['farm']),
+  spot('v_wash1', QZ, 22, 19, 'right', ['wash']), spot('v_wash2', QN, 16, 6, 'right', ['wash']),
+  spot('v_fish1', QZ, 37, 31, 'right', ['fish']), spot('v_fish2', QZ, 37, 23, 'right', ['fish']),
+  // 茶寮喝茶聽書
+  spot('v_tea1', TEA, 4, 3, 'left', ['tea']), spot('v_tea2', TEA, 6, 3, 'right', ['tea']), spot('v_tea3', TEA, 3, 4, 'up', ['tea']), spot('v_tea4', TEA, 7, 4, 'up', ['tea']),
+];
+
+const VILLAGE_NPCS: LifeNpc[] = [
+  {
+    id: 'liu', name: '柳承安', sprite: 'elder', person: 'liu',
+    home: at(LIU, 5, 3, 'down'), seat: at(LIU, 6, 2, 'down'),
+    wake: T('卯'), sleep: T('戌'),
+    // 上午在家門口跟鄉親說話，午後巡田
+    duty: (t, w) => (inT(t, T('辰'), T('午')) ? { act: 'stroll', at: at(QZ, 20, 17, 'down') } : !wet(w) && inT(t, T('未'), T('申')) ? { act: 'stroll', at: at(QZ, 18, 30, 'down') } : null),
+    likes: { tea: 3, chat: 2 },
+  },
+  {
+    id: 'zhong', name: '鍾嬸', sprite: 'aunt', person: 'zhong',
+    home: at(TEA, 5, 3, 'down'), seat: at(TEA, 5, 4, 'up'),
+    wake: T('卯'), sleep: T('戌'),
+    // 白天在門口擺茶攤（下雨就回茶寮裡）
+    duty: (t, w) => (inT(t, T('辰'), T('酉')) ? { act: wet(w) ? 'tea' : 'stall', at: wet(w) ? at(TEA, 5, 3, 'down') : at(QZ, 32, 17, 'down') } : null),
+    likes: { chat: 1 },
+  },
+  {
+    id: 'shi', name: '石岳', sprite: 'smith', person: 'shi',
+    home: at(SMITH, 5, 5, 'up'), seat: at(SMITH, 4, 4, 'down'),
+    wake: T('卯'), sleep: T('戌'),
+    // 上午在鋪裡打鐵，午後在門口招呼客人
+    duty: (t, w) => (inT(t, T('辰'), T('午')) ? { act: 'forge', at: at(SMITH, 2, 2, 'up') } : inT(t, T('未'), T('酉')) ? (wet(w) ? { act: 'forge', at: at(SMITH, 2, 2, 'up') } : { act: 'stall', at: at(QZ, 14, 19, 'down') }) : null),
+    likes: { tea: 2, chat: 1 },
+  },
+  {
+    id: 'kid', name: '小石頭', sprite: 'child',
+    home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
+    wake: T('辰'), sleep: T('酉', 4),
+    likes: { play: 5, fish: 1 },
+    script: kidTalk,
+  },
+  {
+    id: 'aniu', name: '阿牛', sprite: 'farmer',
+    // 阿牛是王嫂的丈夫，夜裡回王家
+    home: at(WANG, 7, 2, 'down'), seat: at(WANG, 4, 3, 'right'),
+    wake: T('卯'), sleep: T('戌'),
+    duty: (t, w) => (!wet(w) && (inT(t, T('卯'), T('午')) || inT(t, T('未'), T('酉'))) ? { act: 'farm', at: at(QZ, 9, 33, 'down') } : null),
+    likes: { tea: 1, chat: 1 },
+    script: supplierTalk('qz_farm', aniuTalk),
+  },
+  {
+    id: 'du', name: '杜大樑', sprite: 'carpenter',
+    home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
+    wake: T('卯'), sleep: T('戌'),
+    duty: (t, w) => (!wet(w) && inT(t, T('辰'), T('申')) && !inT(t, T('午'), T('未')) ? { act: 'carve', at: at(QZ, 17, 19, 'down') } : null),
+    likes: { tea: 2, chat: 1 },
+    script: carpenterTalk,
+  },
+  {
+    id: 'tao', name: '陶四', sprite: 'peddler', person: 'tao',
+    home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
+    wake: T('卯'), sleep: T('戌'),
+    // 旬休進城趕集補貨
+    duty: (t, w) => (isXunxiu(w.day) ? away('haul') : inT(t, T('辰'), T('申')) ? { act: 'stall', at: at(QZ, 32, 22, 'left') } : null),
+    likes: { tea: 2, chat: 2 },
+  },
+  {
+    id: 'tong', name: '童老根', sprite: 'fisher',
+    home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
+    wake: T('卯'), sleep: T('戌'),
+    duty: (t, w) => (!wet(w) && inT(t, T('辰'), T('申')) && !inT(t, T('午'), T('未')) ? { act: 'fish', at: at(QZ, 37, 31, 'right') } : null),
+    likes: { tea: 2, chat: 1 },
+    talks: {
+      fish: [by('童老根')('噓——別驚了魚。', '雲水河的魚，要心靜才釣得到。練武，其實也是同一個道理。'), by('童老根')('碧漪湖那邊的秦老漢，釣魚的本事比我強。你要學，找他去。')],
+      default: [by('童老根')('人老了，除了釣魚，也沒什麼別的嗜好囉。')],
+    },
+  },
+  {
+    id: 'qinghe', name: '柳青禾', sprite: 'girl', person: 'qinghe',
+    home: at(LIU, 2, 2, 'down'), seat: at(LIU, 3, 4, 'left'),
+    wake: T('卯'), sleep: T('戌'),
+    // 上午在家做針線
+    duty: (t) => (inT(t, T('辰'), T('午')) ? { act: 'sew', at: at(LIU, 2, 2, 'down') } : null),
+    likes: { wash: 1, chat: 2, tea: 1, stroll: 1 },
+  },
+  {
+    id: 'wangsao', name: '王嫂', sprite: 'lady',
+    home: at(WANG, 3, 2, 'down'), seat: at(WANG, 7, 3, 'left'),
+    wake: T('卯'), sleep: T('戌'),
+    // 一早到井邊打水洗衣，其餘時候多半在家顧娃兒
+    duty: (t, w) =>
+      !wet(w) && inT(t, T('辰'), T('巳')) ? { act: 'wash', at: at(QZ, 22, 19, 'right') } : inT(t, T('巳'), T('申')) ? { act: 'sew', at: at(WANG, 5, 4, 'up') } : null,
+    likes: { chat: 1 },
+    talks: {
+      default: [by('王嫂')('噓，小聲點，娃兒好不容易才睡著。'), by('王嫂')('我家那口子是阿牛，整天在田裡忙。', '他啊，心思全在莊稼上，連娃兒哭都聽不見。'), by('王嫂')('北邊山上不太平，阿牛上山砍柴，我總要提心吊膽一整天。')],
+      wash: [by('王嫂')('趁娃兒睡著，趕緊把衣裳洗了。')],
+    },
+  },
+  {
+    id: 'zou', name: '鄒老實', sprite: 'farmer',
+    home: at(AWAY, 0, 0), seat: at(AWAY, 0, 0),
+    wake: T('卯'), sleep: T('戌'),
+    duty: (t, w) => (!wet(w) && (inT(t, T('卯'), T('午')) || inT(t, T('未'), T('酉'))) ? { act: 'farm', at: at(QN, 8, 10, 'right') } : null),
+    likes: { chat: 1, tea: 1 },
+    talks: { default: [by('鄒老實')('這幾畝地是我家的。今年雨水好，秧苗長得旺。'), by('鄒老實')('往北走就上蒼嵐山了。以前山上有山賊，現在聽說太平多啦。')] },
+  },
+];
+
+registerLife({ id: 'qingzhu', maps: [QZ, QN, LIU, TEA, SMITH, WANG], spots: VILLAGE_SPOTS, npcs: VILLAGE_NPCS, hooks: { listen: listenWith('village', VILLAGE_NPCS) } });
+
+setOutdoorMaps([S, N, BY, BP, QZ, QN]);

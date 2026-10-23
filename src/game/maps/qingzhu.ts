@@ -1,13 +1,12 @@
-import { supplierTalk } from '../story/supplier';
 import { lanternTime } from '../festival';
-import { carpenterTalk } from '../story/estate';
-import { aniuTalk, kidTalk, steleRead, strangerTalk, wellUse } from '../story/bandits';
+import { steleRead, strangerTalk, wellUse } from '../story/bandits';
 import type { MapDef } from './types';
 
 /**
  * 青竹村 —— 遊戲起點。
  * 坐落蒼嵐山腳，雲水河自山中流下，注入村東南的碧漪湖。
  * 北上山口通往蒼嵐山，東過木橋通往臨江城，南接南嶺古道。
+ * 村裡的人自己過日子（story/life_towns.ts），這裡只留青衫客。
  */
 export const qingzhu: MapDef = {
   id: 'qingzhu',
@@ -109,36 +108,6 @@ export const qingzhu: MapDef = {
   ],
 
   npcs: [
-    {
-      id: 'liu', name: '柳承安', sprite: 'elder', x: 20, y: 17, facing: 'down', person: 'liu',
-    },
-    {
-      id: 'zhong', name: '鍾嬸', sprite: 'aunt', x: 32, y: 17, facing: 'down', person: 'zhong',
-    },
-    {
-      id: 'shi', name: '石岳', sprite: 'smith', x: 14, y: 19, facing: 'down', wander: 1, person: 'shi',
-    },
-    {
-      id: 'kid', name: '小石頭', sprite: 'child', x: 25, y: 23, wander: 4, script: kidTalk,
-    },
-    {
-      id: 'qin', name: '秦老漢', sprite: 'fisher', x: 37, y: 31, facing: 'right',
-      talks: [
-        [
-          { speaker: '秦老漢', text: '噓——別驚了魚。' },
-          { speaker: '秦老漢', text: '碧漪湖的魚，要心靜才釣得到。練武，其實也是同一個道理。' },
-        ],
-      ],
-    },
-    {
-      id: 'aniu', name: '阿牛', sprite: 'farmer', x: 9, y: 33, wander: 3, script: supplierTalk('qz_farm', aniuTalk),
-    },
-    {
-      id: 'du', name: '杜大樑', sprite: 'carpenter', x: 17, y: 19, facing: 'down', script: carpenterTalk,
-    },
-    {
-      id: 'tao', name: '陶四', sprite: 'peddler', x: 32, y: 22, facing: 'left', person: 'tao',
-    },
     {
       id: 'stranger', allDay: true, name: '青衫客', sprite: 'swordsman', x: 27, y: 12, facing: 'up', script: strangerTalk,
       when: (f) => !f.stranger,

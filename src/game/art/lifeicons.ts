@@ -159,6 +159,16 @@ const ICONS: Record<string, (c: Ctx) => void> = {
     px(c, 6, 1, 1, 1, '#b8b8c8');
     px(c, 8, 0, 1, 2, '#b8b8c8');
   },
+  hammer: (c) => {
+    for (let i = 0; i < 6; i++) px(c, 4 + i, 9 - i, 1, 1, '#7a5232');
+    px(c, 7, 1, 5, 3, '#8a8e98');
+    px(c, 7, 1, 5, 1, '#c8ccd4');
+  },
+  needle: (c) => {
+    for (let i = 0; i < 7; i++) px(c, 3 + i, 9 - i, 1, 1, '#a8acb4');
+    px(c, 9, 2, 1, 1, '#fbf6e8');
+    for (const [x, y] of [[10, 3], [11, 5], [10, 7], [8, 8], [6, 9]] as const) px(c, x, y, 1, 1, '#c4483c');
+  },
 };
 
 export function lifeIcon(scene: Phaser.Scene, name: string): string {
