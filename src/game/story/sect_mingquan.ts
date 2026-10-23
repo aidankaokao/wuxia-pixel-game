@@ -80,6 +80,7 @@ export const MQ_MEMBERS = {
   bu: { name: '卜大勺', rank: '雜役', age: 52, role: '伙房師傅，管廚房與菜圃', person: 'bu' },
   shao: { name: '邵長庚', rank: '雜役', age: 74, role: '守山人，在後山守了四十年' },
   gan: { name: '甘伯禾', rank: '雜役', age: 61, role: '管後山東坡的茶園、山田與藥圃' },
+  liang: { name: '梁敬亭', rank: '雜役', age: 42, role: '外門管事，掌臨江城泉霧茶莊', note: '常駐臨江城' },
 } satisfies Record<string, SectMember>;
 /** 名字：MQ.ke → 柯靜言 */
 export const MQ = Object.fromEntries(Object.entries(MQ_MEMBERS).map(([k, v]) => [k, v.name])) as Record<keyof typeof MQ_MEMBERS, string>;

@@ -122,7 +122,7 @@ const CITY_SPOTS: LifeSpot[] = [
   spot('n_walk1', N, 26, 25, 'down', ['stroll']), spot('n_walk2', N, 40, 20, 'down', ['stroll']),
   spot('c_shop1', S, 44, 9, 'right', ['shop']), spot('c_shop2', S, 10, 15, 'left', ['shop']), spot('c_shop3', S, 21, 26, 'up', ['shop']),
   // 小孩玩耍
-  spot('c_play1', S, 10, 24, 'down', ['play']), spot('c_play2', S, 27, 20, 'down', ['play']), spot('n_play1', N, 22, 15, 'down', ['play']), spot('n_play2', N, 12, 20, 'down', ['play']),
+  spot('c_play1', S, 10, 24, 'down', ['play']), spot('c_play2', S, 27, 20, 'down', ['play']), spot('n_play1', N, 24, 17, 'down', ['play']), spot('n_play2', N, 12, 20, 'down', ['play']),
   // 井邊洗衣洗菜
   spot('n_wash1', N, 37, 26, 'right', ['wash']), spot('n_wash2', N, 9, 27, 'up', ['wash']), spot('c_wash1', S, 7, 26, 'up', ['wash']),
   // 望江樓喝茶聽書、客棧喝茶

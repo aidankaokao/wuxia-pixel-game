@@ -11,12 +11,15 @@ import { exert, studyable, studyInsight } from './estate';
 import { ensure, FIGHTERS, isLectureDay, isMeetDay, LECTURE, NAME, setRiteHost, WATCH_ORDER, watcherOn } from './life_mingquan';
 import { annualMeeting, atLeast, away, leaderKey, meetingPending, nameOf, postDef, POSTS, powerOf, rankNow, seat, holderOf, type Key, type PostDef } from './mq_order';
 import { MINGQUAN, MQ, MQ_MEMBERS, setChairHook, setPostHook } from './sect_mingquan';
+import { fundOf } from '../sect_fund';
+import { takeTeaRun, TEA_RUN_MIN } from './mq_trade';
 
 /**
  * 職位的差事（4.28）：當上執事、長老、掌門以後，每天多了自己的事。
  *
  * - 找大殿值殿的柯靜言「職位的差事」：
- *   外務執事——每五天領一次山下的採買差事（臨江城買得到的東西），五天內交差，照價報帳再多給一成、貢獻 +6。
+ *   外務執事——每五天領一次山下的差事：製茶房存了茶就送進泉霧茶莊（4.32，mq_trade.ts），不然是採買（臨江城買得到的東西），
+ *   五天內交差，照價報帳再多給一成、貢獻 +6；田租到期時下山找柳承安收租。
  *   巡山執事——每天巡山一圈（一個時辰・體力 20：可能遇上山豬、撿到草藥、幫迷路的樵夫），排今晚誰守夜。
  *   典儀執事——節慶當天主持祭祖；旬休的比武小會找陸鳴川，可以由你唱名主持一場。
  *   傳功長老——逢五申時講武由你主講（到練功房找聽講的人開講），聽的人實力都長一點。
@@ -57,6 +60,8 @@ const ERRANDS = [
   { item: 'cotton_thread', n: 5, where: '錦繡布莊', why: '弟子服要補，棉線不夠了' },
 ];
 const ERRAND_DAYS = 5;
+/** 送茶進城的期限 */
+const TEA_DAYS = 4;
 const errandOf = (w: World) => w.life?.errand;
 /** 能不能領新差事：沒領過、交過差又過了五天、或上一件過期了 */
 const errandReady = (w: World) => {
@@ -67,6 +72,8 @@ const errandReady = (w: World) => {
 async function outerDuty(ctx: EventCtx) {
   const w = st().world;
   const e = errandOf(w);
+  if (e && !e.done && w.day <= e.due && e.kind === 'tea')
+    return void (await ctx.say(...ke(`那 ${e.n} 斤茶送到城北的泉霧茶莊，交給梁敬亭就算交差。第 ${e.due - w.day + 1} 天內送到就行。`)));
   if (e && !e.done && w.day <= e.due) {
     const have = st().hero.items[e.item] ?? 0;
     const def = ITEMS[e.item];
@@ -85,8 +92,16 @@ async function outerDuty(ctx: EventCtx) {
     return contrib(ctx, 6);
   }
   if (!errandReady(w)) return void (await ctx.say(...ke(`這幾天山下沒什麼要辦的。過 ${ERRAND_DAYS - (w.day - (e?.day ?? w.day))} 天再來問。`)));
-  const pick = ERRANDS[(w.day + (w.seed ?? 0)) % ERRANDS.length];
   if (e && !e.done) await ctx.say(...ke('上回那件差事過期了，我另外找人辦了。'));
+  // 製茶房存了夠多的茶：先送茶進城（4.32）
+  const tea = Math.floor(fundOf(w).tea);
+  if (tea >= TEA_RUN_MIN) {
+    if ((await ctx.ask(ke(`製茶房存了 ${tea} 斤茶，勞煩你送進城北的泉霧茶莊，交給梁敬亭上架。${TEA_DAYS} 天內送到。`)[0], ['接下', '先不了'])) !== 0) return;
+    st().updateWorld((x) => takeTeaRun(x, TEA_DAYS));
+    await ctx.say(`（接下送茶的差事：${tea} 斤茶，到臨江城城北的泉霧茶莊）`);
+    return;
+  }
+  const pick = ERRANDS[(w.day + (w.seed ?? 0)) % ERRANDS.length];
   if ((await ctx.ask(ke(`${pick.why}。勞煩你下山到臨江城${pick.where}買${ITEMS[pick.item].name} ${pick.n} 件，${ERRAND_DAYS} 天內帶回來。錢先墊著，回來照價報帳。`)[0], ['接下', '先不了'])) !== 0) return;
   st().updateWorld((x) => void (lifeOf(x).errand = { item: pick.item, n: pick.n, day: x.day, due: x.day + ERRAND_DAYS - 1 }));
   await ctx.say('（接下了外務差事）');
@@ -257,7 +272,7 @@ async function clinic(ctx: EventCtx) {
 // ── 值殿那裡的「職位的差事」 ─────────────────────────────
 
 const POST_NOTE: Record<string, string> = {
-  st_out: '外務執事：每五天領一次山下的採買差事，五天內買齊交來，照價報帳再多一成。',
+  st_out: '外務執事：每五天領一次山下的差事——製茶房存了茶就送進城裡的泉霧茶莊，不然就是採買，五天內買齊交來，照價報帳再多一成；夏租、冬租到期時，下山到青竹村找柳村長收租。',
   st_patrol: '巡山執事：每天巡山一圈；也可以排今晚誰守夜。',
   st_rite: '典儀執事：節慶當天主持祭祖；旬休未時的比武小會，找陸鳴川就能唱名主持一場。',
   elder_teach: '傳功長老：逢五（初五、十五、廿五）申時的講武由你主講，到練功房找聽講的弟子開講。',
@@ -272,7 +287,17 @@ async function postDuty(ctx: EventCtx) {
   const def = postDef(p);
   const opts: [string, () => Promise<void>][] = [];
   const w = st().world;
-  if (p === 'st_out') opts.push([errandOf(w) && !errandOf(w)!.done && w.day <= errandOf(w)!.due ? '交差' : '領山下的差事', () => outerDuty(ctx)]);
+  if (p === 'st_out') {
+    const e = errandOf(w);
+    const busy = e && !e.done && w.day <= e.due;
+    opts.push([busy ? (e.kind === 'tea' ? '送茶的差事' : '交差') : '領山下的差事', () => outerDuty(ctx)]);
+    const due = fundOf(w).rentDue;
+    if (due)
+      opts.push([
+        `${due.season}租的事`,
+        async () => void (await ctx.say(...ke(`青竹村祖田的${due.season}租該收了，照例 ${due.amount} 兩。到村裡找柳村長收，第 ${due.due - w.day + 1} 天內收回來。`, '年成不好的話，佃戶會求減租。減不減，你看著辦——門裡要吃飯，村裡也要過日子。'))),
+      ]);
+  }
   if (p === 'st_patrol') opts.push(['巡山（一個時辰・體力 20）', () => patrol(ctx)], ['排今晚的守夜', () => pickWatch(ctx)]);
   if (p === 'st_rite' && festivalOf(w.day)) opts.push([`主持祭祖（${festivalOf(w.day)}，半個時辰）`, () => festivalRite(ctx)]);
   if (p === 'elder_law') opts.push([`調解吵架（${feuds(w).length} 起）`, () => mediate(ctx)]);
@@ -391,7 +416,10 @@ registerDailyTasks(({ world }) => {
   if (world.sect?.leader && meetingPending(world)) out.push({ text: '今天是年會：到大殿正中的掌門座位主持', state: 'todo' });
   if (p === 'st_out') {
     const e = world.life?.errand;
-    if (e && !e.done && world.day <= e.due) out.push({ text: `外務差事：買${ITEMS[e.item].name} ${e.n} 件交給${MQ.ke}`, state: 'todo', note: `還有 ${e.due - world.day + 1} 天` });
+    if (e && !e.done && world.day <= e.due) {
+      // 送茶進城的差事列在 mq_trade.ts
+      if (e.kind !== 'tea') out.push({ text: `外務差事：買${ITEMS[e.item].name} ${e.n} 件交給${MQ.ke}`, state: 'todo', note: `還有 ${e.due - world.day + 1} 天` });
+    }
     else if (errandReady(world)) out.push({ text: `外務執事：找${MQ.ke}領山下的差事`, state: 'todo' });
   }
   if (p === 'st_patrol') out.push({ text: '巡山一圈（找值殿的柯靜言）', state: done('mq:post:patrol') });

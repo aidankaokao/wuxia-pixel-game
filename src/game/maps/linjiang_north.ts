@@ -4,6 +4,7 @@ import { by, exitTo, room } from './rooms';
 import { readingShelf } from '../story/reading';
 import { practiceAt } from '../story/arts';
 import { seam } from './city';
+import { liangTalk } from '../story/mq_trade';
 import type { MapDef } from './types';
 
 /**
@@ -56,6 +57,8 @@ export const ljNorth: MapDef = {
     { style: 'house2', x: 45, y: 5, name: '民居', door: [{ text: '門關著，裡頭傳出搓麻將的聲音。' }] },
     { style: 'home2', x: 5, y: 11, name: '民居', door: [{ text: '院子裡一隻黃狗衝著你叫了兩聲。' }] },
     { style: 'house', x: 15, y: 11, name: '民居', door: [{ text: '門上貼著一張褪了色的門神。' }] },
+    // 鳴泉劍派的產業：賣後山的泉霧茶（story/mq_trade.ts）
+    { style: 'teahouse', x: 20, y: 11, name: '泉霧茶莊', sign: '泉霧茶莊', flag: '茶', door: [], enter: { to: 'lj_teashop', spawn: { x: 5, y: 6, facing: 'up' } } },
     { style: 'home3', x: 31, y: 11, name: '何家', door: [{ text: '門虛掩著。何婆婆常坐在門口曬太陽。' }, { text: '（何婆婆不在家）' }] },
     { style: 'house', x: 45, y: 11, name: '民居', door: [{ text: '窗台上擺著幾盆蘭花，養得很好。' }] },
     { style: 'house2', x: 5, y: 16, name: '民居', door: [{ text: '屋裡傳出小孩背書的聲音：「人之初，性本善……」' }] },
@@ -99,6 +102,26 @@ export const ljNorth: MapDef = {
 ljNorth.exits.push(...seam(ljNorth.tiles, 'bottom', 'linjiang', { w: 56, h: 38 }, [4, 51]));
 
 /** 臨江書院：城北的書院，經史子集誰都能讀；書案可以練字 */
+/** 泉霧茶莊：鳴泉劍派開的茶莊，外門管事梁敬亭掌櫃 */
+export const ljTeashop: MapDef = {
+  id: 'lj_teashop',
+  name: '泉霧茶莊',
+  subtitle: '臨江城・城北・鳴泉劍派的產業',
+  tiles: room(11, 8, 5),
+  spawn: { x: 5, y: 6, facing: 'up' },
+  theme: 'scholar',
+  buildings: [],
+  props: [
+    { sprite: 'counter', x: 3, y: 1, w: 3, lines: [{ text: '櫃台上一排青瓷茶罐，罐上貼著紅紙：「明前」「雨前」「夏茶」。' }] },
+    { sprite: 'jars', x: 8, y: 1, w: 2, lines: [{ text: '大肚茶甕封著口，甕上蓋著「鳴泉」的朱印。' }] },
+    { sprite: 'f_table_scholar_1', x: 1, y: 4, w: 2, lines: [{ text: '給客人試茶的桌子，茶盤上擺著三只白瓷杯。' }] },
+    { sprite: 'f_table_scholar_1', x: 7, y: 4, w: 2, lines: [{ text: '桌上攤著一本茶帳，字寫得一絲不苟。' }] },
+    { sprite: 'portrait', x: 1, y: 0, w: 2, lines: [{ text: '一幅山水，畫的是鳴泉山，山腰一道白泉。落款是聞松年。' }] },
+  ],
+  npcs: [{ id: 'ljt_liang', work: true, name: '梁敬亭', sprite: 'scholar', x: 4, y: 2, facing: 'down', script: liangTalk }],
+  exits: [exitTo('lj_north', 22, 15, 5, 8)],
+};
+
 export const ljAcademy: MapDef = {
   id: 'lj_academy',
   name: '臨江書院',

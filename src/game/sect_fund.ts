@@ -33,6 +33,10 @@ export interface SectFund {
   crop: { year: number; f: number; care: number };
   /** 上回門派消息提到的公庫好壞（變了才再提） */
   mood?: FundMood;
+  /** 臨江城泉霧茶莊架上的茶（斤）與照採收行情的價值；這個月賣了幾斤 */
+  shop?: { tea: number; teaValue: number; sold: number };
+  /** 該收還沒收的田租（你是外務執事時，要親自下山找柳承安收；過了 due 就由別人代收） */
+  rentDue?: { season: '夏' | '冬'; amount: number; due: number };
 }
 
 const sum = (r: Record<string, number>) => Object.values(r).reduce((a, b) => a + b, 0);
@@ -40,8 +44,8 @@ export const monthIn = (m: FundMonth) => sum(m.in);
 export const monthOut = (m: FundMonth) => sum(m.out);
 
 /** 收入、支出的項目名稱（帳本照這個順序列） */
-export const FUND_IN: Record<string, string> = { tea: '賣茶', rent: '田租', incense: '香火', work: '委託行醫', donate: '捐輸' };
-export const FUND_OUT: Record<string, string> = { pay: '月例', food: '伙食', grain: '買糧', med: '買藥材', upkeep: '修繕雜項' };
+export const FUND_IN: Record<string, string> = { shop: '茶莊', tea: '賣茶', rent: '田租', incense: '香火', work: '委託行醫', donate: '捐輸' };
+export const FUND_OUT: Record<string, string> = { pay: '月例', food: '伙食', grain: '買糧', med: '買藥材', upkeep: '修繕雜項', shopwage: '茶莊工錢' };
 
 /** 月帳的月份名（key 是 year * 12 + month） */
 export const monthLabel = (key: number) => monthText(Math.floor(key / 12), key % 12);
@@ -51,10 +55,10 @@ export const monthKey = (day: number) => {
   return d.year * 12 + d.month;
 };
 
-/** 這一門派的公庫（還沒有就照開局的家底建一份） */
+/** 這一門派的公庫（還沒有就照開局的家底建一份；舊存檔補上茶莊） */
 export function fundOf(w: World): SectFund {
   const ls = (w.life ??= { members: {}, news: [] });
-  return (ls.fund ??= {
+  const f = (ls.fund ??= {
     silver: 5000,
     grain: 120,
     tea: 0,
@@ -64,6 +68,8 @@ export function fundOf(w: World): SectFund {
     books: [],
     crop: { year: dateOf(w.day).year, f: 1, care: 0 },
   });
+  f.shop ??= { tea: 20, teaValue: 100, sold: 0 };
+  return f;
 }
 
 /** 記一筆帳：收入加進公庫、支出從公庫扣 */

@@ -149,8 +149,8 @@ export interface LifeState {
   ranks?: Record<string, { rank?: string; role?: string }>;
   /** 上次開年會是第幾年 */
   meetingYear?: number;
-  /** 外務執事的差事：買什麼、幾件、哪天前交（4.28） */
-  errand?: { item: string; n: number; day: number; due: number; done?: boolean };
+  /** 外務執事的差事：買什麼、幾件、哪天前交（4.28）；送茶進城（4.32）時 item 是 'tea'、n 是斤數、value 是這批茶的行情 */
+  errand?: { item: string; n: number; day: number; due: number; done?: boolean; kind?: 'buy' | 'tea'; value?: number };
   /** 巡山執事排的守夜：哪一晚、誰 */
   watchPick?: { day: number; who: string };
   /** 掌門定的門派方針：重武、守成（預設）、寬和 */

@@ -94,6 +94,7 @@ export const ITEMS: Record<string, ItemDef> = {
   dahuan_dan: { name: '大還丹', category: '藥品', icon: 'pill', desc: '回春堂的鎮店之寶，一顆就能把人從鬼門關拉回來。回復氣血 200、內力 60。', hp: 200, qi: 60, price: 120 },
   yangqi_wan: { name: '養氣小丸', category: '藥品', icon: 'pill', desc: '門裡藥房自製的小藥丸，提神養氣。回復體力 30。', stamina: 30, price: 15 },
   tea: { name: '竹葉清茶', category: '藥品', icon: 'tea', desc: '鍾嬸親手泡的茶，清心寧神。回復內力 30。', qi: 30, price: 12 },
+  quanwu: { name: '泉霧茶', category: '藥品', icon: 'tea', desc: '鳴泉山後山東坡的茶，泉水澆出來的，香氣清冽。回復內力 50、體力 10。', qi: 50, stamina: 10, price: 24 },
   yunwu: { name: '雲霧茶', category: '藥品', icon: 'tea', desc: '高山雲霧間採的好茶，入口回甘。回復內力 60。', qi: 60, price: 30 },
   herb: { name: '止血草', category: '雜物', icon: 'herb', desc: '常見的草藥，可以拿到藥爐煉成金創藥。', price: 6 },
   boar_meat: { name: '山豬肉', category: '雜物', icon: 'meat', desc: '一大塊山豬肉。可以賣錢，也可以在自家灶台燉來吃。', price: 16 },

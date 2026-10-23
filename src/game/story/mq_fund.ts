@@ -5,7 +5,7 @@ import { lifeGroups, type Assign } from '../life';
 import { by } from '../maps/rooms';
 import { inSect, roster } from '../sect';
 import { book, fundMood, fundOf, monthKey, payRate, teaSeason, type FundMood, type SectFund } from '../sect_fund';
-import { dateOf, festivalOf, onNewDay } from '../time';
+import { dateOf, festivalOf, isXunxiu, onNewDay } from '../time';
 import { useGame } from '../../state/store';
 import type { WorkKind } from '../art/work';
 import { exert, STAMINA } from './estate';
@@ -17,10 +17,12 @@ import './mq_order';
 /**
  * 鳴泉劍派的公庫（4.31）：門派要養活自己。
  *
- * - 收入：後山東坡的茶園（泉霧茶，明前、雨前最值錢，韋季安每逢初九、十九、廿九下山時帶去賣）、
- *   山下祖田的田租（六月初一夏租、十月初一冬租，看年成）、香客的香火錢、同門接委託與蘇長老行醫的謝禮、你的捐輸。
+ * - 收入：後山東坡的茶園（泉霧茶，明前、雨前最值錢）——韋季安每逢初九、十九、廿九把製茶房的茶送進臨江城的
+ *   泉霧茶莊（4.32），茶莊每天零賣幾斤，比整批賣給茶行多五成，架上擺不下的才整批賣；
+ *   青竹村祖田的田租（六月初一夏租、十月初一冬租，看年成；你是外務執事就要親自下山找柳承安收）、
+ *   香客的香火錢、同門接委託與蘇長老行醫的謝禮、你的捐輸。
  * - 支出：月例（照名冊上每個人的位階，每天攤一份；你的月例領的時候才記）、伙食、存糧不夠時買糧、
- *   藥材不夠時買藥、修繕雜項。
+ *   藥材不夠時買藥、修繕雜項、茶莊工錢。
  * - 山田：水田五月初十夏收麥、九月初一秋收稻，藥圃每天長一點（冬天幾乎不長）；
  *   甘伯禾照管，你可以找他幫忙（採茶、下田、照料藥圃），一天兩回。下田的照料讓今年收成多一成到兩成。
  * - 公庫寬裕、吃緊、見底會影響同門長進（sect_fund.ts 的 fundGrowth）；見底時月例只發一半。
@@ -51,8 +53,12 @@ const HERB_USE = 1;
 const HARVEST = { summer: { month: 4, date: 10, grain: 60 }, autumn: { month: 8, date: 1, grain: 200 } };
 /** 田租（兩，乘上年成） */
 const RENT = { summer: { month: 5, date: 1, silver: 3000 }, winter: { month: 9, date: 1, silver: 6200 } };
+/** 外務執事收租的期限（天） */
+const RENT_DAYS = 10;
+/** 泉霧茶莊：架上最多擺幾斤、一天平均賣幾斤、零賣比整批賣多幾成、夥計與掌櫃一天的工錢 */
+export const SHOP = { cap: 150, demand: 5, retail: 1.5, wage: 2 };
 /** 能接委託的人一天平均帶回多少（兩） */
-const WORK_PER_HEAD = 0.9;
+const WORK_PER_HEAD = 0.8;
 /** 你幫忙一回：採茶多幾斤、照料加幾成收成、藥圃多幾份；一天最多幾回 */
 const HELP = { tea: 3, care: 0.01, careMax: 0.2, herb: 3, perDay: 2, contrib: 2 };
 
@@ -85,6 +91,33 @@ function news(w: World, text: string) {
   ls.news = [...ls.news, { day: w.day, text, who: [] }].slice(-20);
 }
 
+/** 你現在是不是外務執事（收租、送茶的差事落在你身上） */
+export const heroOut = (w: World) => w.sect?.id === 'mingquan' && w.sect.post === 'st_out' && !w.sect.leader;
+
+/** 茶莊賣掉幾斤（最多賣到架上沒有）；回傳賣了幾斤、得了幾兩 */
+export function shopSell(f: SectFund, want: number): { n: number; silver: number } {
+  const shop = f.shop!;
+  const n = Math.min(want, shop.tea);
+  if (n <= 0) return { n: 0, silver: 0 };
+  const v = (shop.teaValue / shop.tea) * n;
+  shop.tea -= n;
+  shop.teaValue -= v;
+  shop.sold += n;
+  book(f, 'in', 'shop', v * SHOP.retail);
+  return { n, silver: v * SHOP.retail };
+}
+
+/** 收下田租（cut 是減免幾成，0–1） */
+export function collectRent(w: World, cut: number): number {
+  const f = fundOf(w);
+  const due = f.rentDue;
+  if (!due) return 0;
+  const got = Math.round(due.amount * (1 - cut));
+  book(f, 'in', 'rent', got);
+  delete f.rentDue;
+  return got;
+}
+
 const MOOD_NEWS: Partial<Record<FundMood, string>> = {
   rich: '公庫寬裕，卜大勺的伙食裡多了肉',
   tight: '公庫吃緊，柯靜言說這陣子什麼都要省著用',
@@ -101,6 +134,7 @@ export function settleFund(w: World, rand: () => number = Math.random) {
   if (monthKey(w.day) !== f.month.key) {
     f.books = [...f.books, { ...f.month, silver: Math.round(f.silver) }].slice(-12);
     f.month = { key: monthKey(w.day), in: {}, out: {} };
+    if (f.shop) f.shop.sold = 0;
   }
   // 換年：擲今年的年成
   if (f.crop.year !== d.year) f.crop = { year: d.year, f: 0.8 + rand() * 0.35, care: 0 };
@@ -140,21 +174,43 @@ export function settleFund(w: World, rand: () => number = Math.random) {
       f.grain += got;
       news(w, `山田的${k === 'summer' ? '麥子' : '稻子'}收了，入倉 ${got} 石`);
     }
-  // 田租
+  // 田租：你是外務執事就等你下山收（十天內），否則照常收進來
   for (const [k, r] of Object.entries(RENT))
     if (d.month === r.month && d.date === r.date) {
-      const got = Math.round(r.silver * f.crop.f);
-      book(f, 'in', 'rent', got);
-      news(w, `山下的佃戶送來${k === 'summer' ? '夏' : '冬'}租 ${got} 兩${f.crop.f < 0.9 ? '（年成不好，少收了些）' : ''}`);
+      const season = k === 'summer' ? '夏' : '冬';
+      const amount = Math.round(r.silver * f.crop.f);
+      if (heroOut(w)) {
+        f.rentDue = { season, amount, due: w.day + RENT_DAYS - 1 };
+        news(w, `${season}租該收了，外務執事要下山到青竹村找柳承安收租`);
+      } else {
+        book(f, 'in', 'rent', amount);
+        news(w, `青竹村的佃戶送來${season}租 ${amount} 兩${f.crop.f < 0.9 ? '（年成不好，少收了些）' : ''}`);
+      }
     }
-  // 初九、十九、廿九：韋季安下山時把茶帶去賣
+  if (f.rentDue && w.day > f.rentDue.due) {
+    book(f, 'in', 'rent', f.rentDue.amount);
+    news(w, `${f.rentDue.season}租拖著沒收，${MQ.wei}代外務執事下山收了 ${f.rentDue.amount} 兩`);
+    delete f.rentDue;
+  }
+  // 初九、十九、廿九：韋季安下山時把製茶房的茶送進城裡的茶莊；茶莊架上擺不下的整批賣給茶行
+  const shop = f.shop!;
   if (d.date % 10 === 9 && f.tea >= 1) {
-    const got = Math.round(f.teaValue * (0.9 + rand() * 0.2));
-    book(f, 'in', 'tea', got);
-    news(w, `${MQ.wei}下山賣了 ${Math.round(f.tea)} 斤茶，得銀 ${got} 兩`);
+    shop.tea += f.tea;
+    shop.teaValue += f.teaValue;
+    news(w, `${MQ.wei}把 ${Math.round(f.tea)} 斤茶送進臨江城的泉霧茶莊`);
     f.tea = 0;
     f.teaValue = 0;
   }
+  if (shop.tea > SHOP.cap) {
+    const n = shop.tea - SHOP.cap;
+    const v = (shop.teaValue / shop.tea) * n;
+    book(f, 'in', 'tea', v * (0.9 + rand() * 0.2));
+    shop.tea -= n;
+    shop.teaValue -= v;
+  }
+  // 茶莊零賣：一天幾斤（旬休趕集、節慶多），比整批賣給茶行多五成；夥計工錢照付
+  shopSell(f, SHOP.demand * (0.6 + rand() * 0.8) * (isXunxiu(w.day) ? 1.8 : 1) * (festivalOf(w.day) ? 1.5 : 1));
+  book(f, 'out', 'shopwage', SHOP.wage);
   // 公庫好壞變了，門派裡會傳開
   const mood = fundMood(f);
   if (f.mood && mood !== f.mood) {

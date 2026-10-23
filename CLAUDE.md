@@ -8,6 +8,7 @@
 - 開發用網址參數：`?zoom=1` 看整張地圖；`?map=canglan&at=15,11` 從指定地圖與位置開始；`?map=world&node=linjiang` 從大地圖的某個節點開始；`?flags=q_bandits:1,bandit_scouts:1` 預設劇情旗標。帶這些參數時會跳過標題畫面、且不自動存檔。開發模式下 `window.__wuxia` 可讀主角位置、NPC 位置與狀態，`__wuxia.battle('dog')` 可直接開打指定的遭遇戰、`__wuxia.warp('qingzhu', 26, 22)` 可瞬間移動、`__wuxia.state().passTime(8)` 可讓時間往前走幾刻（給自動化測試用）。
 - 操作：方向鍵/WASD 移動、Shift 奔跑、E（或 Space/Enter）對話與確認、X/Esc 選單、面對人物時 F／G／R／T／H 切磋／贈禮／請教／交易／雅趣；Ctrl/⌘+S 即時存檔、F9 讀取即時存檔；戰鬥中 Q 切換自動戰鬥。
 - `npm run typecheck`、`npm run build`
+- 3D／2.5D 試作品（4.34）：開發伺服器開 http://localhost:5180/proto/（`proto/index.html` + `src/proto/`，three.js；網址參數 `?view=25d|3d&look=normal|toon&scene=village|world|battle|plain|river&time=0-3&weather=clear|rain|snow|fog`；風格只留低多邊形，畫風（一般、卡通描邊；預設卡通描邊）在 `src/proto/look.ts`，不想被描邊的物件標 `userData.noOutline`；對話框與商店在 `src/proto/ui.ts`）。試作品只讀遊戲本體的資料，不改它；要載入地圖或劇情時先 `import '../game/maps/index'`（直接載入 life_towns 等劇情檔會碰上循環引用）。
 
 ## 與使用者合作的約定
 
@@ -49,6 +50,7 @@
 - 門派秩序（鳴泉）：位階四級（記名 0、正式 1、內門 2、真傳 3；改位階時注意寫死的索引，存檔 v7 已把舊真傳移到 3）。年齡、職位、年會選舉、收徒、傳位在 `story/mq_order.ts`（`ageNow`、`heroAge`、`vigor`、`POSTS`、`holderOf`、年會 `setWenHook`、授徒考驗 `setTeachExamHook`、`SectDef.stipendBonus`／`heroRankNow`／`heroRoleNow`）；職位與位階的變化存在 `world.life.posts`／`ranks`，徒弟記在 `world.life.members[id].master = 'hero'`。sect_mingquan.ts 不能直接 import mq_order（會循環），要用鉤子。年會當天的站位在 `life_mingquan.ts` 的 `ANNUAL_SPOTS`（新增日常人物時一併排位置）；職位選舉用的實力一律走 `powerOf`（`world.life` 還沒記時退回日常人物的底值）。
 - 職位的差事與掌門事務在 `story/mq_posts.ts`（值殿的「職位的差事」用 `setPostHook`、掌門座位用 `setChairHook`、典儀主持比武用 `life_mingquan.ts` 的 `setRiteHost`）；同一天只能做一次的差事記在 `world.daily`（`mq:post:*`）。年會由現任掌門主持（`leaderKey`；你是掌門就在掌門座位），新職位要在 `POSTS`、`POST_NOTE` 與 `postDuty` 一起加。掌門的門派方針 `world.life.policy` 在 `life_mingquan.ts` 的 `onNewDay` 生效。
 - 門派公庫（4.31）：核心在 `src/game/sect_fund.ts`（`world.life.fund`；記帳一律用 `book(f, 'in'|'out', 項目, 兩)`，項目名稱在 `FUND_IN`／`FUND_OUT`，新的收支項目要加進去），鳴泉的每日結算、山田的活兒（甘伯禾）在 `story/mq_fund.ts`（數值在檔案開頭）。發給你的錢（月例等）要從公庫扣（`payRate` 見底只發一半）；`life_mingquan.ts` 不能 import mq_fund（會循環），甘伯禾的對話用 `setFarmTalk` 鉤子。改了收支數值要重跑四年模擬（`advance` 照常跑，300 局）：第二年起收支大致打平、不見底。
+- 門派在山下的產業（4.32）在 `story/mq_trade.ts`：臨江城泉霧茶莊（梁敬亭；零賣一律用 `mq_fund.ts` 的 `shopSell`，數值在 `SHOP`）、青竹村祖田的收租（`fund.rentDue`，柳承安身上的選項掛在青竹村那群人的 `hooks.extra`，所以 mq_trade 要先 import life_towns）、外務執事的送茶差事（`life.errand.kind === 'tea'`）。`heroOut(w)` 判斷你是不是外務執事。
 - 城裡、漁村、港口、青竹村自己過日子的人在 `story/life_towns.ts`（臨江城、碧漪湖、大埠頭、青竹村各一群，由 `maps/index.ts` 載入）。一個人只能屬於一群；同名的人不要在別的地圖再放一份（例如秦老漢只在碧漪湖）。醒著沒事做的人排成 `home`（在家歇著，沒有圖示），只有真的睡覺才用 `sleep`。新地方要讓人自己過日子：照這個檔的寫法註冊一群（家在地圖外就用 `_away`；夜裡睡在路邊的人 `home` 直接放在地圖上），市井的事情用 `stall`、`beg`、`tea`、`chess`、`wash`、`boat`、`mend`、`haul`、`play`、`pray`、`study`、`farm`、`forge`、`carve`、`sew` 等（`life.ts` 的 `ACTS`，新事情要在 `art/lifeicons.ts` 補圖示），閒聊的內容在 `townGossip` 加；拿掉地圖檔裡原本那一份，再跑 check-life 確認地點走得到。
 - 用餐：午時、酉時（`isMealTime`）。要讓人到飯廳吃飯，就在飯廳加一份 `meal: 'eat'` 的 NPC，並把他平常那幾份標 `meal: 'away'`；人物檔案可填 `meal` 台詞，新的飯廳地圖加進 `story/social.ts` 的 `DINING`。
 - 商店面板（`ctx.panel({ kind: 'shop', ... })`）：`stock` 賣的東西、`sellRate` 收購價比例（預設一半）、`buys` 只收哪些、`sellOnly` 只收不賣。臨江城的店家在 `story/linjiang_city.ts`，鏢局、縣衙懸賞、漕幫在 `story/linjiang_jianghu.ts`（懸賞目標是地圖上 `when: f.lj_b_<id> === 1` 的 NPC）。

@@ -97,6 +97,8 @@ export const qingzhu: MapDef = {
     { sprite: 'sign', x: 28, y: 9, lines: [{ text: '北 ── 蒼嵐山\n山路險峻，日落後勿行。' }] },
     { sprite: 'sign', x: 36, y: 19, lines: [{ text: '東 ── 臨江城　三十里' }] },
     { sprite: 'stele', x: 5, y: 9, script: steleRead },
+    // 村西南的大田是鳴泉劍派的祖田，佃給村裡人種（story/mq_trade.ts）
+    { sprite: 'sign', x: 17, y: 31, lines: [{ text: '「鳴泉劍派祖田」\n佃戶：阿牛、鄒老實等\n夏租六月初一、冬租十月初一，交柳村長代收。' }] },
     { sprite: 'stall', x: 30, y: 22, w: 2, lines: [{ text: '貨郎的攤子，擺滿了傷藥、茶葉和雜貨。' }] },
   ],
 
