@@ -12,7 +12,7 @@ const GROUND := {":": "c9a46a", "E": "c9a46a", "=": "b9b3a4", "n": "8a6040", "c"
 
 ## 顧攤子的人：站哪、面向哪、賣什麼（貨郎照網頁版陶四的貨）
 const STALLS := {
-	"tao": {"x": 32, "y": 22, "face": Vector3(-1, 0, 0), "title": "陶四的貨郎攤", "stock": ["jinchuang", "tea", "herb", "rice", "flour", "egg", "greens", "sugar"], "greet": "走過路過不要錯過！傷藥、茶葉、草藥，樣樣都有。獸皮、獸肉也收！"},
+	"tao": {"x": 32, "y": 22, "face": Vector3(-1, 0, 0), "title": "陶四的貨郎攤", "stock": ["jinchuang", "tea", "herb", "rice", "flour", "egg", "tofu", "greens", "radish", "redbean", "sugar", "rod"], "greet": "走過路過不要錯過！傷藥、茶葉、草藥，樣樣都有。獸皮、獸肉也收！"},
 	"zhong": {"x": 32, "y": 17, "face": Vector3(0, 0, 1), "title": "鍾嬸的茶攤", "stock": ["tea", "egg"], "greet": "來啦！坐下喝碗茶歇歇腳？"},
 }
 ## 精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）；有樣式設定的都用精細版
@@ -708,6 +708,45 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.75, 0.15, 0.4), Color("6a6a66"), Vector3(0, 0.07, 0)))
 		"bulletin":
 			FineProps.bulletin(g)
+		"ripple":
+			# 釣點：水面上一圈圈漣漪，中間一枚紅白浮標（擺在水格上，人站在岸邊對著它）
+			for k in 2:
+				var ring := MeshInstance3D.new()
+				var tm := TorusMesh.new()
+				tm.inner_radius = 0.18 + k * 0.16
+				tm.outer_radius = 0.21 + k * 0.16
+				ring.mesh = tm
+				var rm := StandardMaterial3D.new()
+				rm.albedo_color = Color(1, 1, 1, 0.45 - k * 0.15)
+				rm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				rm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+				ring.material_override = rm
+				ring.scale = Vector3(1, 0.2, 1)
+				ring.position.y = -0.18
+				g.add_child(ring)
+			g.add_child(Mk.ball(0.07, Color("d0503a"), Vector3(0, -0.12, 0), 8))
+			g.add_child(Mk.cyl(0.015, 0.015, 0.16, Color("f4ead6"), Vector3(0, -0.02, 0), 5))
+		"woodpile":
+			# 柴堆：一落劈好的柴、一個木墩上插著斧頭
+			var wd := Color("9a6a3a")
+			for i in 3:
+				for j in 3 - i:
+					var lg := Mk.cyl(0.08, 0.08, 0.5, wd.darkened(0.08 * ((i + j) % 2)), Vector3(-0.25 + j * 0.17 + i * 0.085, 0.08 + i * 0.15, -0.15), 6)
+					lg.rotation.x = PI / 2.0
+					g.add_child(lg)
+			g.add_child(Mk.cyl(0.2, 0.22, 0.3, Color("7a5232"), Vector3(0.28, 0.15, 0.18), 10))
+			var axe := Mk.box(Vector3(0.04, 0.45, 0.04), Color("6a4428"), Vector3(0.28, 0.48, 0.18))
+			axe.rotation.z = 0.35
+			g.add_child(axe)
+			g.add_child(Mk.box(Vector3(0.16, 0.1, 0.03), Color("5a5a62"), Vector3(0.24, 0.32, 0.18)))
+		"hoe":
+			# 田邊：靠著的鋤頭、一個竹簍
+			var hoe := Mk.box(Vector3(0.04, 1.0, 0.04), Color("8a6a42"), Vector3(-0.12, 0.48, 0))
+			hoe.rotation.z = 0.25
+			g.add_child(hoe)
+			g.add_child(Mk.box(Vector3(0.22, 0.04, 0.12), Color("5a5a62"), Vector3(-0.25, 0.96, 0)))
+			g.add_child(Mk.cyl(0.18, 0.14, 0.3, Color("b8a060"), Vector3(0.2, 0.15, 0.05), 10))
+			g.add_child(Mk.ball(0.08, Color("6aa040"), Vector3(0.2, 0.32, 0.05), 6))
 		"stake":
 			# 木人樁：一根粗木樁、三根伸出來的木臂、腳下一圈踩實的土
 			var wd := Color("7a5232")

@@ -89,6 +89,15 @@
     }
    ],
    "label": ""
+  },
+  {
+   "sprite": "f_stove_plain_1",
+   "x": 6,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "做菜",
+   "script": "cook/stove"
   }
  ],
  "npcs": [

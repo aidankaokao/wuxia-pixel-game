@@ -771,7 +771,12 @@
     ]
    }
   ],
-  "id": "zhong"
+  "id": "zhong",
+  "teach": {
+   "stage": 2,
+   "script": "cook/zhong_teach",
+   "note": "學做家常菜"
+  }
  },
  "tao": {
   "name": "陶四",
@@ -891,8 +896,12 @@
     "rice",
     "flour",
     "egg",
+    "tofu",
     "greens",
-    "sugar"
+    "radish",
+    "redbean",
+    "sugar",
+    "rod"
    ],
    "extra": [
     [

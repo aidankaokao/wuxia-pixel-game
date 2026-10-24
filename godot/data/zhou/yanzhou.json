@@ -169,7 +169,32 @@
      "facing": "left"
     }
    },
-   "rest": null
+   "rest": {
+    "keeper": "季秋娘",
+    "price": 3,
+    "menu": [
+     "baifan",
+     "yangchun",
+     "doufutang",
+     "hongdou",
+     "tea"
+    ],
+    "bed": "後頭的通鋪還有空位，被子是乾淨的。",
+    "talk": [
+     [
+      "這茶棚是我爹那輩搭的。南來北往的人，到這兒都得等船，等船就得喝茶，哈哈。"
+     ],
+     [
+      "要是哪天這裡蓋了座橋，我這生意怕是要冷清囉……可話說回來，過河的人也能少吃點苦。"
+     ],
+     [
+      "船家范老舟天一亮就開船，夜裡要過河得加錢，他得從被窩裡爬起來呢。"
+     ]
+    ]
+   },
+   "ferry": {
+    "boatman": "范老舟"
+   }
   },
   {
    "id": "linjiang",
@@ -263,7 +288,22 @@
      [
       "前幾天有個海商在這兒歇腳，說東海上的海盜越來越猖狂，連大埠頭的船都不太敢出海了。"
      ]
-    ]
+    ],
+    "price": 5,
+    "menu": [
+     "baifan",
+     "yangchun",
+     "doufutang",
+     "hongdou",
+     "tea",
+     "danchaofan",
+     "luobotang"
+    ],
+    "horses": [
+     "old_bay",
+     "jujube"
+    ],
+    "bed": "驛站的客房乾淨，就是隔壁驛馬嘶個不停。"
    }
   },
   {
@@ -303,7 +343,22 @@
      [
       "北嶺上的關口最近有官兵把守，盤查得緊，說是在抓什麼人。"
      ]
-    ]
+    ],
+    "price": 5,
+    "menu": [
+     "baifan",
+     "yangchun",
+     "doufutang",
+     "hongdou",
+     "tea",
+     "rouzao",
+     "jitang"
+    ],
+    "horses": [
+     "jujube",
+     "qingcong"
+    ],
+    "bed": "山腳下夜裡涼，被子給你多加一床。"
    }
   },
   {
@@ -325,7 +380,15 @@
      [
       "以前古道上人來人往的，自從江上的渡船停了，就冷清多啦。"
      ]
-    ]
+    ],
+    "price": 2,
+    "menu": [
+     "baifan",
+     "yangchun",
+     "hongdou",
+     "tea"
+    ],
+    "bed": "茶亭後頭搭了張竹床，將就著睡吧。"
    }
   },
   {

@@ -5,11 +5,16 @@
 ## （山上的部分在 story/canglan.gd；練功與睡覺在 story/train.gd）
 
 const Train := preload("res://story/train.gd")
+const Chores := preload("res://story/chores.gd")
 
 
 ## 村裡的老井：打水歇歇，花半個時辰。氣血、內力回滿，體力只回四分之一（要練功就得睡覺）
 static func well_use(ctx: Ctx) -> void:
-	if await ctx.ask("一口老井，井水清涼。要在井邊歇一會兒嗎？", ["打水歇歇（半個時辰）", "算了"]) != 0:
+	var c := await ctx.ask("一口老井，井水清涼。", ["打水歇歇（半個時辰）", "替鍾嬸的茶寮挑水（雜務）", "算了"])
+	if c == 1:
+		await Chores.run(ctx, "water", "茶寮的水缸滿滿的。")
+		return
+	if c != 0:
 		return
 	ctx.pass_time(4)
 	await ctx.work("rest", "打水歇息中……")

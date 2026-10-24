@@ -44,7 +44,8 @@
      "text": "爐裡的炭火燒得正旺，熱氣烤得人臉發燙。"
     }
    ],
-   "label": ""
+   "label": "拉風箱",
+   "script": "chores/bellows"
   },
   {
    "sprite": "f_deco_martial_1",

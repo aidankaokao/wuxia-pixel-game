@@ -23,6 +23,8 @@ static func people() -> Dictionary:
 	if _people.is_empty():
 		var f := FileAccess.open("res://data/people.json", FileAccess.READ)
 		_people = JSON.parse_string(f.get_as_text())
+		for k in _people:
+			_people[k].id = k
 	return _people
 
 
@@ -130,7 +132,7 @@ static func add_aff(ctx: Ctx, p: Dictionary, n: int) -> void:
 		if p.has("spar") and before < int(p.spar.stage) and after >= int(p.spar.stage):
 			notes.append("可以和%s切磋了（按 F）" % p.name)
 		if p.has("teach") and before < int(p.teach.stage) and after >= int(p.teach.stage):
-			notes.append("可以向%s請教武學了（按 R）" % p.name)
+			notes.append("可以向%s%s了（按 R）" % [p.name, p.teach.get("note", "請教武學")])
 	await ctx.say("（你和%s的關係變成了「%s」）%s" % [p.name, STAGES[after][1], ("\n" + "\n".join(notes)) if notes.size() > 0 else ""])
 
 
@@ -291,6 +293,10 @@ static func spar(ctx: Ctx, id: String) -> void:
 static func teach(ctx: Ctx, id: String) -> void:
 	var p := def(id)
 	var r := _mut(id)
+	# 不是教武學的（例如鍾嬸教做菜）：交給 teach.script
+	if p.teach.has("script"):
+		await Story.run(p.teach.script, ctx.scene, ctx.extra)
+		return
 	if int(r.teach_day) == G.day:
 		await ctx.say("%s：「貪多嚼不爛，今天就到這裡。」" % p.name)
 		return

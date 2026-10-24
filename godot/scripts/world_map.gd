@@ -2,12 +2,14 @@ class_name WorldMap
 extends GridScene
 ## 州圖（大地圖的一張）：地形、據點、道路由 ZhouGen 照天下輿圖與州的細節算出來（見 zhou_gen.gd），
 ## 堆成一整片連續起伏的低多邊形地面；四周往外延伸 M 格隔壁州的景（蒙一層淡淡的霧，只能看不能走）。
-## - 主角在地圖上自由走（不必沿著路）：路上最快，平原照常，林地、丘陵慢，山地最慢；水和高峰過不去（路過河的地方有橋）。
+## - 主角在地圖上自由走（不必沿著路）：路上最快，平原照常，林地、丘陵慢，山地最慢；水和高峰過不去（路過河的地方有橋，渡口那段要坐船）。
+## - 腳程：騎馬、輕功好都走得快（travel_mult），雨雪天路難走（weather_mult）；沿路走一段會擲一次路上的小事（story/road.gd）。
 ## - 官道走到州圖邊上的出口，就換到隔壁的州（墨暈轉場）；隔壁還沒切好的說一聲。
 ## - 據點是一小群模型：村莊幾間房、城有城牆與城門樓、門派的大殿、港口的碼頭與船、渡口、驛站的幌子；還沒開放的是「？」。
-## - 走到據點旁邊按空白鍵：做好的地方（青竹村）就進去——從哪條路的方向來，就從那一側進村；驛站聽掌櫃說幾句；其他的說一聲。
+## - 走到據點旁邊按空白鍵：做好的地方（青竹村）就進去——從哪條路的方向來，就從那一側進村；驛站、茶亭、渡口茶棚打開歇腳選單（story/stay.gd）；其他的說一聲。
 ## - 天上幾朵雲慢慢飄過，影子落在地上。
 
+const Stay := preload("res://story/stay.gd")
 const TERRAIN_NAME := {"S": "海", "s": "淺灘", "b": "沙岸", "r": "河", "l": "湖", "p": "平原", "f": "林地", "h": "丘陵", "m": "山地", "P": "高峰", "d": "沙地"}
 const HEIGHT := {"S": -1.0, "s": -0.6, "r": -0.5, "l": -0.5, "b": 0.05, "p": 0.12, "f": 0.18, "h": 0.6, "m": 1.5, "P": 2.6, "d": 0.1}
 const COLOR := {"S": "2f5f96", "s": "4a86bc", "r": "4a86bc", "l": "4a8cc4", "b": "e0cf98", "p": "8cc06a", "f": "5e9a4a", "h": "a8b070", "m": "8e8a78", "P": "b8b4a8", "d": "dcc68a"}
@@ -38,6 +40,14 @@ var nodes := {}
 var _hv := PackedFloat32Array()
 var _vw := 0
 var clouds: Array = []
+## 渡口那段河：不搭橋、不能走，要坐船（格子 → true）
+var ferry_water := {}
+## 沿路走了多遠（格）：每走 ROAD_STEP 格擲一次路上的小事（story/road.gd）
+var _road_dist := 0.0
+const ROAD_STEP := 8.0
+## 輕功每一重快幾成、最多快到幾倍（照網頁版 geo.ts 的 travelKe）
+const LIGHT_SPEED := 0.03
+const LIGHT_SPEED_MAX := 1.5
 
 
 func _ready() -> void:
@@ -62,10 +72,11 @@ func _ready() -> void:
 		for c in e.path:
 			road[Vector2i(c[0], c[1])] = true
 			road_name[Vector2i(c[0], c[1])] = e.name
+	_ferries()
 	for y in H:
 		for x in W:
 			var t := T(x, y)
-			if SPEED[t] == null and not road.has(Vector2i(x, y)):
+			if SPEED[t] == null and (not road.has(Vector2i(x, y)) or ferry_water.has(Vector2i(x, y))):
 				blocked[Vector2i(x, y)] = true
 	_ground()
 	_bridges()
@@ -289,9 +300,9 @@ func _ground_y(p: Vector3) -> float:
 func _speed_at(p: Vector3) -> float:
 	var g := _grid(p)
 	if road.has(g):
-		return ROAD_SPEED
+		return ROAD_SPEED * travel_mult()
 	var s = SPEED[T(g.x, g.y)]
-	return 1.0 if s == null else s
+	return (1.0 if s == null else s) * travel_mult()
 
 
 ## 路過河的地方：一段段木橋
@@ -300,7 +311,7 @@ func _bridges() -> void:
 		var path: Array = e.path
 		for i in path.size():
 			var c := Vector2i(path[i][0], path[i][1])
-			if not (T(c.x, c.y) in ["r", "l", "s"]):
+			if not (T(c.x, c.y) in ["r", "l", "s"]) or ferry_water.has(c):
 				continue
 			var a: Array = path[maxi(0, i - 1)]
 			var b: Array = path[mini(path.size() - 1, i + 1)]
@@ -313,6 +324,69 @@ func _bridges() -> void:
 				var rail := Mk.box(Vector3(0.04, 0.15, 1.3), Color("6a4428"), p + Vector3(0, 0.1, 0) + dir.cross(Vector3.UP) * side * 0.33)
 				rail.rotation.y = deck.rotation.y
 				add_child(rail)
+
+
+## 渡口：從渡口沿著路往外走幾格，碰到的那段水不搭橋，河上擺一條渡船（坐船才過得去，見 story/stay.gd 的 ferry）。
+## 渡船兩頭的岸：水段前一格、後一格
+func _ferries() -> void:
+	for n in data.nodes:
+		if n.kind != "ferry" or n.locked or n.rest == null:
+			continue
+		for e in data.edges:
+			if e.a != n.id and e.b != n.id:
+				continue
+			var path: Array = e.path.duplicate()
+			if e.b == n.id:
+				path.reverse()
+			var first := -1
+			var last := -1
+			for i in mini(path.size(), 8):
+				if T(path[i][0], path[i][1]) in ["r", "l", "s"]:
+					if first < 0:
+						first = i
+					last = i
+				elif first >= 0:
+					break
+			if first <= 0 or last + 1 >= path.size():
+				continue
+			for i in range(first, last + 1):
+				ferry_water[Vector2i(path[i][0], path[i][1])] = true
+			var near := Vector2i(path[first - 1][0], path[first - 1][1])
+			var far := Vector2i(path[last + 1][0], path[last + 1][1])
+			var at := Vector2i(path[first][0], path[first][1])
+			var g := Node3D.new()
+			g.position = w3(at.x, at.y, -0.1)
+			add_child(g)
+			var dir := Vector2(far - near).normalized()
+			_boat(g, Vector3.ZERO, atan2(-dir.y, dir.x))
+			props.append({"node": g, "def": {"sprite": "boat", "label": "坐船", "lines": [], "ferry": n.id, "banks": [near, far]}, "at": Vector2(at.x + 0.5, at.y + 0.5)})
+
+
+## 坐船過河：送到離主角遠的那一頭
+func ferry_across(banks: Array) -> void:
+	var here := _grid(hero.position)
+	var to: Vector2i = banks[1] if Vector2(here - banks[0]).length() <= Vector2(here - banks[1]).length() else banks[0]
+	hero.position = w3(to.x, to.y)
+	hero.position.y = _ground_y(hero.position)
+	rig.position = hero.position
+	_last_pos = hero.position
+	_last_tile = to
+
+
+## 腳程倍數：騎馬照坐騎的 speed，裝備中的輕功每重快 3%（最多五成），兩者相乘
+func travel_mult() -> float:
+	var m: Dictionary = {}
+	for d in Crafts.data().get("mounts", []):
+		if d.id == G.hero.get("mount", ""):
+			m = d
+	var mount := float(m.get("speed", 1.0))
+	var light := minf(LIGHT_SPEED_MAX, 1.0 + Hero.equipped_level(G.hero, "light") * LIGHT_SPEED)
+	return mount * light
+
+
+## 天氣讓路難走：雨天多一成時間、雪天多兩成
+func weather_mult() -> float:
+	return 1.2 if G.weather == "snow" else (1.1 if G.weather == "rain" else 1.0)
 
 
 ## 林地的樹、平原零星的樹、丘陵的灌木、山上的松樹與岩石
@@ -603,6 +677,9 @@ func _from_dir(n: Dictionary) -> String:
 
 
 func _interact(t: Dictionary) -> void:
+	if t.kind == "prop" and t.p.def.has("ferry"):
+		await Story.run("stay/ferry", self, {"node": t.p.def.ferry, "banks": t.p.def.banks})
+		return
 	if t.kind != "prop" or not t.p.def.has("node"):
 		await super._interact(t)
 		return
@@ -610,13 +687,9 @@ func _interact(t: Dictionary) -> void:
 	if n.locked:
 		await ui.say([{"text": "%s：%s" % [n.name, n.desc]}, {"text": "（這裡還沒開放）"}])
 		return
+	# 驛站、茶亭、渡口茶棚：歇腳的選單（story/stay.gd）
 	if n.rest != null:
-		var talk: Array = n.rest.talk[randi() % n.rest.talk.size()]
-		var lines := [{"text": "%s。%s" % [n.name, n.desc]}]
-		for s in talk:
-			lines.append({"speaker": n.rest.keeper, "text": s})
-		lines.append({"text": "（驛站的歇腳選單之後再做）"})
-		await ui.say(lines)
+		await Story.run("stay/inn", self, {"node": n.id})
 		return
 	var from := _from_dir(n)
 	var sp = n.enterFrom.get(from, n.enter) if from != "" else n.enter
@@ -635,10 +708,21 @@ func _process(dt: float) -> void:
 		var moved := Vector2(hero.position.x - _last_pos.x, hero.position.z - _last_pos.z).length()
 		_last_pos = hero.position
 		if moved > 0.0 and moved < 2.0:
-			_ke += moved * KE_PER_CELL * ROAD_SPEED / maxf(0.3, _speed_at(hero.position))
+			_ke += moved * KE_PER_CELL * ROAD_SPEED / maxf(0.3, _speed_at(hero.position)) * weather_mult()
 			if _ke >= 1.0:
 				G.advance(int(_ke))
 				_ke -= int(_ke)
+			# 沿路走：每走一段擲一次路上的小事
+			var g := _grid(hero.position)
+			if road_name.has(g) and not ui.busy():
+				_road_dist += moved
+				if _road_dist >= ROAD_STEP:
+					_road_dist = 0.0
+					var near := []
+					for n in data.nodes:
+						if Vector2(n.x - g.x, n.y - g.y).length() < 14.0:
+							near.append(n.id)
+					Story.run("road/maybe", self, {"road": road_name[g], "near": near})
 	for c in clouds:
 		c.position.x += dt * 0.4
 		if c.position.x > ox + W + 10:
@@ -662,4 +746,9 @@ func info_text() -> String:
 			best = d
 			where = "%s附近・" % n.name
 	var on_road: String = ("%s・" % road_name[g]) if road_name.has(g) else ""
-	return "%s\n%s%s%s" % [data.name, where, on_road, TERRAIN_NAME.get(T(g.x, g.y), "")]
+	var m := Stay.mount_def(G.hero.get("mount", ""))
+	var pace := travel_mult()
+	var extra := ""
+	if not m.is_empty() or pace > 1.0:
+		extra = "\n%s腳程 ×%.2f" % [("騎著%s・" % m.name) if not m.is_empty() else "", pace]
+	return "%s\n%s%s%s%s" % [data.name, where, on_road, TERRAIN_NAME.get(T(g.x, g.y), ""), extra]

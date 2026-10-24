@@ -1,0 +1,619 @@
+{
+ "note": "生活技能的資料（照網頁版 cooking.ts、fishing.ts、crafts.ts）。crafts 技能；dishes 菜（第一道 stew 不用學）；fish 魚（spots 各釣點權重：river 雲水河、pier/reeds/isle/pond 碧漪湖）。 mounts 坐騎（州圖上的腳程倍數）。",
+ "crafts": [
+  {
+   "id": "cooking",
+   "name": "烹飪",
+   "desc": "學菜、練菜，做出好吃又補身的菜餚。等級越高，越不會失手、越容易做出上品與精品。",
+   "how": "跟竹風茶寮的鍾嬸學家常菜，在茶寮後頭的灶台做菜。"
+  },
+  {
+   "id": "fishing",
+   "name": "釣魚",
+   "desc": "在河邊、湖邊垂釣。手藝越好越常釣起來，也釣得到更難纏的魚；每種釣過的魚都記進魚譜。",
+   "how": "在村口陶四的貨郎攤買釣竿，在河邊有浮標漣漪的地方釣魚：親自拉竿（小遊戲），或照上次的手感慢慢等。"
+  }
+ ],
+ "dish_tiers": [
+  "入門",
+  "中等",
+  "進階",
+  "拿手"
+ ],
+ "tier_level": [
+  0,
+  2,
+  4,
+  6
+ ],
+ "dishes": [
+  {
+   "id": "stew",
+   "name": "燉山豬肉",
+   "kind": "湯品",
+   "tier": 0,
+   "needs": {
+    "boar_meat": 1
+   },
+   "hp": 150,
+   "desc": "燉得軟爛的山豬肉，香氣撲鼻。"
+  },
+  {
+   "id": "baifan",
+   "name": "白米飯",
+   "kind": "飯品",
+   "tier": 0,
+   "needs": {
+    "rice": 1
+   },
+   "hp": 40,
+   "stamina": 20,
+   "desc": "一碗熱騰騰的白飯，粒粒分明。"
+  },
+  {
+   "id": "danchaofan",
+   "name": "蛋炒飯",
+   "kind": "飯品",
+   "tier": 1,
+   "needs": {
+    "rice": 1,
+    "egg": 1,
+    "greens": 1
+   },
+   "hp": 70,
+   "stamina": 30,
+   "desc": "金黃的蛋包著每一粒飯，撒了點青菜末。"
+  },
+  {
+   "id": "zhutongfan",
+   "name": "竹筒香飯",
+   "kind": "飯品",
+   "tier": 2,
+   "needs": {
+    "rice": 2,
+    "boar_meat": 1,
+    "mushroom": 1
+   },
+   "hp": 110,
+   "stamina": 45,
+   "desc": "米和肉、菌塞進竹筒裡烤，打開滿是竹香。"
+  },
+  {
+   "id": "laweifan",
+   "name": "臘味煲飯",
+   "kind": "飯品",
+   "tier": 3,
+   "needs": {
+    "rice": 2,
+    "boar_meat": 2,
+    "greens": 1
+   },
+   "hp": 160,
+   "stamina": 60,
+   "desc": "瓦煲煮飯，臘肉的油滲進飯裡，鍋底還有一層焦香的鍋巴。"
+  },
+  {
+   "id": "yangchun",
+   "name": "陽春麵",
+   "kind": "麵品",
+   "tier": 0,
+   "needs": {
+    "flour": 1,
+    "greens": 1
+   },
+   "stamina": 35,
+   "hp": 20,
+   "desc": "清湯細麵，幾根青菜，簡簡單單。"
+  },
+  {
+   "id": "rouzao",
+   "name": "肉燥麵",
+   "kind": "麵品",
+   "tier": 1,
+   "needs": {
+    "flour": 1,
+    "boar_meat": 1
+   },
+   "stamina": 50,
+   "hp": 40,
+   "desc": "細切的肉末滷得油亮，拌著麵吃。"
+  },
+  {
+   "id": "daoxiao",
+   "name": "刀削麵",
+   "kind": "麵品",
+   "tier": 2,
+   "needs": {
+    "flour": 2,
+    "boar_meat": 1,
+    "greens": 1
+   },
+   "stamina": 70,
+   "hp": 60,
+   "desc": "麵片一刀一刀削進鍋裡，又厚又有嚼勁。"
+  },
+  {
+   "id": "quanshui",
+   "name": "泉水涼麵",
+   "kind": "麵品",
+   "tier": 3,
+   "needs": {
+    "flour": 2,
+    "egg": 1,
+    "greens": 1,
+    "radish": 1
+   },
+   "stamina": 100,
+   "hp": 80,
+   "spring": true,
+   "desc": "用鳴泉的泉水冰鎮過的麵，清爽彈牙，是卜大勺的拿手絕活。"
+  },
+  {
+   "id": "doufutang",
+   "name": "青菜豆腐湯",
+   "kind": "湯品",
+   "tier": 0,
+   "needs": {
+    "greens": 1,
+    "tofu": 1
+   },
+   "qi": 30,
+   "desc": "清清淡淡的一碗湯。"
+  },
+  {
+   "id": "luobotang",
+   "name": "蘿蔔排骨湯",
+   "kind": "湯品",
+   "tier": 1,
+   "needs": {
+    "radish": 1,
+    "boar_meat": 1
+   },
+   "qi": 50,
+   "hp": 30,
+   "desc": "排骨熬得軟爛，蘿蔔吸飽了湯汁。"
+  },
+  {
+   "id": "jitang",
+   "name": "山菌雞湯",
+   "kind": "湯品",
+   "tier": 2,
+   "needs": {
+    "chicken": 1,
+    "mushroom": 2
+   },
+   "qi": 80,
+   "hp": 50,
+   "desc": "整隻雞和野菌慢火熬了兩個時辰，湯色金黃。"
+  },
+  {
+   "id": "qingdun",
+   "name": "鳴泉清燉",
+   "kind": "湯品",
+   "tier": 3,
+   "needs": {
+    "chicken": 1,
+    "boar_meat": 1,
+    "radish": 1,
+    "mushroom": 1
+   },
+   "qi": 120,
+   "hp": 80,
+   "spring": true,
+   "desc": "泉水清燉，不加一點醬色，喝一口通體舒暢。鳴泉劍派待客的招牌湯。"
+  },
+  {
+   "id": "hongdou",
+   "name": "紅豆湯",
+   "kind": "甜品",
+   "tier": 0,
+   "needs": {
+    "redbean": 1,
+    "sugar": 1
+   },
+   "stamina": 15,
+   "treat": {
+    "battles": 2,
+    "mult": 1.1
+   },
+   "desc": "紅豆煮得綿密，甜而不膩。"
+  },
+  {
+   "id": "guihua",
+   "name": "桂花糕",
+   "kind": "甜品",
+   "tier": 1,
+   "needs": {
+    "rice": 1,
+    "osmanthus": 1,
+    "sugar": 1
+   },
+   "stamina": 20,
+   "treat": {
+    "battles": 3,
+    "mult": 1.15
+   },
+   "desc": "米糕上撒著桂花，咬一口滿嘴花香。"
+  },
+  {
+   "id": "tangyuan",
+   "name": "芝麻湯圓",
+   "kind": "甜品",
+   "tier": 2,
+   "needs": {
+    "rice": 1,
+    "sesame": 1,
+    "sugar": 1
+   },
+   "stamina": 25,
+   "treat": {
+    "battles": 3,
+    "mult": 1.2
+   },
+   "desc": "糯米皮包著流心的芝麻餡，小心燙口。"
+  },
+  {
+   "id": "xingren",
+   "name": "杏仁酥",
+   "kind": "甜品",
+   "tier": 3,
+   "needs": {
+    "flour": 1,
+    "almond": 1,
+    "sugar": 1,
+    "egg": 1
+   },
+   "stamina": 30,
+   "treat": {
+    "battles": 4,
+    "mult": 1.25
+   },
+   "desc": "酥得一碰就掉渣，杏仁香氣十足。"
+  },
+  {
+   "id": "haidai",
+   "name": "海帶豆腐湯",
+   "kind": "湯品",
+   "tier": 0,
+   "needs": {
+    "seaweed": 1,
+    "tofu": 1
+   },
+   "qi": 40,
+   "hp": 10,
+   "sea": true,
+   "desc": "海帶的鮮味全煮進了湯裡。"
+  },
+  {
+   "id": "yuzhou",
+   "name": "海魚粥",
+   "kind": "飯品",
+   "tier": 1,
+   "needs": {
+    "rice": 1,
+    "sea_fish": 1
+   },
+   "hp": 85,
+   "stamina": 30,
+   "sea": true,
+   "desc": "魚片鋪在白粥上，熱粥一燙就熟了。"
+  },
+  {
+   "id": "xiahun",
+   "name": "鮮蝦餛飩",
+   "kind": "麵品",
+   "tier": 1,
+   "needs": {
+    "flour": 1,
+    "shrimp": 1
+   },
+   "stamina": 55,
+   "hp": 40,
+   "sea": true,
+   "desc": "皮薄得透光，咬下去整隻蝦仁。"
+  },
+  {
+   "id": "jiyu",
+   "name": "鯽魚豆腐湯",
+   "kind": "湯品",
+   "tier": 0,
+   "needs": {
+    "crucian": 1,
+    "tofu": 1
+   },
+   "qi": 45,
+   "hp": 15,
+   "lake": true,
+   "desc": "鯽魚先煎後燉，湯白得像奶。"
+  },
+  {
+   "id": "lingjiao",
+   "name": "菱角糕",
+   "kind": "甜品",
+   "tier": 0,
+   "needs": {
+    "water_chestnut": 1,
+    "sugar": 1
+   },
+   "stamina": 18,
+   "treat": {
+    "battles": 2,
+    "mult": 1.15
+   },
+   "lake": true,
+   "desc": "菱角磨粉蒸成的糕，清甜爽口。"
+  },
+  {
+   "id": "yugan",
+   "name": "魚乾燒豆腐",
+   "kind": "湯品",
+   "tier": 1,
+   "needs": {
+    "dried_fish": 1,
+    "tofu": 1
+   },
+   "qi": 55,
+   "hp": 45,
+   "lake": true,
+   "desc": "魚乾的鹹香全燒進了豆腐裡，下飯得很。"
+  },
+  {
+   "id": "tangcu",
+   "name": "糖醋鯉魚",
+   "kind": "飯品",
+   "tier": 1,
+   "needs": {
+    "carp": 1,
+    "sugar": 1,
+    "rice": 1
+   },
+   "hp": 95,
+   "stamina": 30,
+   "lake": true,
+   "desc": "鯉魚炸得翹起頭尾，淋上酸甜的醬汁。"
+  },
+  {
+   "id": "yinyu",
+   "name": "銀魚羹",
+   "kind": "湯品",
+   "tier": 1,
+   "needs": {
+    "silverfish": 1,
+    "egg": 1
+   },
+   "qi": 70,
+   "hp": 20,
+   "lake": true,
+   "desc": "銀魚配蛋花勾的羹，滑得一口就下肚。"
+  },
+  {
+   "id": "qingxia",
+   "name": "青蝦麵",
+   "kind": "麵品",
+   "tier": 1,
+   "needs": {
+    "lake_shrimp": 1,
+    "flour": 1
+   },
+   "stamina": 55,
+   "hp": 40,
+   "lake": true,
+   "desc": "剝好的青蝦仁鋪滿一碗麵。"
+  },
+  {
+   "id": "ouzhou",
+   "name": "蓮藕燉肉",
+   "kind": "湯品",
+   "tier": 2,
+   "needs": {
+    "lotus_root": 1,
+    "boar_meat": 1
+   },
+   "qi": 80,
+   "hp": 70,
+   "lake": true,
+   "desc": "蓮藕燉得粉糯，一咬就牽出絲來。"
+  },
+  {
+   "id": "qingzheng",
+   "name": "清蒸鱖魚",
+   "kind": "飯品",
+   "tier": 2,
+   "needs": {
+    "mandarin": 1,
+    "greens": 1,
+    "rice": 1
+   },
+   "hp": 145,
+   "stamina": 50,
+   "lake": true,
+   "desc": "鱖魚清蒸，淋一點醬油、蔥絲，鮮得眉毛都要掉下來。"
+  },
+  {
+   "id": "jiayu",
+   "name": "甲魚燉菌湯",
+   "kind": "湯品",
+   "tier": 3,
+   "needs": {
+    "turtle": 1,
+    "mushroom": 1
+   },
+   "qi": 130,
+   "hp": 80,
+   "lake": true,
+   "desc": "甲魚配山裡的野菌燉了一整個下午，大補元氣。"
+  },
+  {
+   "id": "yuwan",
+   "name": "魚丸湯",
+   "kind": "湯品",
+   "tier": 2,
+   "needs": {
+    "sea_fish": 2,
+    "flour": 1
+   },
+   "qi": 90,
+   "hp": 40,
+   "sea": true,
+   "desc": "魚肉捶成泥再捏成丸子，彈牙得能在桌上跳。"
+  }
+ ],
+ "fish": [
+  {
+   "id": "crucian",
+   "name": "鯽魚",
+   "price": 3,
+   "level": 0,
+   "fight": 0,
+   "spots": {
+    "pier": 6,
+    "reeds": 4,
+    "isle": 2,
+    "pond": 6,
+    "river": 6
+   },
+   "desc": "巴掌大的鯽魚，燉湯最鮮。"
+  },
+  {
+   "id": "lake_shrimp",
+   "name": "青蝦",
+   "price": 3,
+   "level": 0,
+   "fight": 0,
+   "spots": {
+    "reeds": 6,
+    "pier": 1,
+    "river": 2
+   },
+   "desc": "蘆葦叢裡的青殼小蝦，煮熟了才變紅。"
+  },
+  {
+   "id": "carp",
+   "name": "鯉魚",
+   "price": 5,
+   "level": 0,
+   "fight": 1,
+   "likes": [
+    "autumn"
+   ],
+   "spots": {
+    "pier": 4,
+    "reeds": 2,
+    "isle": 3,
+    "pond": 4,
+    "river": 4
+   },
+   "desc": "金鱗紅尾的鯉魚，力氣不小。"
+  },
+  {
+   "id": "silverfish",
+   "name": "銀魚",
+   "price": 4,
+   "level": 1,
+   "fight": 0,
+   "likes": [
+    "dawn",
+    "winter"
+   ],
+   "spots": {
+    "pier": 2,
+    "reeds": 2,
+    "isle": 2
+   },
+   "desc": "細細的一條，通體透亮，碧漪湖的名產。"
+  },
+  {
+   "id": "grass_carp",
+   "name": "草魚",
+   "price": 6,
+   "level": 1,
+   "fight": 1,
+   "likes": [
+    "summer"
+   ],
+   "spots": {
+    "pier": 3,
+    "reeds": 3,
+    "isle": 2,
+    "river": 3
+   },
+   "desc": "青灰色的大草魚，愛啃湖邊的水草。"
+  },
+  {
+   "id": "mandarin",
+   "name": "鱖魚",
+   "price": 12,
+   "level": 2,
+   "fight": 2,
+   "likes": [
+    "dusk",
+    "night",
+    "spring"
+   ],
+   "spots": {
+    "pier": 1,
+    "isle": 3,
+    "river": 1
+   },
+   "desc": "「桃花流水鱖魚肥」，春天最肥。身上有黑斑，背鰭帶刺，肉嫩無細刺。"
+  },
+  {
+   "id": "turtle",
+   "name": "甲魚",
+   "price": 25,
+   "level": 4,
+   "fight": 2,
+   "likes": [
+    "rain",
+    "summer"
+   ],
+   "hides": [
+    "winter"
+   ],
+   "spots": {
+    "reeds": 1,
+    "isle": 1,
+    "river": 1
+   },
+   "desc": "縮著頭的甲魚，咬住了就不鬆口。燉湯大補。夏天最多，冬天躲進泥裡。"
+  },
+  {
+   "id": "golden_carp",
+   "name": "金鯉",
+   "price": 60,
+   "level": 5,
+   "fight": 3,
+   "likes": [
+    "dawn",
+    "dusk"
+   ],
+   "spots": {
+    "isle": 1
+   },
+   "desc": "一身金鱗的鯉魚，漁家說見了金鯉，整年都順。"
+  }
+ ],
+ "mounts": [
+  {
+   "id": "old_bay",
+   "name": "老黃馬",
+   "speed": 1.25,
+   "price": 80,
+   "desc": "年紀大了，跑不快，脾氣倒是溫和。"
+  },
+  {
+   "id": "jujube",
+   "name": "棗紅馬",
+   "speed": 1.5,
+   "price": 220,
+   "desc": "毛色像熟透的紅棗，腳力穩健。"
+  },
+  {
+   "id": "qingcong",
+   "name": "青驄馬",
+   "speed": 1.75,
+   "price": 500,
+   "desc": "青白相間的駿馬，一日能走好幾百里。"
+  }
+ ]
+}

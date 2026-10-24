@@ -131,11 +131,10 @@ static func sit(ctx: Ctx) -> void:
 
 
 # ── 研讀：小遊戲「循著筆意」（scripts/read_game.gd） ─────────
-## 每份讀物（石碑、經架、每一種秘笈）各有紀錄 G.hero.reading[讀物 id] = {exp 累積的體會, last 上一次親自讀得的, times 親自讀過幾次}。
+## 每份讀物（石碑、經架、每一種秘笈）累積的體會記在 G.hero.reading[讀物 id].exp；親自或自動照共用規則（Practice，id 是 "read:讀物"）：
 ## 第一次一定要親自讀（玩小遊戲）；之後可以選親自讀，或自動讀（每回得上一次親自讀的八成，可以連讀幾回）。
 ## 讀到的體會：還不會的武功累積到門檻就學會；會了的，能悟下一招就換成領悟，否則換成武功經驗。
 
-const AUTO_RATE := 0.8
 ## 竹林石碑：體會到多少才看懂竹影劍（碑文八個字，一次最多 24）
 const STELE_UNLOCK := 40
 ## 秘笈上還不會的武功：照品階要多少體會才學得會
@@ -153,30 +152,33 @@ static func record(id: String) -> Dictionary:
 	if not G.hero.has("reading"):
 		G.hero.reading = {}
 	if not G.hero.reading.has(id):
-		G.hero.reading[id] = {"exp": 0, "last": 0, "times": 0}
-	return G.hero.reading[id]
+		G.hero.reading[id] = {"exp": 0}
+	var r: Dictionary = G.hero.reading[id]
+	# 早一點的存檔把上次成績也記在這裡：搬到共用的 Practice
+	if r.has("times"):
+		if not Practice.tried("read:" + id) and int(r.times) > 0:
+			Practice.done("read:" + id, float(r.last))
+		r.erase("times")
+		r.erase("last")
+	return r
 
 
 ## 讀一回或連讀幾回：src = {id, title, text}，prompt 是開頭的描述，need 是還要多少體會才學會（自動連讀不會超過）。回傳這次得到的體會；-1 是沒讀
+## 親自或自動照共用規則（scripts/practice.gd）：第一次一定親自玩，自動每回得上一次親自的八成
 static func read(ctx: Ctx, src: Dictionary, prompt: String, need := 0) -> int:
 	var r := record(src.id)
-	var each := roundi(int(r.last) * AUTO_RATE)
-	var manual := true
-	if int(r.times) == 0:
-		if await ctx.ask("%s\n（第一次研讀要親自讀：每回兩刻、體力 %d）" % [prompt, STAMINA.study], ["靜下心來研讀", "算了"]) != 0:
-			return -1
-	else:
-		var c := await ctx.ask("%s\n（每回兩刻、體力 %d）" % [prompt, STAMINA.study], ["親自研讀（上次得 %d）" % int(r.last), "自動研讀（每回得 %d，上次的八成）" % each, "算了"])
-		if c == 2:
-			return -1
-		manual = c == 0
-	if manual:
+	var pid: String = "read:" + src.id
+	var each := roundi(Practice.auto_value(pid))
+	var c := await Practice.choose(ctx, pid, "%s\n（每回兩刻、體力 %d%s）" % [prompt, STAMINA.study, "" if Practice.tried(pid) else "；第一次研讀要親自讀"],
+		"靜下心來研讀", "親自研讀（上次得 %d）" % roundi(Practice.last(pid)), "自動研讀（每回得 %d，上次的八成）" % each)
+	if c < 0:
+		return -1
+	if c == 0:
 		if not await exert(ctx, STAMINA.study, "讀了好一陣子，腦袋有些發脹。"):
 			return -1
 		var g := await ReadGame.play(ctx.ui, src.title, src.text)
 		ctx.pass_time(KE)
-		r.last = int(g.exp)
-		r.times = int(r.times) + 1
+		Practice.done(pid, g.exp)
 		r.exp = int(r.exp) + int(g.exp)
 		return int(g.exp)
 	if each <= 0:
@@ -222,7 +224,7 @@ static func apply(id: String, gained: int, insight_rate: float) -> Array:
 static func stele(ctx: Ctx) -> void:
 	var r := record(STELE.id)
 	if ctx.flag("stele") == 0:
-		if int(r.times) == 0:
+		if not Practice.tried("read:" + STELE.id):
 			await ctx.say(["竹林深處立著一塊長滿青苔的石碑。", "碑上刻著八個字，筆畫如劍痕：\n「竹影搖風，劍意自生」", "一陣風吹過，滿林竹影搖曳。碑上的劍痕好像也跟著動了起來……"])
 		var g := await read(ctx, STELE, "碑上的劍痕起落有致，似乎藏著一路劍法。（體會 %d／%d）" % [int(r.exp), STELE_UNLOCK], STELE_UNLOCK - int(r.exp))
 		if g < 0:

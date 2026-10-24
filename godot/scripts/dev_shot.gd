@@ -118,6 +118,14 @@ func _run() -> void:
 				# give:manual_qingzhu 或 give:jinchuang,3 放進行囊
 				var gv := arg.split(",")
 				G.bag[gv[0]] = int(G.bag.get(gv[0], 0)) + (int(gv[1]) if gv.size() > 1 else 1)
+			"run":
+				# run:road/ev_peddler 在現在的場景跑一個劇情腳本（不等它跑完）
+				var sc = _main().scene
+				if sc is GridScene:
+					Story.run(arg, sc, {"road": "沿江大道", "near": ["qingzhu", "biyi"]})
+			"fishbot":
+				# fishbot:perfect／ok／late 釣魚的小遊戲自己玩（空的就關掉）
+				FishGame.bot = arg
 			"readbot":
 				# readbot:perfect／readbot:good 研讀的小遊戲自己玩（空的就關掉）
 				ReadGame.bot = arg

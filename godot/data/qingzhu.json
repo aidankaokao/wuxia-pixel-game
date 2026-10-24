@@ -334,6 +334,46 @@
     }
    ],
    "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 39,
+   "y": 27,
+   "w": 1,
+   "lines": [],
+   "label": "釣魚",
+   "script": "fishing/river"
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 38,
+   "y": 33,
+   "w": 1,
+   "lines": [],
+   "label": "釣魚",
+   "script": "fishing/river"
+  },
+  {
+   "id": "",
+   "sprite": "woodpile",
+   "x": 16,
+   "y": 18,
+   "w": 1,
+   "lines": [],
+   "label": "劈柴",
+   "script": "chores/chop"
+  },
+  {
+   "id": "",
+   "sprite": "hoe",
+   "x": 18,
+   "y": 31,
+   "w": 1,
+   "lines": [],
+   "label": "下田",
+   "script": "chores/farm"
   }
  ],
  "exits": [

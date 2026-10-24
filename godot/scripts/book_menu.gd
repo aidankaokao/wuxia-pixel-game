@@ -7,11 +7,13 @@ extends RefCounted
 ## - 武功頁選一門按空白鍵，攤開一卷手卷（兩根卷軸往左右推開）看細節，在卷上裝備、修練、突破。
 ## 每一頁是左右兩面，_fill(面, 左右) 依分頁填內容；數值能畫的就畫成條、格子、圖（氣血、五維、重數、修為、領悟）。
 
-const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "存檔"]
-const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("4a3a5a")]
+const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "技藝", "存檔"]
+const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("5a6a3a"), Color("4a3a5a")]
+const Cook := preload("res://story/cook.gd")
 const T_QUEST := 3
 const T_FRIEND := 4
-const T_SAVE := 5
+const T_CRAFT := 5
+const T_SAVE := 6
 ## 存檔頁的欄位：即時、自動、十個手動，最後一列是回到標題
 const SLOTS := ["quick", "auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "title"]
 const W := 1120.0
@@ -157,6 +159,8 @@ func _list_size() -> int:
 			return Quests.all().size()
 		T_FRIEND:
 			return _friends().size()
+		T_CRAFT:
+			return Crafts.data().crafts.size()
 		T_SAVE:
 			return SLOTS.size()
 	return 0
@@ -220,7 +224,7 @@ func _chrome() -> void:
 		t = "↑↓ 選　空白鍵 攤開卷軸　←→ 翻頁　X 回到書籤"
 	elif tab == T_SAVE:
 		t = "↑↓ 選　空白鍵 存檔／讀取　←→ 翻頁　X 回到書籤"
-	elif tab == T_QUEST or tab == T_FRIEND:
+	elif tab == T_QUEST or tab == T_FRIEND or tab == T_CRAFT:
 		t = "↑↓ 選　←→ 翻頁　X 回到書籤"
 	else:
 		t = "方向鍵 選　空白鍵 使用　X 回到書籤"
@@ -339,6 +343,8 @@ func _fill(p: Control, side: int) -> void:
 			_quest_left(_sheet(p, "江湖事")) if side == 0 else _quest_right(_sheet(p, "細　看"))
 		T_FRIEND:
 			_friend_left(_sheet(p, "交　遊")) if side == 0 else _friend_right(_sheet(p, "細　看"))
+		T_CRAFT:
+			_craft_left(_sheet(p, "技　藝")) if side == 0 else _craft_right(_sheet(p, "細　看"))
 		T_SAVE:
 			_save_left(_sheet(p, "存　檔")) if side == 0 else _save_right(_sheet(p, "細　看"))
 
@@ -1220,6 +1226,79 @@ func _friend_right(v: VBoxContainer) -> void:
 			var d := Ui.item_def(it)
 			row.add_child(_item_icon(it, d.get("icon", ""), 30, d.get("category", "")))
 			row.add_child(_lab("♥" if p.gift.likes.has(it) else "✕", 14, RED if p.gift.likes.has(it) else FAINT))
+
+
+# ── 技藝（生活技能） ────────────────────────────────────
+
+func _craft_left(v: VBoxContainer) -> void:
+	var list: Array = Crafts.data().crafts
+	for i in list.size():
+		var c: Dictionary = list[i]
+		var p := Crafts.of(c.id)
+		var on := focus == "page" and i == cur
+		var row := PanelContainer.new()
+		var sb := _sb(Color(0.35, 0.42, 0.23, 0.14) if on else Color(0, 0, 0, 0), Color(0.35, 0.42, 0.23, 0.6) if on else Color(0, 0, 0, 0), 4, 1)
+		sb.set_content_margin_all(6)
+		row.add_theme_stylebox_override("panel", sb)
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 12)
+		row.add_child(h)
+		h.add_child(_seal(String(c.name).left(1), 40, Color("5a6a3a")))
+		var col := VBoxContainer.new()
+		h.add_child(col)
+		var top := HBoxContainer.new()
+		top.add_theme_constant_override("separation", 8)
+		col.add_child(top)
+		top.add_child(_lab(c.name, 20, RED if on else INK))
+		top.add_child(_tag("%s・%s" % [_cn(p.level), Crafts.title(p.level)], Color("5a6a3a")))
+		var frac := 1.0 if p.level >= Crafts.MAX else float(p.exp) / Crafts.exp_to_next(p.level)
+		col.add_child(_bar(frac, 260, 8, GREEN))
+		v.add_child(row)
+	v.add_child(_rule())
+	v.add_child(_lab("做事、做菜、釣魚都會長經驗。\n小遊戲第一次要親自玩，之後可以選自動，\n得上一次親自玩的八成。", 14, FAINT))
+
+
+func _craft_right(v: VBoxContainer) -> void:
+	var list: Array = Crafts.data().crafts
+	var c: Dictionary = list[clampi(cur, 0, list.size() - 1)]
+	var p := Crafts.of(c.id)
+	v.add_child(_lab("%s　第%s級・%s" % [c.name, _cn(p.level), Crafts.title(p.level)], 22))
+	var desc := _lab(c.desc, 14, SOFT)
+	desc.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	desc.custom_minimum_size = Vector2(PW - 90, 0)
+	v.add_child(desc)
+	var how := _lab("怎麼練：" + c.how, 14, BLUE)
+	how.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	how.custom_minimum_size = Vector2(PW - 90, 0)
+	v.add_child(how)
+	v.add_child(_rule())
+	# 菜譜、魚譜：一格一個圖示，熟練度畫成小星
+	var ids: Array = []
+	var all: Array = []
+	if c.id == "cooking":
+		v.add_child(_lab("菜　譜", 16, SOFT))
+		all = Crafts.data().dishes.filter(func(d): return Cook.knows(d.id))
+	else:
+		v.add_child(_lab("魚　譜%s" % ("　（上次手感 %d）" % roundi(Practice.last("fish")) if Practice.tried("fish") else ""), 16, SOFT))
+		all = Crafts.data().fish
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 4)
+	v.add_child(grid)
+	for d in all:
+		var w := Crafts.work(c.id, d.id)
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 6)
+		var known: bool = c.id == "cooking" or not w.is_empty()
+		var it := Ui.item_def(d.id)
+		h.add_child(_item_icon(d.id, it.get("icon", ""), 26, it.get("category", "")) if known else _lab("？", 18, FAINT))
+		h.add_child(_lab(d.name if known else "？？？", 15, INK if known else FAINT))
+		if not w.is_empty():
+			h.add_child(_lab("★".repeat(int(w.level)) + "☆".repeat(Crafts.WORK_MAX - int(w.level)), 11, GOLD))
+		grid.add_child(h)
+	if all.is_empty():
+		v.add_child(_lab("還沒學會什麼菜。", 14, FAINT))
 
 
 ## 熟悉度條：0 到 100，標出點頭之交、熟識、知交、莫逆的門檻
