@@ -7,14 +7,15 @@ extends RefCounted
 ## - 武功頁選一門按空白鍵，攤開一卷手卷（兩根卷軸往左右推開）看細節，在卷上裝備、修練、突破。
 ## 每一頁是左右兩面，_fill(面, 左右) 依分頁填內容；數值能畫的就畫成條、格子、圖（氣血、五維、重數、修為、領悟）。
 
-const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "技藝", "存檔"]
-const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("5a6a3a"), Color("4a3a5a")]
+const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "門派", "技藝", "存檔"]
+const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("2e5a6a"), Color("5a6a3a"), Color("4a3a5a")]
 const Cook := preload("res://story/cook.gd")
 const Stay := preload("res://story/stay.gd")
 const T_QUEST := 3
 const T_FRIEND := 4
-const T_CRAFT := 5
-const T_SAVE := 6
+const T_SECT := 5
+const T_CRAFT := 6
+const T_SAVE := 7
 ## 存檔頁的欄位：即時、自動、十個手動，最後一列是回到標題
 const SLOTS := ["quick", "auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "title"]
 const W := 1120.0
@@ -233,6 +234,8 @@ func _chrome() -> void:
 		t = "↑↓ 選　空白鍵 攤開卷軸　←→ 翻頁　X 回到書籤"
 	elif tab == T_SAVE:
 		t = "↑↓ 選　空白鍵 存檔／讀取　←→ 翻頁　X 回到書籤"
+	elif tab == T_SECT:
+		t = "←→ 翻頁　X 回到書籤"
 	elif tab == T_QUEST or tab == T_FRIEND or tab == T_CRAFT:
 		t = "↑↓ 選　←→ 翻頁　X 回到書籤"
 	else:
@@ -352,6 +355,8 @@ func _fill(p: Control, side: int) -> void:
 			_quest_left(_sheet(p, "江湖事")) if side == 0 else _quest_right(_sheet(p, "細　看"))
 		T_FRIEND:
 			_friend_left(_sheet(p, "交　遊")) if side == 0 else _friend_right(_sheet(p, "細　看"))
+		T_SECT:
+			_sect_left(_sheet(p, "門　派")) if side == 0 else _sect_right(_sheet(p, "晉升與門規"))
 		T_CRAFT:
 			_craft_left(_sheet(p, "技　藝")) if side == 0 else _craft_right(_sheet(p, "細　看"))
 		T_SAVE:
@@ -1161,6 +1166,85 @@ static func _check(on: bool) -> Control:
 		if on:
 			c.draw_polyline(PackedVector2Array([Vector2(4.5, 9), Vector2(8, 12.5), Vector2(14, 5)]), GREEN, 2.0))
 	return c
+
+
+# ── 門派（scripts/sect.gd） ──────────────────────────────
+
+func _sect_left(v: VBoxContainer) -> void:
+	if G.sect.is_empty():
+		v.add_child(_lab("尚未拜入任何門派。", 18, SOFT))
+		var note := _lab("臨江城北的鳴泉山上有座鳴泉劍派，收徒不拘時日，過得了入門考驗就能拜師。" if int(G.flags.get("mq_left", 0)) == 0 else "你離開了鳴泉劍派，不能再回去拜師了。", 15, FAINT)
+		note.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+		note.custom_minimum_size = Vector2(PW - 90, 0)
+		v.add_child(note)
+		return
+	var d := Sect.def(G.sect.id)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 12)
+	v.add_child(top)
+	top.add_child(_seal(d.name.substr(0, 2), 40, RED))
+	var names := VBoxContainer.new()
+	top.add_child(names)
+	names.add_child(_lab(d.name, 24))
+	names.add_child(_lab("%s・住%s" % [Sect.rank_name(), Sect.rank_def().dorm], 15, SOFT))
+	# 身分的四格：拜入以來走到哪一級
+	var steps := HBoxContainer.new()
+	steps.add_theme_constant_override("separation", 6)
+	v.add_child(steps)
+	for i in d.ranks.size():
+		steps.add_child(_tag(d.ranks[i].name, RED if i == int(G.sect.rank) else (INK if i < int(G.sect.rank) else FAINT)))
+	v.add_child(_rule())
+	v.add_child(_lab("入門　%s（第 %d 天）" % [G.date_text(int(G.sect.joined)), G.day - int(G.sect.joined) + 1], 15, SOFT))
+	var c := HBoxContainer.new()
+	c.add_theme_constant_override("separation", 10)
+	v.add_child(c)
+	c.add_child(_lab("門派貢獻　%d" % int(G.sect.contrib), 18, INK))
+	c.add_child(_lab("（可以花在抄錄武功、學菜）", 13, FAINT))
+	var p: Dictionary = Sect.rank_def().get("promote", {})
+	var m := HBoxContainer.new()
+	m.add_theme_constant_override("separation", 10)
+	v.add_child(m)
+	m.add_child(_lab("功績　%d%s" % [int(G.sect.merit), (" / %d" % p.merit) if not p.is_empty() else ""], 18, INK))
+	if not p.is_empty():
+		m.add_child(_bar(minf(1.0, float(G.sect.merit) / float(p.merit)), 110, 8, GREEN))
+	v.add_child(_rule())
+	var pay: Dictionary = Sect.rank_def().stipend
+	v.add_child(_lab("月例　%d 兩＋金創藥（每 %d 天到大殿領）" % [pay.silver, Sect.STIPEND_DAYS], 15, SOFT))
+	var next := Sect.next_stipend()
+	v.add_child(_lab("　　　今天就能領" if G.day >= next else "　　　下次 %s" % G.date_text(next), 14, GOLD if G.day >= next else FAINT))
+	if G.sect.id == "mingquan":
+		var Mq: GDScript = load("res://story/mingquan.gd")
+		var done := int(G.flags.get("mq_chores", 0)) if int(G.flags.get("mq_chores_day", 0)) == G.day else 0
+		var morning := "旬休沒有晨課" if G.is_xunxiu() else ("今天的晨課做過了" if int(G.flags.get("mq_morning", 0)) == G.day else "晨課：卯時到巳時，演武廣場找陸鳴川")
+		v.add_child(_lab(morning, 15, SOFT))
+		v.add_child(_lab("門內雜務　今天 %d/%d 件（演武廣場的任務榜）" % [done, Mq.CHORES_PER_DAY], 15, SOFT))
+		var held: String = G.sect.get("chore", "")
+		if held != "":
+			v.add_child(_lab("　手上：%s（%s）" % [Mq.CHORES[held].name, Mq.CHORES[held].where], 14, RED))
+
+
+func _sect_right(v: VBoxContainer) -> void:
+	if G.sect.is_empty():
+		return
+	var checks := Sect.promotion_checks()
+	if checks.is_empty():
+		v.add_child(_lab("已是門中最高一級的弟子。", 15, SOFT))
+	else:
+		v.add_child(_lab("升為%s" % Sect.def(G.sect.id).ranks[int(G.sect.rank) + 1].name, 17, INK))
+		for c in checks:
+			var h := HBoxContainer.new()
+			h.add_theme_constant_override("separation", 10)
+			v.add_child(h)
+			h.add_child(_check(c[1]))
+			var l := _lab(c[0], 14, FAINT if c[1] else SOFT)
+			l.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+			l.custom_minimum_size = Vector2(PW - 120, 0)
+			h.add_child(l)
+	v.add_child(_rule())
+	v.add_child(_lab("門規", 17, INK))
+	var rules: Array = Sect.def(G.sect.id).rules
+	for i in rules.size():
+		v.add_child(_lab("%s、%s" % ["一二三四五六七八九十"[i], rules[i][0]], 15, SOFT))
 
 
 # ── 交遊 ────────────────────────────────────────────────

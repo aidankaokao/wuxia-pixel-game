@@ -22,6 +22,11 @@ import { biyi, byIsle, byQinHome, byTavern } from '../../src/game/maps/biyi';
 import { linjiang } from '../../src/game/maps/linjiang';
 import { ljAcademy, ljNorth, ljTeashop } from '../../src/game/maps/linjiang_north';
 import { LINJIANG_ROOMS } from '../../src/game/maps/linjiang_rooms';
+import { mingquan } from '../../src/game/maps/mingquan';
+import { mqBack, mqSect } from '../../src/game/maps/sect_mingquan';
+import { SECT_MINGQUAN_ROOMS } from '../../src/game/maps/sect_mingquan_rooms';
+import { mqFarm } from '../../src/game/maps/mq_farm';
+import { mqRidge } from '../../src/game/maps/mq_ridge';
 
 // godot/data/ 已經由 Godot 這邊維護（劇情腳本、出現條件都加在那裡），匯出的東西只放到 tools/web_export/ 當參考，要用的再手動搬過去
 const OUT = `${process.cwd()}/godot/tools/web_export/`;
@@ -98,6 +103,10 @@ writeFileSync(OUT + 'linjiang.json', JSON.stringify(exportMap(linjiang, 'linjian
 writeFileSync(OUT + 'lj_north.json', JSON.stringify(exportMap(ljNorth, 'linjiang'), null, 1));
 writeFileSync(OUT + 'lj_yamen.json', JSON.stringify(exportMap(LINJIANG_ROOMS.find((r) => r.id === 'lj_yamen')!), null, 1));
 for (const r of [byTavern, byQinHome, ljTeashop, ljAcademy, ...LINJIANG_ROOMS.filter((r) => r.id !== 'lj_yamen')]) writeFileSync(OUT + `${r.id}.json`, JSON.stringify(exportRoom(r), null, 1));
+// 鳴泉山道、鳴泉劍派院落、後山、山田、南嶺與門派的室內
+writeFileSync(OUT + 'mingquan.json', JSON.stringify(exportMap(mingquan, 'mingquan'), null, 1));
+for (const m of [mqSect, mqBack, mqFarm, mqRidge]) writeFileSync(OUT + `${m.id}.json`, JSON.stringify(exportMap(m, 'mingquan'), null, 1));
+for (const r of SECT_MINGQUAN_ROOMS) writeFileSync(OUT + `${r.id}.json`, JSON.stringify(exportRoom(r), null, 1));
 // 自己過日子的人（給 Godot 寫 story/life_*.gd 時參考）：地點、人物、床位座位、喜好、台詞（職責是函式，匯不出來）
 writeFileSync(OUT + 'life_groups.json', JSON.stringify(lifeGroups().map((g) => ({ id: g.id, maps: g.maps, spots: g.spots, npcs: g.npcs.map((n) => ({ ...n, duty: undefined, script: undefined })) })), null, 1));
 // 人物檔案（台詞、問答、事件；腳本是函式，匯不出來）

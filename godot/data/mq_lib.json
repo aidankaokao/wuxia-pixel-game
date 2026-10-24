@@ -1,0 +1,119 @@
+{
+ "id": "mq_lib",
+ "name": "書房",
+ "subtitle": "鳴泉劍派",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     6
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 38,
+    "y": 20,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_shelf_scholar_3",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一架經史子集與詩詞，是給弟子們讀書明理用的。"
+    },
+    {
+     "text": "（讀書、學識之後開放）"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_shelf_scholar_3",
+   "x": 4,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "研讀",
+   "script": "mingquan/lib_shelf"
+  },
+  {
+   "sprite": "f_shelf_scholar_3",
+   "x": 7,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "",
+   "script": "mingquan/book_shelf"
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 3,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "書案上鋪著宣紙，壓著鎮紙，筆架上掛著幾支毛筆。"
+    },
+    {
+     "text": "（練字之後開放）"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_deco_plain_1",
+   "x": 9,
+   "y": 5,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盆文竹。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mql_keeper",
+   "name": "宋知微",
+   "sprite": "scholar",
+   "x": 8,
+   "y": 4,
+   "facing": "left",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "mingquan/keeper_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

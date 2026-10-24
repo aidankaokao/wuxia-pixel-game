@@ -149,8 +149,9 @@ static func zhong_teach(ctx: Ctx) -> void:
 		ZHONG_COST, "想學做菜？嬸教你幾道家常的。學費意思意思就好。", "嬸會的家常菜都教給你啦！再難的菜，得去找大館子的師傅。", "在竹風茶寮後頭的灶台做；食材陶四的貨郎攤有賣")
 
 
-## 跟師傅學菜：teaches 篩出這位師傅教的菜，cost 是各階（入門、中等、進階、拿手）的學費（兩），烹飪等級要到該階的門檻
-static func teach(ctx: Ctx, who_name: String, teaches: Callable, cost: Array, greet: String, all_done: String, where: String) -> void:
+## 跟師傅學菜：teaches 篩出這位師傅教的菜，cost 是各階（入門、中等、進階、拿手）的學費，烹飪等級要到該階的門檻；
+## 學費預設收銀兩，pay（Callable(ctx, 數目) -> bool，付不起自己說話）可以改收別的（例如門派貢獻），unit 是學費的單位
+static func teach(ctx: Ctx, who_name: String, teaches: Callable, cost: Array, greet: String, all_done: String, where: String, pay := Callable(), unit := "兩") -> void:
 	var who := func(t: String) -> Dictionary: return {"speaker": who_name, "text": t}
 	var tl: Array = Crafts.data().tier_level
 	var left: Array = Crafts.data().dishes.filter(func(d): return not knows(d.id) and teaches.call(d))
@@ -165,13 +166,16 @@ static func teach(ctx: Ctx, who_name: String, teaches: Callable, cost: Array, gr
 			need = mini(need, int(tl[int(d.tier)]))
 		await ctx.say([who.call("先把會的菜做熟了再說。手藝不到家，教你也學不會。"), "（烹飪練到 %d 級，%s才肯教下一道）" % [need, who_name]])
 		return
-	var labels := can.map(func(d): return "%s（%s・%s，%d 兩）" % [d.name, d.kind, Crafts.data().dish_tiers[int(d.tier)], cost[int(d.tier)]])
+	var labels := can.map(func(d): return "%s（%s・%s，%d %s）" % [d.name, d.kind, Crafts.data().dish_tiers[int(d.tier)], cost[int(d.tier)], unit])
 	var i := await ctx.ask(who.call(greet), labels + ["算了"])
 	if i >= can.size():
 		return
 	var d: Dictionary = can[i]
 	var price: int = cost[int(d.tier)]
-	if not ctx.pay(price):
+	if pay.is_valid():
+		if not await pay.call(ctx, price):
+			return
+	elif not ctx.pay(price):
 		await ctx.say(who.call("這得 %d 兩，你身上不夠呢。" % price))
 		return
 	ctx.pass_time(4)

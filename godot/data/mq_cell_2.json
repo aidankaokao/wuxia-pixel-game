@@ -1,0 +1,72 @@
+{
+ "id": "mq_cell_2",
+ "name": "真傳弟子房・二",
+ "subtitle": "鳴泉劍派・弟子居所",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWW",
+  "W_____W",
+  "W_____W",
+  "W_____W",
+  "WWWEWWW"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 3,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     3,
+     4
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 8,
+    "y": 26,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_bed_scholar_3",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "睡覺",
+   "script": "mingquan/cell_bed"
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 4,
+   "y": 2,
+   "w": 2,
+   "lines": [
+    {
+     "text": "葉疏桐的書案。案上空空的，只壓著一張字條：「下山一趟，勿念。」看來主人很久沒回來了。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 4,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "牆上掛著師父親筆寫的字：「勤」。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": []
+}

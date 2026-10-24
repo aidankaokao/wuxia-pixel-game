@@ -1,0 +1,120 @@
+{
+ "id": "mq_armory",
+ "name": "武器房",
+ "subtitle": "鳴泉劍派",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 4,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     5
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 44,
+    "y": 20,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一排長劍，劍鞘上都刻著弟子的名字。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 4,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "刀、槍、棍也有幾把，給弟子們見識各家兵器用的。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 6,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "幾把未開鋒的新劍，等著分給新入門的弟子。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "anvil",
+   "x": 1,
+   "y": 3,
+   "w": 1,
+   "lines": [
+    {
+     "text": "磨劍、修劍用的鐵砧。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "chest",
+   "x": 7,
+   "y": 3,
+   "w": 1,
+   "lines": [
+    {
+     "text": "上了鎖的木箱，裡頭似乎是貴重的兵器。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mqa_keeper",
+   "name": "孟鐸",
+   "sprite": "disciple",
+   "x": 4,
+   "y": 3,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "mingquan/armory_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

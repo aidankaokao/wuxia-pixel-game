@@ -314,14 +314,15 @@ static func temple_bed(ctx: Ctx) -> void:
 
 
 ## 床：睡到天亮（全回復），或小睡一到三個時辰（每個時辰回四分之一的氣血、內力，三分之一的體力）
-static func rest(ctx: Ctx, prompt: String) -> void:
+## wake：睡到天亮時接著說的話（例如門派宿舍裡同門叫你起床）
+static func rest(ctx: Ctx, prompt: String, wake := []) -> void:
 	var night: bool = G.time < 20 or G.time >= 72
 	var c := await ctx.ask(prompt, ["睡到天亮" if night else "睡到明天早上", "小睡一個時辰", "小睡兩個時辰", "小睡三個時辰", "算了"])
 	if c == 0:
 		await ctx.work("sleep", "睡覺中……", 1.4)
 		ctx.pass_time(G.ke_until_dawn())
 		ctx.restore_all()
-		await ctx.say(["你一覺睡到天亮。\n——%s　%s" % [G.date_text(), G.time_text()], "（氣血、內力、體力完全恢復）"])
+		await ctx.say(["你一覺睡到天亮。\n——%s　%s" % [G.date_text(), G.time_text()]] + wake + ["（氣血、內力、體力完全恢復）"])
 	elif c <= 3:
 		await ctx.work("sleep", "小睡片刻……", 1.2)
 		ctx.pass_time(c * G.KE_PER_SHICHEN)

@@ -409,7 +409,7 @@ static func consume(c: Dictionary, id: String) -> String:
 
 # ── 服飾與兵器 ──────────────────────────────────────────
 
-const GEAR_SLOT := {"hat": "頭", "top": "上衣", "bottom": "下身", "shoes": "鞋", "acc": "飾品", "weapon": "兵器"}
+const GEAR_SLOT := {"hat": "頭", "top": "上衣", "bottom": "下身", "shoes": "鞋", "hand": "手上", "neck": "頸上", "weapon": "兵器"}
 
 
 ## 穿上（拿起）一件服飾或兵器：同一個部位原本的那件放回行囊；回傳說明

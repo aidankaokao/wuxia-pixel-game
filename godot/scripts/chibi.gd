@@ -32,6 +32,7 @@ const LOOKS := {
 	"disciple": {"robe": "e8eef2", "trim": "6a8aa8", "sash": "6a8aa8", "hair": "2a2228", "style": "topknot", "sword": true},
 	"sect_master": {"robe": "f0f0e8", "trim": "3a5a7a", "sash": "3a5a7a", "hair": "c8c4bc", "style": "topknot", "beard": true, "sword": true},
 	"sect_elder": {"robe": "d8dce0", "trim": "4a5a6a", "sash": "4a5a6a", "hair": "a8a4a0", "style": "bun", "beard": true},
+	"sect_healer": {"robe": "4a7a6a", "trim": "e8f0e8", "sash": "c9a46a", "hair": "2a2228", "style": "bun", "girl": true},
 	"sect_senior": {"robe": "dce4ea", "trim": "3a6a8a", "sash": "3a6a8a", "hair": "2a2228", "style": "topknot", "sword": true},
 	"dog": {"animal": "dog"},
 	"boar": {"animal": "boar"},

@@ -1,0 +1,154 @@
+{
+ "id": "mq_kitchen",
+ "name": "廚房",
+ "subtitle": "鳴泉劍派",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     6
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 43,
+    "y": 27,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_stove_plain_3",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "做菜",
+   "script": "mingquan/kitchen_stove"
+  },
+  {
+   "sprite": "f_stove_plain_2",
+   "x": 4,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "另一口灶，燉著一鍋肉湯。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "vat",
+   "x": 8,
+   "y": 1,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "mingquan/vat"
+  },
+  {
+   "sprite": "jars",
+   "x": 8,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上是醃菜、米糧和油鹽醬醋。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 1,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "案板上切了一半的蘿蔔。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mqk_cook",
+   "name": "卜大勺",
+   "sprite": "smith",
+   "x": 5,
+   "y": 3,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "bu",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "卜大勺",
+      "text": "今天的米是新碾的，香得很。"
+     }
+    ],
+    [
+     {
+      "speaker": "卜大勺",
+      "text": "我是伙房的卜大勺。練武的人吃得多，一頓飯要煮三大鍋！"
+     },
+     {
+      "speaker": "卜大勺",
+      "text": "後頭菜圃的菜都是我種的，誰敢踩，我拿鍋鏟敲他。"
+     }
+    ],
+    [
+     {
+      "speaker": "卜大勺",
+      "text": "打到山豬就拿來，我替大夥兒燉一鍋。"
+     }
+    ],
+    [
+     {
+      "speaker": "卜大勺",
+      "text": "灶上燉著東西，我得顧著火。"
+     }
+    ],
+    [
+     {
+      "speaker": "卜大勺",
+      "text": "去去去，別擋著我切菜。"
+     }
+    ],
+    [
+     {
+      "speaker": "卜大勺",
+      "text": "菜圃的蘿蔔又被兔子啃了，氣死我了。"
+     }
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,200 @@
+{
+ "id": "mq_hall",
+ "name": "大殿",
+ "subtitle": "鳴泉劍派",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWWWWWWWW",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "WWWWWWWEWWWWWWW"
+ ],
+ "spawn": {
+  "x": 7,
+  "y": 7,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     7,
+     8
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 23,
+    "y": 10,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "portrait",
+   "x": 6,
+   "y": 0,
+   "w": 2,
+   "lines": [
+    {
+     "text": "開派祖師的畫像。畫中人青衫背劍，立於泉邊，神情淡然。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "altar",
+   "x": 6,
+   "y": 1,
+   "w": 3,
+   "lines": [
+    {
+     "text": "供桌上供著祖師的牌位與一柄古劍。劍鞘上刻著「鳴泉」二字。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "chair",
+   "x": 7,
+   "y": 3,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "mingquan/leader_chair"
+  },
+  {
+   "sprite": "chair",
+   "x": 3,
+   "y": 4,
+   "w": 1,
+   "lines": [
+    {
+     "text": "長老的座位。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "chair",
+   "x": 11,
+   "y": 4,
+   "w": 1,
+   "lines": [
+    {
+     "text": "長老的座位。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "chair",
+   "x": 3,
+   "y": 6,
+   "w": 1,
+   "lines": [
+    {
+     "text": "長老的座位。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "chair",
+   "x": 11,
+   "y": 6,
+   "w": 1,
+   "lines": [
+    {
+     "text": "長老的座位。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 2,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一幅字：「劍心如泉，清而不息」。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 12,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一幅字：「守正」。"
+    },
+    {
+     "text": "旁邊掛著《鳴泉門規》：\n一、不得擅入禁地　二、同門不得私鬥\n三、不得恃武欺人　四、典籍不得私攜\n五、本門武功不得外傳"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "sect_flag",
+   "x": 1,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "殿內的門派旗幟。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "sect_flag",
+   "x": 13,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "殿內的門派旗幟。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mqh_duty",
+   "name": "柯靜言",
+   "sprite": "disciple",
+   "x": 10,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "mingquan/duty_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

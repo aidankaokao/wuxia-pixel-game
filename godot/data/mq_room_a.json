@@ -1,0 +1,86 @@
+{
+ "id": "mq_room_a",
+ "name": "弟子房・甲",
+ "subtitle": "鳴泉劍派・弟子居所",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 4,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     5
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 4,
+    "y": 21,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_bed_plain_2",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "何守一的床鋪，被子胡亂捲成一團。聽說他打呼比雷還響。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_2",
+   "x": 6,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "睡覺",
+   "script": "mingquan/room_bed"
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 1,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上擺著兩副碗筷，還有一盤沒下完的棋。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_shelf_plain_1",
+   "x": 6,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上擺著幾本劍譜抄本，邊上寫滿了批註。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": []
+}

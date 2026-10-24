@@ -1,0 +1,90 @@
+{
+ "id": "mq_room_b",
+ "name": "弟子房・乙",
+ "subtitle": "鳴泉劍派・弟子居所",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 4,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     5
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 9,
+    "y": 21,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_bed_plain_2",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_2",
+   "x": 6,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 1,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上攤著一封家書，字跡歪歪扭扭：「爹，女兒在山上很好……」寫到一半。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_shelf_plain_1",
+   "x": 6,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上擺著幾本劍譜抄本，邊上寫滿了批註。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": []
+}

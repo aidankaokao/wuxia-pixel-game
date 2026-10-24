@@ -301,6 +301,104 @@
     "e_heavy"
    ],
    "ai": "boss"
+  },
+  "mq_bao": {
+   "name": "包小川",
+   "sprite": "disciple",
+   "hp": 150,
+   "atk": 24,
+   "def": 3,
+   "spd": 15,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "mq_tang": {
+   "name": "唐秋生",
+   "sprite": "disciple",
+   "hp": 170,
+   "atk": 26,
+   "def": 4,
+   "spd": 16,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "mq_zheng": {
+   "name": "鄭大壯",
+   "sprite": "farmer",
+   "hp": 210,
+   "atk": 22,
+   "def": 6,
+   "spd": 12,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "mq_hou": {
+   "name": "侯三郎",
+   "sprite": "farmer",
+   "hp": 140,
+   "atk": 20,
+   "def": 3,
+   "spd": 14,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "mq_qiao": {
+   "name": "喬木生",
+   "sprite": "disciple",
+   "hp": 160,
+   "atk": 22,
+   "def": 4,
+   "spd": 14,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "mq_he": {
+   "name": "何守一",
+   "sprite": "disciple",
+   "hp": 280,
+   "atk": 34,
+   "def": 6,
+   "spd": 16,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "mq_wei": {
+   "name": "韋季安",
+   "sprite": "disciple",
+   "hp": 250,
+   "atk": 30,
+   "def": 5,
+   "spd": 17,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -611,6 +709,90 @@
    "silver": 25,
    "points": 10,
    "boss": true
+  },
+  "drill_bao": {
+   "enemies": [
+    "mq_bao"
+   ],
+   "background": "mountain",
+   "intro": "包小川收了劍勢，抱拳道：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
+   "spar": true
+  },
+  "drill_tang": {
+   "enemies": [
+    "mq_tang"
+   ],
+   "background": "mountain",
+   "intro": "唐秋生收了劍勢，抱拳道：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
+   "spar": true
+  },
+  "drill_zheng": {
+   "enemies": [
+    "mq_zheng"
+   ],
+   "background": "mountain",
+   "intro": "鄭大壯收了劍勢，抱拳道：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
+   "spar": true
+  },
+  "drill_hou": {
+   "enemies": [
+    "mq_hou"
+   ],
+   "background": "mountain",
+   "intro": "侯三郎收了劍勢，抱拳道：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
+   "spar": true
+  },
+  "drill_qiao": {
+   "enemies": [
+    "mq_qiao"
+   ],
+   "background": "mountain",
+   "intro": "喬木生收了劍勢，抱拳道：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
+   "spar": true
+  },
+  "drill_he": {
+   "enemies": [
+    "mq_he"
+   ],
+   "background": "mountain",
+   "intro": "何守一收了劍勢，抱拳道：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
+   "spar": true
+  },
+  "drill_wei": {
+   "enemies": [
+    "mq_wei"
+   ],
+   "background": "mountain",
+   "intro": "韋季安收了劍勢，抱拳道：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
+   "spar": true
   }
  }
 }

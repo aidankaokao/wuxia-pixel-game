@@ -1,0 +1,165 @@
+{
+ "id": "mq_dorm",
+ "name": "大通鋪",
+ "subtitle": "鳴泉劍派・弟子居所",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWWWWWWWW",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "W_____________W",
+  "WWWWWWWEWWWWWWW"
+ ],
+ "spawn": {
+  "x": 7,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     7,
+     6
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 6,
+    "y": 14,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 4,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 7,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "這張床鋪亂糟糟的，枕頭底下塞著一本翻爛的拳譜。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 10,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 12,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 1,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 4,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 9,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張床鋪，被褥疊得方方正正。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 12,
+   "y": 4,
+   "w": 2,
+   "lines": [],
+   "label": "睡覺",
+   "script": "mingquan/dorm_bed"
+  },
+  {
+   "sprite": "vat",
+   "x": 13,
+   "y": 3,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一缸清水，弟子們早上在這裡洗臉。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": []
+}

@@ -1,0 +1,380 @@
+{
+ "id": "mq_back",
+ "name": "鳴泉後山",
+ "subtitle": "鳴泉劍派・後山",
+ "tiles": [
+  "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "^^^.................T.T.Y....^^^",
+  "^^^T............o...~~~~~~~..^^^",
+  "^^^T............o...~~~~~~~.^^^^",
+  "^^^^T.....o...Y.T...~~~~~~~..^^^",
+  "^^^........T......T.~~~~~~~..^^^",
+  "^^^...::T.TT........~~~~~~~..^^^",
+  "^^^...::.Y.oT..:::::........^^^^",
+  "^^^...::.......:::::.........^^^",
+  "^^^^T.::::::::::::::::::::T..^^^",
+  "^^^...:::::::::::::::::::::::::E",
+  "^^^........T...::.....T........E",
+  "^^^............::.........T..^^^",
+  "^^^o...........::.........T..^^^",
+  "^^^^......T....::............^^^",
+  "^^^.T.....Y....::..T.....o..^^^^",
+  "^^^............::....T.......^^^",
+  "^^^...T........::.....======.^^^",
+  "^^^..........T.::.....======.^^^",
+  "^^^^.....T.....:::::::======^^^^",
+  "^^^............::Y....======.^^^",
+  "^^^......T.....::.....======.^^^",
+  "^^^....Y.......::............^^^",
+  "^^^...o.YT.....::...........^^^^",
+  "^^^^...........::....TT.....T^^^",
+  "^^^..o.........::............^^^",
+  "^^^............EE.........o..^^^"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 15,
+  "y": 26,
+  "facing": "up"
+ },
+ "buildings": [],
+ "props": [
+  {
+   "id": "",
+   "sprite": "cave",
+   "x": 6,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "山壁上一個幽深的洞口，洞前立著木牌：「思過崖・禁地」。"
+    },
+    {
+     "text": "洞裡吹出一陣涼風，隱約聽得見滴水聲。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 9,
+   "y": 7,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「思過崖」\n犯了門規的弟子在此面壁思過。未經許可，不得擅入。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_rock",
+   "x": 12,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "試劍石。石上縱橫交錯，全是劍痕。"
+    },
+    {
+     "text": "有幾道劍痕深達寸許，不知是哪位前輩留下的。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "pavilion",
+   "x": 17,
+   "y": 8,
+   "w": 3,
+   "lines": [
+    {
+     "text": "聽泉亭。坐在亭中，泉水聲叮咚不絕，讓人心思澄靜。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stele",
+   "x": 19,
+   "y": 13,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「鳴泉」源頭"
+    },
+    {
+     "text": "泉水自山石間湧出，擊石作響，聲如鳴佩。本派因此得名。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 4,
+   "y": 14,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 6,
+   "y": 14,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 8,
+   "y": 14,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 10,
+   "y": 14,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 5,
+   "y": 16,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 7,
+   "y": 16,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 9,
+   "y": 16,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "mushrooms",
+   "x": 4,
+   "y": 22,
+   "w": 1,
+   "lines": [],
+   "label": "採菌",
+   "script": "mingquan/mushroom_west",
+   "when": "mq_mush_west != today",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "mushrooms",
+   "x": 28,
+   "y": 13,
+   "w": 1,
+   "lines": [],
+   "label": "採菌",
+   "script": "mingquan/mushroom_east",
+   "when": "mq_mush_east != today",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 24,
+   "y": 17,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「望江台」\n站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     15,
+     27
+    ],
+    [
+     16,
+     27
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 17,
+    "y": 1,
+    "facing": "down"
+   }
+  },
+  {
+   "tiles": [
+    [
+     31,
+     11
+    ],
+    [
+     31,
+     12
+    ]
+   ],
+   "to": "mq_farm",
+   "spawn": {
+    "x": 1,
+    "y": 11,
+    "facing": "right"
+   }
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [
+  {
+   "id": "mqb_yan",
+   "name": "嚴守拙",
+   "sprite": "sect_judge",
+   "x": 8,
+   "y": 4,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "yan",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "嚴守拙",
+      "text": "思過崖的石壁，每一道刻痕都是一個犯過錯的人留下的。"
+     }
+    ],
+    [
+     {
+      "speaker": "嚴守拙",
+      "text": "我是執法長老嚴守拙。門規是我在管。"
+     },
+     {
+      "speaker": "嚴守拙",
+      "text": "思過崖就在我身後。沒事別往這兒跑。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "mqb_fog",
+   "name": "霧中老人",
+   "sprite": "scholar",
+   "x": 18,
+   "y": 13,
+   "facing": "right",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "mingquan/fog_elder",
+   "when": "fog and mq_fog_old != today",
+   "talks": []
+  },
+  {
+   "id": "mqb_elder",
+   "name": "邵長庚",
+   "sprite": "storyteller",
+   "x": 22,
+   "y": 20,
+   "facing": "left",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "邵長庚",
+      "text": "年輕人，爬到後山來看風景？"
+     },
+     {
+      "speaker": "邵長庚",
+      "text": "老頭子姓邵，邵長庚。在這兒守了四十年的山，看著一代代弟子上山、下山。"
+     },
+     {
+      "speaker": "邵長庚",
+      "text": "能在劍塚留下一把劍的，沒幾個。"
+     }
+    ]
+   ]
+  }
+ ],
+ "ring": 18
+}

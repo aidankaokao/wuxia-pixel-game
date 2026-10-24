@@ -18,6 +18,7 @@ const THEMES := {
 	"plain": {"floor": ["b08458", "a87c50", "b88c5e"], "stone": false, "wall": "e8dcc4", "base": "6a4a32", "scroll": true},
 	"scholar": {"floor": ["8a5a3a", "82543a", "93623f"], "stone": false, "wall": "efe6d2", "base": "4a2e1e", "scroll": true},
 	"stone": {"floor": ["8e8a80", "858177", "97938a"], "stone": true, "wall": "c9bda6", "base": "5e5a54", "scroll": false},
+	"martial": {"floor": ["9a7a52", "927248", "a3825a"], "stone": false, "wall": "ddd0b4", "base": "4a3a2e", "scroll": true},
 }
 
 var data: Dictionary
@@ -408,8 +409,42 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(vat)
 			g.add_child(Mk.cyl(0.34, 0.34, 0.06, Color("5a3a2a"), Vector3(0, 0.72, 0), 12))
 			g.add_child(Mk.cyl(0.3, 0.3, 0.07, Color("3a4a52"), Vector3(0, 0.72, 0), 12))
-		"f_bed_plain_1":
+		"f_bed_plain_1", "f_bed_plain_2", "f_bed_scholar_3":
 			_bed(g, w)
+		"f_stove_plain_3":
+			_stove(g, w)
+		"f_dummy_martial_3":
+			# 鐵木人樁：包了鐵皮的木樁，幾道鐵箍
+			g.add_child(Mk.cyl(0.19, 0.22, 1.5, Color("4a4a50"), Vector3(0, 0.75, 0), 10))
+			for k in 3:
+				g.add_child(Mk.cyl(0.23, 0.23, 0.06, Color("2a2a30"), Vector3(0, 0.35 + k * 0.45, 0), 10))
+			for a in [[1.15, 0.5], [1.15, -0.5], [0.8, 0.0]]:
+				var arm := Mk.box(Vector3(0.08, 0.08, 0.45), Color("3a3a40"), Vector3(sin(a[1]) * 0.32, a[0], cos(a[1]) * 0.32))
+				arm.rotation.y = a[1]
+				g.add_child(arm)
+		"chest":
+			g.add_child(Mk.box(Vector3(0.7, 0.45, 0.45), Color("6a4428"), Vector3(0, 0.225, 0)))
+			g.add_child(Mk.box(Vector3(0.72, 0.12, 0.47), Color("7a5232"), Vector3(0, 0.5, 0)))
+			g.add_child(Mk.box(Vector3(0.12, 0.14, 0.03), Color("c9a46a"), Vector3(0, 0.38, 0.24)))
+		"drying_rack":
+			# 晾藥架：竹架上幾層竹篩，攤著草藥
+			for sx in [-w / 2.0 + 0.12, w / 2.0 - 0.12]:
+				g.add_child(Mk.box(Vector3(0.06, 1.2, 0.06), Color("8a9a4a"), Vector3(sx, 0.6, 0)))
+			for k in 3:
+				g.add_child(Mk.cyl(0.38, 0.38, 0.04, Color("c8b07a"), Vector3(0, 0.35 + k * 0.35, 0), 12))
+				for i in 4:
+					g.add_child(Mk.ball(0.07, Color("6a8a40") if i % 2 else Color("8a6a40"), Vector3(-0.2 + i * 0.13, 0.4 + k * 0.35, -0.05 + (i % 2) * 0.1), 5))
+		"f_furnace_plain_2":
+			# 藥爐：泥爐上一只陶藥罐，爐口透著火光
+			g.add_child(Mk.cyl(0.3, 0.34, 0.55, Color("8a6a52"), Vector3(0, 0.275, 0), 10))
+			g.add_child(Mk.box(Vector3(0.22, 0.14, 0.05), Color("e86a2a"), Vector3(0, 0.2, 0.3)))
+			g.add_child(Mk.ball(0.22, Color("5a4030"), Vector3(0, 0.72, 0), 10))
+			g.add_child(Mk.cyl(0.08, 0.1, 0.12, Color("5a4030"), Vector3(0, 0.95, 0), 8))
+		"sect_flag":
+			# 門派旗幟：青底白紋
+			g.add_child(Mk.cyl(0.04, 0.04, 2.2, Color("5a3a22"), Vector3(0, 1.1, 0), 6))
+			g.add_child(Mk.box(Vector3(0.5, 1.1, 0.03), Color("2e5a6a"), Vector3(0.27, 1.55, 0)))
+			g.add_child(Mk.box(Vector3(0.08, 0.9, 0.035), Color("e8f0f0"), Vector3(0.27, 1.55, 0)))
 		"loom":
 			# 織布機：木框、橫樑、一匹繃著的經線
 			for sx in [-w / 2.0 + 0.15, w / 2.0 - 0.15]:

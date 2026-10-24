@@ -138,6 +138,10 @@ static func teller_talk(ctx: Ctx) -> void:
 
 static func clinic_talk(ctx: Ctx) -> void:
 	var bai := _by("白濟仁")
+	# 鳴泉的委託「回春堂送藥」：帶著藥包來
+	if ctx.flag("mq_c_med") == 1 and ctx.has("mq_medpack"):
+		await load("res://story/mingquan.gd").med_delivery(ctx)
+		return
 	var c := await ctx.ask(bai.call("哪裡不舒服？"), ["買藥", "賣草藥（收得比別處高）", "看傷（%d 兩，氣血、內力回滿）" % HEAL_PRICE, "不用了"])
 	if c == 0:
 		await ctx.shop("回春堂", CLINIC_STOCK)

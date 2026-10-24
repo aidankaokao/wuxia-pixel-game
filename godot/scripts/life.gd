@@ -5,6 +5,7 @@ class_name Life
 ## - 下雨、下雪：室外的事換成室內的。同一個位置一次只站一個人；同一天同一時段的安排固定（由日子、時段決定）。
 ## - 一群人寫在 story/life_<群>.gd：static func group() 回傳 {id, maps, outdoor, spots, npcs}，
 ##   以及 static func duty(id, 時刻, 下雨) 回傳 {act, at} 或空的；地點 at 是 [地圖, x, y, 朝向]，地圖外（回家、出遠門）用 "_away"。
+##   需要的話再寫 static func events(時刻, 下雨) 回傳 {人物 id: {act, at, with}}：大家一起的活動（例如晨課），醒著的人照它，蓋過吃飯與職責。
 ## - 畫面那邊（grid_scene 的 life_*）：在這張地圖上的人站到位置上；換事情時自己走過去，換地圖就走到門口消失、從門口走進來。
 
 ## 每件事：名字、頭上的小字、在原地走動的範圍、是不是室外
@@ -15,6 +16,15 @@ const ACTS := {
 	"stall": ["擺攤", "攤", 0, true], "forge": ["打鐵", "鐵", 0, false], "carve": ["做木工", "木", 0, true],
 	"sew": ["做針線", "針", 0, false], "haul": ["進城補貨", "貨", 0, false], "read": ["讀書", "書", 0, false],
 	"home": ["在家歇著", "", 0, false],
+	"beg": ["討飯", "碗", 0, true], "boat": ["出船", "船", 0, true], "chess": ["下棋", "棋", 0, true],
+	"mend": ["補網", "網", 0, true], "pick": ["採蓮", "蓮", 1, true], "shop": ["採買", "買", 1, true],
+	"study": ["讀書", "書", 0, false],
+	# 門派（鳴泉）
+	"stake": ["練樁", "樁", 0, false], "sword": ["練劍", "劍", 0, true], "meditate": ["打坐", "坐", 0, false],
+	"sweep": ["掃地", "掃", 1, true], "water": ["挑水", "水", 0, true], "garden": ["照顧菜圃", "菜", 1, true],
+	"guard": ["守山門", "守", 0, true], "patrol": ["守夜", "更", 2, true], "class": ["晨課", "課", 0, true],
+	"lead": ["帶晨課", "課", 0, true], "spar": ["比劍", "劍", 0, true], "watch": ["觀看", "看", 0, false],
+	"listen": ["聽講", "聽", 0, false], "tend": ["照料藥圃", "藥", 1, true], "pluck": ["採茶", "茶", 0, true],
 }
 const BLOCK := 4
 const AWAY := "_away"
@@ -25,7 +35,7 @@ static var _cache := {}
 
 ## 這張地圖上有哪一群人在過日子（沒有就是空的）
 static func group_for(map: String) -> Dictionary:
-	for id in ["qingzhu", "biyi", "linjiang"]:
+	for id in ["qingzhu", "biyi", "linjiang", "mingquan"]:
 		var g := group(id)
 		if map in g.maps:
 			return g
@@ -69,12 +79,18 @@ static func now(g: Dictionary) -> Dictionary:
 	var out := {}
 	var taken := {}
 	var free := []
+	var ev: Dictionary = g.script.call("events", G.time, wet) if g.script.has_method("events") else {}
 	for n in g.npcs:
 		if n.has("when") and not Story.cond(n.when):
 			continue
 		var awake: bool = G.time >= int(n.wake) and G.time < int(n.sleep)
 		if not awake:
 			out[n.id] = {"act": "sleep", "at": _spot_at(n.home)}
+		elif ev.has(n.id):
+			var e: Dictionary = ev[n.id]
+			out[n.id] = {"act": e.act, "at": _spot_at(e.at)}
+			if e.has("with"):
+				out[n.id]["with"] = e.with
 		elif meal_time(G.time):
 			out[n.id] = {"act": "eat", "at": _spot_at(n.seat)}
 		else:
@@ -94,7 +110,7 @@ static func now(g: Dictionary) -> Dictionary:
 		var opts := []
 		var total := 0.0
 		for act in n.likes:
-			if wet and ACTS[act][3]:
+			if wet and ACTS.get(act, ["", "", 0, false])[3]:
 				continue
 			if not g.spots.any(func(sp): return act in sp.acts and not taken.has(sp.id) and not (wet and is_outdoor(g, sp.at[0]))):
 				continue

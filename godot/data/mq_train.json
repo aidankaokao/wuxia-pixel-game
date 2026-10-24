@@ -1,0 +1,155 @@
+{
+ "id": "mq_train",
+ "name": "練功房",
+ "subtitle": "鳴泉劍派",
+ "theme": "martial",
+ "tiles": [
+  "WWWWWWWWWWWWW",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "WWWWWWEWWWWWW"
+ ],
+ "spawn": {
+  "x": 6,
+  "y": 7,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     6,
+     8
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 40,
+    "y": 14,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_dummy_martial_3",
+   "x": 2,
+   "y": 2,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "mingquan/iron_stake"
+  },
+  {
+   "sprite": "f_dummy_martial_3",
+   "x": 5,
+   "y": 2,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "mingquan/iron_stake"
+  },
+  {
+   "sprite": "f_dummy_martial_3",
+   "x": 8,
+   "y": 2,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "mingquan/iron_stake"
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 10,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "兵器架上是練習用的鐵劍，比真劍重了一倍。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "cushion",
+   "x": 2,
+   "y": 6,
+   "w": 1,
+   "lines": [],
+   "label": "打坐",
+   "script": "mingquan/cushion"
+  },
+  {
+   "sprite": "cushion",
+   "x": 4,
+   "y": 6,
+   "w": 1,
+   "lines": [],
+   "label": "打坐",
+   "script": "mingquan/cushion"
+  },
+  {
+   "sprite": "cushion",
+   "x": 9,
+   "y": 6,
+   "w": 1,
+   "lines": [],
+   "label": "打坐",
+   "script": "mingquan/cushion"
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 6,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "牆上寫著：「一日不練手生，三日不練功荒」。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mqt_coach",
+   "name": "齊振遠",
+   "sprite": "disciple",
+   "x": 7,
+   "y": 4,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "mingquan/coach_talk",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "齊振遠",
+      "text": "我是齊振遠，負責教記名弟子的基本功。"
+     },
+     {
+      "speaker": "齊振遠",
+      "text": "劍法再精妙，馬步不穩、手腕不活，一樣是花架子。"
+     }
+    ],
+    [
+     {
+      "speaker": "齊振遠",
+      "text": "練功房裡的木人樁是包了鐵皮的，給正式弟子練。記名弟子可以用蒲團打坐。"
+     }
+    ]
+   ]
+  }
+ ]
+}

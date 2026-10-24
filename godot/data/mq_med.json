@@ -1,0 +1,152 @@
+{
+ "id": "mq_med",
+ "name": "藥房",
+ "subtitle": "鳴泉劍派",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     6
+    ]
+   ],
+   "to": "mq_sect",
+   "spawn": {
+    "x": 38,
+    "y": 27,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "jars",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "藥櫃，一格格寫著藥名：當歸、川芎、三七、止血草……"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "jars",
+   "x": 4,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "藥櫃最上層幾格貼著紅紙，寫著「非師命不得取用」。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_furnace_plain_2",
+   "x": 8,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "藥爐正熬著藥，苦味瀰漫了整個屋子。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "drying_rack",
+   "x": 1,
+   "y": 4,
+   "w": 2,
+   "lines": [],
+   "label": "",
+   "script": "mingquan/herb_rack"
+  },
+  {
+   "sprite": "drying_rack",
+   "x": 8,
+   "y": 4,
+   "w": 2,
+   "lines": [],
+   "label": "",
+   "script": "mingquan/herb_rack"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "mqm_su",
+   "name": "蘇芷蘅",
+   "sprite": "sect_healer",
+   "x": 3,
+   "y": 3,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "su",
+   "script": "",
+   "when": "mq_exam == 2",
+   "talks": [
+    [
+     {
+      "speaker": "蘇芷蘅",
+      "text": "我是藥堂的蘇芷蘅。青苗是我姪女，平常藥房都是她在照看。"
+     },
+     {
+      "speaker": "蘇芷蘅",
+      "text": "我常下山行醫，這回總算能在山上待一陣子了。"
+     }
+    ],
+    [
+     {
+      "speaker": "蘇芷蘅",
+      "text": "這幾味藥要曬足三天，急不得。"
+     }
+    ],
+    [
+     {
+      "speaker": "蘇芷蘅",
+      "text": "臨江城這陣子跌打損傷的人特別多，不知道是不是漕幫又鬧事了。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "mqm_herbalist",
+   "name": "蘇青苗",
+   "sprite": "lady",
+   "x": 6,
+   "y": 3,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "mingquan/herbalist_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

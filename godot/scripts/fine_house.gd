@@ -16,6 +16,17 @@ const STYLE := {
 	"house": {"pillar": "5a3a22", "band": "", "wall": "e8dcc4", "studs": false, "couplet": ["春回大地", "福滿人間"], "rise": 1.05, "extra": "firewood"},
 	"temple": {"pillar": "8a2e26", "band": "3e5a7a", "wall": "d8b878", "studs": true, "couplet": ["竹林聽法", "清泉洗心"], "rise": 1.3, "extra": "temple"},
 	"house2": {"pillar": "5a3a22", "band": "", "wall": "e4d6bc", "studs": false, "couplet": [], "rise": 1.05, "extra": "corn"},
+	# 鳴泉劍派
+	"sect_hall": {"pillar": "8a2e26", "band": "3e6656", "wall": "ece2cc", "studs": true, "couplet": ["劍鳴如泉", "心清似水"], "rise": 1.7, "extra": "drums"},
+	"sect_master": {"pillar": "7a3226", "band": "3e6656", "wall": "ece2cc", "studs": true, "couplet": [], "rise": 1.2, "extra": ""},
+	"sect_dorm": {"pillar": "5a3a22", "band": "", "wall": "e4d6bc", "studs": false, "couplet": [], "rise": 1.05, "extra": ""},
+	"sect_room": {"pillar": "5a3a22", "band": "4a6a62", "wall": "e8dcc4", "studs": false, "couplet": [], "rise": 1.0, "extra": ""},
+	"sect_cell": {"pillar": "6a3a26", "band": "4a6a62", "wall": "ece2cc", "studs": false, "couplet": [], "rise": 0.95, "extra": ""},
+	"sect_train": {"pillar": "5a2a1e", "band": "5a4a44", "wall": "ddd0b4", "studs": true, "couplet": ["一日不練", "三日手生"], "rise": 1.2, "extra": ""},
+	"sect_lib": {"pillar": "7a3226", "band": "3e6656", "wall": "efe6d2", "studs": false, "couplet": ["讀書明理", "習劍修身"], "rise": 1.15, "extra": ""},
+	"sect_armory": {"pillar": "4a3a2e", "band": "5a4a44", "wall": "b8b0a0", "studs": true, "couplet": [], "rise": 1.05, "extra": ""},
+	"sect_med": {"pillar": "5a3a22", "band": "4a6a4a", "wall": "e8dcc4", "studs": false, "couplet": ["懸壺濟世", "妙手回春"], "rise": 1.05, "extra": ""},
+	"sect_kitchen": {"pillar": "4a3a2e", "band": "", "wall": "c9bda6", "studs": false, "couplet": [], "rise": 1.05, "extra": "chimney"},
 }
 
 
@@ -168,6 +179,11 @@ static func build(v: Village, b: Dictionary) -> Node3D:
 			root.get_child(root.get_child_count() - 1).rotation.z = PI / 2.0
 			root.add_child(Mk.cyl(0.18, 0.16, 0.36, Color("7a5636"), an + Vector3(0.5, 0.18, 0.05), 10))
 			root.add_child(Mk.cyl(0.15, 0.15, 0.02, Color("3a5f86"), an + Vector3(0.5, 0.35, 0.05), 10))
+		"chimney":
+			# 廚房：屋後的煙囪（冒煙）
+			var cm := Vector3(w - 1.0, 0, cz - 0.3)
+			root.add_child(Mk.box(Vector3(0.4, top_y + S.rise + 0.8, 0.4), Color("8a8478"), cm + Vector3(0, (top_y + S.rise + 0.8) / 2.0, 0)))
+			_smoke(root, cm + Vector3(0, top_y + S.rise + 0.9, 0))
 		"firewood":
 			# 民居：側牆邊一堆劈好的柴
 			var fw := Vector3(w - 0.12, base_y, cz + 0.2)

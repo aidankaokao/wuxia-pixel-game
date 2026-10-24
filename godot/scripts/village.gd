@@ -19,9 +19,10 @@ const STALLS := {
 
 ## 做好室內的房子（地圖 id）
 const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tavern", "by_qinhome",
-	"lj_cloth", "lj_inn", "lj_tower", "lj_clinic", "lj_pawn", "lj_escort", "lj_guild", "lj_teashop", "lj_academy", "lj_yamen_hall", "lj_yamen_west", "lj_yamen_east"]
+	"lj_cloth", "lj_inn", "lj_tower", "lj_clinic", "lj_pawn", "lj_escort", "lj_guild", "lj_teashop", "lj_academy", "lj_yamen_hall", "lj_yamen_west", "lj_yamen_east",
+	"mq_hall", "mq_dorm", "mq_room_a", "mq_room_b", "mq_cell_1", "mq_cell_2", "mq_train", "mq_lib", "mq_armory", "mq_med", "mq_kitchen"]
 ## 做好的室外地圖（出入口通到這些就換過去）
-const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen"]
+const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back"]
 ## 地圖四周往外延伸幾格（地圖資料可以用 ring 指定：主角會走到很靠邊的地圖要寬一點，免得看到外面）
 var M := 16
 
@@ -198,7 +199,7 @@ func _bil(m: Array, u: float, v: float) -> float:
 func _ground() -> void:
 	var water := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in ["~", "#"] else 0.0))
 	var path := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in [":", "E", "#"] else 0.0))
-	var plaza := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in ["=", "X", "R", "H"] else 0.0))
+	var plaza := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in ["=", "X", "R", "H", "S"] else 0.0))
 	var mtn := _grid_of(func(x, y): return heights[y + M][x + M] if tile(x, y) == "^" else 0.0)
 	var n := SUB
 	var vw := EW * n + 1
@@ -210,8 +211,10 @@ func _ground() -> void:
 		for i in vw:
 			var u := float(i) / n - M
 			var v := float(j) / n - M
-			var hm := maxf(0.0, _bil(mtn, u, v) - 0.35) * 1.4
-			var hw := -0.45 * smoothstep(0.25, 0.75, _bil(water, u, v))
+			var ws := smoothstep(0.25, 0.75, _bil(water, u, v))
+			# 水把山坡切開（山腳的溪澗不會被旁邊的山填平）
+			var hm := maxf(0.0, _bil(mtn, u, v) - 0.35) * 1.4 * (1.0 - ws)
+			var hw := -0.45 * ws
 			# 山上多一點起伏（低多邊形的稜角）
 			hv[j * vw + i] = hm + hw + (Mk.h01(i, j, 5) - 0.5) * 0.4 * minf(1.0, hm)
 	_hv = hv
@@ -266,6 +269,23 @@ func _ground() -> void:
 	wplane.position.y = -0.12
 	add_child(wplane)
 	_bridges()
+	_stairs()
+
+
+## 石階（S）：石板地上一道道階沿（東西向的橫線，往北一階階上去）
+func _stairs() -> void:
+	var bm := BoxMesh.new()
+	bm.size = Vector3(1.0, 0.05, 0.1)
+	var edge := Mk.Batch.new(bm, Color("8e887a"))
+	for y in H:
+		for x in W:
+			if tile(x, y) == "S":
+				for k in 3:
+					var p := w3(x, y)
+					edge.add(Vector3(p.x, ground_h(x + 0.5, y + 0.2 + k * 0.33) + 0.02, p.z - 0.3 + k * 0.33))
+	var mi: MultiMeshInstance3D = edge.build()
+	if mi:
+		add_child(mi)
 
 
 ## 進得去的門口上方：一個倒金字塔形的金色光標，上下浮動、慢慢轉；主角走近（MARK_NEAR 格內）才亮出來。
@@ -823,16 +843,16 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.75, 0.15, 0.4), Color("6a6a66"), Vector3(0, 0.07, 0)))
 		"bulletin":
 			FineProps.bulletin(g)
-		"paifang_city":
-			# 城門外的石牌坊：四根石柱、三層橫樑、中間一塊匾
+		"paifang_city", "paifang_sect":
+			# 城門外、山門前的石牌坊：四根石柱、三層橫樑、中間一塊匾（門派的屋頂是青綠色）
 			for i in 4:
 				var px := -w / 2.0 + 0.5 + i * (w - 1.0) / 3.0
 				g.add_child(Mk.box(Vector3(0.35, 3.0, 0.35), Color("b8b2a4"), Vector3(px, 1.5, 0)))
 				g.add_child(Mk.box(Vector3(0.6, 0.3, 0.6), Color("9a9488"), Vector3(px, 0.15, 0)))
 			g.add_child(Mk.box(Vector3(w, 0.3, 0.45), Color("a8a296"), Vector3(0, 2.7, 0)))
-			g.add_child(Mk.box(Vector3(w + 0.6, 0.35, 0.7), Color("3f4a5e"), Vector3(0, 3.15, 0)))
+			g.add_child(Mk.box(Vector3(w + 0.6, 0.35, 0.7), Color("3e6656") if p.sprite == "paifang_sect" else Color("3f4a5e"), Vector3(0, 3.15, 0)))
 			g.add_child(Mk.box(Vector3(2.2, 0.55, 0.08), Color("2a1f18"), Vector3(0, 2.25, 0.25)))
-			var pl := Mk.label("臨江", 48, Color("f0c860"), Color(0, 0, 0, 0))
+			var pl := Mk.label("鳴泉" if p.sprite == "paifang_sect" else "臨江", 48, Color("f0c860"), Color(0, 0, 0, 0))
 			pl.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 			pl.position = Vector3(0, 2.25, 0.3)
 			g.add_child(pl)
@@ -935,7 +955,7 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.22, 0.04, 0.12), Color("5a5a62"), Vector3(-0.25, 0.96, 0)))
 			g.add_child(Mk.cyl(0.18, 0.14, 0.3, Color("b8a060"), Vector3(0.2, 0.15, 0.05), 10))
 			g.add_child(Mk.ball(0.08, Color("6aa040"), Vector3(0.2, 0.32, 0.05), 6))
-		"stake":
+		"stake", "f_dummy_martial_1", "f_dummy_martial_2":
 			# 木人樁：一根粗木樁、三根伸出來的木臂、腳下一圈踩實的土
 			var wd := Color("7a5232")
 			g.add_child(Mk.cyl(0.42, 0.46, 0.04, Color("9a8462"), Vector3(0, 0.02, 0), 12))
@@ -992,6 +1012,57 @@ func _prop(p: Dictionary) -> void:
 			lt.omni_range = 4.0
 			lt.position.y = 0.6
 			g.add_child(lt)
+		"carriage":
+			# 雙輪馬車：車廂、車篷、兩個大輪子、往前伸的車轅
+			g.add_child(Mk.box(Vector3(1.3, 0.7, 1.0), Color("7a5232"), Vector3(0, 0.75, 0)))
+			g.add_child(Mk.box(Vector3(1.4, 0.12, 1.1), Color("3e6656"), Vector3(0, 1.16, 0)))
+			g.add_child(Mk.box(Vector3(0.5, 0.25, 0.04), Color("2a1f18"), Vector3(0, 0.85, 0.52)))
+			for sz in [-0.55, 0.55]:
+				var wheel := Mk.cyl(0.42, 0.42, 0.08, Color("5a3a22"), Vector3(0.1, 0.42, sz), 12)
+				wheel.rotation.x = PI / 2.0
+				g.add_child(wheel)
+			for sz in [-0.3, 0.3]:
+				g.add_child(Mk.box(Vector3(1.2, 0.06, 0.06), Color("5a3a22"), Vector3(-1.1, 0.55, sz)))
+		"cave":
+			# 山壁上的洞口：一大塊岩石，正面一個黑洞
+			var rock := Mk.ball(1.1, Color("7a7670"), Vector3(0, 0.7, -0.3), 7)
+			rock.scale = Vector3(1.2, 1.0, 0.8)
+			g.add_child(rock)
+			g.add_child(Mk.box(Vector3(0.9, 1.1, 0.1), Color("141216"), Vector3(0, 0.55, 0.42)))
+		"sword_rock":
+			# 試劍石：一塊大青石，上面縱橫的劍痕
+			var sr := Mk.box(Vector3(1.5, 1.0, 0.9), Color("7a8078"), Vector3(0, 0.5, 0))
+			sr.rotation.y = 0.15
+			g.add_child(sr)
+			for i in 5:
+				var cut := Mk.box(Vector3(0.9, 0.025, 0.02), Color("3a3e3a"), Vector3(-0.05 + Mk.h01(i, 7) * 0.1, 0.25 + i * 0.15, 0.47))
+				cut.rotation.z = -0.6 + Mk.h01(i, 8) * 1.2
+				g.add_child(cut)
+		"sword_grave":
+			# 劍塚：小土丘，插著一把劍
+			g.add_child(Mk.cyl(0.3, 0.42, 0.25, Color("7a6a50"), Vector3(0, 0.12, 0), 9))
+			g.add_child(Mk.box(Vector3(0.06, 0.9, 0.02), Color("a8b0b8"), Vector3(0, 0.65, 0)))
+			g.add_child(Mk.box(Vector3(0.28, 0.05, 0.06), Color("5a4a3a"), Vector3(0, 1.1, 0)))
+			g.add_child(Mk.box(Vector3(0.05, 0.22, 0.05), Color("4a3a2e"), Vector3(0, 1.23, 0)))
+		"mushrooms":
+			for i in 4:
+				var q := Vector3(-0.25 + Mk.h01(i, 1) * 0.5, 0, -0.2 + Mk.h01(i, 2) * 0.4)
+				g.add_child(Mk.cyl(0.03, 0.04, 0.14, Color("e8e0cc"), q + Vector3(0, 0.07, 0), 6))
+				var cap := Mk.ball(0.09, Color("a8643a"), q + Vector3(0, 0.15, 0), 7)
+				cap.scale = Vector3(1, 0.55, 1)
+				g.add_child(cap)
+		"sect_flag":
+			g.add_child(Mk.cyl(0.05, 0.05, 3.0, Color("5a3a22"), Vector3(0, 1.5, 0), 6))
+			g.add_child(Mk.box(Vector3(0.7, 1.4, 0.03), Color("2e5a6a"), Vector3(0.37, 2.2, 0)))
+			g.add_child(Mk.box(Vector3(0.1, 1.2, 0.035), Color("e8f0f0"), Vector3(0.37, 2.2, 0)))
+		"f_deco_martial_1":
+			# 兵器架：一排木劍、竹劍
+			for sx in [-w / 2.0 + 0.15, w / 2.0 - 0.15]:
+				g.add_child(Mk.box(Vector3(0.08, 1.1, 0.08), Color("5a3a22"), Vector3(sx, 0.55, 0)))
+			g.add_child(Mk.box(Vector3(w - 0.2, 0.06, 0.08), Color("5a3a22"), Vector3(0, 1.0, 0)))
+			g.add_child(Mk.box(Vector3(w - 0.2, 0.06, 0.08), Color("5a3a22"), Vector3(0, 0.3, 0)))
+			for i in int(w * 3):
+				g.add_child(Mk.box(Vector3(0.04, 0.85, 0.03), Color("b8a070") if i % 2 else Color("a8b0b8"), Vector3(-w / 2.0 + 0.35 + i * 0.3, 0.62, 0.03)))
 		"chest", "chest_open":
 			var wood := Color("7a4a26")
 			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.45), wood, Vector3(0, 0.2, 0)))
@@ -1096,6 +1167,8 @@ func _interact(t: Dictionary) -> void:
 	var enter = b.get("enter")
 	if enter != null and (enter.to in ROOMS or enter.to in OUTDOOR):
 		main.hop(enter.to, enter.spawn)
+	elif (b.get("door", []) as Array).size() > 0:
+		await ui.say(b.door)
 	else:
 		await ui.say([{"text": "%s的門關著。" % b.name}])
 

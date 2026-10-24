@@ -99,6 +99,16 @@ func _run() -> void:
 							v3.hero.position = at
 							v3.hero.face(w.f.position - at)
 							v3.rig.position = at
+			"aff":
+				# aff:bu,15 把某人的熟悉度設成多少
+				var af := arg.split(",")
+				Social._mut(af[0]).aff = int(af[1])
+			"sect":
+				# sect:mingquan 直接拜入某個門派（記名弟子），sect:mingquan,1 指定身分
+				var sp := arg.split(",")
+				Sect.join(sp[0])
+				G.sect.rank = int(sp[1]) if sp.size() > 1 else 0
+				G.flags["mq_join"] = 1
 			"flag":
 				# flag:bandit_boss=1
 				var kv2 := arg.split("=")

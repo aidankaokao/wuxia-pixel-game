@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu(), carp(), bridge(), bounty()]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_commission("mq_c_path"), mq_commission("mq_c_med")]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -90,3 +90,32 @@ static func bounty() -> Dictionary:
 		return {}
 	return {"id": "lj_bounty", "title": "臨江縣衙・懸賞", "giver": "霍青山", "place": "臨江縣衙", "done": false,
 		"desc": "揭了縣衙的懸賞：到地點收拾目標，回捕快房找捕頭霍青山領賞。", "steps": steps, "reward": "賞銀與名聲"}
+
+
+## 拜入鳴泉（story/mingquan.gd 的入門考驗與拜師）
+static func mq_join() -> Dictionary:
+	var seek := _f("mq_seek")
+	var t := _f("mq_trial")
+	var joined := _f("mq_join") > 0 or _f("mq_left") > 0
+	if seek == 0 and t == 0 and not joined:
+		return {}
+	return {
+		"id": "mq_join", "title": "拜入鳴泉", "giver": "陸鳴川", "place": "鳴泉山・鳴泉劍派", "done": joined,
+		"desc": "鳴泉劍派收徒不拘時日，不看出身，只看三關：問心、觀骨、試劍。過了大師兄陸鳴川的考驗，再到大殿拜見掌門聞松年。",
+		"steps": [["找大師兄陸鳴川應考", seek > 0 or t > 0 or joined], ["問心、觀骨", t >= 1 or joined], ["試劍：勝過記名弟子顧小滿", t >= 2 or joined], ["到大殿拜見掌門聞松年", joined]],
+		"reward": "成為鳴泉劍派的記名弟子、鳴泉劍法、鳴泉腰牌與弟子服",
+	}
+
+
+## 鳴泉的下山委託（演武廣場的任務榜）
+static func mq_commission(flag: String) -> Dictionary:
+	var f := _f(flag)
+	if f == 0:
+		return {}
+	var c: Array = load("res://story/mingquan.gd").COMMISSIONS.filter(func(x): return x[0] == flag)[0]
+	return {
+		"id": flag, "title": "鳴泉委託・%s" % c[1], "giver": "任務榜", "place": "鳴泉劍派", "done": f == 3,
+		"desc": "%s\n%s" % [c[3], c[4]],
+		"steps": [["接下委託", true], ["把事情辦完", f >= 2], ["回演武廣場的任務榜覆命", f == 3]],
+		"reward": "門派貢獻 %d、名聲 %d" % [c[5], c[6]],
+	}
