@@ -366,11 +366,12 @@ class View extends Control:
 				for j in n:
 					var at := P(p[k].lerp(p[k + 1], (j + 0.5) / n))
 					draw_rect(Rect2(at - Vector2(1.2, 3.2) * lw, Vector2(2.4, 3.2) * lw), Color("6a4a32"))
-		# 現有的大地圖範圍
-		var nr: Array = data.now.rect
-		var rr := Rect2(P(Vector2(nr[0], nr[1])), Vector2(nr[2], nr[3]) * zoom)
-		_dashed_rect(rr, Color("b07a1a"), 1.5)
-		_text(rr.position + Vector2(rr.size.x * 0.5, -5), data.now.name, 11, Color("8a5a10"), true)
+		# 已經切好的州圖範圍
+		for z in data.zhou:
+			var nr: Array = z.rect
+			var rr := Rect2(P(Vector2(nr[0], nr[1])), Vector2(nr[2], nr[3]) * zoom)
+			_dashed_rect(rr, Color("b07a1a"), 1.5)
+			_text(rr.position + Vector2(rr.size.x * 0.5, -5), z.name, 12, Color("8a5a10"), true)
 		# 道名
 		for r in data.regions:
 			var lp: Array = r.get("label", r.seed)

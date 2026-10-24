@@ -76,6 +76,11 @@ func _run() -> void:
 				if v is GridScene:
 					v.hero.position = v.w3(int(xy[0]), int(xy[1]))
 					v.rig.position = v.hero.position
+			"size":
+				# size:60 鏡頭拉遠（正交鏡頭的大小）
+				var rg = _main().rig
+				rg.size_max = maxf(rg.size_max, float(arg))
+				rg.size = float(arg)
 			"face":
 				var d := arg.split(",")
 				var v = _main().scene

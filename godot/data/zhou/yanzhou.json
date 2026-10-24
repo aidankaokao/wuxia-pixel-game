@@ -1,0 +1,433 @@
+{
+ "id": "yanzhou",
+ "name": "煙州",
+ "note": "煙州州圖的細節（天下格座標）。地形大勢由天下輿圖產生，這裡補上小河、小湖、小山、據點與小路。",
+ "rivers": [
+  {
+   "name": "雲水河",
+   "pts": [
+    [
+     836,
+     550
+    ],
+    [
+     838,
+     566
+    ],
+    [
+     837,
+     580
+    ],
+    [
+     838,
+     594
+    ],
+    [
+     841,
+     608
+    ]
+   ],
+   "w": [
+    1.2,
+    2.2
+   ]
+  }
+ ],
+ "lakes": [
+  {
+   "name": "碧漪湖",
+   "c": [
+    829,
+    599
+   ],
+   "r": [
+    6,
+    3.5
+   ]
+  }
+ ],
+ "ranges": [
+  {
+   "name": "北　嶺",
+   "pts": [
+    [
+     814,
+     548
+    ],
+    [
+     838,
+     550
+    ],
+    [
+     862,
+     545
+    ],
+    [
+     880,
+     549
+    ]
+   ],
+   "w": 12
+  },
+  {
+   "name": "蒼嵐山",
+   "pts": [
+    [
+     814,
+     574
+    ],
+    [
+     826,
+     569
+    ]
+   ],
+   "w": 9
+  },
+  {
+   "name": "鳴泉山",
+   "pts": [
+    [
+     848,
+     566
+    ],
+    [
+     856,
+     562
+    ]
+   ],
+   "w": 7
+  },
+  {
+   "name": "雲　嶺",
+   "pts": [
+    [
+     788,
+     626
+    ],
+    [
+     818,
+     628
+    ],
+    [
+     852,
+     625
+    ]
+   ],
+   "w": 12
+  }
+ ],
+ "nodes": [
+  {
+   "id": "qingzhu",
+   "name": "青竹村",
+   "kind": "village",
+   "x": 828,
+   "y": 586,
+   "desc": "蒼嵐山腳下的小村子，竹林環繞，村口有座茶攤。",
+   "locked": false,
+   "enter": {
+    "map": "qingzhu",
+    "x": 26,
+    "y": 37,
+    "facing": "up"
+   },
+   "enterFrom": {
+    "ferry": {
+     "map": "qingzhu",
+     "x": 54,
+     "y": 20,
+     "facing": "left"
+    },
+    "canglan": {
+     "map": "qz_north",
+     "x": 12,
+     "y": 1,
+     "facing": "down"
+    }
+   },
+   "rest": null
+  },
+  {
+   "id": "ferry",
+   "name": "雲水渡口",
+   "kind": "ferry",
+   "x": 835,
+   "y": 587,
+   "desc": "官道在這裡被雲水河截斷，南來北往的旅人都在這兒等船過河。岸邊有座茶棚。",
+   "locked": false,
+   "enter": {
+    "map": "guandao",
+    "x": 1,
+    "y": 7,
+    "facing": "right"
+   },
+   "enterFrom": {
+    "linjiang": {
+     "map": "guandao",
+     "x": 38,
+     "y": 7,
+     "facing": "left"
+    }
+   },
+   "rest": null
+  },
+  {
+   "id": "linjiang",
+   "name": "臨江城",
+   "kind": "city",
+   "x": 846,
+   "y": 582,
+   "desc": "大江北岸的縣城，碼頭上船來船往，城裡商號林立。",
+   "locked": false,
+   "enter": {
+    "map": "linjiang",
+    "x": 53,
+    "y": 16,
+    "facing": "left"
+   },
+   "enterFrom": {
+    "ferry": {
+     "map": "linjiang",
+     "x": 1,
+     "y": 16,
+     "facing": "right"
+    },
+    "mingquan": {
+     "map": "lj_north",
+     "x": 27,
+     "y": 1,
+     "facing": "down"
+    },
+    "beiling": {
+     "map": "lj_north",
+     "x": 27,
+     "y": 1,
+     "facing": "down"
+    }
+   },
+   "rest": null
+  },
+  {
+   "id": "mingquan",
+   "name": "鳴泉山",
+   "kind": "sect",
+   "x": 851,
+   "y": 568,
+   "desc": "臨江城北的山，山上有鳴泉劍派。",
+   "locked": false,
+   "enter": {
+    "map": "mingquan",
+    "x": 16,
+    "y": 34,
+    "facing": "up"
+   },
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "canglan",
+   "name": "蒼嵐山",
+   "kind": "wild",
+   "x": 822,
+   "y": 576,
+   "desc": "青竹村北邊的山，山路上有野狗、山豬，山頂曾是斷崖寨。",
+   "locked": false,
+   "enter": {
+    "map": "canglan",
+    "x": 11,
+    "y": 42,
+    "facing": "up"
+   },
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "jiangpan",
+   "name": "江畔驛",
+   "kind": "inn",
+   "x": 862,
+   "y": 590,
+   "desc": "沿江大道走到一半的驛站，幾間瓦房、一圈籬笆，門口拴著幾匹驛馬。",
+   "locked": false,
+   "enter": null,
+   "enterFrom": {},
+   "rest": {
+    "keeper": "溫守成",
+    "talk": [
+     [
+      "往東再走一百五十里就到大埠頭了，一個多時辰的路。這條路晚上可不太平，能住下就別趕夜路。"
+     ],
+     [
+      "驛馬是給官差換的，不借人。客官要是嫌走得慢，不如去臨江城搭船。"
+     ],
+     [
+      "前幾天有個海商在這兒歇腳，說東海上的海盜越來越猖狂，連大埠頭的船都不太敢出海了。"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "dabutou",
+   "name": "大埠頭",
+   "kind": "port",
+   "x": 876,
+   "y": 598,
+   "desc": "大江入海口的港口小城。海船在東邊的碼頭靠岸，江船從大江上下來；城南有觀潮台。",
+   "locked": false,
+   "enter": {
+    "map": "dabutou",
+    "x": 1,
+    "y": 14,
+    "facing": "right"
+   },
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "beiling",
+   "name": "北嶺驛",
+   "kind": "inn",
+   "x": 846,
+   "y": 559,
+   "desc": "北嶺官道上山前的最後一座驛站，翻過北嶺就是煙州府城。",
+   "locked": false,
+   "enter": null,
+   "enterFrom": {},
+   "rest": {
+    "keeper": "褚老栓",
+    "talk": [
+     [
+      "再往北就是北嶺了，山路不算難走，翻過去就是煙州府城。",
+      "從府城再往北，渡過白水，一路能走到京城。"
+     ],
+     [
+      "北嶺上的關口最近有官兵把守，盤查得緊，說是在抓什麼人。"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "guting",
+   "name": "古道茶亭",
+   "kind": "inn",
+   "x": 816,
+   "y": 596,
+   "desc": "南嶺古道旁的老茶亭，往南再走就到江南渡，過了大江就是雲嶺。",
+   "locked": false,
+   "enter": null,
+   "enterFrom": {},
+   "rest": {
+    "keeper": "岑阿婆",
+    "talk": [
+     [
+      "過了大江就是雲嶺，雲霧大，山裡的路一不小心就走岔了。"
+     ],
+     [
+      "以前古道上人來人往的，自從江上的渡船停了，就冷清多啦。"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "biyi",
+   "name": "碧漪湖漁村",
+   "kind": "village",
+   "x": 820,
+   "y": 598,
+   "desc": "碧漪湖西岸的小漁村。棧橋伸進湖裡可以釣魚，秦老漢撐船去湖心島；湖鮮館的糖醋鯉魚遠近有名。",
+   "locked": false,
+   "enter": {
+    "map": "biyi",
+    "x": 1,
+    "y": 13,
+    "facing": "right"
+   },
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "yunling",
+   "name": "雲嶺",
+   "kind": "wild",
+   "x": 836,
+   "y": 624,
+   "desc": "大江南岸連綿的群山，雲霧終年不散。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  }
+ ],
+ "roads": [
+  [
+   "qingzhu",
+   "ferry",
+   "雲水官道"
+  ],
+  [
+   "ferry",
+   "linjiang",
+   "雲水官道"
+  ],
+  [
+   "linjiang",
+   "mingquan",
+   "鳴泉山道"
+  ],
+  [
+   "qingzhu",
+   "canglan",
+   "蒼嵐山道"
+  ],
+  [
+   "qingzhu",
+   "biyi",
+   "湖畔小路"
+  ],
+  [
+   "linjiang",
+   "jiangpan",
+   "沿江大道"
+  ],
+  [
+   "jiangpan",
+   "dabutou",
+   "沿江大道"
+  ],
+  [
+   "linjiang",
+   "beiling",
+   "北嶺官道"
+  ],
+  [
+   "beiling",
+   "yanzhou",
+   "北嶺官道"
+  ],
+  [
+   "qingzhu",
+   "guting",
+   "南嶺古道"
+  ],
+  [
+   "guting",
+   "jiangnandu",
+   "南嶺古道"
+  ],
+  [
+   "jiangnandu",
+   "yunling",
+   "南嶺古道"
+  ]
+ ],
+ "skip_roads": [
+  [
+   "yanzhou",
+   "linjiang"
+  ],
+  [
+   "linjiang",
+   "jiangnandu"
+  ]
+ ]
+}

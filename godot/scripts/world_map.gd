@@ -1,23 +1,32 @@
 class_name WorldMap
 extends GridScene
-## 大地圖（江南一帶）：讀網頁版匯出的地理資料（data/world.json：每格的地形、據點、道路、地名），
-## 堆成一整片連續起伏的低多邊形地面——東邊是東海與海灣，大江由西往東入海，雲水河流進碧漪湖，西、南、北有山脈（山頂積雪）。
+## 州圖（大地圖的一張）：地形、據點、道路由 ZhouGen 照天下輿圖與州的細節算出來（見 zhou_gen.gd），
+## 堆成一整片連續起伏的低多邊形地面；四周往外延伸 M 格隔壁州的景（蒙一層淡淡的霧，只能看不能走）。
 ## - 主角在地圖上自由走（不必沿著路）：路上最快，平原照常，林地、丘陵慢，山地最慢；水和高峰過不去（路過河的地方有橋）。
+## - 官道走到州圖邊上的出口，就換到隔壁的州（墨暈轉場）；隔壁還沒切好的說一聲。
 ## - 據點是一小群模型：村莊幾間房、城有城牆與城門樓、門派的大殿、港口的碼頭與船、渡口、驛站的幌子；還沒開放的是「？」。
 ## - 走到據點旁邊按空白鍵：做好的地方（青竹村）就進去——從哪條路的方向來，就從那一側進村；驛站聽掌櫃說幾句；其他的說一聲。
 ## - 天上幾朵雲慢慢飄過，影子落在地上。
 
-const TERRAIN_NAME := {"S": "海", "s": "淺灘", "b": "沙岸", "r": "河", "l": "湖", "p": "平原", "f": "林地", "h": "丘陵", "m": "山地", "P": "高峰"}
-const HEIGHT := {"S": -1.0, "s": -0.6, "r": -0.5, "l": -0.5, "b": 0.05, "p": 0.12, "f": 0.18, "h": 0.6, "m": 1.5, "P": 2.6}
-const COLOR := {"S": "2f5f96", "s": "4a86bc", "r": "4a86bc", "l": "4a8cc4", "b": "e0cf98", "p": "8cc06a", "f": "5e9a4a", "h": "a8b070", "m": "8e8a78", "P": "b8b4a8"}
+const TERRAIN_NAME := {"S": "海", "s": "淺灘", "b": "沙岸", "r": "河", "l": "湖", "p": "平原", "f": "林地", "h": "丘陵", "m": "山地", "P": "高峰", "d": "沙地"}
+const HEIGHT := {"S": -1.0, "s": -0.6, "r": -0.5, "l": -0.5, "b": 0.05, "p": 0.12, "f": 0.18, "h": 0.6, "m": 1.5, "P": 2.6, "d": 0.1}
+const COLOR := {"S": "2f5f96", "s": "4a86bc", "r": "4a86bc", "l": "4a8cc4", "b": "e0cf98", "p": "8cc06a", "f": "5e9a4a", "h": "a8b070", "m": "8e8a78", "P": "b8b4a8", "d": "dcc68a"}
 ## 走在這種地形的速度倍數（null 過不去）；路另算
-const SPEED := {"S": null, "s": null, "r": null, "l": null, "b": 1.0, "p": 1.0, "f": 0.75, "h": 0.65, "m": 0.45, "P": null}
+const SPEED := {"S": null, "s": null, "r": null, "l": null, "b": 1.0, "p": 1.0, "f": 0.75, "h": 0.65, "m": 0.45, "P": null, "d": 0.85}
 const ROAD_SPEED := 1.4
-const SUB := 3
+const SUB := 2
+## 州圖外圍的霧色
+const HAZE := Color("b4c0c4")
+## 外圍再往外的遠景有多寬（格）
+const FAR := 90
 const HERO_SCALE := 0.55
 
 var data: Dictionary
 var terr: Array = []
+var M := 0
+var EW := 0
+var EH := 0
+var exits := {}
 var road := {}
 var road_name := {}
 var nodes := {}
@@ -27,15 +36,23 @@ var clouds: Array = []
 
 
 func _ready() -> void:
-	var f := FileAccess.open("res://data/world.json", FileAccess.READ)
-	data = JSON.parse_string(f.get_as_text())
-	W = int(data.w)
-	H = int(data.h)
+	var t0 := Time.get_ticks_msec()
+	data = ZhouGen.build(start.get("zhou", "yanzhou"))
+	var t1 := Time.get_ticks_msec()
+	data["title"] = data.name
+	data.name = "%s・%s" % [data.region, data.title]
+	W = int(data.W)
+	H = int(data.H)
+	M = int(data.M)
+	EW = W + 2 * M
+	EH = H + 2 * M
 	ox = -W / 2.0
 	oz = -H / 2.0
 	terr = data.terrain
 	for n in data.nodes:
 		nodes[n.id] = n
+	for e in data.exits:
+		exits[Vector2i(e.x, e.y)] = e
 	for e in data.edges:
 		for c in e.path:
 			road[Vector2i(c[0], c[1])] = true
@@ -56,10 +73,12 @@ func _ready() -> void:
 		add_child(lb)
 	_clouds()
 	_place()
+	print("州圖 %s：產生 %d ms，蓋模型 %d ms" % [data.title, t1 - t0, Time.get_ticks_msec() - t1])
 
 
+## 某一格的地形（x、y 是州圖格，可以是外圍的負數）
 func T(x: int, y: int) -> String:
-	return (terr[clampi(y, 0, H - 1)] as String)[clampi(x, 0, W - 1)]
+	return (terr[clampi(y + M, 0, EH - 1)] as String)[clampi(x + M, 0, EW - 1)]
 
 
 ## 地面：每格的高度先模糊一次，再切成 SUB×SUB 的細網格平滑取值；顏色也在格子之間漸變，
@@ -67,10 +86,10 @@ func T(x: int, y: int) -> String:
 func _ground() -> void:
 	var hc := []
 	var road_m := []
-	for y in H:
+	for y in range(-M, H + M):
 		var row := []
 		var rr := []
-		for x in W:
+		for x in range(-M, W + M):
 			var t := T(x, y)
 			var h: float = HEIGHT[t]
 			if t in ["h", "m", "P"]:
@@ -78,6 +97,10 @@ func _ground() -> void:
 			# 路和據點墊高一點，不會泡在水裡
 			if road.has(Vector2i(x, y)) and h < 0.1:
 				h = 0.1
+			# 外圍最外面幾格慢慢壓平，接上更遠處平平的遠景
+			var out := maxi(maxi(-x, x - W + 1), maxi(-y, y - H + 1))
+			if h > 0.0:
+				h = lerpf(h, 0.1, smoothstep(M - 5.0, M - 1.0, out))
 			row.append(h)
 			rr.append(1.0 if road.has(Vector2i(x, y)) else 0.0)
 		hc.append(row)
@@ -85,8 +108,8 @@ func _ground() -> void:
 	var hb := _blur(hc)
 	var rb := _blur(road_m)
 	var n := SUB
-	_vw = W * n + 1
-	var vh := H * n + 1
+	_vw = EW * n + 1
+	var vh := EH * n + 1
 	_hv.resize(_vw * vh)
 	var verts := PackedVector3Array()
 	var cols := PackedColorArray()
@@ -94,8 +117,8 @@ func _ground() -> void:
 	cols.resize(_vw * vh)
 	for j in vh:
 		for i in _vw:
-			var u := float(i) / n
-			var v := float(j) / n
+			var u := float(i) / n - M
+			var v := float(j) / n - M
 			var h := _bil(hb, u, v)
 			# 山上的稜角
 			if h > 0.5:
@@ -124,7 +147,7 @@ func _ground() -> void:
 	# 水面（大一點，外海接到看不見的地方）
 	var water := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
-	pm.size = Vector2(W + 200, H + 200)
+	pm.size = Vector2(EW + FAR * 2 + 200, EH + FAR * 2 + 200)
 	water.mesh = pm
 	var wm := StandardMaterial3D.new()
 	wm.albedo_color = Color(0.25, 0.5, 0.75, 0.8)
@@ -134,9 +157,58 @@ func _ground() -> void:
 	water.material_override = wm
 	water.position.y = -0.18
 	add_child(water)
-	# 地圖外的陸地（西、北、南三邊接著山，東邊是海）
-	var far := Mk.box(Vector3(W + 200, 0.1, H + 200), Color("6a8a50"), Vector3(-100, -0.25, 0))
-	add_child(far)
+	# 外海的海底：跟州圖裡的海底同色，遠處的海才不會比近處淺
+	var bed := Mk.box(Vector3(EW + FAR * 2 + 200, 0.05, EH + FAR * 2 + 200), Color("2f5a8a"), Vector3(0, -1.05, 0))
+	add_child(bed)
+	_far()
+
+
+## 更遠處的陸地：照天下輿圖的海岸蓋一片平平的、霧濛濛的地（州圖與外圍那一圈不蓋）
+func _far() -> void:
+	const FS := 2  # 遠景每格切幾份
+	var fw := (EW + FAR * 2) * FS
+	var fh := (EH + FAR * 2) * FS
+	var m := ZhouGen.far_land(int(data.gx0) - M - FAR, int(data.gy0) - M - FAR, EW + FAR * 2, EH + FAR * 2, FS)
+	var verts := PackedVector3Array()
+	var cols := PackedColorArray()
+	var nrm := PackedVector3Array()
+	var x0 := -M - FAR + ox
+	var y0 := -M - FAR + oz
+	# 州圖與外圍那一圈（遮罩格）不蓋
+	var hole := Rect2i(FAR * FS, FAR * FS, EW * FS, EH * FS)
+	for j in fh:
+		var i := 0
+		while i < fw:
+			if m[j * fw + i] == 0 or hole.has_point(Vector2i(i, j)):
+				i += 1
+				continue
+			# 一列裡連著的陸地併成一長條，少一點三角形
+			var i1 := i
+			while i1 < fw and m[j * fw + i1] == 1 and not hole.has_point(Vector2i(i1, j)):
+				i1 += 1
+			var a := Vector3(x0 + float(i) / FS, 0.1, y0 + float(j) / FS)
+			var b := Vector3(x0 + float(i1) / FS, 0.1, y0 + float(j) / FS)
+			var c := Vector3(x0 + float(i1) / FS, 0.1, y0 + float(j + 1) / FS)
+			var d := Vector3(x0 + float(i) / FS, 0.1, y0 + float(j + 1) / FS)
+			var col := Color("6f8c58").lerp(HAZE, 0.3 + Mk.h01(j / 12, i / 12, 2) * 0.08)
+			for v in [a, b, c, a, c, d]:
+				verts.append(v)
+				cols.append(col)
+				nrm.append(Vector3.UP)
+			i = i1
+	if verts.is_empty():
+		return
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = verts
+	arr[Mesh.ARRAY_COLOR] = cols
+	arr[Mesh.ARRAY_NORMAL] = nrm
+	var am := ArrayMesh.new()
+	am.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+	var mi := MeshInstance3D.new()
+	mi.mesh = am
+	mi.material_override = Mk.vmat()
+	add_child(mi)
 
 
 func _color(u: float, v: float, h: float, r: float) -> Color:
@@ -157,21 +229,26 @@ func _color(u: float, v: float, h: float, r: float) -> Color:
 	col = col.lerp(Color("f2f2f6"), smoothstep(2.0, 2.4, h))
 	col = col.lerp(Color("8a8a6a"), 1.0 - smoothstep(-0.15, -0.05, h))
 	col = col.lerp(Color("2f5a8a"), 1.0 - smoothstep(-0.7, -0.3, h))
+	# 州圖外圍：越往外霧越濃
+	var out := maxf(maxf(-u, u - W), maxf(-v, v - H))
+	if h > -0.05:
+		col = col.lerp(HAZE, clampf(out / M, 0.0, 1.0) * 0.55 + (0.12 if out > 0.0 else 0.0))
 	col.a = 1.0
 	return col
 
 
+## m 是含外圍的陣列（m[y + M][x + M]）
 func _blur(m: Array) -> Array:
 	var out := []
-	for y in H:
+	for y in EH:
 		var row := []
-		for x in W:
+		for x in EW:
 			var sum := 0.0
 			var ws := 0.0
 			for dy in range(-1, 2):
 				for dx in range(-1, 2):
 					var k := 4.0 if dx == 0 and dy == 0 else (2.0 if dx == 0 or dy == 0 else 1.0)
-					sum += float(m[clampi(y + dy, 0, H - 1)][clampi(x + dx, 0, W - 1)]) * k
+					sum += float(m[clampi(y + dy, 0, EH - 1)][clampi(x + dx, 0, EW - 1)]) * k
 					ws += k
 			row.append(sum / ws)
 		out.append(row)
@@ -179,20 +256,20 @@ func _blur(m: Array) -> Array:
 
 
 func _bil(m: Array, u: float, v: float) -> float:
-	var fx := u - 0.5
-	var fy := v - 0.5
+	var fx := u + M - 0.5
+	var fy := v + M - 0.5
 	var x0 := floori(fx)
 	var y0 := floori(fy)
 	var tx := fx - x0
 	var ty := fy - y0
-	var at := func(x: int, y: int) -> float: return float(m[clampi(y, 0, H - 1)][clampi(x, 0, W - 1)])
+	var at := func(x: int, y: int) -> float: return float(m[clampi(y, 0, EH - 1)][clampi(x, 0, EW - 1)])
 	return lerpf(lerpf(at.call(x0, y0), at.call(x0 + 1, y0), tx), lerpf(at.call(x0, y0 + 1), at.call(x0 + 1, y0 + 1), tx), ty)
 
 
 ## 地面某一點的高度（u、v 以格為單位）
 func ground_h(u: float, v: float) -> float:
-	var fx := clampf(u * SUB, 0, _vw - 1.001)
-	var fy := clampf(v * SUB, 0, _hv.size() / _vw - 1.001)
+	var fx := clampf((u + M) * SUB, 0, _vw - 1.001)
+	var fy := clampf((v + M) * SUB, 0, _hv.size() / _vw - 1.001)
 	var x0 := floori(fx)
 	var y0 := floori(fy)
 	var tx := fx - x0
@@ -261,8 +338,8 @@ func _decor() -> void:
 	rock_m.radial_segments = 5
 	rock_m.rings = 2
 	var rock := Mk.Batch.new(rock_m)
-	for y in H:
-		for x in W:
+	for y in range(-M, H + M):
+		for x in range(-M, W + M):
 			var t := T(x, y)
 			if road.has(Vector2i(x, y)):
 				continue
@@ -322,12 +399,10 @@ func _settlement(n: Dictionary) -> void:
 	add_child(g)
 	var kind: String = n.kind
 	var label_h := 1.0
-	if n.locked:
-		var q := Mk.label("？", 90, Color("e8e4dc"), Color(0.2, 0.2, 0.25))
-		q.position = Vector3(0, 0.7, 0)
-		g.add_child(q)
-		g.add_child(Mk.cyl(0.25, 0.3, 0.1, Color("8a867a"), Vector3(0, 0.05, 0), 8))
-	else:
+	# 府城、京城大一號
+	var rank: String = n.get("rank", "")
+	var sc := 1.8 if rank == "京" else (1.35 if rank == "府" else 1.0)
+	if true:
 		match kind:
 			"village":
 				for i in 5:
@@ -380,8 +455,20 @@ func _settlement(n: Dictionary) -> void:
 			"wild":
 				g.add_child(Mk.box(Vector3(0.06, 0.6, 0.06), Color("6a4428"), Vector3(0, 0.3, 0)))
 				g.add_child(Mk.box(Vector3(0.4, 0.14, 0.04), Color("b08a5a"), Vector3(0.1, 0.5, 0)))
-	var lb := Mk.label(n.name, 34, Color("fffbe8") if not n.locked else Color("c8c4bc"))
-	lb.position = Vector3(0, label_h, 0)
+			"pass":
+				# 關隘：兩段石牆夾著城門樓
+				for side in [-1, 1]:
+					g.add_child(Mk.box(Vector3(1.1, 0.45, 0.25), Color("8a8478"), Vector3(side * 0.85, 0.22, 0)))
+				g.add_child(Mk.box(Vector3(0.6, 0.6, 0.35), Color("8a8478"), Vector3(0, 0.3, 0)))
+				g.add_child(Mk.box(Vector3(0.24, 0.32, 0.37), Color("3a2e26"), Vector3(0, 0.16, 0)))
+				g.add_child(Mk.box(Vector3(0.5, 0.25, 0.3), Color("8a2e26"), Vector3(0, 0.72, 0)))
+				g.add_child(Mk.roof(0.75, 0.5, 0.22, Color("3f4a5e"), Vector3(0, 0.95, 0)))
+				label_h = 1.5
+	for c in g.get_children():
+		c.position *= sc
+		c.scale *= sc
+	var lb := Mk.label(n.name, 34 if sc == 1.0 else 44, Color("fffbe8") if not n.locked else Color("d8d2c4"))
+	lb.position = Vector3(0, label_h * sc, 0)
 	g.add_child(lb)
 	var label := "歇腳" if kind == "inn" else ("查看" if n.locked else "進去")
 	props.append({"node": g, "def": {"sprite": "node", "label": label, "lines": [], "node": n.id}, "at": Vector2(n.x + 0.5, n.y + 0.5)})
@@ -421,7 +508,10 @@ func _place() -> void:
 	hero = Chibi.make("hero")
 	hero.scale = Vector3.ONE * HERO_SCALE
 	add_child(hero)
-	var n: Dictionary = nodes.get(start.get("node", "qingzhu"), nodes["qingzhu"])
+	if start.has("gx"):
+		_place_at_edge()
+		return
+	var n: Dictionary = nodes.get(start.get("node", "qingzhu"), nodes.get("qingzhu", data.nodes[0]))
 	var dir := Vector3(0, 0, 1)
 	var from: String = start.get("from", "")
 	if from != "" and nodes.has(from):
@@ -436,6 +526,42 @@ func _place() -> void:
 	rig.position = hero.position
 
 
+## 從隔壁州走過來：站在天下格 (gx, gy) 對應的地方——找最近的出口，往州裡走兩格
+func _place_at_edge() -> void:
+	var g := Vector2i(int(start.gx) - int(data.gx0), int(start.gy) - int(data.gy0))
+	var best := Vector2i(clampi(g.x, 0, W - 1), clampi(g.y, 0, H - 1))
+	var bd := 12.0
+	var inward := Vector2i(1 if g.x < 0 else (-1 if g.x >= W else 0), 1 if g.y < 0 else (-1 if g.y >= H else 0))
+	for c in exits:
+		var d := Vector2(c - g).length()
+		if d < bd:
+			bd = d
+			best = c
+			inward = Vector2i(-exits[c].out[0], -exits[c].out[1])
+	var p := w3(best.x + inward.x * 2, best.y + inward.y * 2)
+	if not _walkable(p):
+		p = w3(best.x, best.y)
+	hero.position = p
+	hero.position.y = _ground_y(p)
+	hero.face(Vector3(inward.x, 0, inward.y))
+	_last_tile = _grid(p)
+	rig.target = hero
+	rig.position = hero.position
+
+
+## 走到州圖邊上的出口：隔壁的州切好了就換過去，還沒切好的說一聲、退回一步
+func _on_tile(g: Vector2i) -> void:
+	if not exits.has(g):
+		return
+	var e: Dictionary = exits[g]
+	if e.zhou != "":
+		main.hop("zhou:" + e.zhou, {"zhou": e.zhou, "gx": int(data.gx0) + g.x + e.out[0], "gy": int(data.gy0) + g.y + e.out[1]})
+	else:
+		hero.position -= Vector3(e.out[0], 0, e.out[1]) * 0.8
+		_last_tile = _grid(hero.position)
+		ui.say([{"text": "這條官道往%s去，那一帶的地圖還沒切好。" % e.toName}])
+
+
 ## 從主角的位置看，最像是從哪一條路過來的（用來決定從據點的哪一側進去）
 func _from_dir(n: Dictionary) -> String:
 	var to_hero := Vector3(hero.position.x - (n.x + 0.5 + ox), 0, hero.position.z - (n.y + 0.5 + oz)).normalized()
@@ -443,6 +569,8 @@ func _from_dir(n: Dictionary) -> String:
 	var best_dot := -2.0
 	for e in data.edges:
 		var other := ""
+		if e.b == "":
+			continue
 		if e.a == n.id:
 			other = e.b
 		elif e.b == n.id:
@@ -501,4 +629,4 @@ func info_text() -> String:
 			best = d
 			where = "%s附近・" % n.name
 	var on_road: String = ("%s・" % road_name[g]) if road_name.has(g) else ""
-	return "大地圖・江南\n%s%s%s" % [where, on_road, TERRAIN_NAME.get(T(g.x, g.y), "")]
+	return "%s\n%s%s%s" % [data.name, where, on_road, TERRAIN_NAME.get(T(g.x, g.y), "")]

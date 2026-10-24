@@ -141,9 +141,13 @@ func go(id: String, at := {}) -> void:
 		var tx := Tianxia.new()
 		tx.setup(ui, self)
 		scene = tx
-	elif id == "world":
+	elif id == "world" or id.begins_with("zhou:"):
+		# 大地圖：一張張州圖（"zhou:州id"；"world" 是預設的煙州）
+		var zat := at.duplicate()
+		if id.begins_with("zhou:"):
+			zat["zhou"] = id.substr(5)
 		var wm := WorldMap.new()
-		wm.setup(ui, rig, self, at)
+		wm.setup(ui, rig, self, zat)
 		scene = wm
 		rig.size = 16.0
 		rig.size_max = 40.0
@@ -169,9 +173,9 @@ func go(id: String, at := {}) -> void:
 		rig.size = 9.5
 		rig.size_max = 14.0
 	add_child(scene)
-	if scene is WorldMap:
-		ui.show_title("大地圖")
-	elif scene.get("data") is Dictionary:
+	if id.begins_with("zhou:"):
+		scene_id = "world"
+	if scene.get("data") is Dictionary:
 		ui.show_title(scene.get("data").get("name", ""))
 	for k in buttons:
 		buttons[k].modulate = Color("f0c860") if k == scene_id or (k == "village" and scene is Room) else Color.WHITE
