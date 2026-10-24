@@ -2,7 +2,7 @@
  * 把網頁版的遊戲資料匯出成 JSON，給 Godot 版讀（godot/data/）。
  * 跑法（在專案根目錄）：npm run godot:data
  * 目前匯出：青竹村、青竹村北的地圖（建築、擺設、出入口、村民與台詞）、物品表；
- * 各屋的室內（柳家大宅、竹風茶寮、石家鐵鋪、王家、竹隱寺）。
+ * 各屋的室內（柳家大宅、竹風茶寮、石家鐵鋪、王家、竹隱寺）；大地圖（地形、據點、道路、地名）。
  */
 import { writeFileSync } from 'node:fs';
 // 照遊戲本體的順序載入地圖與劇情（直接載入 life_towns 會碰上循環引用）
@@ -15,6 +15,7 @@ import { qzNorth } from '../../src/game/maps/qz_north';
 import { qzLiu, qzSmithy, qzTea, qzTemple, qzWang } from '../../src/game/maps/qingzhu_rooms';
 import { BLOCKING, type Line, type MapDef } from '../../src/game/maps/types';
 import { PEOPLE } from '../../src/game/story/people';
+import { AREA_LABELS, EDGES, NODES, WORLD_H, WORLD_W, worldTerrain } from '../../src/game/world/geo';
 
 const OUT = `${process.cwd()}/godot/data/`;
 
@@ -83,3 +84,25 @@ writeFileSync(
   JSON.stringify(Object.fromEntries(Object.entries(ITEMS).map(([id, it]) => [id, { name: it.name, price: it.price ?? 0, desc: it.desc ?? '', category: it.category }])), null, 1),
 );
 console.log('匯出完成：', OUT);
+
+// 大地圖：地形每格一個字（照 TERRAIN_CODE），據點、道路（頭尾是兩個據點、中間一格一格）、地名
+const TERRAIN_CODE: Record<string, string> = { sea: 'S', shallow: 's', beach: 'b', river: 'r', lake: 'l', plain: 'p', forest: 'f', hill: 'h', mount: 'm', peak: 'P' };
+writeFileSync(
+  OUT + 'world.json',
+  JSON.stringify(
+    {
+      w: WORLD_W,
+      h: WORLD_H,
+      terrain: worldTerrain().map((row) => row.map((t) => TERRAIN_CODE[t]).join('')),
+      nodes: NODES.map((n) => ({
+        id: n.id, name: n.name, kind: n.kind, x: n.x, y: n.y, desc: n.desc,
+        locked: !!n.locked, crossing: !!n.crossing, enter: n.enter ?? null, enterFrom: n.enterFrom ?? {},
+        rest: n.rest ? { keeper: n.rest.keeper, talk: n.rest.talk } : null,
+      })),
+      edges: EDGES.map((e) => ({ a: e.a, b: e.b, path: e.path, li: e.li, name: e.name, slow: e.slow ?? 1 })),
+      labels: AREA_LABELS,
+    },
+    null,
+    1,
+  ),
+);

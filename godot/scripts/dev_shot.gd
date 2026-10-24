@@ -102,6 +102,13 @@ func _run() -> void:
 			"hide":
 				# 自動測試時把視窗縮到 Dock，不打擾使用者（畫面照樣畫得出來就能截圖）
 				get_window().mode = Window.MODE_MINIMIZED
+			"nooutline":
+				for c in _main().rig.cam.get_children():
+					c.visible = false
+			"noshadow":
+				_main().sun.shadow_enabled = false
+			"shadowdist":
+				_main().sun.directional_shadow_max_distance = float(arg)
 			"winpos":
 				print("WIN ", get_window().position, " SCREEN ", DisplayServer.screen_get_size())
 			"quit":

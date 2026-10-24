@@ -11,6 +11,7 @@ var size_min := 7.0
 var size_max := 26.0
 var target: Node3D
 var cam: Camera3D
+var outline: ShaderMaterial
 
 
 func _ready() -> void:
@@ -18,14 +19,15 @@ func _ready() -> void:
 	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
 	cam.size = size
 	cam.near = 0.1
-	cam.far = 400.0
+	cam.far = 1600.0
 	add_child(cam)
 	var q := MeshInstance3D.new()
 	var qm := QuadMesh.new()
 	qm.size = Vector2(1, 1)
 	q.mesh = qm
 	q.extra_cull_margin = 16384.0
-	var sm := ShaderMaterial.new()
+	outline = ShaderMaterial.new()
+	var sm := outline
 	sm.shader = load("res://shaders/outline.gdshader")
 	# 描邊要比半透明的東西（水面、標記、字）先畫，不然會把它們蓋掉
 	sm.render_priority = -128
@@ -62,6 +64,9 @@ func _process(dt: float) -> void:
 	cam.size = lerp(cam.size, size, min(1.0, dt * 8.0))
 	if target:
 		position = position.lerp(target.global_position, min(1.0, dt * 6.0))
-	var dist := 60.0
+	var dist := 200.0
+	outline.set_shader_parameter("px_world", cam.size / maxf(1.0, get_viewport().get_visible_rect().size.y))
+	outline.set_shader_parameter("cam_near", cam.near)
+	outline.set_shader_parameter("cam_far", cam.far)
 	cam.position = Vector3(sin(yaw) * cos(PITCH), sin(PITCH), cos(yaw) * cos(PITCH)) * dist
 	cam.look_at(global_position, Vector3.UP)

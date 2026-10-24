@@ -87,6 +87,16 @@ func _on_tile(_g: Vector2i) -> void:
 	pass
 
 
+## 走在這裡的速度倍數（大地圖：路快、山慢）；子類別覆寫
+func _speed_at(_p: Vector3) -> float:
+	return 1.0
+
+
+## 這裡的地面高度（大地圖有起伏）；子類別覆寫
+func _ground_y(_p: Vector3) -> float:
+	return 0.0
+
+
 var _last_tile := Vector2i(-99, -99)
 
 
@@ -107,13 +117,14 @@ func _process(dt: float) -> void:
 	var dir := rig.ground_dir(v)
 	hero.walking = dir.length() > 0
 	if hero.walking:
-		var speed := 6.5 if Input.is_key_pressed(KEY_SHIFT) else 3.6
+		var speed := (6.5 if Input.is_key_pressed(KEY_SHIFT) else 3.6) * _speed_at(hero.position)
 		var step := dir * speed * dt
 		hero.face(dir)
 		if _walkable(hero.position + Vector3(step.x, 0, 0)):
 			hero.position.x += step.x
 		if _walkable(hero.position + Vector3(0, 0, step.z)):
 			hero.position.z += step.z
+		hero.position.y = _ground_y(hero.position)
 		var g := _grid(hero.position)
 		if g != _last_tile:
 			_last_tile = g

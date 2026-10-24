@@ -32,6 +32,7 @@ var info: Label
 var help: Label
 var _pill: PanelContainer
 var _pill_text: Label
+var _veil: ColorRect
 
 
 func _ready() -> void:
@@ -110,6 +111,31 @@ static func space_key() -> Control:
 		mark.draw_polyline(PackedVector2Array([Vector2(9, 7), Vector2(9, 11), Vector2(25, 11), Vector2(25, 7)]), c, 2.0))
 	key.add_child(mark)
 	return key
+
+
+## 轉場：整個畫面淡成黑色（遮住換場景時那一下停頓），回傳時已經全黑
+func fade_out(sec := 0.25) -> void:
+	if _veil == null:
+		_veil = ColorRect.new()
+		_veil.color = Color(0.05, 0.04, 0.07, 0.0)
+		_veil.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_veil)
+	var tw := create_tween()
+	tw.tween_property(_veil, "color:a", 1.0, sec)
+	await tw.finished
+
+
+## 從黑色淡回來
+func fade_in(sec := 0.35) -> void:
+	if _veil == null:
+		return
+	# 多等兩格畫面，讓新場景蓋好、畫出來
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var tw := create_tween()
+	tw.tween_property(_veil, "color:a", 0.0, sec)
+	await tw.finished
 
 
 ## 在畫面上某一點（通常是人物頭上）顯示互動提示；text 空字串就收起來

@@ -2,7 +2,7 @@ extends Node3D
 ## 試作品的主控：光線與環境、時辰（T）、天氣（Y）、換場景（Tab 或左上的按鈕）、鏡頭轉向（Q／R，每次 90 度）。
 ## 場景：青竹村（village）、戰鬥・平地（plain）、戰鬥・河湖（river）、戰鬥・山道（hill）。
 
-const SCENES := [["village", "青竹村"], ["qz_north", "青竹村北"], ["qz_tea", "竹風茶寮"], ["plain", "戰鬥・平地"], ["river", "戰鬥・河湖"], ["hill", "戰鬥・山道"]]
+const SCENES := [["world", "大地圖"], ["village", "青竹村"], ["qz_north", "青竹村北"], ["qz_tea", "竹風茶寮"], ["plain", "戰鬥・平地"], ["river", "戰鬥・河湖"], ["hill", "戰鬥・山道"]]
 ## 時辰：太陽的角度、顏色、亮度；天空與環境光；燈籠亮不亮
 const TIMES := [
 	{"name": "清晨", "pitch": -25.0, "sun": Color("ffd8b0"), "e": 1.0, "bg": Color("9fb4c8"), "amb": Color("8a96b0"), "ae": 0.5, "lamp": 0.0},
@@ -115,13 +115,26 @@ func _button(text: String, f: Callable) -> Button:
 	return b
 
 
+## 出入大地圖：先淡成黑色、換場景、再淡回來（確認的問句在呼叫的地方問）
+func travel(id: String, at := {}) -> void:
+	await ui.fade_out()
+	go(id, at)
+	await ui.fade_in()
+
+
 ## 換場景；at 是從哪一格進來（從門口進屋、出門回村）
 func go(id: String, at := {}) -> void:
 	scene_id = id
 	if scene:
 		scene.queue_free()
 	ui.show_hint("", Vector2.ZERO)
-	if id == "village" or id in Village.OUTDOOR:
+	if id == "world":
+		var wm := WorldMap.new()
+		wm.setup(ui, rig, self, at)
+		scene = wm
+		rig.size = 16.0
+		rig.size_max = 40.0
+	elif id == "village" or id in Village.OUTDOOR:
 		var v := Village.new()
 		v.setup(ui, rig, self, at)
 		v.open("qingzhu" if id == "village" else id)

@@ -2,7 +2,7 @@ class_name Village
 extends GridScene
 ## 室外地圖（青竹村、青竹村北……）：讀網頁版匯出的地圖資料（data/<地圖 id>.json：字元格子、建築、擺設、出入口、
 ## 村民與台詞），蓋成立體的村子。地圖四周往外多生一圈 M 格的景（照邊緣的地形接下去：山接山、林接林、河往外流、
-## 路延伸到遠方，最外面一圈是山），只能看、不能走；走到出入口就換地圖（往大地圖的還沒做）。
+## 路延伸到遠方，最外面一圈是山），只能看、不能走；走到出入口就換地圖，往大地圖的出口就到大地圖（world_map.gd）。
 ## - 山（^）依周圍有幾格山而隆起，水（~）往下凹，路、田、廣場貼在地面上。
 ## - 主角用方向鍵走（相對鏡頭方向），Shift 跑；村民在自己的位置附近走動，攤販站著不動。
 ## - 面對村民、擺設時頭上冒出「空白鍵 交談／查看」，按空白鍵對話；陶四、鍾嬸可以買賣東西。
@@ -737,19 +737,32 @@ func _people() -> void:
 		walkers.append(wk)
 
 
+## 往大地圖的出口：先問要不要出去；不出去就退回一步
+func _leave(e: Dictionary, t: Array) -> void:
+	var back := Vector3(clampf(t[0], 1, W - 2) - t[0], 0, clampf(t[1], 1, H - 2) - t[1]).normalized() * 0.6
+	var c := await ui.ask({"text": "要離開%s，到大地圖上嗎？" % data.name}, ["出發", "留下"])
+	if c == 0:
+		await main.travel("world", {"node": e.world, "from": e.get("worldFrom", "")})
+	else:
+		hero.position += back
+		_last_tile = _grid(hero.position)
+
+
 ## 對著門按空白鍵：做好室內的就直接換到屋裡，還沒做的說一聲
-## 走到出入口：通到做好的室外地圖就換過去；往大地圖的路還沒做，說一聲、退回一步
+## 走到出入口：通到做好的室外地圖就換過去；往大地圖的就到大地圖上這個據點旁邊（往出口那條路的方向）
 func _on_tile(g: Vector2i) -> void:
 	for e in data.exits:
 		for t in e.tiles:
 			if g != Vector2i(t[0], t[1]):
 				continue
-			if e.has("to") and e.to in OUTDOOR:
+			if e.has("world"):
+				_leave(e, t)
+			elif e.has("to") and e.to in OUTDOOR:
 				main.go(e.to, e.spawn)
 			else:
 				var back := Vector3(clampf(t[0], 1, W - 2) - t[0], 0, clampf(t[1], 1, H - 2) - t[1]).normalized() * 0.6
 				hero.position += back
-				ui.say([{"text": "這條路通往大地圖。（大地圖還沒做好）"}])
+				ui.say([{"text": "這條路還沒做好。"}])
 			return
 
 
