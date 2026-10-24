@@ -12,6 +12,7 @@
 ## 用到的旗標：lj_rumor 哪天聽過傳聞、lj_escort 哪天走過鏢、lj_b_<懸賞> 1 揭了榜／2 收拾掉了、lj_b_<懸賞>_day 上次領賞的日子、
 ## market 哪天逛過集
 
+const Weaving := preload("res://story/weaving.gd")
 const INN_PRICE := 5
 const TEA_PRICE := 2
 const HEAL_PRICE := 10
@@ -195,7 +196,7 @@ static func cloth_talk(ctx: Ctx) -> void:
 		1:
 			await ctx.shop("錦繡布莊・絲線", WEAVE_SHOP)
 		2:
-			await ctx.say([jin.call("想學織布？好啊，等我把後頭的織機修好了再教你。"), "（紡織還沒搬過來）"])
+			await Weaving.teach(ctx, "魏錦娘")
 		3:
 			var chats := [
 				["客官好眼光，我們錦繡布莊的布料，從臨江城到下游的大埠頭都有名。", "穿得好，走到哪兒人家都高看你一眼；料子厚實，挨刀也少挨一些。"],

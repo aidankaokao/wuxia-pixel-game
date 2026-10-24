@@ -119,7 +119,7 @@ const WORK_LOOK := {
 	"chop": ["swing", "柴"], "water": ["swing", "水"], "farm": ["swing", "田"], "bellows": ["stir", "火"], "stake": ["swing", "啪"],
 	"quarry": ["swing", "石"], "haul": ["swing", "貨"], "garden": ["sit", "蓮"], "cook": ["stir", "香"], "fish": ["sit", "魚"],
 	"sit": ["sit", "氣"], "study": ["sit", "書"], "sleep": ["sit", "Ｚ"], "rest": ["sit", "歇"], "pray": ["sit", "香"],
-	"qin": ["sit", "♪"], "chess": ["sit", "棋"], "write": ["sit", "墨"], "paint": ["sit", "畫"],
+	"qin": ["sit", "♪"], "chess": ["sit", "棋"], "write": ["sit", "墨"], "paint": ["sit", "畫"], "weave": ["sit", "梭"],
 }
 
 

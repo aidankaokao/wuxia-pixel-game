@@ -8,6 +8,7 @@ extends RefCounted
 ## 每一頁是左右兩面，_fill(面, 左右) 依分頁填內容；數值能畫的就畫成條、格子、圖（氣血、五維、重數、修為、領悟）。
 
 const Arts := preload("res://story/arts.gd")
+const Weaving := preload("res://story/weaving.gd")
 const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "門派", "技藝", "存檔"]
 const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("2e5a6a"), Color("5a6a3a"), Color("4a3a5a")]
 const Cook := preload("res://story/cook.gd")
@@ -1352,18 +1353,19 @@ func _friend_right(v: VBoxContainer) -> void:
 
 func _craft_left(v: VBoxContainer) -> void:
 	var list: Array = Crafts.data().crafts
+	v.add_theme_constant_override("separation", 2)
 	for i in list.size():
 		var c: Dictionary = list[i]
 		var p := Crafts.of(c.id)
 		var on := focus == "page" and i == cur
 		var row := PanelContainer.new()
 		var sb := _sb(Color(0.35, 0.42, 0.23, 0.14) if on else Color(0, 0, 0, 0), Color(0.35, 0.42, 0.23, 0.6) if on else Color(0, 0, 0, 0), 4, 1)
-		sb.set_content_margin_all(6)
+		sb.set_content_margin_all(3)
 		row.add_theme_stylebox_override("panel", sb)
 		var h := HBoxContainer.new()
 		h.add_theme_constant_override("separation", 12)
 		row.add_child(h)
-		h.add_child(_seal(String(c.name).left(1), 40, Color("5a6a3a")))
+		h.add_child(_seal(String(c.name).left(1), 34, Color("5a6a3a")))
 		var col := VBoxContainer.new()
 		h.add_child(col)
 		var top := HBoxContainer.new()
@@ -1374,7 +1376,6 @@ func _craft_left(v: VBoxContainer) -> void:
 		var frac := 1.0 if p.level >= Crafts.MAX else float(p.exp) / Crafts.exp_to_next(p.level)
 		col.add_child(_bar(frac, 260, 8, GREEN))
 		v.add_child(row)
-	v.add_child(_lab("小遊戲第一次要親自玩，之後可以選自動（上次親自的八成）。", 13, FAINT))
 
 
 func _craft_right(v: VBoxContainer) -> void:
@@ -1393,6 +1394,9 @@ func _craft_right(v: VBoxContainer) -> void:
 	v.add_child(_rule())
 	if c.id == "learning":
 		_craft_books(v)
+		return
+	if c.id == "weaving":
+		_craft_patterns(v)
 		return
 	if c.id in Arts.ART_ACTION:
 		_craft_art(v, c.id, p.level)
@@ -1424,6 +1428,30 @@ func _craft_right(v: VBoxContainer) -> void:
 		grid.add_child(h)
 	if all.is_empty():
 		v.add_child(_lab("還沒學會什麼菜。", 14, FAINT))
+
+
+## 紡織：學過的樣式（熟練星等、材料），沒學的標幾級起
+func _craft_patterns(v: VBoxContainer) -> void:
+	v.add_child(_lab("樣　式", 16, SOFT))
+	var lv := Crafts.level("weaving")
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	v.add_child(box)
+	for p in Weaving.patterns():
+		var w := Crafts.work("weaving", p.id)
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 8)
+		box.add_child(h)
+		var it := Ui.item_def(Weaving.item_of(p.id, 1))
+		var known := not w.is_empty()
+		h.add_child(_item_icon(Weaving.item_of(p.id, 1), it.get("icon", ""), 26, it.get("category", "")) if known else _lab("？", 18, FAINT))
+		h.add_child(_lab(p.name, 15, INK if known else FAINT))
+		if known:
+			h.add_child(_lab("★".repeat(int(w.level)) + "☆".repeat(Crafts.WORK_MAX - int(w.level)), 11, GOLD))
+			h.add_child(_lab(Weaving.needs_text(p), 13, SOFT))
+		else:
+			h.add_child(_lab("紡織 %d 級起・%s" % [p.level, "%d 兩" % p.cost if int(p.cost) > 0 else "不收錢"], 13, FAINT if lv < int(p.level) else GREEN))
+	v.add_child(_lab("品級：%s\n晴天織得好一些；摻上品絲線至少精良。" % "、".join(Crafts.data().grades), 13, SOFT))
 
 
 ## 學識：書目照經史子集分欄，讀過的畫熟讀程度，讀不懂的標學識門檻

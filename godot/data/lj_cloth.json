@@ -88,7 +88,8 @@
    "y": 4,
    "w": 2,
    "lines": [],
-   "label": "織布"
+   "label": "織布",
+   "script": "weaving/loom"
   }
  ],
  "npcs": [
