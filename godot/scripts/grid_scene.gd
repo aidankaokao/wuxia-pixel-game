@@ -242,3 +242,11 @@ func _interact(t: Dictionary) -> void:
 
 func info_text() -> String:
 	return ""
+
+
+## 主角現在的位置（存檔用，讀檔時當成 main.go 的 at）：格子座標與面向
+func where_at() -> Dictionary:
+	var g := _grid(hero.position)
+	var fwd := Vector3(sin(hero.rotation.y), 0, cos(hero.rotation.y))
+	var facing := ("right" if fwd.x > 0 else "left") if absf(fwd.x) > absf(fwd.z) else ("down" if fwd.z > 0 else "up")
+	return {"x": g.x, "y": g.y, "facing": facing}

@@ -27,6 +27,11 @@ var M := 0
 var EW := 0
 var EH := 0
 var exits := {}
+## 在州圖上趕路累積的時間（刻，滿一刻才讓時間走）
+var _ke := 0.0
+var _last_pos := Vector3.ZERO
+## 走一格路花幾刻（路上；其他地形照走路速度換算，越難走越久）
+const KE_PER_CELL := 0.3
 var road := {}
 var road_name := {}
 var nodes := {}
@@ -508,8 +513,19 @@ func _place() -> void:
 	hero = Chibi.make("hero")
 	hero.scale = Vector3.ONE * HERO_SCALE
 	add_child(hero)
+	if start.has("exact"):
+		var c := Vector2i(int(start.gx) - int(data.gx0), int(start.gy) - int(data.gy0))
+		hero.position = w3(c.x, c.y)
+		hero.position.y = _ground_y(hero.position)
+		hero.face(_facing_vec(start.get("facing", "down")))
+		_last_tile = c
+		rig.target = hero
+		rig.position = hero.position
+		_last_pos = hero.position
+		return
 	if start.has("gx"):
 		_place_at_edge()
+		_last_pos = hero.position
 		return
 	var n: Dictionary = nodes.get(start.get("node", "qingzhu"), nodes.get("qingzhu", data.nodes[0]))
 	var dir := Vector3(0, 0, 1)
@@ -524,6 +540,7 @@ func _place() -> void:
 	hero.face(dir)
 	rig.target = hero
 	rig.position = hero.position
+	_last_pos = hero.position
 
 
 ## 從隔壁州走過來：站在天下格 (gx, gy) 對應的地方——找最近的出口，往州裡走兩格
@@ -613,10 +630,26 @@ func _interact(t: Dictionary) -> void:
 
 func _process(dt: float) -> void:
 	super._process(dt)
+	# 趕路花時間：走過的距離 × 每格幾刻 ÷ 這裡的走路速度（路上 1.4 倍快，所以照路上的速度換算）
+	if hero:
+		var moved := Vector2(hero.position.x - _last_pos.x, hero.position.z - _last_pos.z).length()
+		_last_pos = hero.position
+		if moved > 0.0 and moved < 2.0:
+			_ke += moved * KE_PER_CELL * ROAD_SPEED / maxf(0.3, _speed_at(hero.position))
+			if _ke >= 1.0:
+				G.advance(int(_ke))
+				_ke -= int(_ke)
 	for c in clouds:
 		c.position.x += dt * 0.4
 		if c.position.x > ox + W + 10:
 			c.position.x = ox - 10
+
+
+## 州圖上的位置用天下格存（exact：讀檔時站回同一格）
+func where_at() -> Dictionary:
+	var g := _grid(hero.position)
+	var at := super.where_at()
+	return {"zhou": data.id, "gx": int(data.gx0) + g.x, "gy": int(data.gy0) + g.y, "facing": at.facing, "exact": true}
 
 
 func info_text() -> String:

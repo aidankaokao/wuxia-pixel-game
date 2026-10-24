@@ -20,10 +20,10 @@ static func font() -> SystemFont:
 const GOLD := Color("c9a46a")
 const INK := Color(0.09, 0.08, 0.12, 0.93)
 
-## 試作品自己記的銀兩與行囊（不讀存檔）
-var silver := 120
-var bag := {"boar_meat": 2, "dog_pelt": 1, "boar_tusk": 1, "herb": 3, "jinchuang": 1}
+## 物品資料（名稱、價錢、說明；銀兩與行囊在 G）
 var items: Dictionary = {}
+var _toast: Label
+var _toast_tw: Tween
 
 var _root: Control
 var _box: Control
@@ -195,6 +195,30 @@ func _make_ink() -> void:
 	m.set_shader_parameter("t", 0.0)
 	_ink.material = m
 	add_child(_ink)
+
+
+## 畫面下方中間冒一行小字，過一下就淡掉（存檔成功之類的提示）
+func toast(text: String) -> void:
+	if _toast == null:
+		_toast = Label.new()
+		_toast.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+		_toast.offset_top = -96
+		_toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_toast.add_theme_font_override("font", font())
+		_toast.add_theme_font_size_override("font_size", 17)
+		_toast.add_theme_color_override("font_color", Color("f6ecd4"))
+		_toast.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+		_toast.add_theme_constant_override("outline_size", 7)
+		_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_toast)
+	_toast.text = text
+	if _toast_tw:
+		_toast_tw.kill()
+	_toast.modulate.a = 1.0
+	_toast_tw = create_tween()
+	_toast_tw.tween_interval(1.8)
+	_toast_tw.tween_property(_toast, "modulate:a", 0.0, 0.6)
 
 
 ## 到了新場景，畫面上方漸漸浮出地名，停一下再淡掉
@@ -455,9 +479,9 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 		v.add_child(c)
 	_show(p)
 	while true:
-		var ids: Array = stock if tab == 0 else bag.keys().filter(func(k): return bag[k] > 0)
+		var ids: Array = stock if tab == 0 else G.bag.keys().filter(func(k): return G.bag[k] > 0)
 		cur = clampi(cur, 0, max(0, ids.size() - 1))
-		head.text = "%s　　　銀兩 %d" % [title, silver]
+		head.text = "%s　　　銀兩 %d" % [title, G.silver]
 		tabs.text = ("【買】　賣" if tab == 0 else "　買　【賣】") + "　　（←→ 換分頁）"
 		for c in list.get_children():
 			c.queue_free()
@@ -469,7 +493,7 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 		for i in ids.size():
 			var id: String = ids[i]
 			var price := item_price(id) if tab == 0 else int(floor(item_price(id) * sell_rate))
-			var have := ("　×%d" % bag[id]) if tab == 1 else (("（身上 %d）" % bag[id]) if bag.has(id) else "")
+			var have := ("　×%d" % G.bag[id]) if tab == 1 else (("（身上 %d）" % G.bag[id]) if G.bag.has(id) else "")
 			var row := HBoxContainer.new()
 			var nm := Label.new()
 			nm.text = "%s%s%s" % ["▶ " if i == cur else "　 ", item_name(id), have]
@@ -498,17 +522,17 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 			var id: String = ids[cur]
 			if tab == 0:
 				var p2 := item_price(id)
-				if silver < p2:
+				if G.silver < p2:
 					note = "銀兩不夠（要 %d 兩）" % p2
 				else:
-					silver -= p2
-					bag[id] = bag.get(id, 0) + 1
+					G.silver -= p2
+					G.bag[id] = G.bag.get(id, 0) + 1
 					note = "買了一件%s（-%d 兩）" % [item_name(id), p2]
 			else:
 				var p3 := int(floor(item_price(id) * sell_rate))
-				silver += p3
-				bag[id] -= 1
-				if bag[id] <= 0:
-					bag.erase(id)
+				G.silver += p3
+				G.bag[id] -= 1
+				if G.bag[id] <= 0:
+					G.bag.erase(id)
 				note = "賣了一件%s（+%d 兩）" % [item_name(id), p3]
 	_close()

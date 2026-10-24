@@ -29,11 +29,14 @@ func _main() -> Node:
 
 
 func _press(name: String) -> void:
-	var code := OS.find_keycode_from_string(name)
+	# 可以帶修飾鍵，例如 key:Ctrl+S
+	var ctrl := name.begins_with("Ctrl+")
+	var code := OS.find_keycode_from_string(name.trim_prefix("Ctrl+"))
 	for down in [true, false]:
 		var e := InputEventKey.new()
 		e.keycode = code
 		e.physical_keycode = code
+		e.ctrl_pressed = ctrl
 		e.pressed = down
 		Input.parse_input_event(e)
 		await get_tree().process_frame

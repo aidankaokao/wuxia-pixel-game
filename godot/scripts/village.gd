@@ -779,4 +779,4 @@ func _interact(t: Dictionary) -> void:
 
 
 func info_text() -> String:
-	return "%s　%s\n銀兩 %d" % [data.name, data.subtitle, ui.silver]
+	return "%s　%s\n銀兩 %d" % [data.name, data.subtitle, G.silver]

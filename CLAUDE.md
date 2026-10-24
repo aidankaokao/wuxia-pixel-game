@@ -35,7 +35,8 @@
 - 交談與確認只用空白鍵（與 Enter），E 鍵留給之後別種互動，不要再拿來交談。互動提示是 `ui.show_hint(動作, 畫面座標)`（鍵帽圖示＋動作，不寫「空白鍵」）。
 - 進出房子一律站在門口按空白鍵（門是 `props` 裡 `sprite: "door"` 的一筆，村子帶 `door`、室內帶 `exit`），不要做成走上去就自動進門。
 - 村子的地面（`village.gd` 的 `_ground`）每格切 `SUB`×`SUB` 細網格，高度與顏色在格子之間平滑取值（`_bil`、`_blur`），讓河岸、小路是曲線；擋路仍照格子。
-- 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`，開著時 `ui.busy()` 為真；中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
+- 遊戲狀態在 autoload `G`（`scripts/game.gd`）：主角、銀兩 `G.silver`、行囊 `G.bag`、旗標 `G.flags`、日子與時間（`G.day`、`G.time` 是今天第幾刻）、天氣；時間只能用 `G.advance(刻)` 往前走（畫面接 `time_changed`），日期與時辰的文字用 `G.date_text()`、`G.time_text()`、`G.ke_text()`。存檔 `G.write_save(欄位, main.where())`／`G.read_save`／`G.apply_save`；場景的位置由 `GridScene.where_at()` 提供（州圖存天下格）。存檔格式改了要遞增 `SAVE_VERSION`。網頁版的設計搬過來的順序見 PLAN.md 4.38。
+- 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`、`ui.toast(一行提示)`，開著時 `ui.busy()` 為真；中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
 - 程式註解、介面文字一樣用繁體中文；GDScript 用 tab 縮排、型別推斷（`:=`）時遇到 Variant 要用 `maxf`／`minf` 這類有型別的函式。
 
 ### 網頁版
