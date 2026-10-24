@@ -6,6 +6,7 @@
 
 const Train := preload("res://story/train.gd")
 const Chores := preload("res://story/chores.gd")
+const Bridge := preload("res://story/bridge.gd")
 
 
 ## 村裡的老井：打水歇歇，花半個時辰。氣血、內力回滿，體力只回四分之一（要練功就得睡覺）
@@ -61,6 +62,8 @@ static func _by(who: String) -> Callable:
 
 ## 村長柳承安的劇情部分（人物檔案的 story）：接斷崖寨的委託、打完回來覆命。處理了回傳 true，其餘交給一般交談
 static func liu_story(ctx: Ctx) -> bool:
+	if await Bridge.donation(ctx, "liu"):
+		return true
 	var liu := _by("柳承安")
 	var q := ctx.flag("q_bandits")
 	if ctx.flag("bandit_boss") and q != 3:
@@ -104,6 +107,8 @@ static func liu_story(ctx: Ctx) -> bool:
 
 ## 鍾嬸的劇情部分：第一次見面送一碗茶（處理了回傳 true）
 static func zhong_story(ctx: Ctx) -> bool:
+	if await Bridge.donation(ctx, "zhong"):
+		return true
 	if ctx.flag("tea"):
 		return false
 	var zhong := _by("鍾嬸")

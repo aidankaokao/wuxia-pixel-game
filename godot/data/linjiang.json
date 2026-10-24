@@ -1,0 +1,1557 @@
+{
+ "id": "linjiang",
+ "name": "臨江城",
+ "subtitle": "縣城・九宮格",
+ "tiles": [
+  ".****T.T.*T..*..TT..:::..*...T.......T.*.....*..T..*........",
+  "...*...........TT...:::T....T...TT.*TT...*............T.*T..",
+  "..T.T...T...T.....*.:::...*..T..*..T...*.....*......T.....*.",
+  "..THHHHHHHHHHHHHHHHH:::HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH...",
+  "*..H::::::::::::::::===::::::::::::::===::::::::::::::::H...",
+  "..TH::::::::::::::::===::::::::::::::===::::::::::::::::H*..",
+  "*..H::..............===..............===..............::H..T",
+  "..*H::..............===..............===..............::H...",
+  ".T*H::..............===..............===..............::H*..",
+  ".*.H::.......T......===..............===..............::H...",
+  "...H::..............===..............===..............::H..T",
+  "...H::..............===..............===...........T..::HT..",
+  "...H::..............===............T.===..............::H..*",
+  "TT.H::..............===..............===..............::H...",
+  "...H::..............===..............===..............::H...",
+  "...H::..............===..............===..............::H...",
+  "*.TH::..............===..............===..............::HT..",
+  "..TH::..............===..............===..............::H..*",
+  "..TH::..............===..............===..............::H.T.",
+  "...H::..............===..............===..............::HT..",
+  "::::====================================================H..T",
+  "::::====================================================H*..",
+  "::::====================================================H..T",
+  "T.TH::..............===RRRRRRRRRRRRRR===..............::HTT.",
+  "...H::..............===RXXXXXXXXXXXXR===..............::H...",
+  "..*H::..............===RXXXXXXXXXXXXR===..............::HTT.",
+  ".TTH::...T..........===RXXXXXXXXXXXXR===..............::H...",
+  ".T*H::..............===RXXXXXXXXXXXXR===..............::HT.T",
+  "T..H::..............===RXXXXXXXXXXXXR===..............::HT.T",
+  "..TH::..............===RXXXXXXXXXXXXR===...........T..::H..T",
+  "T*.H::..............===RXXXXXXXXXXXXR===..............::H...",
+  "...H::..............===RXXXXXXXXXXXXR===..............::H...",
+  "...H::..............===RXXXXXXXXXXXXR===..............::HT*.",
+  "T*.H::..............===RXXXXXXXXXXXXR===..............::H..T",
+  ".TTH::..............===RXXXXXXXXXXXXR===..............::HT..",
+  ".TTH::..............===RXXXXXXXXXXXXR===..............::HTT.",
+  "*.TH::........T.....===RRRRRRXXXRRRRR===..............::H*T*",
+  "*..H====================================================::::",
+  "*..H====================================================::::",
+  "...H====================================================::::",
+  "*.*H::..............====================..............::H...",
+  ".*.H::..............====================............T.::H..*",
+  "...H::..............====================..............::H.T*",
+  ".T.H::..............====================..............::H...",
+  ".T.H::....T.........====================..............::H...",
+  "*..H::..............====================..............::H.T*",
+  "...H::..............====================..............::H...",
+  "..TH::..............====================..............::H...",
+  ".TTH::..............====================..............::H.T.",
+  "*T.H::..............====================..............::H*T.",
+  "T*.H::..............====================..............::H.T.",
+  ".T*H::..........T...====================..............::HT*.",
+  "..TH::..............====================....T.........::H.T.",
+  "...H::..............====================..............::H.TT",
+  ".T.H::::::::::::::::===::::::::::::::===::::::::::::::::H.TT",
+  "...H::::::::::::::::===::::::::::::::===::::::::::::::::H.TT",
+  ".TTHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH===HHHHHHHHHHHHHHHHH...",
+  "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+  "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+  "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+  "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::",
+  "~~~~~~~~~~~~~~##~~~~~~~~~~~~~~~~~~~~~~~~~~~~##~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~##~~~~~~~~~~~~~~~~~~~~~~~~~~~~##~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~##~~~~~~~~~~~~~~~~~~~~~~~~~~~~##~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 1,
+  "y": 21,
+  "facing": "right"
+ },
+ "ring": 18,
+ "buildings": [
+  {
+   "style": "hall",
+   "x": 7,
+   "y": 15,
+   "face": "s",
+   "name": "臨江書院",
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "timber": "#8a2e26",
+    "lanterns": true,
+    "plaque": true
+   },
+   "door": [],
+   "sign": "臨江書院",
+   "enter": {
+    "to": "lj_academy",
+    "spawn": {
+     "x": 6,
+     "y": 7,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house",
+   "x": 16,
+   "y": 7,
+   "face": "e",
+   "name": "萬通牙行",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [
+    {
+     "text": "門上貼著一張紅紙：「代客買賣房屋，招租覓屋，童叟無欺」。"
+    },
+    {
+     "text": "（牙人錢六多半在門口招呼客人）"
+    }
+   ],
+   "sign": "萬通牙行",
+   "flag": "牙"
+  },
+  {
+   "style": "house2",
+   "x": 7,
+   "y": 6,
+   "face": "n",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "door": [
+    {
+     "text": "門關著，裡頭傳出搓麻將的聲音。"
+    }
+   ]
+  },
+  {
+   "style": "home1",
+   "x": 17,
+   "y": 13,
+   "face": "e",
+   "name": "民居",
+   "st": {
+    "w": 4,
+    "h": 3,
+    "door": 1,
+    "roof": "#b8944a",
+    "roofDark": "#8a6a30",
+    "roofLight": "#d4b066",
+    "wall": "#b8a07a"
+   },
+   "door": [
+    {
+     "text": "一間小屋，門口擺著一雙草鞋。"
+    }
+   ]
+  },
+  {
+   "style": "teahouse",
+   "x": 24,
+   "y": 16,
+   "face": "s",
+   "name": "泉霧茶莊",
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 2,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "door": [],
+   "sign": "泉霧茶莊",
+   "flag": "茶",
+   "enter": {
+    "to": "lj_teashop",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "sect_master",
+   "x": 31,
+   "y": 16,
+   "face": "s",
+   "name": "土地祠",
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 2,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "plaque": true
+   },
+   "door": [
+    {
+     "text": "小小的土地祠，香爐裡插滿了香。"
+    },
+    {
+     "text": "門楣上一塊匾：「保境安民」。"
+    }
+   ],
+   "sign": "土地祠"
+  },
+  {
+   "style": "home3",
+   "x": 24,
+   "y": 6,
+   "face": "n",
+   "name": "何家",
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 2,
+    "roof": "#5a6070",
+    "roofDark": "#3e4450",
+    "roofLight": "#767c8c"
+   },
+   "door": [
+    {
+     "text": "門虛掩著。何婆婆常坐在門口曬太陽。"
+    },
+    {
+     "text": "（何婆婆不在家）"
+    }
+   ]
+  },
+  {
+   "style": "house2",
+   "x": 31,
+   "y": 6,
+   "face": "n",
+   "name": "魯家",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "door": [
+    {
+     "text": "屋簷下掛著一串串曬乾的辣椒，門口堆著幾塊鑿了一半的石頭。"
+    }
+   ]
+  },
+  {
+   "style": "house",
+   "x": 40,
+   "y": 7,
+   "face": "w",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [
+    {
+     "text": "窗台上擺著幾盆蘭花，養得很好。"
+    }
+   ]
+  },
+  {
+   "style": "home2",
+   "x": 45,
+   "y": 16,
+   "face": "s",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860",
+    "wall": "#d0c098"
+   },
+   "door": [
+    {
+     "text": "院牆上爬滿了牽牛花。"
+    }
+   ]
+  },
+  {
+   "style": "house",
+   "x": 46,
+   "y": 6,
+   "face": "n",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [
+    {
+     "text": "門上貼著一張褪了色的門神。"
+    }
+   ]
+  },
+  {
+   "style": "house2",
+   "x": 16,
+   "y": 24,
+   "face": "e",
+   "name": "回春堂",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "door": [],
+   "sign": "回春堂",
+   "flag": "藥",
+   "enter": {
+    "to": "lj_clinic",
+    "spawn": {
+     "x": 4,
+     "y": 5,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house",
+   "x": 16,
+   "y": 31,
+   "face": "e",
+   "name": "和記當鋪",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [],
+   "sign": "和記當鋪",
+   "flag": "當",
+   "enter": {
+    "to": "lj_pawn",
+    "spawn": {
+     "x": 4,
+     "y": 5,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house",
+   "x": 7,
+   "y": 33,
+   "face": "s",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [
+    {
+     "text": "屋裡傳出小孩背書的聲音：「人之初，性本善……」"
+    }
+   ]
+  },
+  {
+   "style": "home1",
+   "x": 6,
+   "y": 24,
+   "face": "w",
+   "name": "民居",
+   "st": {
+    "w": 4,
+    "h": 3,
+    "door": 1,
+    "roof": "#b8944a",
+    "roofDark": "#8a6a30",
+    "roofLight": "#d4b066",
+    "wall": "#b8a07a"
+   },
+   "door": [
+    {
+     "text": "門口坐著一隻打盹的花貓。"
+    }
+   ]
+  },
+  {
+   "style": "yamen_hall",
+   "x": 26,
+   "y": 24,
+   "face": "s",
+   "name": "縣衙大堂",
+   "st": {
+    "w": 7,
+    "h": 4,
+    "door": 3,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "timber": "#8a2e26",
+    "doorPaint": "#5a1a14",
+    "lanterns": true,
+    "plaque": true
+   },
+   "door": [
+    {
+     "text": "院牆擋著，得從大門進去。"
+    }
+   ],
+   "sign": "親民堂"
+  },
+  {
+   "style": "yamen_wing",
+   "x": 24,
+   "y": 29,
+   "face": "e",
+   "name": "縣衙西廂",
+   "st": {
+    "w": 3,
+    "h": 3,
+    "door": 1,
+    "roof": "#44464e",
+    "roofDark": "#2e3036",
+    "roofLight": "#5c5e68",
+    "timber": "#8a2e26"
+   },
+   "door": [
+    {
+     "text": "院牆擋著，得從大門進去。"
+    }
+   ]
+  },
+  {
+   "style": "yamen_wing",
+   "x": 33,
+   "y": 29,
+   "face": "w",
+   "name": "縣衙東廂",
+   "st": {
+    "w": 3,
+    "h": 3,
+    "door": 1,
+    "roof": "#44464e",
+    "roofDark": "#2e3036",
+    "roofLight": "#5c5e68",
+    "timber": "#8a2e26"
+   },
+   "door": [
+    {
+     "text": "院牆擋著，得從大門進去。"
+    }
+   ]
+  },
+  {
+   "style": "yamen_gate",
+   "x": 29,
+   "y": 34,
+   "face": "s",
+   "name": "臨江縣衙",
+   "st": {
+    "w": 3,
+    "h": 3,
+    "door": 1,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "wall": "#9a3a2e",
+    "timber": "#5a1a14",
+    "doorPaint": "#1e1a1a",
+    "lanterns": true
+   },
+   "door": [],
+   "sign": "臨江縣衙",
+   "enter": {
+    "to": "lj_yamen",
+    "spawn": {
+     "x": 12,
+     "y": 14,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "hall",
+   "x": 40,
+   "y": 24,
+   "face": "w",
+   "name": "金刀鏢局",
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "timber": "#8a2e26",
+    "lanterns": true,
+    "plaque": true
+   },
+   "door": [],
+   "sign": "金刀鏢局",
+   "flag": "鏢",
+   "enter": {
+    "to": "lj_escort",
+    "spawn": {
+     "x": 6,
+     "y": 7,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house2",
+   "x": 40,
+   "y": 32,
+   "face": "w",
+   "name": "錦繡布莊",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "door": [],
+   "sign": "錦繡布莊",
+   "flag": "布",
+   "enter": {
+    "to": "lj_cloth",
+    "spawn": {
+     "x": 4,
+     "y": 5,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house",
+   "x": 50,
+   "y": 24,
+   "face": "e",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [
+    {
+     "text": "門上掛著一塊「囍」字，看來剛辦過喜事。"
+    }
+   ]
+  },
+  {
+   "style": "home2",
+   "x": 47,
+   "y": 33,
+   "face": "s",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860",
+    "wall": "#d0c098"
+   },
+   "door": [
+    {
+     "text": "院子裡一隻黃狗衝著你叫了兩聲。"
+    }
+   ]
+  },
+  {
+   "style": "teahouse",
+   "x": 8,
+   "y": 40,
+   "face": "n",
+   "name": "雲來客棧",
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 2,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "door": [],
+   "sign": "雲來客棧",
+   "flag": "客",
+   "enter": {
+    "to": "lj_inn",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "home3",
+   "x": 16,
+   "y": 43,
+   "face": "e",
+   "name": "周員外府",
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 2,
+    "roof": "#5a6070",
+    "roofDark": "#3e4450",
+    "roofLight": "#767c8c"
+   },
+   "door": [
+    {
+     "text": "朱門緊閉，門房斜眼打量著你。"
+    },
+    {
+     "text": "（屋內尚未開放）"
+    }
+   ],
+   "sign": "周府"
+  },
+  {
+   "style": "house",
+   "x": 7,
+   "y": 50,
+   "face": "s",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [
+    {
+     "text": "門關著。門縫裡飄出燉肉的香味。"
+    }
+   ]
+  },
+  {
+   "style": "teahouse",
+   "x": 41,
+   "y": 40,
+   "face": "n",
+   "name": "望江樓",
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 2,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "door": [],
+   "sign": "望江樓",
+   "flag": "酒",
+   "enter": {
+    "to": "lj_tower",
+    "spawn": {
+     "x": 6,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "smithy",
+   "x": 47,
+   "y": 50,
+   "face": "s",
+   "name": "漕幫分舵",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a4248",
+    "roofDark": "#302a2e",
+    "roofLight": "#625860",
+    "wall": "#c9bda6",
+    "chimney": true
+   },
+   "door": [],
+   "sign": "漕幫分舵",
+   "enter": {
+    "to": "lj_guild",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house",
+   "x": 40,
+   "y": 46,
+   "face": "w",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "door": [
+    {
+     "text": "門口堆著補到一半的漁網。"
+    }
+   ]
+  },
+  {
+   "style": "house2",
+   "x": 50,
+   "y": 44,
+   "face": "e",
+   "name": "民居",
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "door": [
+    {
+     "text": "大門緊閉，門環擦得發亮。"
+    }
+   ]
+  }
+ ],
+ "props": [
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 1,
+   "y": 23,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「臨江城」\n西 ── 雲水渡口・青竹村"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 23,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "北 ── 鳴泉山\n山上有鳴泉劍派。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 58,
+   "y": 36,
+   "w": 1,
+   "lines": [
+    {
+     "text": "東 ── 沿江大道，往大埠頭"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "stone_lion",
+   "x": 28,
+   "y": 37,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一對石獅子蹲在衙門口，張著嘴，鬃毛被雨水沖得發亮。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "stone_lion",
+   "x": 32,
+   "y": 37,
+   "w": 1,
+   "lines": [
+    {
+     "text": "母獅子腳下按著一隻小獅子。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "drum",
+   "x": 27,
+   "y": 37,
+   "w": 1,
+   "lines": [],
+   "label": "鳴冤鼓",
+   "script": "linjiang/drum"
+  },
+  {
+   "id": "",
+   "sprite": "bulletin",
+   "x": 33,
+   "y": 37,
+   "w": 1,
+   "lines": [],
+   "label": "看告示",
+   "script": "linjiang/board_gate"
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 11,
+   "y": 28,
+   "w": 1,
+   "lines": [
+    {
+     "text": "城裡的公井，井沿被繩子磨出了一道道溝。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 29,
+   "y": 12,
+   "w": 1,
+   "lines": [
+    {
+     "text": "巷口的水井，一早就有人排隊打水。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 47,
+   "y": 12,
+   "w": 1,
+   "lines": [
+    {
+     "text": "井邊的石板被磨得光滑，幾個大嬸邊洗菜邊聊天。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 33,
+   "y": 49,
+   "w": 1,
+   "lines": [
+    {
+     "text": "市集邊的井，賣菜的都在這兒洗菜。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "drying_rack",
+   "x": 44,
+   "y": 12,
+   "w": 2,
+   "lines": [
+    {
+     "text": "竹竿上晾著一排被單，被風吹得鼓鼓的。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "drying_rack",
+   "x": 12,
+   "y": 46,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上曬著魚乾和菜乾。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 23,
+   "y": 12,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一個涼茶攤，竹簍裡插著幾支蒲扇，壺嘴冒著熱氣。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "flag",
+   "x": 45,
+   "y": 25,
+   "w": 1,
+   "lines": [
+    {
+     "text": "金刀鏢局的鏢旗，旗上一把金刀。"
+    }
+   ],
+   "label": "",
+   "char": "鏢"
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 25,
+   "y": 47,
+   "w": 2,
+   "lines": [
+    {
+     "text": "攤子上擺著糖人、紙鳶和各色小玩意。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 29,
+   "y": 47,
+   "w": 2,
+   "lines": [
+    {
+     "text": "賣菜的攤子，青菜蘿蔔堆得像小山。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 25,
+   "y": 42,
+   "w": 2,
+   "lines": [],
+   "label": "田記山貨",
+   "script": "linjiang/stall_food",
+   "when": "xunxiu == 1"
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 28,
+   "y": 42,
+   "w": 2,
+   "lines": [],
+   "label": "江南絲行",
+   "script": "linjiang/stall_silk",
+   "when": "xunxiu == 1"
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 31,
+   "y": 42,
+   "w": 2,
+   "lines": [],
+   "label": "舊書攤",
+   "script": "linjiang/stall_books",
+   "when": "xunxiu == 1"
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 34,
+   "y": 42,
+   "w": 2,
+   "lines": [],
+   "label": "舊貨攤",
+   "script": "linjiang/stall_goods",
+   "when": "xunxiu == 1"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 24,
+   "y": 51,
+   "w": 1,
+   "lines": [
+    {
+     "text": "市集的燈籠柱，入夜就點上。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 35,
+   "y": 51,
+   "w": 1,
+   "lines": [
+    {
+     "text": "燈籠在風裡輕輕搖晃。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "paifang_city",
+   "x": 35,
+   "y": 58,
+   "w": 6,
+   "lines": [
+    {
+     "text": "南門外的石牌坊，匾上兩個大字：「臨江」。"
+    }
+   ],
+   "label": "",
+   "passable": true
+  },
+  {
+   "id": "",
+   "sprite": "boat",
+   "x": 20,
+   "y": 62,
+   "w": 3,
+   "lines": [
+    {
+     "text": "漕幫的運糧船。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "boat",
+   "x": 48,
+   "y": 63,
+   "w": 3,
+   "lines": [
+    {
+     "text": "一艘烏篷小船，船家正在補網。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljn_guard",
+   "name": "朱八斤",
+   "sprite": "guard",
+   "x": 23,
+   "y": 4,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "朱八斤",
+      "text": "北門出去，往北是鳴泉山，往東北是北嶺官道。"
+     }
+    ],
+    [
+     {
+      "speaker": "朱八斤",
+      "text": "天黑以後北門就關了，要出城趁早。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "ljn_qian",
+   "name": "錢六",
+   "sprite": "peddler",
+   "x": 21,
+   "y": 11,
+   "facing": "left",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/agent_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljn_lu",
+   "name": "魯一鑿",
+   "sprite": "smith",
+   "x": 36,
+   "y": 5,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "bridge/mason",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljn_watch",
+   "name": "邱更生",
+   "sprite": "peddler",
+   "x": 30,
+   "y": 21,
+   "facing": "down",
+   "all_day": false,
+   "work": false,
+   "night": true,
+   "wander": 4,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "邱更生",
+      "text": "天乾物燥——小心火燭——"
+     }
+    ],
+    [
+     {
+      "speaker": "邱更生",
+      "text": "我打了三十年的更，城北哪家幾點熄燈，我都知道。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_lei",
+   "name": "雷小五",
+   "sprite": "guard",
+   "x": 30,
+   "y": 38,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 4,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "雷小五",
+      "text": "巡街呢！城裡有什麼不平的事，跟我說。"
+     },
+     {
+      "speaker": "雷小五",
+      "text": "……不過打架的事別找我，找捕頭。"
+     }
+    ],
+    [
+     {
+      "speaker": "雷小五",
+      "text": "縣衙門口的告示牌記得常看，誰家要賣房子、哪裡有懸賞，都貼在那兒。"
+     }
+    ],
+    [
+     {
+      "speaker": "雷小五",
+      "text": "最近上頭發了海捕文書，抓一個左眉帶疤的傢伙。你要是看見了，可別自己逞強。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_guard_w",
+   "name": "馮順",
+   "sprite": "guard",
+   "x": 5,
+   "y": 19,
+   "facing": "right",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "馮順",
+      "text": "臨江城到了。進城守規矩，別在城裡動刀動槍。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_guard_w2",
+   "name": "魏大牛",
+   "sprite": "guard",
+   "x": 55,
+   "y": 40,
+   "facing": "left",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "魏大牛",
+      "text": "東門修好啦。出了東門就上大路，往東順著大江走，聽說能一直走到海邊。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_escort",
+   "name": "褚大剛",
+   "sprite": "escort",
+   "x": 39,
+   "y": 25,
+   "facing": "left",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "褚大剛",
+      "text": "金刀鏢局，褚大剛。"
+     },
+     {
+      "speaker": "褚大剛",
+      "text": "漕幫那幫水耗子，仗著碼頭是他們的，連我們的鏢船都敢扣！"
+     },
+     {
+      "speaker": "褚大剛",
+      "text": "總鏢頭忍得住，我可忍不住。"
+     }
+    ],
+    [
+     {
+      "speaker": "褚大剛",
+      "text": "你身手看著不錯。鏢局最近缺人手，進去找總鏢頭金萬山，有鏢可以接。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_boatman",
+   "name": "閻水生",
+   "sprite": "boatman",
+   "x": 30,
+   "y": 59,
+   "facing": "up",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 2,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "閻水生",
+      "text": "看什麼看？碼頭是漕幫的地盤，閒人別在這兒晃。"
+     },
+     {
+      "speaker": "閻水生",
+      "text": "……鏢局的人？哼，他們自己的船貨不清不楚，扣下來查查又怎樣。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_ferry",
+   "name": "董阿七",
+   "sprite": "fisher",
+   "x": 15,
+   "y": 60,
+   "facing": "down",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "董阿七",
+      "text": "要過江？今天風大，不開船囉。"
+     },
+     {
+      "text": "（大江南岸還去不了）"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_b_river",
+   "name": "江匪",
+   "sprite": "boatman",
+   "x": 6,
+   "y": 59,
+   "facing": "right",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/bounty_river",
+   "when": "lj_b_river == 1",
+   "talks": []
+  },
+  {
+   "id": "lj_market_food",
+   "name": "田有餘",
+   "sprite": "farmer",
+   "x": 25,
+   "y": 41,
+   "facing": "down",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "xunxiu == 1",
+   "talks": [
+    [
+     {
+      "speaker": "田有餘",
+      "text": "山裡剛下來的貨！桂花、杏仁、野菌，平常城裡可買不到。"
+     },
+     {
+      "text": "（要買東西，走到攤子前面挑貨）"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_market_silk",
+   "name": "沈綺羅",
+   "sprite": "lady",
+   "x": 28,
+   "y": 41,
+   "facing": "down",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "xunxiu == 1",
+   "talks": [
+    [
+     {
+      "speaker": "沈綺羅",
+      "text": "這上品絲線是從江南運來的，一旬才帶這麼幾綑，摻在布裡，織出來的東西就是不一樣。"
+     },
+     {
+      "text": "（要買東西，走到攤子前面挑貨）"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_market_books",
+   "name": "古懷石",
+   "sprite": "scholar",
+   "x": 31,
+   "y": 41,
+   "facing": "down",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "xunxiu == 1",
+   "talks": [
+    [
+     {
+      "speaker": "古懷石",
+      "text": "舊書舊書，別看紙黃了，裡頭的東西可不舊。"
+     },
+     {
+      "text": "（要買東西，走到攤子前面挑貨）"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lj_market_goods",
+   "name": "雷振",
+   "sprite": "escort",
+   "x": 34,
+   "y": 41,
+   "facing": "down",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "xunxiu == 1",
+   "talks": [
+    [
+     {
+      "speaker": "雷振",
+      "text": "走江湖的家當，件件都是好東西。這把青鋼劍、這把雁翎刀，鐵匠鋪可打不出來。"
+     },
+     {
+      "text": "（要買東西，走到攤子前面挑貨）"
+     }
+    ]
+   ]
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     0,
+     20
+    ],
+    [
+     0,
+     21
+    ],
+    [
+     0,
+     22
+    ]
+   ],
+   "world": "linjiang",
+   "worldFrom": "ferry"
+  },
+  {
+   "tiles": [
+    [
+     59,
+     37
+    ],
+    [
+     59,
+     38
+    ],
+    [
+     59,
+     39
+    ]
+   ],
+   "world": "linjiang",
+   "worldFrom": "dabutou"
+  },
+  {
+   "tiles": [
+    [
+     20,
+     0
+    ],
+    [
+     21,
+     0
+    ],
+    [
+     22,
+     0
+    ]
+   ],
+   "world": "linjiang",
+   "worldFrom": "mingquan"
+  }
+ ],
+ "people": [],
+ "spots": [],
+ "triggers": []
+}

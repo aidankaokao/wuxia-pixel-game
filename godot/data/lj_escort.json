@@ -1,0 +1,144 @@
+{
+ "id": "lj_escort",
+ "name": "金刀鏢局",
+ "subtitle": "臨江城・鏢局",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWWWWWW",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "WWWWWWEWWWWWW"
+ ],
+ "spawn": {
+  "x": 6,
+  "y": 7,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     6,
+     8
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 39,
+    "y": 27,
+    "facing": "left"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 5,
+   "y": 2,
+   "w": 3,
+   "lines": [],
+   "label": "接鏢",
+   "script": "linjiang/escort_talk"
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "兵器架上插著刀槍，刀柄都纏著防滑的布條。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 10,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上擱著一把金漆大刀，刀背上刻著「三十年不失一鏢」。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_dummy_martial_2",
+   "x": 2,
+   "y": 5,
+   "w": 1,
+   "lines": [
+    {
+     "text": "鏢師們練刀用的木人，身上滿是刀痕。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "jars",
+   "x": 9,
+   "y": 5,
+   "w": 2,
+   "lines": [
+    {
+     "text": "幾口貼了封條的鏢箱，等著明天上路。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "lje_jin",
+   "name": "金萬山",
+   "sprite": "sect_judge",
+   "x": 6,
+   "y": 1,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/escort_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "lje_lv",
+   "name": "呂鐵",
+   "sprite": "escort",
+   "x": 4,
+   "y": 5,
+   "facing": "left",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "呂鐵",
+      "text": "走鏢最怕兩樣：一怕劫匪，二怕下雨。路一爛，車就走不動。"
+     }
+    ],
+    [
+     {
+      "speaker": "呂鐵",
+      "text": "遠程的鏢，總鏢頭只交給有名號的人。"
+     }
+    ]
+   ]
+  }
+ ]
+}

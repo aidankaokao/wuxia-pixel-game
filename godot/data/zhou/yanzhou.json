@@ -206,26 +206,26 @@
    "locked": false,
    "enter": {
     "map": "linjiang",
-    "x": 53,
-    "y": 16,
+    "x": 58,
+    "y": 38,
     "facing": "left"
    },
    "enterFrom": {
     "ferry": {
      "map": "linjiang",
      "x": 1,
-     "y": 16,
+     "y": 21,
      "facing": "right"
     },
     "mingquan": {
-     "map": "lj_north",
-     "x": 27,
+     "map": "linjiang",
+     "x": 21,
      "y": 1,
      "facing": "down"
     },
     "beiling": {
-     "map": "lj_north",
-     "x": 27,
+     "map": "linjiang",
+     "x": 21,
      "y": 1,
      "facing": "down"
     }

@@ -1,0 +1,141 @@
+{
+ "id": "lj_yamen_east",
+ "name": "捕快房",
+ "subtitle": "臨江縣衙・東廂",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 6,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     7
+    ]
+   ],
+   "to": "lj_yamen",
+   "spawn": {
+    "x": 20,
+    "y": 11,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "bulletin",
+   "x": 8,
+   "y": 1,
+   "w": 1,
+   "lines": [],
+   "label": "懸賞榜",
+   "script": "linjiang/board_bounty"
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 4,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上一壺涼掉的茶，幾個缺口的粗碗，還有一副骰子——被沒收的。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 1,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "值夜的捕快輪流睡的鋪，被子疊得歪歪扭扭。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 1,
+   "y": 4,
+   "w": 1,
+   "lines": [
+    {
+     "text": "枕頭底下塞著一本翻爛的話本。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 9,
+   "y": 4,
+   "w": 1,
+   "lines": [
+    {
+     "text": "牆上掛著鐵尺、鎖鏈與幾副枷，都擦得發亮。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljy_huo",
+   "name": "霍青山",
+   "sprite": "guard",
+   "x": 6,
+   "y": 1,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/bounty_board",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljy_lei_n",
+   "name": "雷小五",
+   "sprite": "guard",
+   "x": 3,
+   "y": 4,
+   "facing": "right",
+   "all_day": false,
+   "work": false,
+   "night": true,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "雷小五",
+      "text": "巡了一天的街，腿都快斷了。"
+     },
+     {
+      "speaker": "雷小五",
+      "text": "你也這麼晚還在外頭晃？小心點，夜裡城裡也不太平。"
+     }
+    ]
+   ]
+  }
+ ]
+}

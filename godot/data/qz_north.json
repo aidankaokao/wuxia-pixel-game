@@ -106,7 +106,8 @@
    "y": 3,
    "w": 1,
    "lines": [],
-   "label": "採石"
+   "label": "採石",
+   "script": "bridge/quarry"
   },
   {
    "id": "",

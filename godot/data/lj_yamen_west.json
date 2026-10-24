@@ -1,0 +1,122 @@
+{
+ "id": "lj_yamen_west",
+ "name": "簽押房",
+ "subtitle": "臨江縣衙・西廂",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     6
+    ]
+   ],
+   "to": "lj_yamen",
+   "spawn": {
+    "x": 4,
+    "y": 11,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 1,
+   "y": 2,
+   "w": 2,
+   "lines": [],
+   "label": "找師爺",
+   "script": "linjiang/clerk_talk"
+  },
+  {
+   "sprite": "f_shelf_scholar_2",
+   "x": 5,
+   "y": 0,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上堆滿卷宗：魚鱗冊、戶籍、房契底簿，每一卷都用麻繩捆著。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 6,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "書辦的桌上攤著一本帳，算盤珠子撥到一半。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljy_miao",
+   "name": "苗守正",
+   "sprite": "storyteller",
+   "x": 2,
+   "y": 1,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/clerk_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljy_ge",
+   "name": "葛文顯",
+   "sprite": "scholar",
+   "x": 6,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "葛文顯",
+      "text": "在下是戶房書辦。買屋賣屋、立契過戶，都要在這兒蓋印。"
+     },
+     {
+      "speaker": "葛文顯",
+      "text": "找師爺就行，他點了頭，在下就替你寫契。"
+     }
+    ],
+    [
+     {
+      "speaker": "葛文顯",
+      "text": "城北那幾間民居，好些是祖上傳下來的，屋主不住了才肯賣。"
+     }
+    ]
+   ]
+  }
+ ]
+}

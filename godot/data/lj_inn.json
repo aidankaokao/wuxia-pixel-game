@@ -1,0 +1,184 @@
+{
+ "id": "lj_inn",
+ "name": "雲來客棧",
+ "subtitle": "臨江城・客棧",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 6,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     7
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 11,
+    "y": 39,
+    "facing": "up"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 1,
+   "y": 1,
+   "w": 3,
+   "lines": [],
+   "label": "住店／打尖",
+   "script": "linjiang/inn_talk"
+  },
+  {
+   "sprite": "jars",
+   "x": 4,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一罈罈的酒，封口的紅紙寫著「臨江春」。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "door_locked",
+   "x": 8,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "通往樓上客房的樓梯。住了店，小二會帶你上去。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 2,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上擺著一碟花生米，一壺沒喝完的茶。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 6,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "油亮的木桌，邊角被磨得圓圓的。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_plain_1",
+   "x": 9,
+   "y": 5,
+   "w": 1,
+   "lines": [
+    {
+     "text": "門邊一盆萬年青，葉子擦得發亮。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "lji_he",
+   "name": "賀長年",
+   "sprite": "elder",
+   "x": 2,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/inn_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "lji_wang",
+   "name": "牛小旺",
+   "sprite": "servant",
+   "x": 7,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "牛小旺",
+      "text": "客官要聽新鮮事？跟掌櫃要壺茶，我邊倒邊說！"
+     }
+    ],
+    [
+     {
+      "speaker": "牛小旺",
+      "text": "來啦來啦——哎喲，這桌的碗還沒收！"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lji_deng",
+   "name": "鄧行舟",
+   "sprite": "peddler",
+   "x": 8,
+   "y": 5,
+   "facing": "left",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "鄧行舟",
+      "text": "在下鄧行舟，跑江南的買賣。這一路上，就數臨江城的客棧最乾淨。"
+     }
+    ],
+    [
+     {
+      "speaker": "鄧行舟",
+      "text": "下一旬的集，我要帶一批好絲線來。"
+     }
+    ]
+   ]
+  }
+ ]
+}

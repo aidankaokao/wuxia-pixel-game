@@ -1,0 +1,130 @@
+{
+ "id": "lj_clinic",
+ "name": "回春堂",
+ "subtitle": "臨江城・藥鋪",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     6
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 20,
+    "y": 26,
+    "facing": "right"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_shelf_scholar_3",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一整面牆的藥櫃，抽屜上貼滿了藥名：當歸、黃耆、川芎……"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "counter",
+   "x": 4,
+   "y": 1,
+   "w": 3,
+   "lines": [],
+   "label": "看診／買藥",
+   "script": "linjiang/clinic_talk"
+  },
+  {
+   "sprite": "drying_rack",
+   "x": 1,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "竹篩上攤著曬乾的草藥，聞起來苦苦的。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "jars",
+   "x": 6,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一排藥罈，罈口用油紙封著。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljc_bai",
+   "name": "白濟仁",
+   "sprite": "storyteller",
+   "x": 5,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/clinic_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljc_shao",
+   "name": "白小芍",
+   "sprite": "child",
+   "x": 3,
+   "y": 3,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "白小芍",
+      "text": "我在幫爺爺搗藥！這是止血草，這是……這是……我忘了。"
+     }
+    ],
+    [
+     {
+      "speaker": "白小芍",
+      "text": "爺爺說，止血草送來回春堂，比賣給貨郎划算多了。"
+     }
+    ]
+   ]
+  }
+ ]
+}

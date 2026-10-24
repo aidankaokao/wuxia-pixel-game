@@ -10,6 +10,7 @@ extends GridScene
 ## - 天上幾朵雲慢慢飄過，影子落在地上。
 
 const Stay := preload("res://story/stay.gd")
+const Bridge := preload("res://story/bridge.gd")
 const TERRAIN_NAME := {"S": "海", "s": "淺灘", "b": "沙岸", "r": "河", "l": "湖", "p": "平原", "f": "林地", "h": "丘陵", "m": "山地", "P": "高峰", "d": "沙地"}
 const HEIGHT := {"S": -1.0, "s": -0.6, "r": -0.5, "l": -0.5, "b": 0.05, "p": 0.12, "f": 0.18, "h": 0.6, "m": 1.5, "P": 2.6, "d": 0.1}
 const COLOR := {"S": "2f5f96", "s": "4a86bc", "r": "4a86bc", "l": "4a8cc4", "b": "e0cf98", "p": "8cc06a", "f": "5e9a4a", "h": "a8b070", "m": "8e8a78", "P": "b8b4a8", "d": "dcc68a"}
@@ -83,12 +84,14 @@ func _ready() -> void:
 	_decor()
 	for n in data.nodes:
 		_settlement(n)
+	_bounties()
 	for l in data.labels:
 		var lb := Mk.label(l.text, 120 if l.kind != "region" else 80, Color(1, 1, 1, 0.75), Color(0.1, 0.15, 0.25, 0.5))
 		lb.position = Vector3(l.x + ox, 3.5, l.y + oz)
 		add_child(lb)
 	_clouds()
 	_place()
+	mount_up()
 	print("州圖 %s：產生 %d ms，蓋模型 %d ms" % [data.title, t1 - t0, Time.get_ticks_msec() - t1])
 
 
@@ -332,6 +335,9 @@ func _ferries() -> void:
 	for n in data.nodes:
 		if n.kind != "ferry" or n.locked or n.rest == null:
 			continue
+		# 雲水渡口的橋蓋好了（story/bridge.gd）：照常搭橋，不用坐船
+		if n.id == "ferry" and Bridge.built():
+			continue
 		for e in data.edges:
 			if e.a != n.id and e.b != n.id:
 				continue
@@ -362,6 +368,35 @@ func _ferries() -> void:
 			props.append({"node": g, "def": {"sprite": "boat", "label": "坐船", "lines": [], "ferry": n.id, "banks": [near, far]}, "at": Vector2(at.x + 0.5, at.y + 0.5)})
 
 
+## 臨江縣衙的懸賞目標在州圖上的位置（揭了榜才出現，見 story/linjiang.gd）：惡犬在雲水渡口東岸、毛賊在往鳴泉山的路上
+func _bounties() -> void:
+	if not data.id == "yanzhou":
+		return
+	var spots := []
+	for e in data.edges:
+		var ids := [e.a, e.b]
+		if "ferry" in ids and "linjiang" in ids:
+			var c: Array = e.path[mini(7, e.path.size() - 1)]
+			spots.append(["dogs", Vector2i(c[0] + 1, c[1] + 1), "dog", "惡犬"])
+		if "linjiang" in ids and "mingquan" in ids:
+			var c: Array = e.path[e.path.size() / 2]
+			spots.append(["bandits", Vector2i(c[0] + 1, c[1]), "bandit", "毛賊"])
+	for sp in spots:
+		var at: Vector2i = sp[1]
+		var g := Node3D.new()
+		g.position = w3(at.x, at.y)
+		g.position.y = _ground_y(g.position)
+		add_child(g)
+		for i in 2:
+			var f := Chibi.make(sp[2])
+			f.scale = Vector3.ONE * HERO_SCALE
+			f.position = Vector3(-0.25 + i * 0.5, 0, (i % 2) * 0.3)
+			f.rotation.y = i * 1.3
+			g.add_child(f)
+		blocked[at] = true
+		props.append({"node": g, "def": {"sprite": "bounty", "label": sp[3], "lines": [], "script": "linjiang/bounty_" + sp[0], "when": "lj_b_%s == 1" % sp[0]}, "at": Vector2(at.x + 0.5, at.y + 0.5)})
+
+
 ## 坐船過河：送到離主角遠的那一頭
 func ferry_across(banks: Array) -> void:
 	var here := _grid(hero.position)
@@ -371,6 +406,42 @@ func ferry_across(banks: Array) -> void:
 	rig.position = hero.position
 	_last_pos = hero.position
 	_last_tile = to
+
+
+## 有坐騎就騎著走：主角底下一匹馬（照馬的毛色），人抬高坐在馬背上；買了馬、賣了馬再叫一次
+var _horse: Node3D
+const HORSE_COLOR := {"old_bay": ["b08a4a", "6a4a2a"], "jujube": ["8a3a24", "3a2218"], "qingcong": ["c8ccc8", "6a6e72"]}
+
+
+func mount_up() -> void:
+	if _horse:
+		_horse.queue_free()
+		_horse = null
+		hero.ride = 0.0
+	var id: String = G.hero.get("mount", "")
+	if id == "" or not hero:
+		return
+	var c: Array = HORSE_COLOR.get(id, HORSE_COLOR.old_bay)
+	var coat := Color(c[0])
+	var dark := Color(c[1])
+	_horse = Node3D.new()
+	hero.add_child(_horse)
+	_horse.add_child(Mk.box(Vector3(0.42, 0.42, 1.0), coat, Vector3(0, 0.62, 0)))
+	for lx in [-0.15, 0.15]:
+		for lz in [-0.38, 0.38]:
+			_horse.add_child(Mk.box(Vector3(0.11, 0.48, 0.11), coat.darkened(0.1), Vector3(lx, 0.24, lz)))
+			_horse.add_child(Mk.box(Vector3(0.12, 0.08, 0.12), dark, Vector3(lx, 0.04, lz)))
+	var neck := Mk.box(Vector3(0.24, 0.5, 0.26), coat, Vector3(0, 0.95, 0.5))
+	neck.rotation.x = 0.5
+	_horse.add_child(neck)
+	_horse.add_child(Mk.box(Vector3(0.22, 0.24, 0.42), coat, Vector3(0, 1.15, 0.7)))
+	_horse.add_child(Mk.box(Vector3(0.06, 0.4, 0.3), dark, Vector3(0, 1.1, 0.42)))
+	var tail := Mk.box(Vector3(0.08, 0.45, 0.08), dark, Vector3(0, 0.6, -0.55))
+	tail.rotation.x = -0.4
+	_horse.add_child(tail)
+	_horse.add_child(Mk.box(Vector3(0.46, 0.06, 0.4), Color("8a2e26"), Vector3(0, 0.86, -0.05)))
+	# 人坐在馬背上
+	hero.ride = 0.72
 
 
 ## 腳程倍數：騎馬照坐騎的 speed，裝備中的輕功每重快 3%（最多五成），兩者相乘
@@ -750,5 +821,5 @@ func info_text() -> String:
 	var pace := travel_mult()
 	var extra := ""
 	if not m.is_empty() or pace > 1.0:
-		extra = "\n%s腳程 ×%.2f" % [("騎著%s・" % m.name) if not m.is_empty() else "", pace]
+		extra = "・%s腳程 ×%.2f" % [("騎%s、" % m.name) if not m.is_empty() else "", pace]
 	return "%s\n%s%s%s%s" % [data.name, where, on_road, TERRAIN_NAME.get(T(g.x, g.y), ""), extra]

@@ -1,0 +1,317 @@
+{
+ "id": "lj_yamen",
+ "name": "臨江縣衙",
+ "subtitle": "臨江城・縣衙中庭",
+ "tiles": [
+  "RRRRRRRRRRRRRRRRRRRRRRRRR",
+  "R=======================R",
+  "R=T==T==================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=======================R",
+  "R=T===================T=R",
+  "R=======================R",
+  "RRRRRRRRRRRRERRRRRRRRRRRR"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 12,
+  "y": 14,
+  "facing": "up"
+ },
+ "buildings": [
+  {
+   "style": "yamen_main",
+   "x": 8,
+   "y": 1,
+   "name": "大堂",
+   "sign": "親民堂",
+   "door": [],
+   "enter": {
+    "to": "lj_yamen_hall",
+    "spawn": {
+     "x": 6,
+     "y": 7,
+     "facing": "up"
+    }
+   },
+   "st": {
+    "w": 9,
+    "h": 5,
+    "door": 4,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "timber": "#8a2e26",
+    "doorPaint": "#5a1a14",
+    "lanterns": true,
+    "plaque": true
+   }
+  },
+  {
+   "style": "yamen_side",
+   "x": 2,
+   "y": 7,
+   "name": "簽押房",
+   "sign": "簽押房",
+   "door": [],
+   "enter": {
+    "to": "lj_yamen_west",
+    "spawn": {
+     "x": 4,
+     "y": 5,
+     "facing": "up"
+    }
+   },
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#44464e",
+    "roofDark": "#2e3036",
+    "roofLight": "#5c5e68",
+    "timber": "#8a2e26"
+   }
+  },
+  {
+   "style": "yamen_side",
+   "x": 18,
+   "y": 7,
+   "name": "捕快房",
+   "sign": "捕快房",
+   "door": [],
+   "enter": {
+    "to": "lj_yamen_east",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#44464e",
+    "roofDark": "#2e3036",
+    "roofLight": "#5c5e68",
+    "timber": "#8a2e26"
+   }
+  },
+  {
+   "style": "yamen_jail",
+   "x": 18,
+   "y": 2,
+   "name": "縣牢",
+   "sign": "縣牢",
+   "door": [
+    {
+     "text": "鐵皮包著的牢門，上了三道鎖。"
+    }
+   ],
+   "st": {
+    "w": 3,
+    "h": 3,
+    "door": 1,
+    "roof": "#3a3636",
+    "roofDark": "#262222",
+    "roofLight": "#4e4a4a",
+    "wall": "#8a8478",
+    "timber": "#3e3630",
+    "doorPaint": "#3a3a3e",
+    "bars": true
+   }
+  }
+ ],
+ "props": [
+  {
+   "id": "",
+   "sprite": "stele",
+   "x": 12,
+   "y": 13,
+   "w": 1,
+   "lines": [
+    {
+     "text": "戒石上刻著幾行字：「一粥一飯，皆出民力；一錢不義，天必記之。」"
+    },
+    {
+     "text": "是歷任知縣立在堂前自警的。"
+    }
+   ],
+   "label": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "bulletin",
+   "x": 9,
+   "y": 14,
+   "w": 1,
+   "lines": [],
+   "label": "公告欄",
+   "passable": false,
+   "script": "linjiang/board_yamen"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 10,
+   "y": 6,
+   "w": 1,
+   "lines": [
+    {
+     "text": "大堂前的燈籠，夜裡升堂才點。"
+    }
+   ],
+   "label": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 14,
+   "y": 6,
+   "w": 1,
+   "lines": [
+    {
+     "text": "燈籠上寫著一個「臨」字。"
+    }
+   ],
+   "label": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "vat",
+   "x": 22,
+   "y": 12,
+   "w": 1,
+   "lines": [
+    {
+     "text": "防火用的大水缸，缸裡浮著兩片落葉。"
+    }
+   ],
+   "label": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "vat",
+   "x": 2,
+   "y": 12,
+   "w": 1,
+   "lines": [
+    {
+     "text": "防火用的大水缸，水面映著天。"
+    }
+   ],
+   "label": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "f_deco_martial_1",
+   "x": 22,
+   "y": 5,
+   "w": 1,
+   "lines": [
+    {
+     "text": "兵器架上插著水火棍與鐵尺，衙役升堂時拿的。"
+    }
+   ],
+   "label": "",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     12,
+     16
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 30,
+    "y": 37,
+    "facing": "down"
+   }
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [
+  {
+   "id": "ljy_gao",
+   "name": "高升",
+   "sprite": "guard",
+   "x": 12,
+   "y": 10,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 3,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "高升",
+      "text": "威——武——"
+     },
+     {
+      "speaker": "高升",
+      "text": "……咳，練習一下，晚點要升堂。"
+     }
+    ],
+    [
+     {
+      "speaker": "高升",
+      "text": "公告欄每天都有人來看，要找房子、找差事的，都先看那兒。"
+     }
+    ],
+    [
+     {
+      "speaker": "高升",
+      "text": "大堂是老爺問案的地方，進去別大聲嚷嚷。"
+     }
+    ],
+    [
+     {
+      "speaker": "高升",
+      "text": "東北角是縣牢，鄒老七守著，那老頭脾氣怪，別去惹他。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "ljy_zou",
+   "name": "鄒老七",
+   "sprite": "guard",
+   "x": 19,
+   "y": 5,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/jailer_talk",
+   "when": "",
+   "talks": []
+  }
+ ],
+ "ring": 12,
+ "ring_fill": "X"
+}

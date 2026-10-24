@@ -118,6 +118,12 @@ func _run() -> void:
 				# give:manual_qingzhu 或 give:jinchuang,3 放進行囊
 				var gv := arg.split(",")
 				G.bag[gv[0]] = int(G.bag.get(gv[0], 0)) + (int(gv[1]) if gv.size() > 1 else 1)
+			"mount":
+				# mount:jujube 給一匹馬（州圖上就騎著）
+				G.hero.mount = arg
+				var ms = _main().scene
+				if ms and ms.has_method("mount_up"):
+					ms.mount_up()
 			"run":
 				# run:road/ev_peddler 在現在的場景跑一個劇情腳本（不等它跑完）
 				var sc = _main().scene

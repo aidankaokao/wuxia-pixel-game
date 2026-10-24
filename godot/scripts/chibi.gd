@@ -23,6 +23,16 @@ const LOOKS := {
 	"servant": {"robe": "6a6a6a", "trim": "d8d0c0", "sash": "3a3a3a", "hair": "2a2228", "style": "band"},
 	"swordsman": {"robe": "4f7f72", "trim": "e4ece4", "sash": "2a3a3a", "hair": "2a2228", "style": "topknot", "sword": true},
 	"scholar": {"robe": "8aa0a8", "trim": "f0ece0", "sash": "4a5a68", "hair": "2a2228", "style": "topknot"},
+	"fisher": {"robe": "5a7a7a", "trim": "d8d0b0", "sash": "3a4a4a", "hair": "8a8680", "style": "hat", "beard": true},
+	"boatman": {"robe": "4a6a8a", "trim": "d8d8c8", "sash": "2a3a4a", "hair": "2a2228", "style": "band", "arms": true},
+	"beggar": {"robe": "8a7a5a", "trim": "a89878", "sash": "5a4a3a", "hair": "4a4038", "style": "long"},
+	"guard": {"robe": "3a4a6a", "trim": "c8302a", "sash": "c8302a", "hair": "2a2228", "style": "hat", "sword": true},
+	"escort": {"robe": "7a3a2a", "trim": "e8c870", "sash": "2a2228", "hair": "2a2228", "style": "band", "sword": true, "arms": true},
+	"sect_judge": {"robe": "2a2a3a", "trim": "c8302a", "sash": "c9a46a", "hair": "2a2228", "style": "topknot", "beard": true},
+	"disciple": {"robe": "e8eef2", "trim": "6a8aa8", "sash": "6a8aa8", "hair": "2a2228", "style": "topknot", "sword": true},
+	"sect_master": {"robe": "f0f0e8", "trim": "3a5a7a", "sash": "3a5a7a", "hair": "c8c4bc", "style": "topknot", "beard": true, "sword": true},
+	"sect_elder": {"robe": "d8dce0", "trim": "4a5a6a", "sash": "4a5a6a", "hair": "a8a4a0", "style": "bun", "beard": true},
+	"sect_senior": {"robe": "dce4ea", "trim": "3a6a8a", "sash": "3a6a8a", "hair": "2a2228", "style": "topknot", "sword": true},
 	"dog": {"animal": "dog"},
 	"boar": {"animal": "boar"},
 }
@@ -34,6 +44,10 @@ var leg_l: Node3D
 var leg_r: Node3D
 var eyes: Array[Node3D] = []
 var walking := false
+## 騎在馬上時身子抬高多少（州圖上騎馬）
+var ride := 0.0
+## 做事的動作（ctx.work 設定）："swing" 掄、"stir" 攪、"sit" 坐著；空的是平常
+var action := ""
 var _t := 0.0
 var _blink := 2.0
 
@@ -193,9 +207,24 @@ func face(dir: Vector3) -> void:
 
 func _process(dt: float) -> void:
 	_t += dt
-	if walking:
+	if action != "" and arm_l:
+		match action:
+			"swing":
+				var sw := sin(_t * 9.0)
+				body.position.y = ride + absf(sw) * 0.03
+				arm_l.rotation.x = -1.1 + sw * 0.9
+				arm_r.rotation.x = -1.1 + sw * 0.9
+			"stir":
+				body.position.y = ride + sin(_t * 4.0) * 0.01
+				arm_l.rotation.x = -0.9 + sin(_t * 7.0) * 0.35
+				arm_r.rotation.x = -0.9 - sin(_t * 7.0) * 0.35
+			_:
+				body.position.y = ride - 0.06 + sin(_t * 1.6) * 0.012
+				arm_l.rotation.x = lerp(arm_l.rotation.x, -0.7, 0.1)
+				arm_r.rotation.x = lerp(arm_r.rotation.x, -0.7, 0.1)
+	elif walking:
 		var s := sin(_t * 12.0)
-		body.position.y = abs(s) * 0.05
+		body.position.y = ride + abs(s) * 0.05
 		if leg_l:
 			leg_l.rotation.x = s * 0.6
 			leg_r.rotation.x = -s * 0.6
@@ -203,7 +232,7 @@ func _process(dt: float) -> void:
 			arm_l.rotation.x = -s * 0.5
 			arm_r.rotation.x = s * 0.5
 	else:
-		body.position.y = sin(_t * 2.2) * 0.008
+		body.position.y = ride + sin(_t * 2.2) * 0.008
 		if leg_l:
 			leg_l.rotation.x = lerp(leg_l.rotation.x, 0.0, 0.2)
 			leg_r.rotation.x = lerp(leg_r.rotation.x, 0.0, 0.2)

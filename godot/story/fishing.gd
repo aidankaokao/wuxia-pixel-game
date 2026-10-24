@@ -3,7 +3,7 @@
 ## - 親自拉竿（小遊戲 scripts/fish_game.gd，一竿一竿釣到收竿）或慢慢等（自動，可以連釣幾回）：照共用規則（Practice，id "fish"）
 ##   第一次一定親自拉竿；這一趟每竿的成色（漂亮 100、釣起 70、跑了 0）平均起來記成「手感」，慢慢等每竿上鉤的機會是手感的八成（帶著漁網再多一成）。
 ## - 上鉤的是哪種魚看釣點、時辰、天氣、季節與手藝（data/life.json 的 fish）；釣過的魚記進魚譜（works 的 fishing:魚）。
-## 青竹村的釣點：雲水河邊（river）。
+## 釣點：青竹村雲水河邊（river）；碧漪湖棧橋（pier）、蘆葦蕩（reeds）、湖心島（isle）。
 
 const CAST_KE := 1
 const CAST_STAMINA := 5
@@ -14,11 +14,27 @@ const NET_DOUBLE := 0.15
 const SEASONS := ["spring", "summer", "autumn", "winter"]
 
 const Train := preload("res://story/train.gd")
+const Biyi := preload("res://story/biyi.gd")
 
 
 ## 雲水河邊的釣點
 static func river(ctx: Ctx) -> void:
 	await fish_at(ctx, "river", "雲水河在這裡轉了個彎，水流慢了下來，水面上漾著一圈圈漣漪。")
+
+
+## 碧漪湖：棧橋盡頭、南岸蘆葦蕩、湖心島（釣完偶爾碰上湖邊的小事）
+static func pier(ctx: Ctx) -> void:
+	await fish_at(ctx, "pier", "棧橋盡頭的湖水深一些，常有魚在這裡打轉。")
+	await Biyi.lake_event(ctx)
+
+
+static func reeds(ctx: Ctx) -> void:
+	await fish_at(ctx, "reeds", "蘆葦叢邊，水底下青蝦一彈一彈的。")
+	await Biyi.lake_event(ctx)
+
+
+static func isle(ctx: Ctx) -> void:
+	await fish_at(ctx, "isle", "島東邊的水又深又靜，偶爾有大魚翻身的水聲。")
 
 
 ## 現在是清晨、白天、黃昏還是夜裡
@@ -78,7 +94,7 @@ static func land(f: Dictionary, perfect: bool, mult := 1.0) -> Array:
 
 static func fish_at(ctx: Ctx, spot: String, look: String) -> void:
 	if not ctx.has("rod"):
-		await ctx.say("%s\n（沒有釣竿。村口陶四的貨郎攤有賣）" % look)
+		await ctx.say("%s\n（沒有釣竿。青竹村陶四的貨郎攤、碧漪湖的秦老漢都有賣）" % look)
 		return
 	var feel := Practice.last("fish")
 	var c := await Practice.choose(ctx, "fish", "%s\n要怎麼釣？（每竿一刻、體力 %d%s）" % [look, CAST_STAMINA, "" if Practice.tried("fish") else "；第一次要自己拉竿"],

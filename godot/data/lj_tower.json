@@ -1,0 +1,197 @@
+{
+ "id": "lj_tower",
+ "name": "望江樓",
+ "subtitle": "臨江城・酒樓",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWWWWWW",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "WWWWWWEWWWWWW"
+ ],
+ "spawn": {
+  "x": 6,
+  "y": 6,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     6,
+     7
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 44,
+    "y": 39,
+    "facing": "up"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 1,
+   "y": 1,
+   "w": 3,
+   "lines": [],
+   "label": "點菜",
+   "script": "linjiang/tower_talk"
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 8,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "聽說書",
+   "script": "linjiang/teller_talk"
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 2,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上杯盤狼藉，看來剛散了一桌酒席。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 6,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "窗邊的好位子，看得見江上的白帆。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 10,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一桌江湖客，刀就擱在桌上。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 5,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "牆上題著一首詩：「江上清風無盡藏，樓頭明月有時圓」。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljt_wang",
+   "name": "汪福來",
+   "sprite": "servant",
+   "x": 2,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/tower_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljt_fei",
+   "name": "費一言",
+   "sprite": "storyteller",
+   "x": 8,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/teller_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljt_fang",
+   "name": "方子期",
+   "sprite": "scholar",
+   "x": 4,
+   "y": 5,
+   "facing": "up",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "方子期",
+      "text": "費先生的書，我天天來聽。他說的那些江湖事，十句裡總有一兩句是真的。"
+     }
+    ],
+    [
+     {
+      "speaker": "方子期",
+      "text": "在下方子期，進京趕考落了榜，在這兒等明年。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "ljt_du",
+   "name": "杜九",
+   "sprite": "swordsman",
+   "x": 11,
+   "y": 5,
+   "facing": "left",
+   "all_day": false,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "杜九",
+      "text": "……看什麼？沒見過喝酒的？"
+     }
+    ],
+    [
+     {
+      "speaker": "杜九",
+      "text": "金刀鏢局要人手，可惜我只會喝酒。"
+     }
+    ]
+   ]
+  }
+ ]
+}

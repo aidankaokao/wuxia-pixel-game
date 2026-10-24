@@ -25,7 +25,7 @@ static var _cache := {}
 
 ## 這張地圖上有哪一群人在過日子（沒有就是空的）
 static func group_for(map: String) -> Dictionary:
-	for id in ["qingzhu"]:
+	for id in ["qingzhu", "biyi", "linjiang"]:
 		var g := group(id)
 		if map in g.maps:
 			return g

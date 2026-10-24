@@ -405,3 +405,26 @@ static func consume(c: Dictionary, id: String) -> String:
 	if qi > 0: gains.append("內力 +%d" % qi)
 	if st > 0: gains.append("體力 +%d" % st)
 	return "%s%s。%s" % ["吃了" if d.get("category", "") == "菜餚" else "用了", d.name, "　".join(gains)]
+
+
+# ── 服飾與兵器 ──────────────────────────────────────────
+
+const GEAR_SLOT := {"hat": "頭", "top": "上衣", "bottom": "下身", "shoes": "鞋", "acc": "飾品", "weapon": "兵器"}
+
+
+## 穿上（拿起）一件服飾或兵器：同一個部位原本的那件放回行囊；回傳說明
+static func wear(c: Dictionary, id: String) -> String:
+	var g: Dictionary = Ui.item_def(id).get("gear", {})
+	if g.is_empty() or int(G.bag.get(id, 0)) <= 0:
+		return "這樣東西穿不上身。"
+	var slot: String = g.kind
+	if not c.has("gear"):
+		c.gear = {}
+	var old: String = c.gear.get(slot, "")
+	G.bag[id] -= 1
+	if G.bag[id] <= 0:
+		G.bag.erase(id)
+	if old != "":
+		G.bag[old] = int(G.bag.get(old, 0)) + 1
+	c.gear[slot] = id
+	return "%s了%s。%s" % ["拿起" if slot == "weapon" else "換上", Ui.item_def(id).name, ("（%s收進行囊）" % Ui.item_def(old).name) if old != "" else ""]

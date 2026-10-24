@@ -8,6 +8,7 @@ const FERRY_DAY := 2
 const FERRY_NIGHT := 5
 
 const Train := preload("res://story/train.gd")
+const Bridge := preload("res://story/bridge.gd")
 
 
 static func _node(ctx: Ctx) -> Dictionary:
@@ -23,11 +24,20 @@ static func inn(ctx: Ctx) -> void:
 	var opts := ["住店（%d 兩）" % int(r.price), "吃點東西", "打聽消息"]
 	if horses.size() > 0:
 		opts.append("看看馬")
+	# 雲水渡口：修橋的支線（story/bridge.gd）
+	if n.id == "ferry" and Bridge.option():
+		opts.append("修橋的事")
+	if n.id == "ferry" and Bridge.built():
+		opts.append("看捐建碑")
 	opts.append("繼續趕路")
 	var c := await ctx.ask(k.call("%s，歇歇腳吧。" % n.name), opts)
 	match opts[c]:
 		"吃點東西":
-			await ctx.ui.shop(n.name, r.menu)
+			await ctx.ui.shop(n.name, r.menu, 0.5, 0.2 if n.id == "ferry" and ctx.flag("bridge_party") else 0.0)
+		"修橋的事":
+			await Bridge.talk(ctx)
+		"看捐建碑":
+			await Bridge.stele(ctx)
 		"打聽消息":
 			var talk: Array = r.talk[G.day % r.talk.size()]
 			await ctx.say(talk.map(func(t): return k.call(t)))
@@ -86,6 +96,8 @@ static func horse_trade(ctx: Ctx, keeper: String, ids: Array) -> void:
 			await ctx.say(k.call("銀兩不夠啊，再攢攢吧。"))
 			return
 		G.hero.mount = m.id
+		if ctx.scene.has_method("mount_up"):
+			ctx.scene.mount_up()
 		await ctx.say([k.call("好好待牠。"), "你牽過%s，翻身上馬。\n（在州圖上騎馬趕路，腳程快 %d%%）" % [m.name, roundi((float(m.speed) - 1.0) * 100)]])
 	elif not own.is_empty() and i == list.size():
 		var price := int(own.price) / 2
@@ -93,6 +105,8 @@ static func horse_trade(ctx: Ctx, keeper: String, ids: Array) -> void:
 			return
 		G.silver += price
 		G.hero.erase("mount")
+		if ctx.scene.has_method("mount_up"):
+			ctx.scene.mount_up()
 		await ctx.say([k.call("放心，我會替你好好照顧牠。"), "（銀兩 +%d）" % price])
 
 

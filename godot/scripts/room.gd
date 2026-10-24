@@ -344,7 +344,7 @@ func _prop(p: Dictionary) -> void:
 					var col: Color = [Color("4a6a5a"), Color("8a5a3a"), Color("5a5a72"), Color("a88a4a")][(i + lv) % 4]
 					g.add_child(Mk.cyl(0.11, 0.12, 0.26, col, Vector3(jx, y + 0.155, -0.2), 8))
 					g.add_child(Mk.box(Vector3(0.1, 0.1, 0.02), Color("c8302a"), Vector3(jx, y + 0.16, -0.08)))
-		"f_table_plain_1":
+		"f_table_plain_1", "f_table_scholar_1":
 			# 方桌與四張板凳；打譜的那一桌擺著棋盤
 			g.add_child(Mk.box(Vector3(1.4, 0.07, 0.9), wood, Vector3(0, 0.72, 0)))
 			for dx in [-0.6, 0.6]:
@@ -362,7 +362,7 @@ func _prop(p: Dictionary) -> void:
 				_teapot(g, Vector3(0.25, 0.76, 0))
 				g.add_child(Mk.cyl(0.06, 0.045, 0.07, Color("e8e4d8"), Vector3(-0.2, 0.79, 0.15), 8))
 				g.add_child(Mk.cyl(0.06, 0.045, 0.07, Color("e8e4d8"), Vector3(-0.35, 0.79, -0.1), 8))
-		"f_deco_plain_1":
+		"f_deco_plain_1", "f_deco_scholar_1":
 			# 盆景：一盆青竹
 			g.add_child(Mk.cyl(0.22, 0.17, 0.3, Color("6a7a8a"), Vector3(0, 0.15, 0), 8))
 			for i in 5:
@@ -386,7 +386,7 @@ func _prop(p: Dictionary) -> void:
 				ring.material_override = Mk.mat(Color("9a7a3e"))
 				ring.position = Vector3(0, 0.12, 0)
 				g.add_child(ring)
-		"f_shelf_scholar_2":
+		"f_shelf_scholar_2", "f_shelf_scholar_3", "f_shelf_plain_1":
 			_bookshelf(g, w)
 		"forge":
 			_forge(g, w)
@@ -410,6 +410,35 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.cyl(0.3, 0.3, 0.07, Color("3a4a52"), Vector3(0, 0.72, 0), 12))
 		"f_bed_plain_1":
 			_bed(g, w)
+		"loom":
+			# 織布機：木框、橫樑、一匹繃著的經線
+			for sx in [-w / 2.0 + 0.15, w / 2.0 - 0.15]:
+				for sz in [-0.3, 0.3]:
+					g.add_child(Mk.box(Vector3(0.07, 1.1, 0.07), wood, Vector3(sx, 0.55, sz)))
+			g.add_child(Mk.box(Vector3(w - 0.2, 0.06, 0.06), dark, Vector3(0, 1.05, -0.3)))
+			g.add_child(Mk.box(Vector3(w - 0.2, 0.06, 0.06), dark, Vector3(0, 0.6, 0.3)))
+			var warp := Mk.box(Vector3(w - 0.4, 0.02, 0.62), Color("e8e0cc"), Vector3(0, 0.82, 0))
+			warp.rotation.x = -0.6
+			g.add_child(warp)
+			g.add_child(Mk.box(Vector3(0.5, 0.4, 0.3), wood, Vector3(0, 0.2, 0.6)))
+		"cloth_rack":
+			# 布架：一層層疊著各色布疋
+			g.add_child(Mk.box(Vector3(w - 0.1, 0.06, 0.5), dark, Vector3(0, 0.05, -0.2)))
+			var cs := [Color("3a5a8a"), Color("a83a3a"), Color("d8c8a0"), Color("4a7a5a"), Color("8a6aa8")]
+			for i in 5:
+				g.add_child(Mk.box(Vector3(w - 0.3, 0.16, 0.42), cs[i], Vector3(0, 0.16 + i * 0.17, -0.2)))
+		"mannequin":
+			# 衣架子上掛著一件長衫
+			g.add_child(Mk.cyl(0.04, 0.04, 1.5, dark, Vector3(0, 0.75, 0), 6))
+			g.add_child(Mk.box(Vector3(0.7, 0.05, 0.05), dark, Vector3(0, 1.45, 0)))
+			g.add_child(Mk.box(Vector3(0.6, 0.8, 0.22), Color("4a6a8a"), Vector3(0, 1.0, 0)))
+			g.add_child(Mk.cyl(0.25, 0.3, 0.05, dark, Vector3(0, 0.03, 0), 8))
+		"f_dummy_martial_2":
+			g.add_child(Mk.cyl(0.17, 0.2, 1.45, wood, Vector3(0, 0.72, 0), 10))
+			for a in [[1.15, 0.5], [1.15, -0.5], [0.8, 0.0]]:
+				var arm := Mk.box(Vector3(0.07, 0.07, 0.42), dark, Vector3(sin(a[1]) * 0.3, a[0], cos(a[1]) * 0.3))
+				arm.rotation.y = a[1]
+				g.add_child(arm)
 		"cot":
 			# 竹榻：竹子綁成的矮床，鋪著草蓆、一個布枕
 			var bl := w - 0.15
@@ -424,7 +453,7 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.3, 0.09, 0.42), Color("c8c0b0"), Vector3(-bl / 2.0 + 0.28, 0.44, 0)))
 		"cradle":
 			_cradle(g)
-		"f_stove_plain_1":
+		"f_stove_plain_1", "f_stove_plain_2":
 			_stove(g, w)
 		_:
 			g.add_child(Mk.box(Vector3(w * 0.8, 0.8, 0.6), wood, Vector3(0, 0.4, 0)))

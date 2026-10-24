@@ -594,7 +594,8 @@ func item_price(id: String) -> int:
 
 ## 商店：買（stock）與賣（身上的東西，照 sell_rate 收）
 ## discount 是買東西的折扣（熟客）；回傳這次一共買賣了多少兩（人際系統算交情用）
-func shop(title: String, stock: Array, sell_rate := 0.5, discount := 0.0) -> int:
+## buys：只收這些東西（空的是什麼都收）
+func shop(title: String, stock: Array, sell_rate := 0.5, discount := 0.0, buys: Array = []) -> int:
 	var moved := 0
 	var buy_price := func(id: String) -> int: return int(ceil(item_price(id) * (1.0 - discount)))
 	var tab := 0
@@ -637,7 +638,7 @@ func shop(title: String, stock: Array, sell_rate := 0.5, discount := 0.0) -> int
 		v.add_child(c)
 	_show(p)
 	while true:
-		var ids: Array = stock if tab == 0 else G.bag.keys().filter(func(k): return G.bag[k] > 0)
+		var ids: Array = stock if tab == 0 else G.bag.keys().filter(func(k): return G.bag[k] > 0 and (buys.is_empty() or k in buys))
 		cur = clampi(cur, 0, max(0, ids.size() - 1))
 		head.text = "%s　　　銀兩 %d%s" % [title, G.silver, ("　　熟客 %d 折" % roundi((1.0 - discount) * 10)) if discount > 0 else ""]
 		tabs.text = ("【買】　賣" if tab == 0 else "　買　【賣】") + "　　（←→ 換分頁）"

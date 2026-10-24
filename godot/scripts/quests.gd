@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu()]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty()]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -47,3 +47,46 @@ static func xiaohu() -> Dictionary:
 		"steps": [["答應石小虎", true], ["弄到一根山豬獠牙", t == 2 or int(G.bag.get("boar_tusk", 0)) > 0], ["把獠牙送給石小虎", t == 2]],
 		"reward": "名聲、石岳肯理你了",
 	}
+
+
+## 碧漪湖的白鯉（秦老漢的熟悉度事件，story/biyi.gd 的 moon_pavilion）
+static func carp() -> Dictionary:
+	var c := _f("by_carp")
+	if _f("by_legend") == 0 and c == 0:
+		return {}
+	return {
+		"id": "carp", "title": "碧漪湖的白鯉", "giver": "秦老漢", "place": "碧漪湖・湖心島望月亭", "done": c > 0,
+		"desc": "傳說每月十五的夜裡，白鯉會浮上湖心島的望月亭邊。帶著釣竿去等等看（釣魚 3 級以上才有本事跟牠周旋）。秦老漢可以撐船送你過去。" if c == 0
+			else ("月圓之夜，你在望月亭釣起了白鯉，又把牠放回湖裡。掌心留下一片銀白的鱗。" if c == 1 else "月圓之夜，你在望月亭釣起了白鯉，把牠帶走了。"),
+		"steps": [["聽秦老漢說白鯉的傳說", true], ["釣魚練到 3 級", Crafts.level("fishing") >= 3 or c > 0], ["十五夜裡在望月亭釣起白鯉", c > 0]],
+		"reward": "看你怎麼選",
+	}
+
+
+## 雲水渡口造橋（story/bridge.gd）
+static func bridge() -> Dictionary:
+	var b := _f("bridge")
+	if b == 0:
+		return {}
+	var built: bool = b == 2 and G.day >= _f("bridge_day") + 3
+	return {
+		"id": "bridge", "title": "雲水渡口造橋", "giver": "季秋娘", "place": "雲水渡口・青竹村・臨江城", "done": built,
+		"desc": "南來北往的人過雲水河都得等船。季秋娘想在渡口蓋一座橋：銀兩可以自己捐，也可以找柳村長、鍾嬸、陶四、石岳化緣；青石條在青竹村北的採石場鑿；都齊了再去臨江城北請石匠魯一鑿。",
+		"steps": [["答應季秋娘張羅蓋橋", true], ["湊齊銀兩 300（目前 %d）" % mini(_f("bridge_fund"), 300), _f("bridge_fund") >= 300], ["交齊青石條 10 塊（目前 %d）" % mini(_f("bridge_stone"), 10), _f("bridge_stone") >= 10],
+			["請魯一鑿動工", b == 2], ["三天後橋蓋好", built]],
+		"reward": "名聲 30、雲水茶棚吃東西八折、不用再等船",
+	}
+
+
+## 臨江縣衙的懸賞（story/linjiang.gd）
+static func bounty() -> Dictionary:
+	var names := {"dogs": ["官道惡犬", "雲水渡口東岸的林子（州圖上）"], "bandits": ["山道毛賊", "往鳴泉山的山道半路（州圖上）"], "river": ["江邊水匪", "臨江城南，碼頭西邊的江灘"]}
+	var steps := []
+	for id in names:
+		var st := _f("lj_b_" + id)
+		if st > 0:
+			steps.append(["「%s」：%s" % [names[id][0], names[id][1]], st == 2])
+	if steps.is_empty():
+		return {}
+	return {"id": "lj_bounty", "title": "臨江縣衙・懸賞", "giver": "霍青山", "place": "臨江縣衙", "done": false,
+		"desc": "揭了縣衙的懸賞：到地點收拾目標，回捕快房找捕頭霍青山領賞。", "steps": steps, "reward": "賞銀與名聲"}

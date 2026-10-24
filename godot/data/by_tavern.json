@@ -1,0 +1,108 @@
+{
+ "id": "by_tavern",
+ "name": "湖鮮館",
+ "subtitle": "碧漪湖漁村・館子",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 6,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     7
+    ]
+   ],
+   "to": "biyi",
+   "spawn": {
+    "x": 16,
+    "y": 10,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 1,
+   "y": 1,
+   "w": 3,
+   "lines": [],
+   "label": "點菜／學菜",
+   "script": "biyi/qiao_counter"
+  },
+  {
+   "sprite": "f_stove_plain_2",
+   "x": 7,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "大灶上燉著一鍋鯽魚湯，湯白得像奶。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 2,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上一盤糖醋鯉魚，只剩一副魚骨頭，頭尾還翹著。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 7,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "窗外就是碧漪湖，風裡有水草的味道。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "jars",
+   "x": 9,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一罈罈醃好的湖魚，封口貼著紅紙。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "byt_qiao",
+   "name": "喬嫂",
+   "sprite": "aunt",
+   "x": 2,
+   "y": 2,
+   "facing": "down",
+   "talks": [],
+   "person": "qiao"
+  }
+ ]
+}

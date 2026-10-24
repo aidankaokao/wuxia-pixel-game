@@ -1,0 +1,112 @@
+{
+ "id": "lj_cloth",
+ "name": "錦繡布莊",
+ "subtitle": "臨江城・布莊",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     6
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 39,
+    "y": 34,
+    "facing": "left"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 1,
+   "y": 1,
+   "w": 3,
+   "lines": [
+    {
+     "text": "櫃台上攤著一疋剛裁開的綢子，旁邊擱著剪刀與量尺。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "cloth_rack",
+   "x": 5,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上的布疋紅的、藍的、月白的，一捲捲擺得整整齊齊。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "mannequin",
+   "x": 1,
+   "y": 4,
+   "w": 1,
+   "lines": [
+    {
+     "text": "衣架上披著一件做好的長衫，等客人來取。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "mannequin",
+   "x": 7,
+   "y": 4,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一件錦緞外袍，袖口繡著雲紋，標價九十兩。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "loom",
+   "x": 5,
+   "y": 4,
+   "w": 2,
+   "lines": [],
+   "label": "織布"
+  }
+ ],
+ "npcs": [
+  {
+   "id": "lj_jin",
+   "name": "魏錦娘",
+   "sprite": "lady",
+   "x": 4,
+   "y": 3,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/cloth_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

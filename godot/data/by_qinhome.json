@@ -1,0 +1,65 @@
+{
+ "id": "by_qinhome",
+ "name": "秦家",
+ "subtitle": "碧漪湖漁村・民居",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWW",
+  "W_____W",
+  "W_____W",
+  "W_____W",
+  "W_____W",
+  "WWWEWWW"
+ ],
+ "spawn": {
+  "x": 3,
+  "y": 4,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     3,
+     5
+    ]
+   ],
+   "to": "biyi",
+   "spawn": {
+    "x": 26,
+    "y": 10,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一張硬板床，被子疊得方方正正。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_shelf_plain_1",
+   "x": 4,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上一排釣竿，最舊的那根竹節都磨亮了。"
+    },
+    {
+     "text": "牆上掛著一張褪色的畫：一尾白鯉躍出湖面，旁邊題著「十七歲記」。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": []
+}

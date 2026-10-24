@@ -1,0 +1,131 @@
+{
+ "id": "lj_guild",
+ "name": "漕幫分舵",
+ "subtitle": "臨江城・漕幫",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 6,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     7
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 49,
+    "y": 54,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "jars",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "堆成小山的米包與貨箱，上頭都蓋著漕幫的印。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "jars",
+   "x": 8,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一排酒罈，有幾罈已經開了封。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 6,
+   "y": 4,
+   "w": 2,
+   "lines": [],
+   "label": "擲骰子",
+   "script": "linjiang/dice"
+  },
+  {
+   "sprite": "vat",
+   "x": 1,
+   "y": 5,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一大缸水，幫眾扛完貨都來這兒舀水喝。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljg_peng",
+   "name": "彭大江",
+   "sprite": "boss",
+   "x": 4,
+   "y": 2,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/guild_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljg_hou",
+   "name": "侯三",
+   "sprite": "bandit",
+   "x": 8,
+   "y": 4,
+   "facing": "left",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "侯三",
+      "text": "來來來，押大押小？……喔，我們這兒是比大小，點大的贏。"
+     }
+    ],
+    [
+     {
+      "speaker": "侯三",
+      "text": "舵主說了，鏢局的人進來，一律請喝茶——涼茶。"
+     }
+    ]
+   ]
+  }
+ ]
+}

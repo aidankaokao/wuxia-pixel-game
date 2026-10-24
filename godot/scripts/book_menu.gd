@@ -10,6 +10,7 @@ extends RefCounted
 const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "技藝", "存檔"]
 const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("5a6a3a"), Color("4a3a5a")]
 const Cook := preload("res://story/cook.gd")
+const Stay := preload("res://story/stay.gd")
 const T_QUEST := 3
 const T_FRIEND := 4
 const T_CRAFT := 5
@@ -133,6 +134,14 @@ func _run(u: Ui, t: int) -> void:
 						elif await _confirm("研讀「%s」？" % Ui.item_def(id).get("name", id), "每回兩刻、體力 %d。" % 10, ["研讀", "取消"]) == 0:
 							result = {"do": "read", "item": id}
 							break
+						continue
+					# 服飾、兵器：穿上（同部位的換下來放回行囊）
+					if Ui.item_def(id).has("gear"):
+						var cur_on: String = G.hero.get("gear", {}).get(Ui.item_def(id).gear.kind, "")
+						if await _confirm("%s「%s」？" % ["拿起" if Ui.item_def(id).gear.kind == "weapon" else "換上", Ui.item_def(id).name], ("身上的%s會收進行囊。" % Ui.item_def(cur_on).name) if cur_on != "" else "", ["好", "取消"]) == 0:
+							ui.notify(Hero.wear(G.hero, id))
+						cur = clampi(cur, 0, maxi(0, G.bag.size() - 1))
+						_fill_both()
 						continue
 					if not Hero.usable(id):
 						ui.notify("這樣東西不能直接使用。", FAINT)
@@ -429,6 +438,19 @@ func _hero_left(v: VBoxContainer) -> void:
 	v.add_child(money)
 	money.add_child(_icon_num(_coin(), "銀兩", str(G.silver)))
 	money.add_child(_icon_num(_item_icon("", "book", 26), "武學點數", str(c.points)))
+	# 身上的服飾、兵器與坐騎
+	var worn := []
+	for slot in Hero.GEAR_SLOT:
+		var gid: String = c.get("gear", {}).get(slot, "")
+		if gid != "":
+			worn.append("%s %s" % [Hero.GEAR_SLOT[slot], Ui.item_def(gid).name])
+	var horse := Stay.mount_def(c.get("mount", ""))
+	if not horse.is_empty():
+		worn.append("坐騎 %s" % horse.name)
+	var wl := _lab("身上：" + ("、".join(worn) if worn.size() > 0 else "粗布衣裳，空著手"), 14, SOFT)
+	wl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	wl.custom_minimum_size = Vector2(PW - 90, 0)
+	v.add_child(wl)
 	v.add_child(_rule())
 	v.add_child(_lab(G.date_text(), 17))
 	v.add_child(_lab("%s・%s" % [G.time_text(), G.WEATHER_NAME[G.weather]], 15, SOFT))
@@ -1055,7 +1077,9 @@ func _bag_right(v: VBoxContainer) -> void:
 		v.add_child(_lab("可研讀「%s」" % Hero.skill_def(d.manual).get("name", d.manual), 15, BLUE))
 	if d.has("price"):
 		v.add_child(_icon_num(_coin(), "值", "%d 兩" % d.price))
-	if focus == "page" and d.has("manual"):
+	if focus == "page" and d.has("gear"):
+		v.add_child(_lab("（空白鍵%s）" % ("拿起" if d.gear.kind == "weapon" else "穿上"), 13, FAINT))
+	elif focus == "page" and d.has("manual"):
 		v.add_child(_lab("（空白鍵研讀）", 13, FAINT))
 	elif focus == "page" and Hero.usable(id):
 		v.add_child(_lab("（空白鍵使用）", 13, FAINT))

@@ -114,9 +114,40 @@ func wait(sec: float) -> void:
 	await scene.get_tree().create_timer(sec).timeout
 
 
-## 做事的過場：畫面中間一行字（例如「打水中……」），過一兩秒；之後再換成動畫
-func work(_kind: String, text: String, sec := 1.2) -> void:
+## 做事的過場：畫面中間一行字，主角做起動作（掄、攪、坐著），頭上一個個冒出小字（柴、水、魚……），過一兩秒
+const WORK_LOOK := {
+	"chop": ["swing", "柴"], "water": ["swing", "水"], "farm": ["swing", "田"], "bellows": ["stir", "火"], "stake": ["swing", "啪"],
+	"quarry": ["swing", "石"], "haul": ["swing", "貨"], "garden": ["sit", "蓮"], "cook": ["stir", "香"], "fish": ["sit", "魚"],
+	"sit": ["sit", "氣"], "study": ["sit", "書"], "sleep": ["sit", "Ｚ"], "rest": ["sit", "歇"], "pray": ["sit", "香"],
+}
+
+
+func work(kind: String, text: String, sec := 1.4) -> void:
+	var look: Array = WORK_LOOK.get(kind, ["sit", "…"])
+	var h: Chibi = scene.hero if scene and scene.get("hero") is Chibi else null
+	var puffs: Array[Node3D] = []
+	if h:
+		h.action = look[0]
+		h.walking = false
+		# 每 0.35 秒冒一個小字，往上飄、淡掉
+		var n := int(sec / 0.35)
+		for i in n:
+			var lb := Mk.label(look[1], 26, Color("fff4d8"))
+			lb.position = Vector3(0.3 * (1 if i % 2 else -1), 1.5, 0)
+			lb.modulate.a = 0.0
+			h.add_child(lb)
+			puffs.append(lb)
+			var tw := lb.create_tween()
+			tw.tween_interval(i * 0.35)
+			tw.tween_property(lb, "modulate:a", 1.0, 0.1)
+			tw.parallel().tween_property(lb, "position:y", 2.1, 0.7)
+			tw.tween_property(lb, "modulate:a", 0.0, 0.25)
 	await ui.caption(text, sec)
+	if h and is_instance_valid(h):
+		h.action = ""
+	for p in puffs:
+		if is_instance_valid(p):
+			p.queue_free()
 
 
 ## 找地圖上的人（walkers 的 def.id）；"player" 是主角
@@ -166,7 +197,8 @@ func refresh() -> void:
 
 ## 換到某張地圖的某一格（腳本在這之後就不要再做別的事）
 func warp(map: String, at: Dictionary) -> void:
-	scene.main.hop(map, at)
+	# 腳本還在跑時介面算忙、hop 會略過：等這一幀結束（腳本跑完）再換
+	scene.main.call_deferred("hop", map, at)
 
 
 ## 開戰（遭遇戰 id，見 data/enemies.json）；打完回到原地圖再繼續。回傳 "win"／"lose"／"flee"

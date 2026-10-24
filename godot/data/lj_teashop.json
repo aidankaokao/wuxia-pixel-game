@@ -1,0 +1,117 @@
+{
+ "id": "lj_teashop",
+ "name": "泉霧茶莊",
+ "subtitle": "臨江城・城北・鳴泉劍派的產業",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 6,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     7
+    ]
+   ],
+   "to": "linjiang",
+   "spawn": {
+    "x": 26,
+    "y": 20,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 3,
+   "y": 1,
+   "w": 3,
+   "lines": [
+    {
+     "text": "櫃台上一排青瓷茶罐，罐上貼著紅紙：「明前」「雨前」「夏茶」。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "jars",
+   "x": 8,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "大肚茶甕封著口，甕上蓋著「鳴泉」的朱印。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 1,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "給客人試茶的桌子，茶盤上擺著三只白瓷杯。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_scholar_1",
+   "x": 7,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上攤著一本茶帳，字寫得一絲不苟。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "portrait",
+   "x": 1,
+   "y": 0,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一幅山水，畫的是鳴泉山，山腰一道白泉。落款是聞松年。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljt_liang",
+   "name": "梁敬亭",
+   "sprite": "scholar",
+   "x": 4,
+   "y": 2,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/teashop_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

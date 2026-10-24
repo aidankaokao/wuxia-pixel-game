@@ -18,9 +18,10 @@ const STALLS := {
 ## 精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）；有樣式設定的都用精細版
 
 ## 做好室內的房子（地圖 id）
-const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple"]
+const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tavern", "by_qinhome",
+	"lj_cloth", "lj_inn", "lj_tower", "lj_clinic", "lj_pawn", "lj_escort", "lj_guild", "lj_teashop", "lj_academy", "lj_yamen_hall", "lj_yamen_west", "lj_yamen_east"]
 ## 做好的室外地圖（出入口通到這些就換過去）
-const OUTDOOR := ["qingzhu", "qz_north", "canglan"]
+const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen"]
 ## 地圖四周往外延伸幾格（地圖資料可以用 ring 指定：主角會走到很靠邊的地圖要寬一點，免得看到外面）
 var M := 16
 
@@ -60,6 +61,7 @@ func _ready() -> void:
 				blocked[Vector2i(x, y)] = true
 	_heights()
 	_ground()
+	_walls()
 	_plants()
 	_mountain_plants()
 	for b in data.buildings:
@@ -94,6 +96,10 @@ func _ring() -> void:
 				row.append((data.tiles[y] as String)[x])
 				continue
 			var b := (data.tiles[cy] as String)[cx]
+			# 城裡的院子（例如縣衙中庭）：外圍一律是城裡的地面，不長山林
+			if data.has("ring_fill"):
+				row.append(data.ring_fill)
+				continue
 			var r := Mk.h01(x, y, 77)
 			var straight := x == cx or y == cy
 			var c := "."
@@ -192,7 +198,7 @@ func _bil(m: Array, u: float, v: float) -> float:
 func _ground() -> void:
 	var water := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in ["~", "#"] else 0.0))
 	var path := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in [":", "E", "#"] else 0.0))
-	var plaza := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) == "=" else 0.0))
+	var plaza := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in ["=", "X", "R", "H"] else 0.0))
 	var mtn := _grid_of(func(x, y): return heights[y + M][x + M] if tile(x, y) == "^" else 0.0)
 	var n := SUB
 	var vw := EW * n + 1
@@ -260,6 +266,82 @@ func _ground() -> void:
 	wplane.position.y = -0.12
 	add_child(wplane)
 	_bridges()
+
+
+## 進得去的門口上方：一個倒金字塔形的金色光標，上下浮動、慢慢轉；主角走近（MARK_NEAR 格內）才亮出來。
+## 不做深度測試，房子背對鏡頭、門被屋頂擋住也看得到
+const MARK_NEAR := 8.0
+var marks: Array = []
+
+
+func _door_marker(dt: Vector2i, face: String) -> void:
+	var m := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.28
+	cm.bottom_radius = 0.0
+	cm.height = 0.5
+	cm.radial_segments = 4
+	cm.rings = 1
+	m.mesh = cm
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color("f0c860")
+	mat.emission_enabled = true
+	mat.emission = Color("f0b040")
+	mat.emission_energy_multiplier = 1.2
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.no_depth_test = true
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.render_priority = 10
+	m.material_override = mat
+	# 浮在門口前面一點、門楣上方
+	var fd: Vector2i = FACE_DIR[face]
+	m.position = Vector3(dt.x + 0.5 + fd.x * 0.4 + ox, 2.3, dt.y + 0.5 + fd.y * 0.4 + oz)
+	m.visible = false
+	add_child(m)
+	marks.append({"node": m, "at": Vector2(dt.x + 0.5, dt.y + 0.5), "base": m.position.y, "mat": mat})
+
+
+func _process(dt: float) -> void:
+	super._process(dt)
+	if not hero or marks.is_empty():
+		return
+	var hp := Vector2(hero.position.x - ox, hero.position.z - oz)
+	var t := Time.get_ticks_msec() / 1000.0
+	for mk in marks:
+		var near: bool = hp.distance_to(mk.at) < MARK_NEAR
+		var n: MeshInstance3D = mk.node
+		n.visible = near
+		if near:
+			n.position.y = mk.base + sin(t * 3.0) * 0.12
+			n.rotation.y = t * 1.5
+			# 越近越亮
+			mk.mat.albedo_color.a = clampf(1.3 - hp.distance_to(mk.at) / MARK_NEAR, 0.35, 1.0)
+
+
+## 城牆（H：灰磚牆、上面一排垛口）與官府、大戶的院牆（R：朱紅牆、灰瓦牆帽），一格一段，成批畫
+func _walls() -> void:
+	var cube := BoxMesh.new()
+	var grey := Mk.Batch.new(cube, Color("8a8478"))
+	var red := Mk.Batch.new(cube, Color("9a3a2e"))
+	var cap := Mk.Batch.new(cube, Color("4a4a52"))
+	for y in H:
+		for x in W:
+			var t := tile(x, y)
+			var c := Vector3(x + 0.5 + ox, 0, y + 0.5 + oz)
+			if t == "H":
+				grey.add(c + Vector3(0, 0.9, 0), Vector3(1.0, 1.8, 1.0))
+				grey.add(c + Vector3(0, 1.85, 0), Vector3(1.04, 0.1, 1.04), 0.0, Color("7a7468"))
+				# 垛口：牆頂一個個小方塊（隔格錯開）
+				if (x + y) % 2 == 0:
+					grey.add(c + Vector3(0, 2.05, 0), Vector3(0.5, 0.3, 0.5), 0.0, Color("8a8478"))
+			elif t == "R":
+				# 矮一點，站在牆後的人不會被擋住
+				red.add(c + Vector3(0, 0.5, 0), Vector3(1.0, 1.0, 0.6))
+				cap.add(c + Vector3(0, 1.08, 0), Vector3(1.08, 0.16, 0.9))
+	for b in [grey, red, cap]:
+		var mi: MultiMeshInstance3D = b.build()
+		if mi:
+			add_child(mi)
 
 
 ## 一個頂點的地表顏色：草地（大片深淺）→ 田地（方正）→ 廣場、小路 → 山石 → 水底，依序疊上去
@@ -579,20 +661,52 @@ func _plants() -> void:
 
 
 ## 房子：台基、牆、柱、門窗、人字屋頂、匾額與幌子、燈籠
+## 房子朝哪邊（資料的 face：s 南、n 北、e 東、w 西，預設朝南）：模型照朝南蓋好再繞中心轉；佔地東西南北對調
+const FACE_ROT := {"s": 0.0, "e": PI / 2.0, "n": PI, "w": -PI / 2.0}
+const FACE_DIR := {"s": Vector2i(0, 1), "e": Vector2i(1, 0), "n": Vector2i(0, -1), "w": Vector2i(-1, 0)}
+
+
+## 房子的佔地（格）：朝東西的寬深對調
+static func footprint(b: Dictionary) -> Vector2i:
+	var w := int(b.st.w)
+	var d := int(b.st.h)
+	return Vector2i(w, d) if b.get("face", "s") in ["s", "n"] else Vector2i(d, w)
+
+
+## 房子門口那一格（在佔地裡，人站在它前面一格、對著它）
+static func door_tile(b: Dictionary) -> Vector2i:
+	var w := float(b.st.w)
+	var d := float(b.st.h)
+	var fp := footprint(b)
+	var t: float = FACE_ROT[b.get("face", "s")]
+	var v := Vector2(float(b.st.door) + 0.5 - w / 2.0, d / 2.0 - 0.5)
+	var r := Vector2(v.x * cos(t) + v.y * sin(t), -v.x * sin(t) + v.y * cos(t))
+	return Vector2i(floori(b.x + fp.x / 2.0 + r.x), floori(b.y + fp.y / 2.0 + r.y))
+
+
 func _building(b: Dictionary) -> void:
 	var st: Dictionary = b.st
 	var w: float = st.w
 	var d: float = st.h
+	var fp := footprint(b)
+	# 外面一層放在佔地中心、照朝向轉；裡面一層照朝南的座標蓋（x 0..w、z 0..d，正面在 z = d）
+	var pivot := Node3D.new()
+	pivot.position = Vector3(b.x + fp.x / 2.0 + ox, 0, b.y + fp.y / 2.0 + oz)
+	pivot.rotation.y = FACE_ROT[b.get("face", "s")]
+	add_child(pivot)
 	var root := Node3D.new()
-	root.position = Vector3(b.x + ox, 0, b.y + oz)
-	add_child(root)
-	for yy in range(int(b.y), int(b.y + d)):
-		for xx in range(int(b.x), int(b.x + w)):
+	root.position = Vector3(-w / 2.0, 0, -d / 2.0)
+	pivot.add_child(root)
+	for yy in range(int(b.y), int(b.y) + fp.y):
+		for xx in range(int(b.x), int(b.x) + fp.x):
 			blocked[Vector2i(xx, yy)] = true
 	# 門：站在門口、對著門按空白鍵才進去（每棟房子都有門，還沒做室內的會說門關著）
-	var dt := Vector2i(int(b.x + st.door), int(b.y + d - 1))
+	var dt := door_tile(b)
 	doors[dt] = b
 	props.append({"node": null, "def": {"sprite": "door", "label": "進去", "lines": [], "door": dt}, "at": Vector2(dt.x + 0.5, dt.y + 0.5)})
+	var enter = b.get("enter")
+	if enter != null and (enter.to in ROOMS or enter.to in OUTDOOR):
+		_door_marker(dt, b.get("face", "s"))
 	# 做好精細版的房子（fine_house.gd）
 	if FineHouse.STYLE.has(b.style):
 		root.add_child(FineHouse.build(self, b))
@@ -684,7 +798,8 @@ func _lantern(parent: Node3D, pos: Vector3) -> void:
 func _prop(p: Dictionary) -> void:
 	var w: int = p.w
 	for i in w:
-		blocked[Vector2i(p.x + i, p.y)] = true
+		if not p.get("passable", false):
+			blocked[Vector2i(p.x + i, p.y)] = true
 	var g := Node3D.new()
 	g.position = Vector3(p.x + w / 2.0 + ox, 0, p.y + 0.5 + oz)
 	add_child(g)
@@ -708,6 +823,79 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.75, 0.15, 0.4), Color("6a6a66"), Vector3(0, 0.07, 0)))
 		"bulletin":
 			FineProps.bulletin(g)
+		"paifang_city":
+			# 城門外的石牌坊：四根石柱、三層橫樑、中間一塊匾
+			for i in 4:
+				var px := -w / 2.0 + 0.5 + i * (w - 1.0) / 3.0
+				g.add_child(Mk.box(Vector3(0.35, 3.0, 0.35), Color("b8b2a4"), Vector3(px, 1.5, 0)))
+				g.add_child(Mk.box(Vector3(0.6, 0.3, 0.6), Color("9a9488"), Vector3(px, 0.15, 0)))
+			g.add_child(Mk.box(Vector3(w, 0.3, 0.45), Color("a8a296"), Vector3(0, 2.7, 0)))
+			g.add_child(Mk.box(Vector3(w + 0.6, 0.35, 0.7), Color("3f4a5e"), Vector3(0, 3.15, 0)))
+			g.add_child(Mk.box(Vector3(2.2, 0.55, 0.08), Color("2a1f18"), Vector3(0, 2.25, 0.25)))
+			var pl := Mk.label("臨江", 48, Color("f0c860"), Color(0, 0, 0, 0))
+			pl.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+			pl.position = Vector3(0, 2.25, 0.3)
+			g.add_child(pl)
+		"stone_lion":
+			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.7), Color("a8a296"), Vector3(0, 0.2, 0)))
+			g.add_child(Mk.ball(0.3, Color("b8b2a4"), Vector3(0, 0.65, -0.05), 8))
+			g.add_child(Mk.ball(0.26, Color("b8b2a4"), Vector3(0, 1.0, 0.1), 8))
+			g.add_child(Mk.ball(0.12, Color("8a8478"), Vector3(0, 1.0, 0.33), 6))
+		"drum":
+			# 鳴冤鼓：木架上一面大紅鼓
+			for sx in [-0.45, 0.45]:
+				g.add_child(Mk.box(Vector3(0.08, 1.4, 0.08), Color("5a3a22"), Vector3(sx, 0.7, 0)))
+			var drum := Mk.cyl(0.4, 0.4, 0.4, Color("a83a2e"), Vector3(0, 1.0, 0), 14)
+			drum.rotation.x = PI / 2.0
+			g.add_child(drum)
+			var face := Mk.cyl(0.36, 0.36, 0.42, Color("e8d8b8"), Vector3(0, 1.0, 0), 14)
+			face.rotation.x = PI / 2.0
+			g.add_child(face)
+		"drying_rack":
+			# 晾架：兩根叉木撐一根長竿，掛著小魚乾或漁網
+			for sx in [-w / 2.0 + 0.15, w / 2.0 - 0.15]:
+				g.add_child(Mk.box(Vector3(0.07, 1.3, 0.07), Color("6a4428"), Vector3(sx, 0.65, 0)))
+			g.add_child(Mk.box(Vector3(w - 0.1, 0.05, 0.05), Color("8a6a42"), Vector3(0, 1.25, 0)))
+			for i in int(w * 4):
+				var fx := -w / 2.0 + 0.3 + i * (w - 0.6) / maxf(1, w * 4 - 1)
+				g.add_child(Mk.box(Vector3(0.07, 0.28, 0.03), Color("b8a070") if i % 2 else Color("a89060"), Vector3(fx, 1.08, 0)))
+		"jars":
+			for i in w * 2:
+				g.add_child(Mk.cyl(0.18, 0.22, 0.42, Color("7a5a3a") if i % 2 else Color("6a4a32"), Vector3(-w / 2.0 + 0.3 + i * 0.45, 0.21, (i % 2) * 0.15), 9))
+			g.add_child(Mk.cyl(0.25, 0.2, 0.3, Color("b8a060"), Vector3(w / 2.0 - 0.3, 0.15, -0.25), 10))
+		"boat":
+			# 拴在棧橋邊的小船（擺在水格上）
+			var hull := Mk.box(Vector3(w - 0.3, 0.25, 0.75), Color("7a5232"), Vector3(0, -0.12, 0))
+			g.add_child(hull)
+			for sx in [-1, 1]:
+				var tip := Mk.box(Vector3(0.5, 0.22, 0.5), Color("7a5232"), Vector3(sx * (w / 2.0 - 0.2), -0.08, 0))
+				tip.rotation.y = PI / 4.0
+				g.add_child(tip)
+			g.add_child(Mk.box(Vector3(w - 0.6, 0.04, 0.6), Color("a8763f"), Vector3(0, 0.02, 0)))
+			var pole := Mk.box(Vector3(0.04, 0.04, 2.2), Color("8a6a42"), Vector3(0.3, 0.1, 0))
+			pole.rotation = Vector3(0, 0.3, 0.15)
+			g.add_child(pole)
+		"reeds":
+			for i in 9:
+				var q := Vector3((Mk.h01(p.x * 7 + i, p.y) - 0.5) * 0.8, 0, (Mk.h01(p.x + i, p.y * 5) - 0.5) * 0.8)
+				var hh := 0.8 + Mk.h01(i, p.x) * 0.6
+				g.add_child(Mk.cyl(0.015, 0.02, hh, Color("8a9a52"), q + Vector3(0, hh / 2.0 - 0.15, 0), 4))
+				g.add_child(Mk.cyl(0.035, 0.03, 0.18, Color("8a6a42"), q + Vector3(0, hh - 0.1, 0), 5))
+		"lotus":
+			# 荷葉與荷花（浮在水上）
+			for i in w * 3:
+				var q := Vector3(-w / 2.0 + 0.3 + i * (w - 0.6) / maxf(1, w * 3 - 1), -0.16, (Mk.h01(i, p.y) - 0.5) * 0.6)
+				g.add_child(Mk.cyl(0.24, 0.24, 0.02, Color("4a8a3a"), q, 9))
+			g.add_child(Mk.cone(0.12, 0.2, Color("f0b8c8"), Vector3(0.1, 0.0, 0.05), 6))
+			g.add_child(Mk.cyl(0.015, 0.015, 0.3, Color("4a7a32"), Vector3(0.1, -0.12, 0.05), 4))
+		"pavilion":
+			# 望月亭：石台、四根紅柱、攢尖頂
+			g.add_child(Mk.cyl(1.2, 1.3, 0.25, Color("a8a296"), Vector3(0, 0.12, 0), 8))
+			for i in 4:
+				var a := i * PI / 2.0 + PI / 4.0
+				g.add_child(Mk.cyl(0.07, 0.07, 1.7, Color("8a2e26"), Vector3(cos(a) * 0.95, 1.1, sin(a) * 0.95), 6))
+			g.add_child(Mk.cyl(0.0, 1.6, 0.9, Color("3e5a4e"), Vector3(0, 2.35, 0), 4))
+			g.add_child(Mk.cyl(0.35, 0.35, 0.5, Color("8a8478"), Vector3(0, 0.5, 0), 8))
 		"ripple":
 			# 釣點：水面上一圈圈漣漪，中間一枚紅白浮標（擺在水格上，人站在岸邊對著它）
 			for k in 2:
@@ -772,7 +960,7 @@ func _prop(p: Dictionary) -> void:
 		"flag":
 			g.add_child(Mk.box(Vector3(0.07, 2.4, 0.07), Color("5a3a22"), Vector3(0, 1.2, 0)))
 			g.add_child(Mk.box(Vector3(0.7, 0.5, 0.03), Color("2a2228"), Vector3(0.37, 2.05, 0)))
-			var fl := Mk.label("斷", 40, Color("d8c8a8"), Color(0, 0, 0, 0))
+			var fl := Mk.label(p.get("char", "斷"), 40, Color("d8c8a8"), Color(0, 0, 0, 0))
 			fl.position = Vector3(0.37, 2.05, 0.03)
 			fl.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 			g.add_child(fl)
@@ -906,7 +1094,7 @@ func _interact(t: Dictionary) -> void:
 		return
 	var b: Dictionary = doors[t.p.def.door]
 	var enter = b.get("enter")
-	if enter != null and enter.to in ROOMS:
+	if enter != null and (enter.to in ROOMS or enter.to in OUTDOOR):
 		main.hop(enter.to, enter.spawn)
 	else:
 		await ui.say([{"text": "%s的門關著。" % b.name}])

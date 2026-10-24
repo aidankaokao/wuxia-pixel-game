@@ -18,6 +18,10 @@ import { canglan } from '../../src/game/maps/canglan';
 import { qzLiu, qzSmithy, qzTea, qzTemple, qzWang } from '../../src/game/maps/qingzhu_rooms';
 import { BLOCKING, type Line, type MapDef } from '../../src/game/maps/types';
 import { PEOPLE } from '../../src/game/story/people';
+import { biyi, byIsle, byQinHome, byTavern } from '../../src/game/maps/biyi';
+import { linjiang } from '../../src/game/maps/linjiang';
+import { ljAcademy, ljNorth, ljTeashop } from '../../src/game/maps/linjiang_north';
+import { LINJIANG_ROOMS } from '../../src/game/maps/linjiang_rooms';
 
 // godot/data/ 已經由 Godot 這邊維護（劇情腳本、出現條件都加在那裡），匯出的東西只放到 tools/web_export/ 當參考，要用的再手動搬過去
 const OUT = `${process.cwd()}/godot/tools/web_export/`;
@@ -31,6 +35,17 @@ function linesOf(n: Pick<LifeNpc, 'person' | 'name'> & { talks?: { default?: Lin
     if (pool.length) return pool.map((c) => c.map((l) => ({ speaker: l.speaker ?? n.name, text: l.text })));
   }
   return n.talks?.default?.length ? n.talks.default : [[{ text: `${n.name}朝你點點頭，又忙自己的事去了。` }]];
+}
+
+/** 地圖上的人：作息欄位照抄；腳本、出現條件是函式，寫成 "<fn>"（Godot 這邊另外接） */
+function npcOf(n: MapDef['npcs'][number]) {
+  return {
+    id: n.id, name: n.name, sprite: n.sprite, x: n.x, y: n.y, facing: n.facing ?? 'down',
+    all_day: n.allDay ?? false, work: n.work ?? false, night: n.night ?? false, wander: n.wander ?? 0, person: n.person ?? '',
+    script: n.script ? '<fn>' : '', when: n.when ? '<fn>' : '',
+    // 有人物檔案的照人物檔案的台詞，沒有的照地圖上寫的
+    talks: n.person ? linesOf({ person: n.person, name: n.name }) : (n.talks ?? []),
+  };
 }
 
 /** 室外地圖；groupId 是在這張地圖上過日子的那群人（沒有就不放人） */
@@ -47,10 +62,11 @@ function exportMap(def: MapDef, groupId?: string) {
     buildings: def.buildings.map((b) => ({ ...b, st: BUILDINGS[b.style] })),
     props: def.props
       .filter((p) => typeof p.sprite === 'string')
-      .map((p) => ({ id: p.id ?? '', sprite: p.sprite, x: p.x, y: p.y, w: p.w ?? 1, lines: p.lines ?? [], label: p.label ?? '' })),
+      .map((p) => ({ id: p.id ?? '', sprite: p.sprite, x: p.x, y: p.y, w: p.w ?? 1, lines: p.lines ?? [], label: p.label ?? '', script: p.script ? '<fn>' : '', when: p.when ? '<fn>' : '', passable: p.passable ?? false })),
     exits: def.exits,
     spots: spots.map((s) => ({ x: s.x, y: s.y, acts: s.acts })),
     people: (group?.npcs ?? []).map((n) => ({ id: n.id, name: n.name, sprite: n.sprite, person: n.person ?? '', lines: linesOf(n) })),
+    npcs: def.npcs.map(npcOf),
   };
 }
 
@@ -66,17 +82,8 @@ function exportRoom(def: MapDef) {
     exits: def.exits,
     props: def.props
       .filter((p) => typeof p.sprite === 'string')
-      .map((p) => ({ sprite: p.sprite, x: p.x, y: p.y, w: p.w ?? 1, lines: p.lines ?? [], label: p.label ?? '' })),
-    npcs: def.npcs.map((n) => ({
-      id: n.id,
-      name: n.name,
-      sprite: n.sprite,
-      x: n.x,
-      y: n.y,
-      facing: n.facing ?? 'down',
-      // 有人物檔案的照人物檔案的台詞，沒有的照地圖上寫的
-      talks: n.person ? linesOf({ person: n.person, name: n.name }) : (n.talks ?? []),
-    })),
+      .map((p) => ({ sprite: p.sprite, x: p.x, y: p.y, w: p.w ?? 1, lines: p.lines ?? [], label: p.label ?? '', script: p.script ? '<fn>' : '' })),
+    npcs: def.npcs.map(npcOf),
   };
 }
 
@@ -84,6 +91,17 @@ for (const r of [qzLiu, qzTea, qzSmithy, qzWang, qzTemple]) writeFileSync(OUT + 
 writeFileSync(OUT + 'qingzhu.json', JSON.stringify(exportMap(qingzhu, 'qingzhu'), null, 1));
 writeFileSync(OUT + 'qz_north.json', JSON.stringify(exportMap(qzNorth), null, 1));
 writeFileSync(OUT + 'canglan.json', JSON.stringify(exportMap(canglan), null, 1));
+// 碧漪湖漁村、臨江城（城南、城北）與它們的室內
+writeFileSync(OUT + 'biyi.json', JSON.stringify(exportMap(biyi, 'biyi'), null, 1));
+writeFileSync(OUT + 'by_isle.json', JSON.stringify(exportMap(byIsle), null, 1));
+writeFileSync(OUT + 'linjiang.json', JSON.stringify(exportMap(linjiang, 'linjiang'), null, 1));
+writeFileSync(OUT + 'lj_north.json', JSON.stringify(exportMap(ljNorth, 'linjiang'), null, 1));
+writeFileSync(OUT + 'lj_yamen.json', JSON.stringify(exportMap(LINJIANG_ROOMS.find((r) => r.id === 'lj_yamen')!), null, 1));
+for (const r of [byTavern, byQinHome, ljTeashop, ljAcademy, ...LINJIANG_ROOMS.filter((r) => r.id !== 'lj_yamen')]) writeFileSync(OUT + `${r.id}.json`, JSON.stringify(exportRoom(r), null, 1));
+// 自己過日子的人（給 Godot 寫 story/life_*.gd 時參考）：地點、人物、床位座位、喜好、台詞（職責是函式，匯不出來）
+writeFileSync(OUT + 'life_groups.json', JSON.stringify(lifeGroups().map((g) => ({ id: g.id, maps: g.maps, spots: g.spots, npcs: g.npcs.map((n) => ({ ...n, duty: undefined, script: undefined })) })), null, 1));
+// 人物檔案（台詞、問答、事件；腳本是函式，匯不出來）
+writeFileSync(OUT + 'people.json', JSON.stringify(PEOPLE, (k, v) => (typeof v === 'function' ? `<fn ${k}>` : v), 1));
 writeFileSync(
   OUT + 'items.json',
   JSON.stringify(Object.fromEntries(Object.entries(ITEMS).map(([id, it]) => [id, { name: it.name, price: it.price ?? 0, desc: it.desc ?? '', category: it.category }])), null, 1),

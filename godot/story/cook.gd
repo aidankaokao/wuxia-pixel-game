@@ -145,27 +145,36 @@ static func _cook(ctx: Ctx, d: Dictionary, stove_lv: int) -> void:
 
 ## 鍾嬸教菜（人際系統的「請教」轉過來）：只教家常的入門、中等菜；中等菜要烹飪 2 級
 static func zhong_teach(ctx: Ctx) -> void:
-	var who := func(t: String) -> Dictionary: return {"speaker": "鍾嬸", "text": t}
+	await teach(ctx, "鍾嬸", func(d): return int(d.tier) <= 1 and not d.get("spring", false) and not d.get("sea", false) and not d.get("lake", false),
+		ZHONG_COST, "想學做菜？嬸教你幾道家常的。學費意思意思就好。", "嬸會的家常菜都教給你啦！再難的菜，得去找大館子的師傅。", "在竹風茶寮後頭的灶台做；食材陶四的貨郎攤有賣")
+
+
+## 跟師傅學菜：teaches 篩出這位師傅教的菜，cost 是各階（入門、中等、進階、拿手）的學費（兩），烹飪等級要到該階的門檻
+static func teach(ctx: Ctx, who_name: String, teaches: Callable, cost: Array, greet: String, all_done: String, where: String) -> void:
+	var who := func(t: String) -> Dictionary: return {"speaker": who_name, "text": t}
 	var tl: Array = Crafts.data().tier_level
-	var left: Array = Crafts.data().dishes.filter(func(d): return not knows(d.id) and int(d.tier) <= 1 and not d.get("spring", false) and not d.get("sea", false) and not d.get("lake", false))
+	var left: Array = Crafts.data().dishes.filter(func(d): return not knows(d.id) and teaches.call(d))
 	if left.is_empty():
-		await ctx.say(who.call("嬸會的家常菜都教給你啦！再難的菜，得去找大館子的師傅。"))
+		await ctx.say(who.call(all_done))
 		return
 	var lv := Crafts.level("cooking")
-	var can := left.filter(func(d): return lv >= int(tl[int(d.tier)]))
+	var can := left.filter(func(d): return lv >= int(tl[int(d.tier)]) and int(d.tier) < cost.size())
 	if can.is_empty():
-		await ctx.say([who.call("先把會的菜做熟了再說。手藝不到家，教你也學不會。"), "（烹飪練到 %d 級，鍾嬸才肯教中等的菜）" % int(tl[1])])
+		var need := 99
+		for d in left:
+			need = mini(need, int(tl[int(d.tier)]))
+		await ctx.say([who.call("先把會的菜做熟了再說。手藝不到家，教你也學不會。"), "（烹飪練到 %d 級，%s才肯教下一道）" % [need, who_name]])
 		return
-	var labels := can.map(func(d): return "%s（%s・%s，%d 兩）" % [d.name, d.kind, Crafts.data().dish_tiers[int(d.tier)], ZHONG_COST[int(d.tier)]])
-	var i := await ctx.ask(who.call("想學做菜？嬸教你幾道家常的。學費意思意思就好。"), labels + ["算了"])
+	var labels := can.map(func(d): return "%s（%s・%s，%d 兩）" % [d.name, d.kind, Crafts.data().dish_tiers[int(d.tier)], cost[int(d.tier)]])
+	var i := await ctx.ask(who.call(greet), labels + ["算了"])
 	if i >= can.size():
 		return
 	var d: Dictionary = can[i]
-	var cost: int = ZHONG_COST[int(d.tier)]
-	if not ctx.pay(cost):
-		await ctx.say(who.call("這得 %d 兩，你身上不夠呢。" % cost))
+	var price: int = cost[int(d.tier)]
+	if not ctx.pay(price):
+		await ctx.say(who.call("這得 %d 兩，你身上不夠呢。" % price))
 		return
 	ctx.pass_time(4)
 	Crafts.learn_work("cooking", d.id)
-	await ctx.say([who.call("看好了，「%s」的要訣是……" % d.name), "鍾嬸一邊做一邊講，你在旁邊照著做了一遍。\n（花了半個時辰）",
-		"學會了「%s」！要用：%s。\n（在竹風茶寮後頭的灶台做；食材陶四的貨郎攤有賣）" % [d.name, needs_text(d)]])
+	await ctx.say([who.call("看好了，「%s」的要訣是……" % d.name), "%s一邊做一邊講，你在旁邊照著做了一遍。\n（花了半個時辰）" % who_name,
+		"學會了「%s」！要用：%s。\n（%s）" % [d.name, needs_text(d), where]])

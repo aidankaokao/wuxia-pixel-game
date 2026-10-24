@@ -1,0 +1,146 @@
+{
+ "id": "lj_yamen_hall",
+ "name": "親民堂",
+ "subtitle": "臨江縣衙・大堂",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWWWWWW",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "W___________W",
+  "WWWWWWEWWWWWW"
+ ],
+ "spawn": {
+  "x": 6,
+  "y": 7,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     6,
+     8
+    ]
+   ],
+   "to": "lj_yamen",
+   "spawn": {
+    "x": 12,
+    "y": 6,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "altar",
+   "x": 5,
+   "y": 2,
+   "w": 3,
+   "lines": [
+    {
+     "text": "公案上擺著驚堂木與籤筒，「明鏡高懸」的匾額就在頭頂。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 2,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "牆上掛著「肅靜」「迴避」兩面木牌。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 10,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "架上一排水火棍，漆成上紅下黑。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "ljy_lu",
+   "name": "盧秉文",
+   "sprite": "scholar",
+   "x": 6,
+   "y": 1,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "linjiang/magistrate_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "ljy_fang",
+   "name": "方大成",
+   "sprite": "guard",
+   "x": 3,
+   "y": 4,
+   "facing": "right",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "方大成",
+      "text": "老爺問案的時候，站兩邊的就是我們。"
+     }
+    ],
+    [
+     {
+      "speaker": "方大成",
+      "text": "堂下跪的那塊石板，都被膝蓋磨亮了。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "ljy_tang",
+   "name": "湯小滿",
+   "sprite": "guard",
+   "x": 9,
+   "y": 4,
+   "facing": "left",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "speaker": "湯小滿",
+      "text": "站一整天，腿都麻了……噓，別跟老爺說。"
+     }
+    ]
+   ]
+  }
+ ]
+}
