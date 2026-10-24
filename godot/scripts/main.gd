@@ -1,8 +1,8 @@
 extends Node3D
-## 試作品的主控：光線與環境、時辰（T）、天氣（Y）、換場景（Tab 或左上的按鈕）、鏡頭轉向（Q／R）。
+## 試作品的主控：光線與環境、時辰（T）、天氣（Y）、換場景（Tab 或左上的按鈕）、鏡頭轉向（Q／R，每次 90 度）。
 ## 場景：青竹村（village）、戰鬥・平地（plain）、戰鬥・河湖（river）、戰鬥・山道（hill）。
 
-const SCENES := [["village", "青竹村"], ["plain", "戰鬥・平地"], ["river", "戰鬥・河湖"], ["hill", "戰鬥・山道"]]
+const SCENES := [["village", "青竹村"], ["qz_tea", "竹風茶寮"], ["plain", "戰鬥・平地"], ["river", "戰鬥・河湖"], ["hill", "戰鬥・山道"]]
 ## 時辰：太陽的角度、顏色、亮度；天空與環境光；燈籠亮不亮
 const TIMES := [
 	{"name": "清晨", "pitch": -25.0, "sun": Color("ffd8b0"), "e": 1.0, "bg": Color("9fb4c8"), "amb": Color("8a96b0"), "ae": 0.5, "lamp": 0.0},
@@ -103,7 +103,7 @@ func _panel() -> void:
 	row2.add_child(_button("天氣（Y）", func() -> void:
 		rain = not rain
 		apply_time()))
-	ui.hint.text = "方向鍵或 WASD 走路、Shift 跑、E 交談／確認、Q／R 轉鏡頭、滾輪或 Z／X 拉遠近、T 時辰、Y 下雨、Tab 換場景；戰鬥用滑鼠點"
+	ui.help.text = "方向鍵或 WASD 走路、Shift 跑、空白鍵 交談／確認、Q／R 轉鏡頭（每次 90 度）、滾輪或 Z／X 拉遠近、T 時辰、Y 下雨、Tab 換場景；戰鬥用滑鼠點"
 
 
 func _button(text: String, f: Callable) -> Button:
@@ -115,16 +115,26 @@ func _button(text: String, f: Callable) -> Button:
 	return b
 
 
-func go(id: String) -> void:
+## 換場景；at 是從哪一格進來（從門口進屋、出門回村）
+func go(id: String, at := {}) -> void:
 	scene_id = id
 	if scene:
 		scene.queue_free()
-	if id == "village":
+	ui.show_hint("", Vector2.ZERO)
+	if id == "village" or id == "qingzhu":
+		scene_id = "village"
 		var v := Village.new()
-		v.setup(ui, rig)
+		v.setup(ui, rig, self, at)
 		scene = v
 		rig.size = 14.0
 		rig.size_max = 26.0
+	elif id.begins_with("qz_"):
+		var r := Room.new()
+		r.setup(ui, rig, self, at)
+		r.open(id)
+		scene = r
+		rig.size = 8.0
+		rig.size_max = 12.0
 	else:
 		var b := HexBattle.new()
 		b.setup(ui, rig, id)
@@ -133,7 +143,7 @@ func go(id: String) -> void:
 		rig.size_max = 14.0
 	add_child(scene)
 	for k in buttons:
-		buttons[k].modulate = Color("f0c860") if k == id else Color.WHITE
+		buttons[k].modulate = Color("f0c860") if k == scene_id or (k == "village" and scene is Room) else Color.WHITE
 	apply_time()
 
 
@@ -149,11 +159,13 @@ func apply_time() -> void:
 	env.fog_light_color = env.background_color
 	env.fog_enabled = rain
 	rain_fx.emitting = rain
-	if scene is Village:
-		for l in (scene as Village).lamps:
-			l.light_energy = t.lamp
-		for m in (scene as Village).lamp_mats:
-			m.emission_energy_multiplier = 0.2 + t.lamp * 1.2
+	if scene is GridScene:
+		# 屋裡的燈白天也點著（亮度低一些）
+		var lamp: float = maxf(t.lamp, 0.8) if scene is Room else t.lamp
+		for l in (scene as GridScene).lamps:
+			l.light_energy = lamp
+		for m in (scene as GridScene).lamp_mats:
+			m.emission_energy_multiplier = 0.2 + lamp * 1.2
 
 
 func _unhandled_input(e: InputEvent) -> void:

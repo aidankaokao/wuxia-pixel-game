@@ -65,16 +65,21 @@ func _run() -> void:
 				e = e.duplicate()
 				e.pressed = false
 				Input.parse_input_event(e)
+			"yaw":
+				# 鏡頭轉到幾度（0 是從正南方看）
+				var rg = _main().rig
+				rg.yaw = deg_to_rad(float(arg))
+				rg.yaw_goal = rg.yaw
 			"warp":
 				var xy := arg.split(",")
 				var v = _main().scene
-				if v is Village:
+				if v is GridScene:
 					v.hero.position = v.w3(int(xy[0]), int(xy[1]))
 					v.rig.position = v.hero.position
 			"face":
 				var d := arg.split(",")
 				var v = _main().scene
-				if v is Village:
+				if v is GridScene:
 					v.hero.face(Vector3(float(d[0]), 0, float(d[1])))
 			"click":
 				var cr := arg.split(",")
@@ -91,8 +96,13 @@ func _run() -> void:
 				# 印出對話框、商店上的字
 				var texts := []
 				for n in _main().ui.find_children("*", "Label", true, false):
-					if n != _main().ui.info and n != _main().ui.hint and n.is_visible_in_tree():
+					if n != _main().ui.info and n != _main().ui.help and n.is_visible_in_tree():
 						texts.append(n.text)
 				print("DLG ", " | ".join(texts))
+			"hide":
+				# 自動測試時把視窗縮到 Dock，不打擾使用者（畫面照樣畫得出來就能截圖）
+				get_window().mode = Window.MODE_MINIMIZED
+			"winpos":
+				print("WIN ", get_window().position, " SCREEN ", DisplayServer.screen_get_size())
 			"quit":
 				get_tree().quit()

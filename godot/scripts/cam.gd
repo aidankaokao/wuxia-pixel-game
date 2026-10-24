@@ -1,6 +1,6 @@
 class_name CamRig
 extends Node3D
-## 2.5D 鏡頭：正交投影、固定俯角（約 29°），只能拉遠近（滾輪、Z／X）與轉方向（Q／R 轉 45°）。
+## 2.5D 鏡頭：正交投影、固定俯角（約 29°），只能拉遠近（滾輪、Z／X）與轉方向（Q／R 每次轉 90 度，永遠從斜 45 度看：東南、西南、西北、東北）。
 ## 鏡頭跟著 target 走；描邊的後製四邊形掛在鏡頭底下。
 
 const PITCH := 0.5
@@ -50,7 +50,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func rotate_step(dir: int) -> void:
-	yaw_goal += dir * PI / 4.0
+	yaw_goal += dir * PI / 2.0
 
 
 func _process(dt: float) -> void:

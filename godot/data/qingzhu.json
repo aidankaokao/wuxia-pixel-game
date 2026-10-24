@@ -58,6 +58,14 @@
    "name": "柳家大宅",
    "sign": "柳宅",
    "door": [],
+   "enter": {
+    "to": "qz_liu",
+    "spawn": {
+     "x": 5,
+     "y": 5,
+     "facing": "up"
+    }
+   },
    "st": {
     "w": 7,
     "h": 5,
@@ -78,6 +86,14 @@
    "sign": "竹風茶寮",
    "flag": "茶",
    "door": [],
+   "enter": {
+    "to": "qz_tea",
+    "spawn": {
+     "x": 4,
+     "y": 5,
+     "facing": "up"
+    }
+   },
    "st": {
     "w": 6,
     "h": 4,
@@ -96,6 +112,14 @@
    "sign": "石家鐵鋪",
    "flag": "鐵",
    "door": [],
+   "enter": {
+    "to": "qz_smithy",
+    "spawn": {
+     "x": 2,
+     "y": 5,
+     "facing": "up"
+    }
+   },
    "st": {
     "w": 5,
     "h": 4,
@@ -135,6 +159,14 @@
    "y": 26,
    "name": "王家",
    "door": [],
+   "enter": {
+    "to": "qz_wang",
+    "spawn": {
+     "x": 2,
+     "y": 4,
+     "facing": "up"
+    }
+   },
    "st": {
     "w": 5,
     "h": 4,

@@ -1,9 +1,10 @@
 class_name Village
-extends Node3D
+extends GridScene
 ## 青竹村：讀網頁版匯出的地圖資料（data/qingzhu.json：字元格子、建築、擺設、村民與台詞），蓋成立體的村子。
 ## - 山（^）依周圍有幾格山而隆起，水（~）往下凹，路、田、廣場貼在地面上。
 ## - 主角用方向鍵走（相對鏡頭方向），Shift 跑；村民在自己的位置附近走動，攤販站著不動。
-## - 面對村民、擺設時頭上冒出「E 交談／E 查看」，按 E 對話；陶四、鍾嬸可以買賣東西。
+## - 面對村民、擺設時頭上冒出「空白鍵 交談／查看」，按空白鍵對話；陶四、鍾嬸可以買賣東西。
+## - 站在竹風茶寮門口、對著門按空白鍵就換到室內（room.gd）；其他房子的室內還沒做，會說門關著。
 
 const GROUND := {":": "c9a46a", "E": "c9a46a", "=": "b9b3a4", "n": "8a6040", "c": "7a5a3a", "g": "8b5e3c", "~": "3a5f86", "#": "a8763f"}
 
@@ -12,33 +13,13 @@ const STALLS := {
 	"tao": {"x": 32, "y": 22, "face": Vector3(-1, 0, 0), "title": "陶四的貨郎攤", "stock": ["jinchuang", "tea", "herb", "rice", "flour", "egg", "greens", "sugar"], "greet": "走過路過不要錯過！傷藥、茶葉、草藥，樣樣都有。獸皮、獸肉也收！"},
 	"zhong": {"x": 32, "y": 17, "face": Vector3(0, 0, 1), "title": "鍾嬸的茶攤", "stock": ["tea", "egg"], "greet": "來啦！坐下喝碗茶歇歇腳？"},
 }
-const PROP_TEXT := {
-	"well": [{"text": "一口老井，井水清涼。"}],
-	"stele": [{"text": "路邊的石碑，字跡被風雨磨得模糊了。"}],
-	"stall": [{"text": "攤子上擺著些雜貨。"}],
-	"lantern_post": [{"text": "竹竿上掛著紅燈籠，夜裡會點起來。"}],
-}
+## 做好室內的房子（地圖 id）
+const ROOMS := ["qz_tea"]
 
-var ui: Ui
-var rig: CamRig
 var data: Dictionary
-var W := 0
-var H := 0
-var ox := 0.0
-var oz := 0.0
-var blocked := {}
 var heights := []
-var hero: Chibi
-var walkers: Array = []
-var props: Array = []
-var hint: Label3D
-var lamps: Array[OmniLight3D] = []
-var lamp_mats: Array[StandardMaterial3D] = []
-
-
-func setup(u: Ui, r: CamRig) -> void:
-	ui = u
-	rig = r
+## 門口那一格 → 房子（走上去就進門）
+var doors := {}
 
 
 func _ready() -> void:
@@ -61,20 +42,12 @@ func _ready() -> void:
 	for p in data.props:
 		_prop(p)
 	_people()
-	hint = Mk.label("E 交談", 34, Color("17141f"), Color("f0c860"))
-	hint.visible = false
-	add_child(hint)
 
 
 func tile(x: int, y: int) -> String:
 	if y < 0 or y >= H or x < 0 or x >= W:
 		return "^"
 	return (data.tiles[y] as String)[x]
-
-
-## 格子中心的世界座標
-func w3(x: float, y: float, h := 0.0) -> Vector3:
-	return Vector3(x + 0.5 + ox, h, y + 0.5 + oz)
 
 
 func _heights() -> void:
@@ -97,71 +70,223 @@ func _heights() -> void:
 		heights.append(row)
 
 
-func _h(x: int, y: int) -> float:
-	if y < 0 or y >= H or x < 0 or x >= W:
-		return -1.0
-	return heights[y][x]
+## 每格切成幾小格（地面網格的細緻度）
+const SUB := 4
 
 
-## 地面：每格一個頂面，比鄰格高就補側面（平面著色、頂點顏色）
-func _ground() -> void:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var quad := func(p: Array, col: Color) -> void:
-		for i in [0, 1, 2, 0, 2, 3]:
-			st.set_color(col)
-			st.add_vertex(p[i])
+## 一張「每格一個數字」的表
+func _grid_of(f: Callable) -> Array:
+	var out := []
 	for y in H:
+		var row := []
 		for x in W:
-			var c := tile(x, y)
-			var h: float = heights[y][x]
-			var x0 := x + ox
-			var z0 := y + oz
-			var v := Mk.h01(x, y)
-			var top: Color
-			if c == "^":
-				top = Color("8e8a78").lerp(Color("b4ae98"), min(1.0, h / 3.0)) * (0.92 + v * 0.12)
-			elif GROUND.has(c):
-				top = Color(GROUND[c]) * (0.95 + v * 0.1)
-			else:
-				top = Color("7cb262").lerp(Color("93c271"), v)
-			if c == "n" and y % 2 == 1:
-				top = top * 0.85
-			top.a = 1.0
-			quad.call([Vector3(x0, h, z0), Vector3(x0 + 1, h, z0), Vector3(x0 + 1, h, z0 + 1), Vector3(x0, h, z0 + 1)], top)
-			var side := top * (0.72 if c == "^" else 0.6)
-			side.a = 1.0
-			var dirs := [
-				[0, -1, Vector3(x0 + 1, 0, z0), Vector3(x0, 0, z0)],
-				[1, 0, Vector3(x0 + 1, 0, z0 + 1), Vector3(x0 + 1, 0, z0)],
-				[0, 1, Vector3(x0, 0, z0 + 1), Vector3(x0 + 1, 0, z0 + 1)],
-				[-1, 0, Vector3(x0, 0, z0), Vector3(x0, 0, z0 + 1)],
-			]
-			for d in dirs:
-				var nh := _h(x + d[0], y + d[1])
-				if nh >= h:
-					continue
-				var a: Vector3 = d[2]
-				var b: Vector3 = d[3]
-				quad.call([Vector3(a.x, h, a.z), Vector3(b.x, h, b.z), Vector3(b.x, nh, b.z), Vector3(a.x, nh, a.z)], side)
+			row.append(f.call(x, y))
+		out.append(row)
+	return out
+
+
+## 模糊一次（中間 4、上下左右 2、斜角 1），讓邊界變圓
+func _blur(m: Array) -> Array:
+	var out := []
+	for y in H:
+		var row := []
+		for x in W:
+			var sum := 0.0
+			var wsum := 0.0
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					var k := 4.0 if dx == 0 and dy == 0 else (2.0 if dx == 0 or dy == 0 else 1.0)
+					var yy := clampi(y + dy, 0, H - 1)
+					var xx := clampi(x + dx, 0, W - 1)
+					sum += float(m[yy][xx]) * k
+					wsum += k
+			row.append(sum / wsum)
+		out.append(row)
+	return out
+
+
+## 在格子之間平滑取值（u、v 以格為單位，格子中心是 i + 0.5）
+func _bil(m: Array, u: float, v: float) -> float:
+	var fx := u - 0.5
+	var fy := v - 0.5
+	var x0 := floori(fx)
+	var y0 := floori(fy)
+	var tx := fx - x0
+	var ty := fy - y0
+	var at := func(x: int, y: int) -> float: return float(m[clampi(y, 0, H - 1)][clampi(x, 0, W - 1)])
+	return lerpf(lerpf(at.call(x0, y0), at.call(x0 + 1, y0), tx), lerpf(at.call(x0, y0 + 1), at.call(x0 + 1, y0 + 1), tx), ty)
+
+
+## 地面：每格切成 SUB×SUB 小格，高度與地表顏色都在格子之間平滑過渡——
+## 河岸、小路、廣場的邊是圓順的曲線，山是緩坡（低多邊形的面）；田地維持方正。
+func _ground() -> void:
+	var water := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in ["~", "#"] else 0.0))
+	var path := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in [":", "E", "#"] else 0.0))
+	var plaza := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) == "=" else 0.0))
+	var mtn := _grid_of(func(x, y): return heights[y][x] if tile(x, y) == "^" else 0.0)
+	var n := SUB
+	var vw := W * n + 1
+	var vh := H * n + 1
+	# 每個頂點的高度
+	var hv := PackedFloat32Array()
+	hv.resize(vw * vh)
+	for j in vh:
+		for i in vw:
+			var u := float(i) / n
+			var v := float(j) / n
+			var hm := maxf(0.0, _bil(mtn, u, v) - 0.35) * 1.4
+			var hw := -0.45 * smoothstep(0.25, 0.75, _bil(water, u, v))
+			# 山上多一點起伏（低多邊形的稜角）
+			hv[j * vw + i] = hm + hw + (Mk.h01(i, j, 5) - 0.5) * 0.4 * minf(1.0, hm)
+	# 網格：頂點共用，顏色在頂點上算、在三角形裡漸變（邊界用很窄的漸變，看起來是圓順的線，不會鋸齒）
+	var grass_a := Color("7cb262")
+	var grass_b := Color("8cc070")
+	var verts := PackedVector3Array()
+	var cols := PackedColorArray()
+	verts.resize(vw * vh)
+	cols.resize(vw * vh)
+	for j in vh:
+		for i in vw:
+			var u := float(i) / n
+			var v := float(j) / n
+			var h := hv[j * vw + i]
+			verts[j * vw + i] = Vector3(u + ox, h, v + oz)
+			cols[j * vw + i] = _ground_color(u, v, h, path, plaza, grass_a, grass_b)
+	var idx := PackedInt32Array()
+	for j in vh - 1:
+		for i in vw - 1:
+			var a0 := j * vw + i
+			idx.append_array([a0, a0 + 1, a0 + vw + 1, a0, a0 + vw + 1, a0 + vw])
+	var arr := []
+	arr.resize(Mesh.ARRAY_MAX)
+	arr[Mesh.ARRAY_VERTEX] = verts
+	arr[Mesh.ARRAY_COLOR] = cols
+	arr[Mesh.ARRAY_INDEX] = idx
+	var st := SurfaceTool.new()
+	st.create_from_arrays(arr)
+	# 拆開共用的頂點再算法線：每個三角形各自一個面（低多邊形的稜角），顏色照樣在頂點上漸變
+	st.deindex()
 	st.generate_normals()
 	var mi := MeshInstance3D.new()
 	mi.mesh = st.commit()
 	mi.material_override = Mk.vmat()
 	add_child(mi)
 	# 水面
-	var water := MeshInstance3D.new()
+	var wplane := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
 	pm.size = Vector2(W, H)
-	water.mesh = pm
+	wplane.mesh = pm
 	var wm := StandardMaterial3D.new()
 	wm.albedo_color = Color(0.29, 0.55, 0.78, 0.82)
 	wm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	wm.roughness = 0.15
 	wm.metallic_specular = 0.8
-	water.material_override = wm
-	water.position.y = -0.12
-	add_child(water)
+	wplane.material_override = wm
+	wplane.position.y = -0.12
+	add_child(wplane)
+	_bridges()
+
+
+## 一個頂點的地表顏色：草地（大片深淺）→ 田地（方正）→ 廣場、小路 → 山石 → 水底，依序疊上去
+func _ground_color(u: float, v: float, h: float, path: Array, plaza: Array, ga: Color, gb: Color) -> Color:
+	var w := 0.5 + 0.25 * sin(u * 0.45 + v * 0.2) + 0.25 * sin(v * 0.6 - u * 0.15)
+	var col := ga.lerp(gb, w)
+	# 田地、茶壟、藥畦：看這個頂點周圍四格是不是都是同一種田（田的邊維持方正）
+	var t := tile(floori(u - 0.01), floori(v - 0.01))
+	if t in ["n", "c", "g"] and tile(floori(u + 0.01), floori(v + 0.01)) == t:
+		col = Color(GROUND[t])
+		if t == "n" and int(floor(v * 2.0)) % 2 == 1:
+			col = col * 0.88
+	col = col.lerp(Color(GROUND["="]), smoothstep(0.42, 0.58, _bil(plaza, u, v)))
+	col = col.lerp(Color(GROUND[":"]), smoothstep(0.42, 0.58, _bil(path, u, v)))
+	# 山：越高越偏淺灰
+	var rock := Color("7a7466").lerp(Color("9a9484"), minf(1.0, h / 3.0)) * (0.92 + Mk.h01(int(u * 4), int(v * 4), 7) * 0.12)
+	col = col.lerp(rock, smoothstep(0.08, 0.3, h))
+	# 水底：岸邊偏沙色，越深越藍
+	var bed := Color("8a8a6a").lerp(Color("3a5f86"), clampf((-h - 0.1) / 0.3, 0.0, 1.0))
+	col = col.lerp(bed, 1.0 - smoothstep(-0.16, -0.06, h))
+	col.a = 1.0
+	return col
+
+
+## 木橋：相連的「#」格子合成一座橋（橋面一整片、欄杆只在兩側外緣），兩頭各伸進岸上半格，接上石砌的橋頭
+func _bridges() -> void:
+	var seen := {}
+	for y in H:
+		for x in W:
+			if tile(x, y) != "#" or seen.has(Vector2i(x, y)):
+				continue
+			# 找出整座橋（相連的格子）
+			var cells := [Vector2i(x, y)]
+			seen[Vector2i(x, y)] = true
+			var i := 0
+			while i < cells.size():
+				var c: Vector2i = cells[i]
+				i += 1
+				for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+					var nb: Vector2i = c + d
+					if tile(nb.x, nb.y) == "#" and not seen.has(nb):
+						seen[nb] = true
+						cells.append(nb)
+			var lo := Vector2i(99999, 99999)
+			var hi := Vector2i(-1, -1)
+			for c in cells:
+				lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.y))
+				hi = Vector2i(maxi(hi.x, c.x), maxi(hi.y, c.y))
+			# 橋往哪個方向走：兩頭接著陸地的那個方向
+			var land := func(tx: int, ty: int) -> bool: return not (tile(tx, ty) in ["~", "#"])
+			var along_x: bool = land.call(lo.x - 1, lo.y) and land.call(hi.x + 1, lo.y)
+			_bridge(lo, hi, along_x)
+	return
+
+
+func _bridge(lo: Vector2i, hi: Vector2i, along_x: bool) -> void:
+	var wood := Color("a8763f")
+	var dark := Color("6a4428")
+	var stone := Color("9a968a")
+	var x0 := lo.x + ox
+	var x1 := hi.x + 1 + ox
+	var z0 := lo.y + oz
+	var z1 := hi.y + 1 + oz
+	var reach := 0.5
+	var g := Node3D.new()
+	add_child(g)
+	# 橋面：沿著走的方向多伸出 reach 到岸上
+	var len := (x1 - x0 if along_x else z1 - z0) + reach * 2.0
+	var wid := (z1 - z0 if along_x else x1 - x0) - 0.15
+	var cx := (x0 + x1) / 2.0
+	var cz := (z0 + z1) / 2.0
+	var size := Vector3(len, 0.12, wid) if along_x else Vector3(wid, 0.12, len)
+	g.add_child(Mk.box(size, wood, Vector3(cx, 0.04, cz)))
+	# 橋板的縫（橫著的細線）
+	var n := int(len / 0.35)
+	for k in n:
+		var t := -len / 2.0 + (k + 0.5) * len / n
+		var seam := Vector3(0.02, 0.005, wid - 0.1) if along_x else Vector3(wid - 0.1, 0.005, 0.02)
+		g.add_child(Mk.box(seam, wood.darkened(0.25), Vector3(cx + t, 0.1, cz) if along_x else Vector3(cx, 0.1, cz + t)))
+	# 欄杆：只在兩側外緣
+	var rail_len := len - reach * 2.0 + 0.2
+	for side in [-1, 1]:
+		var off: float = side * (wid / 2.0 - 0.06)
+		var rp := Vector3(cx, 0.42, cz + off) if along_x else Vector3(cx + off, 0.42, cz)
+		g.add_child(Mk.box(Vector3(rail_len, 0.06, 0.07) if along_x else Vector3(0.07, 0.06, rail_len), dark, rp))
+		var posts := int(rail_len / 0.7) + 1
+		for k in posts:
+			var t := -rail_len / 2.0 + k * rail_len / (posts - 1)
+			g.add_child(Mk.box(Vector3(0.09, 0.42, 0.09), dark, rp + (Vector3(t, -0.2, 0) if along_x else Vector3(0, -0.2, t))))
+	# 兩頭的石砌橋頭（蓋住岸邊與橋面的接縫）
+	for end in [-1, 1]:
+		var e: float = end * (len / 2.0 - reach / 2.0)
+		var at := Vector3(cx + e, -0.1, cz) if along_x else Vector3(cx, -0.1, cz + e)
+		g.add_child(Mk.box(Vector3(reach + 0.1, 0.24, wid + 0.25) if along_x else Vector3(wid + 0.25, 0.24, reach + 0.1), stone, at))
+	# 橋墩：每隔一格一對
+	var spans := (hi.x - lo.x + 1) if along_x else (hi.y - lo.y + 1)
+	for k in range(1, spans):
+		for side in [-1, 1]:
+			var off: float = side * (wid / 2.0 - 0.25)
+			var t := -float(spans) / 2.0 + k
+			var p := Vector3(cx + t, -0.3, cz + off) if along_x else Vector3(cx + off, -0.3, cz + t)
+			g.add_child(Mk.box(Vector3(0.16, 0.6, 0.16), Color("5a3a22"), p))
 
 
 func _plants() -> void:
@@ -279,6 +404,10 @@ func _building(b: Dictionary) -> void:
 	for yy in range(int(b.y), int(b.y + d)):
 		for xx in range(int(b.x), int(b.x + w)):
 			blocked[Vector2i(xx, yy)] = true
+	# 門：站在門口、對著門按空白鍵才進去（每棟房子都有門，還沒做室內的會說門關著）
+	var dt := Vector2i(int(b.x + st.door), int(b.y + d - 1))
+	doors[dt] = b
+	props.append({"node": null, "def": {"sprite": "door", "label": "進去", "lines": [], "door": dt}, "at": Vector2(dt.x + 0.5, dt.y + 0.5)})
 	var wall := Color(st.get("wall", "e8dcc4"))
 	var timber := Color(st.get("timber", "6a4428"))
 	var cx := w / 2.0
@@ -406,15 +535,9 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.07, 0.9, 0.07), Color("6a4428"), Vector3(0, 0.45, -0.04)))
 
 
-func _free(x: int, y: int) -> bool:
-	return x >= 0 and y >= 0 and x < W and y < H and not blocked.has(Vector2i(x, y))
-
-
 ## 主角與村民
 func _people() -> void:
-	hero = Chibi.make("hero")
-	add_child(hero)
-	hero.position = w3(data.spawn.x, data.spawn.y)
+	_place_hero(data.spawn)
 	var free_spots := (data.spots as Array).filter(func(s): return _free(s.x, s.y))
 	var i := 0
 	for n in data.people:
@@ -433,152 +556,24 @@ func _people() -> void:
 		var lb := Mk.label(n.name, 30, Color("fffbe8"))
 		lb.position.y = 1.3
 		f.add_child(lb)
-		walkers.append({"f": f, "npc": n, "home": Vector2(s.x + 0.5, s.y + 0.5), "goal": null, "wait": randf() * 3.0, "fixed": not stall.is_empty(), "said": 0, "talking": false})
-	rig.target = hero
+		var wk := {"f": f, "name": n.name, "lines": n.lines, "home": Vector2(s.x + 0.5, s.y + 0.5), "goal": null, "wait": randf() * 3.0, "fixed": not stall.is_empty(), "said": 0, "talking": false}
+		if not stall.is_empty():
+			wk.stall = stall
+			wk.face = stall.face
+		walkers.append(wk)
 
 
-func _grid(p: Vector3) -> Vector2i:
-	return Vector2i(floori(p.x - ox), floori(p.z - oz))
-
-
-## 走得過去嗎（主角以 0.25 的半徑檢查四個角）
-func _walkable(p: Vector3, r := 0.25) -> bool:
-	for c in [Vector3(-r, 0, -r), Vector3(r, 0, -r), Vector3(-r, 0, r), Vector3(r, 0, r)]:
-		var g := _grid(p + c)
-		if not _free(g.x, g.y):
-			return false
-	return true
-
-
-func _process(dt: float) -> void:
-	if hero == null:
-		return
-	var busy := ui.busy()
-	# 主角
-	var v := Vector2.ZERO
-	if not busy:
-		if Input.is_key_pressed(KEY_LEFT) or Input.is_key_pressed(KEY_A):
-			v.x -= 1
-		if Input.is_key_pressed(KEY_RIGHT) or Input.is_key_pressed(KEY_D):
-			v.x += 1
-		if Input.is_key_pressed(KEY_UP) or Input.is_key_pressed(KEY_W):
-			v.y -= 1
-		if Input.is_key_pressed(KEY_DOWN) or Input.is_key_pressed(KEY_S):
-			v.y += 1
-	var dir := rig.ground_dir(v)
-	hero.walking = dir.length() > 0
-	if hero.walking:
-		var speed := 6.5 if Input.is_key_pressed(KEY_SHIFT) else 3.6
-		var step := dir * speed * dt
-		hero.face(dir)
-		if _walkable(hero.position + Vector3(step.x, 0, 0)):
-			hero.position.x += step.x
-		if _walkable(hero.position + Vector3(0, 0, step.z)):
-			hero.position.z += step.z
-	# 村民：在家附近走走停停；正在說話的停下來看著你
-	for w in walkers:
-		var f: Chibi = w.f
-		if w.fixed or w.talking:
-			f.walking = false
-			continue
-		if w.goal == null:
-			w.wait -= dt
-			f.walking = false
-			if w.wait <= 0:
-				var gx := int(floor(w.home.x + (randf() - 0.5) * 6))
-				var gy := int(floor(w.home.y + (randf() - 0.5) * 6))
-				if _free(gx, gy):
-					w.goal = w3(gx, gy)
-				w.wait = 2.0 + randf() * 4.0
-		else:
-			var to: Vector3 = w.goal - f.position
-			to.y = 0
-			if to.length() < 0.1:
-				w.goal = null
-				continue
-			var st: Vector3 = to.normalized() * 1.4 * dt
-			if _walkable(f.position + st, 0.2) and f.position.distance_to(hero.position) > 0.8:
-				f.position += st
-				f.face(to)
-				f.walking = true
-			else:
-				w.goal = null
-	_update_hint(busy)
-
-
-## 主角面前的對象：村民優先，再來是擺設
-func _target() -> Dictionary:
-	var fwd := Vector3(sin(hero.rotation.y), 0, cos(hero.rotation.y))
-	var best := {}
-	var best_score := 99.0
-	for w in walkers:
-		var d: Vector3 = w.f.position - hero.position
-		d.y = 0
-		if d.length() < 1.6 and d.normalized().dot(fwd) > 0.3 and d.length() < best_score:
-			best_score = d.length()
-			best = {"kind": "npc", "w": w, "at": w.f.position}
-	for p in props:
-		var at := w3(p.at.x - 0.5, p.at.y - 0.5)
-		var d: Vector3 = at - hero.position
-		d.y = 0
-		var score := d.length() + 2.0
-		if d.length() < 1.6 and d.normalized().dot(fwd) > 0.3 and score < best_score:
-			best_score = score
-			best = {"kind": "prop", "p": p, "at": at}
-	return best
-
-
-func _update_hint(busy: bool) -> void:
-	var t := {} if busy else _target()
-	hint.visible = not t.is_empty()
-	if hint.visible:
-		hint.text = "E 交談" if t.kind == "npc" else "E 查看"
-		hint.position = t.at + Vector3(0, 1.75, 0)
-
-
-func _unhandled_input(e: InputEvent) -> void:
-	if not (e is InputEventKey) or not e.pressed or e.echo or ui.busy():
-		return
-	if e.keycode in [KEY_E, KEY_SPACE, KEY_ENTER]:
-		var t := _target()
-		if not t.is_empty():
-			get_viewport().set_input_as_handled()
-			_interact(t)
-
-
-func _fill(text: String) -> String:
-	return text.replace("{稱}", "小兄弟").replace("{姓}", "無").replace("{名}", "名")
-
-
+## 對著門按空白鍵：做好室內的就直接換到屋裡，還沒做的說一聲
 func _interact(t: Dictionary) -> void:
-	if t.kind == "prop":
-		var p: Dictionary = t.p.def
-		var lines: Array = p.lines if (p.lines as Array).size() > 0 else PROP_TEXT.get(p.sprite, [{"text": "（沒什麼特別的）"}])
-		await ui.say(lines)
+	if not (t.kind == "prop" and t.p.def.has("door")):
+		await super._interact(t)
 		return
-	var w: Dictionary = t.w
-	var f: Chibi = w.f
-	w.talking = true
-	f.face(hero.position - f.position)
-	hero.face(f.position - hero.position)
-	var npc: Dictionary = w.npc
-	var stall: Dictionary = STALLS.get(npc.id, {})
-	var pool: Array = npc.lines
-	var lines: Array = pool[w.said % pool.size()]
-	w.said += 1
-	var out := []
-	for l in lines:
-		out.append({"speaker": l.get("speaker", npc.name), "text": _fill(l.text)})
-	if stall.is_empty():
-		await ui.say(out)
+	var b: Dictionary = doors[t.p.def.door]
+	var enter = b.get("enter")
+	if enter != null and enter.to in ROOMS:
+		main.go(enter.to, enter.spawn)
 	else:
-		var c := await ui.ask({"speaker": npc.name, "text": stall.greet}, ["聊聊", "買賣東西", "沒事"])
-		if c == 0:
-			await ui.say(out)
-		elif c == 1:
-			await ui.shop(stall.title, stall.stock)
-		f.face(stall.face)
-	w.talking = false
+		await ui.say([{"text": "%s的門關著。（試作品只做了竹風茶寮的室內）" % b.name}])
 
 
 func info_text() -> String:

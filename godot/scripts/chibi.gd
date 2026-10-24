@@ -17,6 +17,9 @@ const LOOKS := {
 	"lady": {"robe": "8a6aa8", "trim": "f0e8f8", "sash": "c9a46a", "hair": "2a2228", "style": "bun", "girl": true},
 	"bandit": {"robe": "6a3a2a", "trim": "a87a5a", "sash": "2a2228", "hair": "2a2228", "style": "band", "sword": true, "angry": true},
 	"boss": {"robe": "3a2a2a", "trim": "a83a2a", "sash": "c9a46a", "hair": "2a2228", "style": "topknot", "sword": true, "angry": true, "beard": true},
+	"storyteller": {"robe": "5a6a7a", "trim": "e8e0cc", "sash": "3a4a5a", "hair": "8a8680", "style": "bun", "beard": true, "fan": true},
+	"servant": {"robe": "6a6a6a", "trim": "d8d0c0", "sash": "3a3a3a", "hair": "2a2228", "style": "band"},
+	"scholar": {"robe": "8aa0a8", "trim": "f0ece0", "sash": "4a5a68", "hair": "2a2228", "style": "topknot"},
 	"dog": {"animal": "dog"},
 	"boar": {"animal": "boar"},
 }
@@ -105,6 +108,12 @@ func _build(lk: Dictionary) -> void:
 	if lk.get("beard", false):
 		head.add_child(Mk.cone(0.07, 0.16, _c(lk.hair), Vector3(0, -0.24, 0.12), 6))
 		head.get_child(head.get_child_count() - 1).rotation.x = PI
+	if lk.get("fan", false):
+		# 說書人的摺扇
+		var fan := Mk.cone(0.16, 0.02, Color("f4ecd8"), Vector3(0, -0.3, 0.08), 6)
+		fan.rotation.x = PI / 2.0
+		fan.scale = Vector3(1, 1, 0.5)
+		arm_r.add_child(fan)
 	if lk.get("sword", false):
 		var sw := Node3D.new()
 		sw.position = Vector3(-0.2, 0.42, -0.08)

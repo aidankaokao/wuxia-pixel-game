@@ -23,7 +23,12 @@
 
 - 畫風是低多邊形加卡通描邊：模型全部用程式產生（`scripts/mk.gd` 的方塊、圓柱、圓錐、球、屋頂，成批的同款模型用 `Mk.Batch`／MultiMesh），材質一律用 `Mk.mat(顏色)`（Godot 的卡通明暗）；描邊是鏡頭底下的全畫面後製（`shaders/outline.gdshader`，要 Forward+）。半透明的東西（水、標記、字）會畫在描邊之後，不會被描邊。
 - 人物是 `scripts/chibi.gd` 的 Q 版小人（面向 +Z，`face(方向)` 轉身，`walking` 控制走路動畫），配色照網頁版的人物貼圖名填在 `LOOKS`。
-- 鏡頭 `scripts/cam.gd`：正交、固定俯角，方向鍵要用 `ground_dir` 換成地面方向。
+- 鏡頭 `scripts/cam.gd`：正交、固定俯角、永遠斜 45 度看（轉一次 90 度），方向鍵要用 `ground_dir` 換成地面方向。
+- 能走動的場景都繼承 `scripts/grid_scene.gd`（格子座標、擋路、主角走動、人物、面對時的「E 交談／查看」與對話；走到某格時呼叫 `_on_tile`）：村子 `village.gd`、室內 `room.gd`。換場景用 `main.go(地圖 id, {x, y, facing})`。
+- 室內：讀 `data/<地圖 id>.json`（匯出腳本的 `exportRoom`），四面牆各掛在一個節點（`sides`），只立背對鏡頭的兩面；新的室內擺設在 `room.gd` 的 `_prop` 依網頁版的擺設名加一種做法；做好的房子要加進 `village.gd` 的 `ROOMS`。
+- 交談與確認只用空白鍵（與 Enter），E 鍵留給之後別種互動，不要再拿來交談。互動提示是 `ui.show_hint(動作, 畫面座標)`（鍵帽圖示＋動作，不寫「空白鍵」）。
+- 進出房子一律站在門口按空白鍵（門是 `props` 裡 `sprite: "door"` 的一筆，村子帶 `door`、室內帶 `exit`），不要做成走上去就自動進門。
+- 村子的地面（`village.gd` 的 `_ground`）每格切 `SUB`×`SUB` 細網格，高度與顏色在格子之間平滑取值（`_bil`、`_blur`），讓河岸、小路是曲線；擋路仍照格子。
 - 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`，開著時 `ui.busy()` 為真；中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
 - 程式註解、介面文字一樣用繁體中文；GDScript 用 tab 縮排、型別推斷（`:=`）時遇到 Variant 要用 `maxf`／`minf` 這類有型別的函式。
 

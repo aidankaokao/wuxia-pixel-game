@@ -1,7 +1,8 @@
 class_name Ui
 extends CanvasLayer
-## 文字介面：對話框（一句一句）、選項、商店，以及左上的狀態、畫面下方的提示。
-## 操作跟網頁版一樣：E／空白鍵／Enter 確認，↑↓ 選擇，←→ 換分頁，X／Esc 關閉。
+## 文字介面：對話框（一句一句）、選項、商店，以及左上的狀態、畫面下方的操作說明，
+## 和面對人或東西時浮在他頭上的互動提示（空白鍵圖示＋動作，例如「交談」）。
+## 操作：空白鍵／Enter 確認（E 留給之後別種互動），↑↓ 選擇，←→ 換分頁，X／Esc 關閉。
 ## 介面開著時 busy() 為真，主角不會走動。
 
 signal _key(k: String)
@@ -28,7 +29,9 @@ var _root: Control
 var _box: Control
 var _open := false
 var info: Label
-var hint: Label
+var help: Label
+var _pill: PanelContainer
+var _pill_text: Label
 
 
 func _ready() -> void:
@@ -48,18 +51,75 @@ func _ready() -> void:
 	info.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
 	info.add_theme_constant_override("outline_size", 6)
 	_root.add_child(info)
-	hint = Label.new()
-	hint.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	hint.offset_left = 16
-	hint.offset_top = -32
-	hint.add_theme_font_size_override("font_size", 14)
-	hint.add_theme_color_override("font_color", Color("e8dcc0"))
-	hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
-	hint.add_theme_constant_override("outline_size", 6)
-	_root.add_child(hint)
+	help = Label.new()
+	help.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	help.offset_left = 16
+	help.offset_top = -32
+	help.add_theme_font_size_override("font_size", 14)
+	help.add_theme_color_override("font_color", Color("e8dcc0"))
+	help.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	help.add_theme_constant_override("outline_size", 6)
+	_root.add_child(help)
+	_make_pill()
 	var f := FileAccess.open("res://data/items.json", FileAccess.READ)
 	if f:
 		items = JSON.parse_string(f.get_as_text())
+
+
+## 互動提示：深色半透明的小圓角框，左邊是空白鍵的鍵帽圖示，右邊是動作
+func _make_pill() -> void:
+	_pill = PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.09, 0.08, 0.12, 0.8)
+	sb.border_color = Color(0.79, 0.64, 0.42, 0.55)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(12)
+	sb.content_margin_left = 6
+	sb.content_margin_right = 12
+	sb.content_margin_top = 4
+	sb.content_margin_bottom = 4
+	_pill.add_theme_stylebox_override("panel", sb)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 7)
+	_pill.add_child(row)
+	row.add_child(space_key())
+	_pill_text = Label.new()
+	_pill_text.add_theme_font_size_override("font_size", 16)
+	_pill_text.add_theme_color_override("font_color", Color("fbf4e4"))
+	row.add_child(_pill_text)
+	_pill.visible = false
+	_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(_pill)
+
+
+## 空白鍵的鍵帽：米白色圓角方塊、底下深一點（有厚度），中間畫一個「⎵」
+static func space_key() -> Control:
+	var key := Panel.new()
+	key.custom_minimum_size = Vector2(34, 20)
+	key.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color("f4ead6")
+	sb.border_color = Color("9a8a6a")
+	sb.border_width_bottom = 3
+	sb.set_corner_radius_all(4)
+	key.add_theme_stylebox_override("panel", sb)
+	var mark := Control.new()
+	mark.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mark.draw.connect(func() -> void:
+		var c := Color("4a3a2a")
+		mark.draw_polyline(PackedVector2Array([Vector2(9, 7), Vector2(9, 11), Vector2(25, 11), Vector2(25, 7)]), c, 2.0))
+	key.add_child(mark)
+	return key
+
+
+## 在畫面上某一點（通常是人物頭上）顯示互動提示；text 空字串就收起來
+func show_hint(text: String, at: Vector2) -> void:
+	_pill.visible = text != "" and not _open
+	if not _pill.visible:
+		return
+	_pill_text.text = text
+	_pill.reset_size()
+	_pill.position = (at - Vector2(_pill.size.x / 2.0, _pill.size.y)).round()
 
 
 func busy() -> bool:
@@ -70,7 +130,7 @@ func _input(e: InputEvent) -> void:
 	if not _open or not (e is InputEventKey) or not e.pressed or e.echo:
 		return
 	var k: String = OS.get_keycode_string(e.keycode)
-	if k in ["E", "Space", "Enter", "Kp Enter"]:
+	if k in ["Space", "Enter", "Kp Enter"]:
 		k = "ok"
 	elif k in ["X", "Escape"]:
 		k = "back"
@@ -158,7 +218,7 @@ func _text(t: String, size := 20) -> Label:
 	return l
 
 
-## 一句一句說：lines 是 [{speaker, text}]，按 E 下一句
+## 一句一句說：lines 是 [{speaker, text}]，按空白鍵下一句
 func say(lines: Array) -> void:
 	for l in lines:
 		var v := _dialog(l.get("speaker", ""))
@@ -275,7 +335,7 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 				row.add_child(l)
 			list.add_child(row)
 		desc.text = items.get(ids[cur], {}).get("desc", "") if not ids.is_empty() else ""
-		foot.text = note if note != "" else "E 買／賣一件　X 離開"
+		foot.text = note if note != "" else "空白鍵 買／賣一件　X 離開"
 		var k: String = await _key
 		if k == "Up" and ids.size() > 0:
 			cur = (cur + ids.size() - 1) % ids.size()
