@@ -98,6 +98,15 @@ func _chrome(on: bool) -> void:
 	dev_box.visible = on
 
 
+## 系統選單（書本）：打開時收起畫面上的字與開發按鈕
+func _menu() -> void:
+	_chrome(false)
+	ui._title.visible = false
+	await BookMenu.open(ui)
+	ui._title.visible = true
+	_chrome(true)
+
+
 func _rain() -> void:
 	rain_fx = GPUParticles3D.new()
 	rain_fx.amount = 650
@@ -392,7 +401,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		KEY_X, KEY_ESCAPE:
 			if scene is GridScene:
 				get_viewport().set_input_as_handled()
-				Screens.menu(ui)
+				_menu()
 		KEY_TAB:
 			var i := 0
 			for j in SCENES.size():
