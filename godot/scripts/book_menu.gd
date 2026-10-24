@@ -1095,6 +1095,17 @@ func _bag_right(v: VBoxContainer) -> void:
 # ── 江湖事（任務） ──────────────────────────────────────
 
 func _quest_left(v: VBoxContainer) -> void:
+	# 今日事（story/daily.gd，跟早晨提要同一份）
+	var today: Array = load("res://story/daily.gd").tasks()
+	v.add_child(_lab("今　日", 16, SOFT))
+	if today.is_empty():
+		v.add_child(_lab("今天沒有非做不可的事，四處走走吧。", 14, FAINT))
+	for t in today.slice(0, 6):
+		var l := _lab(load("res://story/daily.gd").task_line(t), 14, INK if t.state == "todo" else FAINT)
+		l.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+		l.custom_minimum_size = Vector2(PW - 90, 0)
+		v.add_child(l)
+	v.add_child(_rule())
 	var qs := Quests.all()
 	if qs.is_empty():
 		v.add_child(_lab("還沒有什麼委託。", 16, SOFT))

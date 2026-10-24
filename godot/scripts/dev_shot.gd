@@ -109,6 +109,9 @@ func _run() -> void:
 				G.time_changed.emit()
 				if _main().scene is GridScene:
 					_main().scene.refresh()
+			"seed":
+				# seed:1 固定存檔的亂數種子（到處翻找藏東西的地方跟著它）
+				G.life.seed = int(arg)
 			"aff":
 				# aff:bu,15 把某人的熟悉度設成多少
 				var af := arg.split(",")

@@ -35,6 +35,9 @@ var _open := false
 var info: Label
 var help: Label
 var _pill: PanelContainer
+## 主角頭上的想法泡泡（show_thought）
+var _thought: PanelContainer
+var _thought_text: Label
 var _pill_text: Label
 var _veil: ColorRect
 var _ink: ColorRect
@@ -72,6 +75,7 @@ func _ready() -> void:
 	help.add_theme_constant_override("outline_size", 6)
 	_root.add_child(help)
 	_make_pill()
+	_make_thought()
 	_make_ink()
 	items = all_items()
 
@@ -100,6 +104,53 @@ func _make_pill() -> void:
 	_pill.visible = false
 	_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_pill)
+
+
+func _make_thought() -> void:
+	_thought = PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.98, 0.96, 0.9, 0.92)
+	sb.border_color = Color(0.45, 0.38, 0.3, 0.6)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(14)
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 5
+	sb.content_margin_bottom = 5
+	_thought.add_theme_stylebox_override("panel", sb)
+	_thought_text = Label.new()
+	_thought_text.add_theme_font_size_override("font_size", 15)
+	_thought_text.add_theme_color_override("font_color", Color("3a2e26"))
+	_thought_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_thought.add_child(_thought_text)
+	# 底下兩個小圓點，像想事情的泡泡
+	var dots := Control.new()
+	dots.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dots.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dots.draw.connect(func() -> void:
+		var c := Color(0.98, 0.96, 0.9, 0.92)
+		var b := _thought.size
+		dots.draw_circle(Vector2(b.x / 2.0 - 4, b.y + 6), 5, c)
+		dots.draw_circle(Vector2(b.x / 2.0 - 10, b.y + 15), 3, c))
+	_thought.add_child(dots)
+	_thought.visible = false
+	_thought.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(_thought)
+
+
+## 主角頭上的想法泡泡；text 空的就收起來。at 是頭頂的畫面座標
+func show_thought(text: String, at: Vector2) -> void:
+	_thought.visible = text != "" and not _open
+	if not _thought.visible:
+		return
+	if _thought_text.text != text:
+		_thought_text.text = text
+		_thought.reset_size()
+	_thought.position = (at - Vector2(_thought.size.x / 2.0, _thought.size.y + 18)).round()
+	# 跟互動提示疊在一起時，挪到提示的上面
+	var pill := Rect2(_pill.position, _pill.size)
+	if _pill.visible and Rect2(_thought.position, _thought.size).grow(4).intersects(pill):
+		_thought.position.y = pill.position.y - _thought.size.y - 22
 
 
 ## 空白鍵的鍵帽：米白色圓角方塊、底下深一點（有厚度），中間畫一個「⎵」

@@ -8,6 +8,7 @@ class_name Social
 ## - 地圖上的人填 person（人物 id）就接上；腳本在 story/social.gd。
 
 const Festival := preload("res://story/festival.gd")
+const Orders := preload("res://story/orders.gd")
 const STAGES := [[-100, "反感"], [0, "陌生"], [10, "點頭之交"], [30, "熟識"], [60, "知交"], [90, "莫逆之交"]]
 const STRANGER := 1
 const NOD := 2
@@ -173,6 +174,9 @@ static func talk(ctx: Ctx, id: String) -> void:
 		return
 	# 節慶當天第一次交談：互道佳節（story/festival.gd）
 	if await Festival.greet(ctx, p):
+		return
+	# 有下訂單的人（卜大勺、鍾嬸）：先處理訂單（story/orders.gd）
+	if Orders.GIVERS.has(id) and Orders.GIVERS[id].person == id and await Orders.talk(ctx, id):
 		return
 	if p.has("story") and await Story.run_bool(p.story, ctx):
 		return

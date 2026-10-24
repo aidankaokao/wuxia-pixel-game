@@ -3,6 +3,8 @@
 
 static func talk(ctx: Ctx) -> void:
 	await Social.talk(ctx, ctx.extra.person)
+	# 聊完天偶爾碰上一件小事（story/schedule.gd，一天最多一件）
+	await load("res://story/schedule.gd").maybe_event(ctx, "chat", ctx.extra.person)
 
 
 static func gift(ctx: Ctx) -> void:

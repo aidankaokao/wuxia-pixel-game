@@ -9,6 +9,8 @@ extends Node3D
 ## props 每一筆：{node, def: {sprite, lines, label, script, when}, at: Vector2（格子座標，中心）, hidden}
 ## triggers 每一筆：{tiles: [[x, y]…], when, script}：踩到就跑腳本（例如埋伏）
 
+const Loot := preload("res://story/loot.gd")
+const Thought := preload("res://story/thought.gd")
 const PROP_TEXT := {
 	"well": [{"text": "一口老井，井水清涼。"}],
 	"stele": [{"text": "路邊的石碑，字跡被風雨磨得模糊了。"}],
@@ -264,8 +266,36 @@ func _target() -> Dictionary:
 	return best
 
 
+## 想法泡泡：提醒冒出來還剩幾秒、上次檢查提醒的時間
+var _musing := ""
+var _musing_left := 0.0
+var _muse_check := 0.0
+
+
+## 主角頭上的想法泡泡（story/thought.gd）：有提醒先說提醒，否則面對要花時間、體力的東西時寫出代價
+func _update_thought(busy: bool, t: Dictionary, dt: float) -> void:
+	_musing_left -= dt
+	_muse_check -= dt
+	if not busy and _muse_check <= 0:
+		_muse_check = 1.0
+		var m := Thought.due()
+		if m != "":
+			_musing = m
+			_musing_left = 3.5
+	var text := ""
+	if busy:
+		text = ""
+	elif _musing_left > 0:
+		text = _musing
+	elif not t.is_empty():
+		var sc: String = t.p.def.get("script", "") if t.kind == "prop" else ""
+		text = Thought.cost_of(sc)
+	ui.show_thought(text, rig.cam.unproject_position(hero.position + Vector3(0, 2.0, 0)))
+
+
 func _update_hint(busy: bool) -> void:
 	var t := {} if busy else _target()
+	_update_thought(busy, t, get_process_delta_time())
 	if t.is_empty():
 		ui.show_hint("", Vector2.ZERO)
 		return
@@ -370,7 +400,8 @@ func _interact_with(t: Dictionary) -> void:
 	if t.kind == "prop":
 		var p: Dictionary = t.p.def
 		var lines: Array = p.lines if (p.lines as Array).size() > 0 else PROP_TEXT.get(p.sprite, [{"text": "（沒什麼特別的）"}])
-		await ui.say(lines)
+		# 到處翻找：今天這裡藏了東西就順手找到（story/loot.gd）
+		await ui.say(lines + Loot.find(self, p))
 		return
 	await chat(t.w)
 

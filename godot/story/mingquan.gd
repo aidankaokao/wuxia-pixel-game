@@ -20,6 +20,7 @@ const Festival := preload("res://story/festival.gd")
 const Train := preload("res://story/train.gd")
 const Cook := preload("res://story/cook.gd")
 const Chores := preload("res://story/chores.gd")
+const Schedule := preload("res://story/schedule.gd")
 const LifeMq := preload("res://story/life_mingquan.gd")
 
 const SECT := "mingquan"
@@ -918,21 +919,24 @@ static func dorm_bed(ctx: Ctx) -> void:
 	if member() and not mine:
 		await ctx.say("一張空床鋪，已經不是你的鋪位了。")
 		return
-	await Train.rest(ctx, "你的鋪位。要躺下休息嗎？" if mine else "大通鋪最裡頭的空鋪，借給上山應考的人住。要躺下休息嗎？", _wake("dorm") if mine else [])
+	if mine:
+		await Schedule.bed(ctx, "你的鋪位。", func(): return _wake("dorm"))
+	else:
+		await Train.rest(ctx, "大通鋪最裡頭的空鋪，借給上山應考的人住。要躺下休息嗎？")
 
 
 static func room_bed(ctx: Ctx) -> void:
 	if rank() < 1 or rank() >= 3:
 		await ctx.say("正式弟子的床鋪，被褥比大通鋪的厚實多了。")
 		return
-	await Train.rest(ctx, "你在弟子房的床。要躺下休息嗎？", _wake("room"))
+	await Schedule.bed(ctx, "你在弟子房的床。", func(): return _wake("room"))
 
 
 static func cell_bed(ctx: Ctx) -> void:
 	if ctx.flag("mq_true") == 0:
 		await ctx.say("真傳弟子的床鋪，被褥是上好的棉布。主人很久沒回來了。")
 		return
-	await Train.rest(ctx, "你的床。要躺下休息嗎？", _wake("cell"))
+	await Schedule.bed(ctx, "你的床。", func(): return _wake("cell"))
 
 
 # ── 山門、知客、掃殿前 ─────────────────────────────────
@@ -1044,6 +1048,7 @@ static func _do_chore(ctx: Ctx, id: String) -> void:
 	G.flags["mq_chore_" + id] = G.day
 	out.append("（%s）" % Sect.add_contrib(CHORE_REWARD))
 	await ctx.say("\n".join(out))
+	await Schedule.maybe_event(ctx, "chore")
 
 
 ## 雜務的地點：手上有這件雜務就去做，否則照常查看

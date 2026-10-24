@@ -45,6 +45,9 @@ var weather := "clear"
 var relations := {}
 ## 拜入的門派（scripts/sect.gd）；沒拜師是空的
 var sect := {}
+## 生活的雜項狀態（存檔）：orders 手上的訂單、order_next 各下單的人隔到哪天再下單、schedule 日課表、
+## daily 一天一次的小事記哪天做過（"event:work" 這類 → 日子）
+var life := {}
 ## 打倒的野獸幾時重生（「地圖:id」→ 秒，照真實時間、不存檔）；撞上野獸的寬限（逃走、回到地圖的頭幾秒不會又撞上）
 var respawn_at := {}
 var beast_grace := 0.0
@@ -63,6 +66,7 @@ func new_game(c: Dictionary, dev := false) -> void:
 	flags = {}
 	relations = {}
 	sect = {}
+	life = {}
 	respawn_at = {}
 	day = 1
 	time = START_TIME
@@ -266,7 +270,7 @@ func _path(slot: String) -> String:
 func write_save(slot: String, where: Dictionary) -> bool:
 	DirAccess.make_dir_recursive_absolute("user://save")
 	var d := {"version": SAVE_VERSION, "saved_at": Time.get_unix_time_from_system(), "where": where,
-		"hero": hero, "silver": silver, "bag": bag, "flags": flags, "relations": relations, "sect": sect, "day": day, "time": time, "weather": weather}
+		"hero": hero, "silver": silver, "bag": bag, "flags": flags, "relations": relations, "sect": sect, "life": life, "day": day, "time": time, "weather": weather}
 	var f := FileAccess.open(_path(slot), FileAccess.WRITE)
 	if f == null:
 		return false
@@ -306,6 +310,7 @@ func apply_save(d: Dictionary) -> void:
 	for k in ["rank", "joined", "rank_day", "contrib", "merit", "stipend_day"]:
 		if sect.has(k):
 			sect[k] = int(sect[k])
+	life = d.get("life", {})
 	respawn_at = {}
 	day = int(d.day)
 	time = int(d.time)

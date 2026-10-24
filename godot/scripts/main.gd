@@ -86,11 +86,19 @@ func _title_flow() -> void:
 			G.new_game(c)
 			_chrome(true)
 			go("village")
+			_brief.call_deferred()
 			return
 		G.apply_save(r.data)
 		_chrome(true)
 		go(r.data.where.scene, r.data.where.at)
+		_brief.call_deferred()
 		return
+
+
+## 早晨提要（讀檔、開新遊戲後跳出；睡到天亮的在 Train.rest）
+func _brief() -> void:
+	await get_tree().create_timer(0.6).timeout
+	await load("res://story/daily.gd").brief(ui)
 
 
 ## 遊戲中才顯示的東西（左上的狀態、開發用按鈕、下方的操作說明）
@@ -113,6 +121,7 @@ func _menu() -> void:
 			_chrome(true)
 			go(r.data.where.scene, r.data.where.at)
 			await ui.fade_in()
+			await _brief()
 		"read":
 			_chrome(true)
 			if scene is GridScene:

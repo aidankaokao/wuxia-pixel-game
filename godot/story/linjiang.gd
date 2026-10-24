@@ -13,6 +13,7 @@
 ## market 哪天逛過集
 
 const Festival := preload("res://story/festival.gd")
+const Orders := preload("res://story/orders.gd")
 const Weaving := preload("res://story/weaving.gd")
 const INN_PRICE := 5
 const TEA_PRICE := 2
@@ -118,7 +119,7 @@ static func inn_talk(ctx: Ctx) -> void:
 # ── 望江樓 ──────────────────────────────────────────────
 
 static func tower_talk(ctx: Ctx) -> void:
-	if await Festival.moon_banquet(ctx):
+	if await Festival.moon_banquet(ctx) or await Orders.talk(ctx, "tower"):
 		return
 	if await ctx.ask(_by("汪福來").call("客官樓上請！望江樓的菜，臨江城頭一份。"), ["點菜", "不用了"]) == 0:
 		await ctx.shop("望江樓・菜單", TOWER_MENU)
@@ -193,6 +194,8 @@ static func pawn_talk(ctx: Ctx) -> void:
 # ── 錦繡布莊 ────────────────────────────────────────────
 
 static func cloth_talk(ctx: Ctx) -> void:
+	if await Orders.talk(ctx, "jin"):
+		return
 	var jin := _by("魏錦娘")
 	var c := await ctx.ask(jin.call("客官要看看什麼？"), ["看看衣物", "買紡織的材料", "學紡織", "閒聊", "不用了"])
 	match c:
