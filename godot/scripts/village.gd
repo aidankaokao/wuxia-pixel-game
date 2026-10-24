@@ -758,7 +758,7 @@ func _on_tile(g: Vector2i) -> void:
 			if e.has("world"):
 				_leave(e, t)
 			elif e.has("to") and e.to in OUTDOOR:
-				main.go(e.to, e.spawn)
+				main.hop(e.to, e.spawn)
 			else:
 				var back := Vector3(clampf(t[0], 1, W - 2) - t[0], 0, clampf(t[1], 1, H - 2) - t[1]).normalized() * 0.6
 				hero.position += back
@@ -773,7 +773,7 @@ func _interact(t: Dictionary) -> void:
 	var b: Dictionary = doors[t.p.def.door]
 	var enter = b.get("enter")
 	if enter != null and enter.to in ROOMS:
-		main.go(enter.to, enter.spawn)
+		main.hop(enter.to, enter.spawn)
 	else:
 		await ui.say([{"text": "%s的門關著。" % b.name}])
 

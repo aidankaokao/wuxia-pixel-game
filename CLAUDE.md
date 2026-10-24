@@ -25,7 +25,7 @@
 - 人物是 `scripts/chibi.gd` 的 Q 版小人（面向 +Z，`face(方向)` 轉身，`walking` 控制走路動畫），配色照網頁版的人物貼圖名填在 `LOOKS`。
 - 鏡頭 `scripts/cam.gd`：正交、固定俯角、永遠斜 45 度看（轉一次 90 度），方向鍵要用 `ground_dir` 換成地面方向。
 - 室外地圖都用 `village.gd`（`open(地圖 id)`；做好的室外地圖列在 `Village.OUTDOOR`，出入口通到這些就換過去，其他出入口當成往大地圖）。地圖四周往外延伸 `M` 格的景（`_ring`，格子座標可以是負的，陣列一律用 `[y + M][x + M]`），只能看不能走。網頁版沒有對應貼圖的東西，用擺設的 `id`（例如土地公祠 `tudi`）或 `room.gd` 的 `LOOK_BY_ID`（例如和尚）另外指定 Godot 的做法。
-- 出入大地圖一律先用 `ui.ask` 確認，再用 `main.travel(地圖 id, at)`（淡出、換場景、淡入）；村子裡進出屋子、村子與村北之間照舊直接 `main.go`。
+- 出入大地圖一律先用 `ui.ask` 確認，再用 `main.travel(地圖 id, at)`（淡出、換場景、淡入）；同一個據點裡（村子裡進出屋子、村子與村北之間）不問，用 `main.hop(地圖 id, at)`：`ui.ink_in` 墨從四周暈進來蓋滿、換場景、`ui.ink_out` 從中間往外化開（`shaders/dissolve.gdshader`；轉場中 `ui.busy()` 為真）。不要改回拍下畫面定格的做法：讀畫面本身會頓，而且 Retina 上拍到的圖是兩倍大，字會放大。`main.go` 只給開發用的按鈕與 Tab。每次換到室外、室內或大地圖，`main.go` 會用 `ui.show_title` 在畫面上方淡入淡出地名（取地圖資料的 `name`）。
 - 大地圖 `scripts/world_map.gd`（`main.go("world", {node, from})`：站在 node 往 from 那個據點方向的一側）。走路速度、地面高度由 `GridScene` 的 `_speed_at`、`_ground_y` 鉤子決定；網頁版的地形、據點、道路、地名匯出成 `data/world.json`。
 - 描邊的著色器在正交鏡頭時用近、遠平面換算線性深度、用 `px_world`（一個畫素幾個世界單位，鏡頭每格更新）判斷邊，不要改回相對深度差。
 - 能走動的場景都繼承 `scripts/grid_scene.gd`（格子座標、擋路、主角走動、人物、面對時的「E 交談／查看」與對話；走到某格時呼叫 `_on_tile`）：村子 `village.gd`、室內 `room.gd`。換場景用 `main.go(地圖 id, {x, y, facing})`。

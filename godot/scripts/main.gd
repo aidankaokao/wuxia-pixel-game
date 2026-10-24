@@ -122,6 +122,15 @@ func travel(id: String, at := {}) -> void:
 	await ui.fade_in()
 
 
+## 同一個據點裡換場景（村子與村北、進出屋子）：不問，墨暈進來蓋住、換場景、再化開
+func hop(id: String, at := {}) -> void:
+	if ui.busy():
+		return
+	await ui.ink_in()
+	go(id, at)
+	await ui.ink_out()
+
+
 ## 換場景；at 是從哪一格進來（從門口進屋、出門回村）
 func go(id: String, at := {}) -> void:
 	scene_id = id
@@ -156,6 +165,10 @@ func go(id: String, at := {}) -> void:
 		rig.size = 9.5
 		rig.size_max = 14.0
 	add_child(scene)
+	if scene is WorldMap:
+		ui.show_title("大地圖")
+	elif scene is GridScene and scene.get("data") is Dictionary:
+		ui.show_title(scene.get("data").get("name", ""))
 	for k in buttons:
 		buttons[k].modulate = Color("f0c860") if k == scene_id or (k == "village" and scene is Room) else Color.WHITE
 	apply_time()

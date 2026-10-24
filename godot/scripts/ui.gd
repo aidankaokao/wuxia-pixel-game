@@ -33,6 +33,12 @@ var help: Label
 var _pill: PanelContainer
 var _pill_text: Label
 var _veil: ColorRect
+var _ink: ColorRect
+var _ink_tw: Tween
+var _transit := false
+var _title: Control
+var _title_text: Label
+var _title_tw: Tween
 
 
 func _ready() -> void:
@@ -62,6 +68,7 @@ func _ready() -> void:
 	help.add_theme_constant_override("outline_size", 6)
 	_root.add_child(help)
 	_make_pill()
+	_make_ink()
 	var f := FileAccess.open("res://data/items.json", FileAccess.READ)
 	if f:
 		items = JSON.parse_string(f.get_as_text())
@@ -138,6 +145,120 @@ func fade_in(sec := 0.35) -> void:
 	await tw.finished
 
 
+## 同一個據點裡換場景（村子與村北、進出屋子）：墨從畫面四周往中間暈進來，整個蓋住後才換場景，
+## 換場景那一下停頓藏在墨裡；換好後墨再從中間往外化開（ink_out）
+func ink_in(sec := 0.45) -> void:
+	show_hint("", Vector2.ZERO)
+	_transit = true
+	# 墨蓋在所有字與按鈕上面；上一個地名先收起來
+	move_child(_ink, -1)
+	if _title_tw:
+		_title_tw.kill()
+		var tw := create_tween()
+		tw.tween_property(_title, "modulate:a", 0.0, sec * 0.6)
+	_ink_tween(1.0, sec, Tween.EASE_IN)
+	await _ink_tw.finished
+
+
+func ink_out(sec := 0.75) -> void:
+	# 多等幾格畫面，讓新場景蓋好、鏡頭就位
+	for i in 3:
+		await get_tree().process_frame
+	_ink_tween(0.0, sec, Tween.EASE_OUT)
+	await _ink_tw.finished
+	_transit = false
+
+
+func _ink_tween(to: float, sec: float, ease: Tween.EaseType) -> void:
+	if _ink_tw:
+		_ink_tw.kill()
+	_ink_tw = create_tween()
+	_ink_tw.tween_property(_ink.material, "shader_parameter/t", to, sec).set_ease(ease).set_trans(Tween.TRANS_SINE)
+
+
+## 墨的那一層：一開始就建好、一直畫著（全透明），第一次轉場才不會因為編譯著色器而頓一下
+func _make_ink() -> void:
+	_ink = ColorRect.new()
+	_ink.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ink.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://shaders/dissolve.gdshader")
+	var nz := NoiseTexture2D.new()
+	nz.width = 256
+	nz.height = 256
+	nz.seamless = true
+	var fn := FastNoiseLite.new()
+	fn.frequency = 0.012
+	fn.fractal_octaves = 4
+	nz.noise = fn
+	m.set_shader_parameter("noise", nz)
+	m.set_shader_parameter("t", 0.0)
+	_ink.material = m
+	add_child(_ink)
+
+
+## 到了新場景，畫面上方漸漸浮出地名，停一下再淡掉
+func show_title(text: String) -> void:
+	if _title == null:
+		_title = Control.new()
+		_title.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		_title.offset_top = 34
+		_title.offset_bottom = 90
+		_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_title)
+		var row := HBoxContainer.new()
+		row.set_anchors_preset(Control.PRESET_FULL_RECT)
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 18)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_title.add_child(row)
+		row.add_child(_title_rule(true))
+		_title_text = Label.new()
+		_title_text.add_theme_font_override("font", font())
+		_title_text.add_theme_font_size_override("font_size", 30)
+		_title_text.add_theme_color_override("font_color", Color("f6ecd4"))
+		_title_text.add_theme_color_override("font_outline_color", Color(0.1, 0.07, 0.05, 0.85))
+		_title_text.add_theme_constant_override("outline_size", 8)
+		_title_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.35))
+		_title_text.add_theme_constant_override("shadow_offset_y", 3)
+		row.add_child(_title_text)
+		row.add_child(_title_rule(false))
+	# 字與字之間空一點，比較像匾額
+	_title_text.text = " ".join(text.split(""))
+	if _title_tw:
+		_title_tw.kill()
+	# 永遠在轉場的黑幕、定格畫面上面
+	move_child(_title, -1)
+	_title.modulate.a = 0.0
+	_title.position.y = 8.0
+	_title_tw = create_tween()
+	_title_tw.tween_interval(0.35)
+	_title_tw.tween_property(_title, "modulate:a", 1.0, 0.6)
+	_title_tw.parallel().tween_property(_title, "position:y", 0.0, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	_title_tw.tween_interval(1.6)
+	_title_tw.tween_property(_title, "modulate:a", 0.0, 0.9)
+
+
+## 地名兩旁的金色細線：靠字的一端是一顆小菱形
+func _title_rule(left: bool) -> Control:
+	var c := Control.new()
+	c.custom_minimum_size = Vector2(90, 10)
+	c.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	c.draw.connect(func() -> void:
+		var g := Color(GOLD, 0.9)
+		var y := 5.0
+		var tip := 84.0 if left else 6.0
+		var far := 0.0 if left else 90.0
+		for i in 6:
+			# 越往外越淡
+			var a := lerpf(far, tip, i / 6.0)
+			var b := lerpf(far, tip, (i + 1) / 6.0)
+			c.draw_line(Vector2(a, y), Vector2(b, y), Color(g, g.a * (i + 1) / 6.0), 1.5)
+		c.draw_colored_polygon(PackedVector2Array([Vector2(tip, y - 4), Vector2(tip + 4, y), Vector2(tip, y + 4), Vector2(tip - 4, y)]), g))
+	return c
+
+
 ## 在畫面上某一點（通常是人物頭上）顯示互動提示；text 空字串就收起來
 func show_hint(text: String, at: Vector2) -> void:
 	_pill.visible = text != "" and not _open
@@ -149,7 +270,7 @@ func show_hint(text: String, at: Vector2) -> void:
 
 
 func busy() -> bool:
-	return _open
+	return _open or _transit
 
 
 func _input(e: InputEvent) -> void:

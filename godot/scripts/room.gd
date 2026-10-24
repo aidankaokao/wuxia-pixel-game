@@ -769,7 +769,7 @@ func _raise(n: Node3D, up: bool, k: float) -> void:
 ## 對著門按空白鍵：回到村裡的門口
 func _interact(t: Dictionary) -> void:
 	if t.kind == "prop" and t.p.def.has("exit"):
-		main.go(t.p.def.exit.to, t.p.def.exit.spawn)
+		main.hop(t.p.def.exit.to, t.p.def.exit.spawn)
 		return
 	await super._interact(t)
 
