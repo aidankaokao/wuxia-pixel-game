@@ -301,9 +301,45 @@ func _door_marker(dt: Vector2i, face: String) -> void:
 	marks.append({"node": m, "at": Vector2(dt.x + 0.5, dt.y + 0.5), "base": m.position.y, "mat": mat})
 
 
+## 擋住主角的房子變半透明：從主角身上往鏡頭的方向（俯角 CamRig.PITCH）一路看過去，
+## 穿過哪棟房子的佔地（含屋簷）時視線還低於屋頂（HOUSE_H），那棟就淡成 FADE_TO
+const HOUSE_H := 3.8
+const FADE_TO := 0.88
+var houses: Array = []
+
+
+func _occlude(dt: float) -> void:
+	var hp := Vector2(hero.position.x - ox, hero.position.z - oz)
+	var back := Vector2(sin(rig.yaw), cos(rig.yaw))
+	var slope := tan(CamRig.PITCH)
+	var reach := (HOUSE_H - 0.4) / slope
+	for h in houses:
+		var r: Rect2 = h.rect
+		var hit := false
+		if r.grow(reach).has_point(hp):
+			var s := 0.0
+			while s <= reach:
+				if r.has_point(hp + back * s):
+					hit = true
+					break
+				s += 0.25
+		var goal := FADE_TO if hit else 0.0
+		if is_equal_approx(h.fade, goal):
+			continue
+		h.fade = move_toward(h.fade, goal, dt * 3.0)
+		if h.parts.is_empty():
+			h.parts = h.node.find_children("*", "GeometryInstance3D", true, false)
+		for g in h.parts:
+			g.transparency = h.fade
+
+
 func _process(dt: float) -> void:
 	super._process(dt)
-	if not hero or marks.is_empty():
+	if not hero:
+		return
+	if rig:
+		_occlude(dt)
+	if marks.is_empty():
 		return
 	var hp := Vector2(hero.position.x - ox, hero.position.z - oz)
 	var t := Time.get_ticks_msec() / 1000.0
@@ -694,6 +730,7 @@ func _building(b: Dictionary) -> void:
 	pivot.position = Vector3(b.x + fp.x / 2.0 + ox, 0, b.y + fp.y / 2.0 + oz)
 	pivot.rotation.y = FACE_ROT[b.get("face", "s")]
 	add_child(pivot)
+	houses.append({"node": pivot, "rect": Rect2(b.x - 0.4, b.y - 0.4, fp.x + 0.8, fp.y + 0.8), "parts": [], "fade": 0.0})
 	var root := Node3D.new()
 	root.position = Vector3(-w / 2.0, 0, -d / 2.0)
 	pivot.add_child(root)
