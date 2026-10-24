@@ -706,17 +706,32 @@ func _play(events: Array) -> void:
 				await _say(e.text)
 			"strike":
 				var a := _body_id(e.actor)
+				var kind: String = Fight.mv(e.get("move", "")).get("fx", "punch")
+				# 蓄勢的紅光：出招了就收掉
+				if a.has("aura"):
+					a.aura.queue_free()
+					a.erase("aura")
 				var first: Dictionary = _body_id(e.hits[0].target) if not e.hits.is_empty() else {}
 				if not first.is_empty():
 					await _lunge(a, first)
+					# 內勁：光球飛過去才打中
+					if kind == "qi":
+						await BattleFx.orb(self, a.f.position + Vector3(0, 0.8, 0), first.f.position + Vector3(0, 0.75, 0))
 				for h in e.hits:
 					var t := _body_id(h.target)
 					if h.miss:
 						_popup(t, "閃", Color("d8f0ff"))
+						_dodge(t, a)
 					else:
+						BattleFx.hit(self, kind, a.f.position + Vector3(0, 0.75, 0), t.f.position + Vector3(0, 0.75, 0), h.crit)
 						t.hp = maxi(0, t.hp - h.damage)
 						_popup(t, ("會心 -%d" if h.crit else "-%d") % h.damage, Color("ffe080") if not h.crit else Color("ff9a4a"))
 						_label(t)
+						_knock(t, a, kind == "heavy" or h.crit)
+						if h.crit or kind == "heavy":
+							BattleFx.shake(rig.cam, 0.14 if h.crit else 0.09)
+						if h.crit:
+							await _hitstop(0.09)
 						if h.killed:
 							_fall(t)
 					await get_tree().create_timer(0.12).timeout
@@ -724,6 +739,7 @@ func _play(events: Array) -> void:
 				_label(a)
 			"restore":
 				var a := _body_id(e.actor)
+				BattleFx.heal(self, a.f.position)
 				a.hp = a.u.hp
 				a.qi = a.u.qi
 				_popup(a, "+%d%s" % [e.hp, ("　內 +%d" % e.qi) if e.qi > 0 else ""], Color("9aff9a"))
@@ -734,6 +750,9 @@ func _play(events: Array) -> void:
 				_label(a)
 				if e.type == "guard":
 					_popup(a, "守", Color("d8f0ff"))
+					BattleFx.guard(self, a.f.position, Vector3(sin(a.f.rotation.y), 0, cos(a.f.rotation.y)))
+				elif e.type == "charge" and not a.has("aura"):
+					a.aura = BattleFx.aura(self, a.f.position)
 
 
 func _lunge(a: Dictionary, t: Dictionary) -> void:
@@ -751,6 +770,36 @@ func _lunge(a: Dictionary, t: Dictionary) -> void:
 	# 收回來的那一半不等它
 	var tw := create_tween()
 	tw.tween_property(f, "position", from, 0.18)
+
+
+## 被打中往後一頓（重擊、會心退得多一點）
+func _knock(t: Dictionary, a: Dictionary, hard := false) -> void:
+	var base := top(t.c, t.r)
+	var away: Vector3 = base - a.f.position
+	away.y = 0
+	away = away.normalized() * (0.28 if hard else 0.14)
+	var tw := create_tween()
+	tw.tween_property(t.f, "position", base + away, 0.06)
+	tw.tween_property(t.f, "position", base, 0.18).set_trans(Tween.TRANS_SINE)
+
+
+## 閃開：往側邊一閃再回來
+func _dodge(t: Dictionary, a: Dictionary) -> void:
+	var base := top(t.c, t.r)
+	var d: Vector3 = base - a.f.position
+	d.y = 0
+	var side: Vector3 = d.cross(Vector3.UP).normalized() * 0.35
+	var tw := create_tween()
+	tw.tween_property(t.f, "position", base + side, 0.08)
+	tw.tween_property(t.f, "position", base, 0.2).set_trans(Tween.TRANS_SINE)
+
+
+## 會心一擊的停格：整個畫面慢下來一瞬間
+func _hitstop(sec: float) -> void:
+	var ts := Engine.time_scale
+	Engine.time_scale = ts * 0.08
+	await get_tree().create_timer(sec, true, false, true).timeout
+	Engine.time_scale = ts
 
 
 func _fall(b: Dictionary) -> void:

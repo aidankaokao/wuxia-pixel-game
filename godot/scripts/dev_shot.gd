@@ -103,6 +103,50 @@ func _run() -> void:
 				# flag:bandit_boss=1
 				var kv2 := arg.split("=")
 				G.flags[kv2[0]] = int(kv2[1]) if kv2.size() > 1 else 1
+			"sim":
+				# sim 或 sim:300 跑戰鬥平衡模擬（印在主控台，見 scripts/sim.gd）
+				if arg.begins_with("one"):
+					var t0 := Time.get_ticks_msec()
+					var c := Sim.fresh(false)
+					var r := Sim.one(c, arg.split(",")[1], {"jinchuang": 3})
+					print("SIM one ", r.result, " rounds ", r.rounds, " ms ", Time.get_ticks_msec() - t0)
+				else:
+					Sim.report(int(arg) if arg != "" else 300)
+			"autobattle":
+				# autobattle:camp,10 在六角格戰場上用自動戰鬥連打幾場（加速），印出勝負（跟 sim 的規則層模擬對照）
+				var ab := arg.split(",")
+				var wins := 0
+				var n := int(ab[1]) if ab.size() > 1 else 5
+				Engine.time_scale = 12.0
+				# 結算的對話自動按掉
+				var tick := Timer.new()
+				tick.wait_time = 0.4
+				add_child(tick)
+				tick.timeout.connect(func() -> void:
+					var hb2 = _main().scene
+					if hb2 is HexBattle:
+						hb2.auto = true
+					elif _main().ui._open:
+						_main().ui._key.emit("ok"))
+				tick.start()
+				for i in n:
+					Hero.restore_all(G.hero)
+					G.bag["jinchuang"] = 3
+					var r: String = await _main().battle(ab[0], "hill")
+					if r == "win":
+						wins += 1
+					print("AUTO ", ab[0], " #", i + 1, " ", r, " 剩血 ", G.hero.hp)
+					_main().ui._close()
+				tick.queue_free()
+				Engine.time_scale = 1.0
+				print("AUTO ", ab[0], " 勝 ", wins, "/", n)
+			"fx":
+				# fx:slash 在戰場上讓主角對第一個敵人演一次特效（看特效用）
+				var hb = _main().scene
+				if hb is HexBattle:
+					var a: Dictionary = hb._body_id("hero")
+					var t: Dictionary = hb.bodies.filter(func(o): return o.u.side == "enemy")[0]
+					BattleFx.hit(hb, arg, a.f.position + Vector3(0, 0.75, 0), t.f.position + Vector3(0, 0.75, 0), false)
 			"god":
 				# 把主角五維拉高、補滿（測打贏之後的劇情）
 				for k in G.hero.base:

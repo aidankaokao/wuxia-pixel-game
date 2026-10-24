@@ -3,7 +3,9 @@ extends Node3D
 ## 存讀檔（Ctrl／⌘+S 即時存檔、F9 讀取即時存檔；換場景時自動存檔）。開發用：T 過一個時辰、Y 換天氣。
 ## 場景：青竹村（village）、戰鬥・平地（plain）、戰鬥・河湖（river）、戰鬥・山道（hill）。
 
-const SCENES := [["tianxia", "天下輿圖"], ["world", "大地圖"], ["village", "青竹村"], ["qz_north", "青竹村北"], ["qz_tea", "竹風茶寮"], ["plain", "戰鬥・平地"], ["river", "戰鬥・河湖"], ["hill", "戰鬥・山道"]]
+const SCENES := [["tianxia", "天下輿圖"], ["world", "大地圖"], ["village", "青竹村"], ["qz_north", "青竹村北"], ["qz_tea", "竹風茶寮"], ["canglan", "蒼嵐山道"]]
+## 開發用的「開戰測試」能選的遭遇戰
+const DEV_FIGHTS := ["dog", "dogs", "boar", "scouts", "camp", "spar_qinghe", "spar_shiyue", "escort_far", "bounty_river", "trial_han"]
 ## 光線的四種樣子：太陽的角度、顏色、亮度；天空與環境光；燈籠亮不亮。一天裡照 LIGHT_KEYS 在它們之間漸變
 const TIMES := [
 	{"name": "清晨", "pitch": -25.0, "sun": Color("ffd8b0"), "e": 1.0, "bg": Color("9fb4c8"), "amb": Color("8a96b0"), "ae": 0.5, "lamp": 0.0},
@@ -194,7 +196,26 @@ func _panel() -> void:
 	box.add_child(row2)
 	row2.add_child(_button("過一個時辰（T）", func() -> void: G.advance(G.KE_PER_SHICHEN)))
 	row2.add_child(_button("換天氣（Y）", _next_weather))
+	row2.add_child(_button("開戰測試", _dev_battle))
 	ui.help.text = "方向鍵走路、Shift 跑、空白鍵 交談／確認、面對人物 F 切磋 G 贈禮 R 請教 T 交易、Q／R 轉鏡頭、滾輪 拉遠近、X／Esc 選單、⌘S 存檔、F9 讀檔、T 過時辰、Y 天氣、Tab 換場景"
+
+
+## 開發用：挑一場遭遇戰、挑地形，在這裡開打（打完回到原地）
+func _dev_battle() -> void:
+	if not (scene is GridScene) or ui.busy():
+		return
+	var names := []
+	for id in DEV_FIGHTS:
+		var enc := Fight.encounter(id)
+		var who := []
+		for k in enc.enemies:
+			who.append(Fight.enemy_data().enemies[k].name)
+		names.append("%s%s" % ["、".join(who), "（切磋）" if enc.get("spar", false) else ""])
+	var i := await ui.ask({"text": "開戰測試：跟誰打？"}, names + ["算了"])
+	if i >= DEV_FIGHTS.size():
+		return
+	var f := await ui.ask({"text": "在哪裡打？"}, ["平地", "河湖", "山道"])
+	battle(DEV_FIGHTS[i], ["plain", "river", "hill"][f])
 
 
 ## 開發用：換到下一種天氣
