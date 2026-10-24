@@ -132,11 +132,13 @@ class Batch:
 		return mi
 
 
-## 從 a 到 b 的一根棒子（圓柱或方塊的 Y 軸對準 a→b，長度剛好）的變換；mesh 的高要是 1
+## 從 a 到 b 的一根棒子（圓柱或方塊的 Y 軸對準 a→b，長度剛好）的變換；mesh 的高要是 1。
+## thick.x 是水平那一邊的寬，thick.y 是另一邊（例如斜放的木板，x 是板寬、y 是板厚）
 static func span(a: Vector3, b: Vector3, thick := Vector2(1, 1)) -> Transform3D:
 	var d := b - a
 	var y := d.normalized()
-	var x := y.cross(Vector3.FORWARD if absf(y.dot(Vector3.FORWARD)) < 0.9 else Vector3.RIGHT).normalized()
+	# 橫的棒子：寬度方向取水平（跟 y 垂直）；幾乎直立的才改用前後方向
+	var x := (y.cross(Vector3.UP) if absf(y.y) < 0.9 else y.cross(Vector3.FORWARD)).normalized()
 	var z := x.cross(y).normalized()
 	return Transform3D(Basis(x * thick.x, y * d.length(), z * thick.y), (a + b) / 2.0)
 

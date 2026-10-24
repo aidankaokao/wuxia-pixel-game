@@ -13,8 +13,7 @@ const STALLS := {
 	"tao": {"x": 32, "y": 22, "face": Vector3(-1, 0, 0), "title": "陶四的貨郎攤", "stock": ["jinchuang", "tea", "herb", "rice", "flour", "egg", "greens", "sugar"], "greet": "走過路過不要錯過！傷藥、茶葉、草藥，樣樣都有。獸皮、獸肉也收！"},
 	"zhong": {"x": 32, "y": 17, "face": Vector3(0, 0, 1), "title": "鍾嬸的茶攤", "stock": ["tea", "egg"], "greet": "來啦！坐下喝碗茶歇歇腳？"},
 }
-## 做成精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）
-const FINE := ["竹風茶寮"]
+## 精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）；有樣式設定的都用精細版
 
 ## 做好室內的房子（地圖 id）
 const ROOMS := ["qz_tea"]
@@ -528,10 +527,10 @@ func _building(b: Dictionary) -> void:
 	doors[dt] = b
 	props.append({"node": null, "def": {"sprite": "door", "label": "進去", "lines": [], "door": dt}, "at": Vector2(dt.x + 0.5, dt.y + 0.5)})
 	# 做好精細版的房子（fine_house.gd）
-	if b.name in FINE:
+	if FineHouse.STYLE.has(b.style):
 		root.add_child(FineHouse.build(self, b))
 		var lb := Mk.label(b.name, 36)
-		lb.position = Vector3(w / 2.0, 3.7, d / 2.0)
+		lb.position = Vector3(w / 2.0, 3.4 + FineHouse.STYLE[b.style].rise, d / 2.0)
 		root.add_child(lb)
 		return
 	var wall := Color(st.get("wall", "e8dcc4"))
@@ -624,38 +623,18 @@ func _prop(p: Dictionary) -> void:
 	add_child(g)
 	props.append({"node": g, "def": p, "at": Vector2(p.x + w / 2.0, p.y + 0.5)})
 	match p.sprite:
+		# 精細版（fine_props.gd）
 		"lantern_post":
-			g.add_child(Mk.cyl(0.05, 0.06, 1.6, Color("5a3a22"), Vector3(0, 0.8, 0), 5))
-			_lantern(g, Vector3(0, 1.55, 0))
+			FineProps.lantern_post(g, self)
 		"well":
-			g.add_child(Mk.cyl(0.42, 0.45, 0.45, Color("8e8a80"), Vector3(0, 0.22, 0), 10))
-			g.add_child(Mk.cyl(0.36, 0.36, 0.05, Color("2a4a6a"), Vector3(0, 0.4, 0), 10))
-			var rf := Mk.cone(0.7, 0.4, Color("6a4a3a"), Vector3(0, 1.3, 0), 4)
-			rf.rotation.y = PI / 4.0
-			g.add_child(rf)
-			for dx in [-0.4, 0.4]:
-				g.add_child(Mk.box(Vector3(0.06, 1.1, 0.06), Color("6a4428"), Vector3(dx, 0.6, 0)))
+			FineProps.well(g)
 		"stall":
-			g.add_child(Mk.box(Vector3(w * 0.9, 0.5, 0.6), Color("8a6a42"), Vector3(0, 0.25, 0)))
-			var canopy := Mk.box(Vector3(w, 0.06, 0.9), Color("c84a3a"), Vector3(0, 1.3, 0))
-			canopy.rotation.x = 0.2
-			g.add_child(canopy)
-			for dx in [-w / 2.0 + 0.1, w / 2.0 - 0.1]:
-				g.add_child(Mk.box(Vector3(0.06, 1.3, 0.06), Color("6a4428"), Vector3(dx, 0.65, -0.3)))
-			for i in 4:
-				g.add_child(Mk.ball(0.08, [Color("e8603c"), Color("86c255"), Color("f2c230"), Color("d8c8a0")][i], Vector3(-0.6 + i * 0.4, 0.56, 0), 6))
+			FineProps.stall(g, w)
 		"stele":
 			g.add_child(Mk.box(Vector3(0.6, 1.2, 0.25), Color("8a8a86"), Vector3(0, 0.6, 0)))
 			g.add_child(Mk.box(Vector3(0.75, 0.15, 0.4), Color("6a6a66"), Vector3(0, 0.07, 0)))
 		"bulletin":
-			g.add_child(Mk.box(Vector3(1.1, 0.6, 0.06), Color("d8c8a0"), Vector3(0, 1.0, 0)))
-			g.add_child(Mk.box(Vector3(1.25, 0.08, 0.12), Color("5a3a22"), Vector3(0, 1.34, 0)))
-			for dx in [-0.5, 0.5]:
-				g.add_child(Mk.box(Vector3(0.07, 1.3, 0.07), Color("6a4428"), Vector3(dx, 0.65, -0.04)))
-			var t := Mk.label("告示", 30, Color("3a2418"), Color(0, 0, 0, 0))
-			t.billboard = BaseMaterial3D.BILLBOARD_DISABLED
-			t.position = Vector3(0, 1.05, 0.04)
-			g.add_child(t)
+			FineProps.bulletin(g)
 		_:
 			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.06), Color("b08a5a"), Vector3(0, 0.85, 0)))
 			g.add_child(Mk.box(Vector3(0.07, 0.9, 0.07), Color("6a4428"), Vector3(0, 0.45, -0.04)))
