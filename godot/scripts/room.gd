@@ -8,6 +8,8 @@ extends GridScene
 ## - 屋裡的人站在原地，按空白鍵交談（說網頁版的台詞）；對著門口按空白鍵就回村裡。
 
 const WALL_H := 2.1
+## 牆的厚度：牆貼在牆格靠屋裡的那一邊（牆格其他地方是屋外，空著）
+const WALL_T := 0.2
 
 ## 房間的樣式：地板顏色、是不是石板地、牆色、牆腳色、北牆要不要掛山水
 const THEMES := {
@@ -23,6 +25,7 @@ var sides := {}
 ## 轉角：{node, sides: [兩面牆]}，有一面立著就立著
 var corners: Array = []
 var th: Dictionary
+var _settled := false
 
 
 func open(id: String) -> void:
@@ -110,10 +113,27 @@ func _walls() -> void:
 				on.append("e")
 			var seg := Node3D.new()
 			seg.position = w3(x, y)
-			seg.add_child(Mk.box(Vector3(1.0, WALL_H, 1.0), Color(th.wall), Vector3(0, WALL_H / 2.0, 0)))
-			seg.add_child(Mk.box(Vector3(1.02, 0.3 if not th.stone else 0.6, 1.02), Color(th.base), Vector3(0, 0.15 if not th.stone else 0.3, 0)))
+			# 牆只佔靠屋裡的那一條：北牆貼這一格的南緣、西牆貼東緣……；轉角只立一根小方柱接起兩面牆
+			var inner := 0.5 - WALL_T / 2.0
+			var off := Vector3.ZERO
+			var size := Vector3(1.0, 0, 1.0)
+			if on.has("n"):
+				off.z = inner
+				size.z = WALL_T
+			if on.has("s"):
+				off.z = -inner
+				size.z = WALL_T
+			if on.has("w"):
+				off.x = inner
+				size.x = WALL_T
+			if on.has("e"):
+				off.x = -inner
+				size.x = WALL_T
+			var base_h := 0.3 if not th.stone else 0.6
+			seg.add_child(Mk.box(Vector3(size.x, WALL_H, size.z), Color(th.wall), off + Vector3(0, WALL_H / 2.0, 0)))
+			seg.add_child(Mk.box(Vector3(size.x + 0.02, base_h, size.z + 0.02), Color(th.base), off + Vector3(0, base_h / 2.0, 0)))
 			# 牆頂的木條（略高於牆面，避免兩個面疊在同一個高度上閃爍）
-			seg.add_child(Mk.box(Vector3(1.04, 0.08, 1.04), Color("5a3a22"), Vector3(0, WALL_H + 0.03, 0)))
+			seg.add_child(Mk.box(Vector3(size.x + 0.04, 0.08, size.z + 0.04), Color("5a3a22"), off + Vector3(0, WALL_H + 0.03, 0)))
 			if on.size() >= 2:
 				add_child(seg)
 				corners.append({"node": seg, "sides": on})
@@ -123,18 +143,61 @@ func _walls() -> void:
 	for e in data.exits:
 		var t: Array = e.tiles[0]
 		for dx in [-0.48, 0.48]:
-			sides["s"].add_child(Mk.box(Vector3(0.14, WALL_H, 0.2), Color("5a3a22"), w3(t[0], t[1], WALL_H / 2.0) + Vector3(dx, 0, 0)))
+			sides["s"].add_child(Mk.box(Vector3(0.14, WALL_H, WALL_T + 0.06), Color("5a3a22"), w3(t[0], t[1], WALL_H / 2.0) + Vector3(dx, 0, -(0.5 - WALL_T / 2.0))))
 
 
-## 格子窗：掛在某面牆的內側（normal 是朝屋裡的方向）
+## 窗：嵌在牆上的木窗框（有深度）、透著外頭天光的窗紙、步步錦的窗櫺、窗台，地上一塊斜斜的光
+## （normal 是朝屋裡的方向；整扇窗跟著那面牆一起立起或收掉）
 func _window(side: String, at: Vector3, normal: Vector3) -> void:
 	var g := Node3D.new()
 	g.position = at
 	g.rotation.y = atan2(normal.x, normal.z)
-	g.add_child(Mk.box(Vector3(1.0, 0.7, 0.04), Color("f0e2b8"), Vector3.ZERO))
-	for i in 4:
-		g.add_child(Mk.box(Vector3(0.03, 0.7, 0.06), Color("6a4428"), Vector3(-0.36 + i * 0.24, 0, 0.02)))
-	g.add_child(Mk.box(Vector3(1.0, 0.03, 0.06), Color("6a4428"), Vector3(0, 0, 0.02)))
+	var wood := Color("5a3a22")
+	var ww := 1.1
+	var hh := 0.8
+	# 窗紙：外面的天光透進來（微微發亮）
+	var paper := Mk.box(Vector3(ww, hh, 0.02), Color("fbf0d4"), Vector3(0, 0, -0.03))
+	var pm := StandardMaterial3D.new()
+	pm.albedo_color = Color("fbf0d4")
+	pm.emission_enabled = true
+	pm.emission = Color("ffe8b8")
+	pm.emission_energy_multiplier = 0.45
+	paper.material_override = pm
+	g.add_child(paper)
+	# 窗框：四邊有厚度，往屋裡凸一點
+	for sy in [-1, 1]:
+		g.add_child(Mk.box(Vector3(ww + 0.16, 0.08, 0.12), wood, Vector3(0, sy * (hh / 2.0 + 0.04), 0.02)))
+	for sx in [-1, 1]:
+		g.add_child(Mk.box(Vector3(0.08, hh + 0.16, 0.12), wood, Vector3(sx * (ww / 2.0 + 0.04), 0, 0.02)))
+	# 步步錦：外圈一道細框，裡面長短交錯的木條
+	var lc := Color("6a4428")
+	var inset := 0.12
+	for sy in [-1, 1]:
+		g.add_child(Mk.box(Vector3(ww - inset * 2, 0.025, 0.04), lc, Vector3(0, sy * (hh / 2.0 - inset), 0.0)))
+	for sx in [-1, 1]:
+		g.add_child(Mk.box(Vector3(0.025, hh - inset * 2, 0.04), lc, Vector3(sx * (ww / 2.0 - inset), 0, 0.0)))
+	g.add_child(Mk.box(Vector3(0.025, hh, 0.04), lc, Vector3(0, 0, 0.0)))
+	g.add_child(Mk.box(Vector3(ww, 0.025, 0.04), lc, Vector3(0, 0, 0.0)))
+	for sx in [-1, 1]:
+		for sy in [-1, 1]:
+			g.add_child(Mk.box(Vector3(0.025, inset, 0.04), lc, Vector3(sx * ww / 4.0, sy * (hh / 2.0 - inset / 2.0), 0.0)))
+			g.add_child(Mk.box(Vector3(inset, 0.025, 0.04), lc, Vector3(sx * (ww / 2.0 - inset / 2.0), sy * hh / 4.0, 0.0)))
+			g.add_child(Mk.box(Vector3(0.025, (hh / 2.0 - inset) * 0.55, 0.04), lc, Vector3(sx * ww / 4.0, sy * hh / 4.0, 0.0)))
+	# 窗台
+	g.add_child(Mk.box(Vector3(ww + 0.3, 0.05, 0.2), wood, Vector3(0, -hh / 2.0 - 0.1, 0.08)))
+	# 地上的光：從窗口斜斜灑進屋裡的一塊亮
+	var patch := MeshInstance3D.new()
+	var qm := PlaneMesh.new()
+	qm.size = Vector2(ww * 0.9, 1.2)
+	patch.mesh = qm
+	var lm := StandardMaterial3D.new()
+	lm.albedo_color = Color(1.0, 0.9, 0.65, 0.16)
+	lm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	lm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	patch.material_override = lm
+	patch.position = Vector3(0.25, -at.y + 0.012, 0.9)
+	patch.rotation.y = 0.2
+	g.add_child(patch)
 	sides[side].add_child(g)
 
 
@@ -149,11 +212,11 @@ func _decor() -> void:
 		return false
 	for x in [W / 2.0 - 2.5, W / 2.0 + 2.5]:
 		if not on_wall.call(x, 0.5):
-			_window("n", Vector3(ox + x, 1.3, back_z + 0.02), Vector3(0, 0, 1))
+			_window("n", Vector3(ox + x, 1.25, back_z + 0.02), Vector3(0, 0, 1))
 	if not on_wall.call(0.5, H / 2.0):
-		_window("w", Vector3(ox + 1.02, 1.3, oz + H / 2.0), Vector3(1, 0, 0))
+		_window("w", Vector3(ox + 1.02, 1.25, oz + H / 2.0), Vector3(1, 0, 0))
 	if not on_wall.call(W - 0.5, H / 2.0):
-		_window("e", Vector3(ox + W - 1.02, 1.3, oz + H / 2.0), Vector3(-1, 0, 0))
+		_window("e", Vector3(ox + W - 1.02, 1.25, oz + H / 2.0), Vector3(-1, 0, 0))
 	var sx := ox + W / 2.0
 	var n: Node3D = sides["n"]
 	if not th.scroll:
@@ -641,7 +704,9 @@ func _process(dt: float) -> void:
 	super._process(dt)
 	var c := Vector3(sin(rig.yaw), 0, cos(rig.yaw))
 	var shown := {"n": c.z > 0.01, "s": c.z < -0.01, "w": c.x > 0.01, "e": c.x < -0.01}
-	var k := minf(1.0, dt * 10.0)
+	# 剛進屋的第一格畫面直接到位（不要讓靠鏡頭的牆先出現再消失）
+	var k := minf(1.0, dt * 10.0) if _settled else 1.0
+	_settled = true
 	for sd in sides:
 		_raise(sides[sd], shown[sd], k)
 	for cn in corners:
