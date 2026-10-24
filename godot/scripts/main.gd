@@ -206,6 +206,11 @@ func hop(id: String, at := {}) -> void:
 
 ## 換場景；at 是從哪一格進來（從門口進屋、出門回村）
 func go(id: String, at := {}) -> void:
+	# 開發用的戰場按鈕：在這種地形打一場斷崖寨嘍囉（打完回到原本的地方）
+	if id in ["plain", "river", "hill"]:
+		if scene is GridScene and not ui.busy():
+			battle("scouts", id)
+		return
 	scene_id = id
 	cur_id = id
 	cur_at = at
@@ -241,12 +246,6 @@ func go(id: String, at := {}) -> void:
 		scene = r
 		rig.size = 8.0
 		rig.size_max = 12.0
-	else:
-		var b := HexBattle.new()
-		b.setup(ui, rig, id)
-		scene = b
-		rig.size = 9.5
-		rig.size_max = 14.0
 	add_child(scene)
 	if id.begins_with("zhou:"):
 		scene_id = "world"
@@ -258,6 +257,53 @@ func go(id: String, at := {}) -> void:
 	for k in buttons:
 		buttons[k].modulate = Color("f0c860") if k == scene_id or (k == "village" and scene is Room) else Color.WHITE
 	apply_time()
+
+
+## 戰敗（不是切磋）：被人救回青竹村的老井旁，恢復一半氣血
+const DEFEAT := {"map": "village", "at": {"x": 23, "y": 20, "facing": "up"}, "lines": [
+	{"text": "……"}, {"text": "你醒來時，已經躺在青竹村的老井旁。"},
+	{"speaker": "鍾嬸", "text": "總算醒啦！是路過的好心人把你背回來的。年輕人，別逞強啊。"}]}
+
+
+## 開戰：從現在的地圖墨暈進六角格戰場，打完結算、回到原地（輸了又不是切磋：送回青竹村）。
+## 回傳 "win"／"lose"／"flee"。field 不填就照遭遇戰的背景挑地形
+func battle(enc_id: String, field := "") -> String:
+	var enc := Fight.encounter(enc_id)
+	var back_id := cur_id
+	var back_at: Dictionary = where().get("at", cur_at)
+	await ui.ink_in()
+	if scene:
+		scene.queue_free()
+	ui.show_hint("", Vector2.ZERO)
+	var b := HexBattle.new()
+	b.setup(ui, rig, self, enc_id, field)
+	scene = b
+	scene_id = "battle"
+	rig.size = 9.5
+	rig.size_max = 14.0
+	add_child(b)
+	apply_time()
+	await ui.ink_out()
+	var r: Array = await b.finished
+	var result: String = r[0]
+	var lines: Array = (r[1] as Fight).settle(G.hero, enc, result)
+	var spar: bool = enc.get("spar", false)
+	await ui.ink_in()
+	var say := []
+	if result == "lose" and not spar:
+		var d := Hero.derive(G.hero)
+		G.hero.hp = maxi(1, d.max_hp / 2)
+		go(DEFEAT.map, DEFEAT.at)
+		say = DEFEAT.lines
+	else:
+		if result == "lose":
+			G.hero.hp = maxi(1, int(G.hero.hp))
+		go(back_id, back_at)
+		var head: String = {"win": "打贏了！", "lose": "這一場輸了。", "flee": "你脫身了。"}[result]
+		say = [{"text": head + ("\n" + "\n".join(lines) if not lines.is_empty() else "")}]
+	await ui.ink_out()
+	await ui.say(say)
+	return result
 
 
 ## 現在在哪裡（存檔用）：{scene: 場景 id, at: 進場景的參數, name: 地名}；戰鬥中、輿圖上是空的（不能存）

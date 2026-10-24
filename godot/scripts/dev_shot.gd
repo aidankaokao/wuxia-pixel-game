@@ -79,6 +79,13 @@ func _run() -> void:
 				if v is GridScene:
 					v.hero.position = v.w3(int(xy[0]), int(xy[1]))
 					v.rig.position = v.hero.position
+			"go":
+				# go:plain 跟按左上的按鈕一樣
+				_main().go(arg)
+			"battle":
+				# battle:scouts 或 battle:dog,river 直接開打（不等它打完）
+				var bp := arg.split(",")
+				_main().battle(bp[0], bp[1] if bp.size() > 1 else "")
 			"size":
 				# size:60 鏡頭拉遠（正交鏡頭的大小）
 				var rg = _main().rig

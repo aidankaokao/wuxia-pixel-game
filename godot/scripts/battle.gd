@@ -1,14 +1,19 @@
 class_name HexBattle
 extends Node3D
-## 六角格戰鬥（試作品：只看畫面與手感，規則是臨時的）。9×7 的平頂六角格（奇數欄往下錯半格）。
-## 地形：plain 平地（花、石頭、一兩處小土坡）、river 河湖（河從中間流過、左下是湖；水過不去，
-## 中間一座木橋，下游一處淺灘多 1 步）、hill 山道（有高低，往上爬一層多 1 步，高差超過 1 爬不上去）。
-## 你和顧小滿對上三個山賊：點自己人 → 藍格是走得到的 → 點一格走過去 → 紅格是打得到的，點敵人出手；
-## 空白鍵結束這個人的行動。兩人都動過就換山賊。
+## 六角格戰場：規則照網頁版（fight.gd 的 Fight），這裡管位置、出手順序、指令與動畫。
+## - 9×7 的平頂六角格（奇數欄往下錯半格）。地形：plain 平地、river 河湖（水過不去，走橋或淺灘多 1 步）、
+##   hill 山道（往上爬一層多 1 步，高差超過 1 爬不上去，也打不到）。
+## - 每一回合照速度（帶一點隨機）排出手順序，一人一次：先走（步數看速度），再做一件事：出手、招式、物品、防禦、逃跑。
+## - 範圍：單打的外功招式打相鄰一格；打全部敵人的招式籠罩兩格內的敵人；內功招式打三格內。
+## - 主角的回合：下方的指令選單（↑↓ 選、空白鍵確定、X 返回）；「移動」後用方向鍵或滑鼠選藍格；選了招式再選紅格上的目標。
+##   Q 切換自動戰鬥（穩健）。氣血、內力在打中的那一刻才扣（數字跟著動畫走）。
+## 打完發出 finished(結果, 戰鬥規則)，由 main 結算、送回原本的地圖。
+
+signal finished(result: String, fight: Fight)
+signal _input_ev(ev: Dictionary)
 
 const COLS := 9
 const ROWS := 7
-const MOVE := 4
 const R := 0.64
 const SQ3 := 1.7320508
 
@@ -19,32 +24,40 @@ const LAYOUT := {
 	"river": ["....w....", "....w..t.", ".t..b....", "....w....", "...ww..o.", "..wwf....", ".www....."],
 }
 const START := {
-	"hill": {"ally": [Vector2i(1, 5), Vector2i(1, 4)], "foe": [Vector2i(6, 1), Vector2i(7, 3), Vector2i(8, 1)]},
-	"plain": {"ally": [Vector2i(1, 3), Vector2i(1, 4)], "foe": [Vector2i(7, 2), Vector2i(7, 4), Vector2i(8, 3)]},
-	"river": {"ally": [Vector2i(1, 3), Vector2i(2, 1)], "foe": [Vector2i(7, 3), Vector2i(6, 0), Vector2i(8, 5)]},
+	"hill": {"ally": [Vector2i(1, 5)], "foe": [Vector2i(6, 1), Vector2i(7, 3), Vector2i(8, 1), Vector2i(6, 4)]},
+	"plain": {"ally": [Vector2i(1, 3)], "foe": [Vector2i(7, 2), Vector2i(7, 4), Vector2i(8, 3), Vector2i(6, 3)]},
+	"river": {"ally": [Vector2i(1, 3)], "foe": [Vector2i(7, 3), Vector2i(6, 0), Vector2i(8, 5), Vector2i(7, 1)]},
 }
 const NAME := {"hill": "山道", "plain": "平地", "river": "河湖"}
 
 var field := "plain"
+var enc_id := ""
+var enc: Dictionary
 var ui: Ui
 var rig: CamRig
+var main: Node
+var fight: Fight
 var level := []
-var units: Array = []
+## 戰場上的人：{u: Fight 的單位, f: Chibi, c, r, lb: 頭上的字}
+var bodies: Array = []
 var marks := Node3D.new()
-var phase := "pick"
-var sel = null
-var reachable := {}
-var msg := "點你或顧小滿，選要行動的人"
-var anim = null
-var queue: Array[Callable] = []
-var floaters: Array = []
 var focus := Node3D.new()
+var floaters: Array = []
+var auto := false
+var _ended := false
+var _log: Label
+var _menu: PanelContainer
+var _menu_box: VBoxContainer
+var _cursor: MeshInstance3D
 
 
-func setup(u: Ui, r: CamRig, f: String) -> void:
+func setup(u: Ui, r: CamRig, m: Node, encounter: String, f := "") -> void:
 	ui = u
 	rig = r
-	field = f
+	main = m
+	enc_id = encounter
+	enc = Fight.encounter(encounter)
+	field = f if f != "" else ("plain" if enc.get("background", "") == "camp" else "hill")
 
 
 func T(c: int, r: int) -> String:
@@ -99,13 +112,21 @@ func _ready() -> void:
 			row.append(lv)
 		level.append(row)
 	_board()
+	fight = Fight.new()
+	fight.can_flee = enc.get("canFlee", true)
+	fight.no_items = enc.get("noItems", false)
+	fight.items = G.bag.duplicate()
+	fight.units = [Fight.hero_unit(G.hero)] + Fight.enemy_units(enc)
 	var st: Dictionary = START[field]
-	_add("你", "hero", "ally", st.ally[0], 120, 26)
-	_add("顧小滿", "disciple_girl", "ally", st.ally[1], 90, 20)
-	_add("山賊甲", "bandit", "foe", st.foe[0], 70, 16)
-	_add("山賊乙", "bandit", "foe", st.foe[1], 70, 16)
-	_add("賊頭", "boss", "foe", st.foe[2], 110, 22)
+	var fi := 0
+	for u in fight.units:
+		var at: Vector2i = st.ally[0] if u.side == "hero" else st.foe[fi % st.foe.size()]
+		if u.side == "enemy":
+			fi += 1
+		_add(u, at)
 	rig.target = focus
+	_hud()
+	_run()
 
 
 func _hex_mesh(h: float, r: float) -> CylinderMesh:
@@ -214,54 +235,79 @@ func _tree(p: Vector3, s: float, pine: bool) -> void:
 		add_child(Mk.ball(0.52 * s, Color("5aa24c"), p + Vector3(0, 0.95 * s, 0), 6))
 
 
-func _add(name: String, sprite: String, side: String, at: Vector2i, hp: int, atk: int) -> void:
-	var f := Chibi.make(sprite)
+func _add(u: Dictionary, at: Vector2i) -> void:
+	var f := Chibi.make(u.sprite)
 	add_child(f)
 	f.position = top(at.x, at.y)
-	f.face(Vector3(1, 0, 0) if side == "ally" else Vector3(-1, 0, 0))
-	var lb := Mk.label("%s\n%d/%d" % [name, hp, hp], 20, Color("fffbe8"))
+	f.face(Vector3(1, 0, 0) if u.side == "hero" else Vector3(-1, 0, 0))
+	var lb := Mk.label("", 22, Color("fffbe8"))
 	lb.position.y = 1.35
 	f.add_child(lb)
-	units.append({"name": name, "side": side, "f": f, "c": at.x, "r": at.y, "hp": hp, "max": hp, "atk": atk, "done": false, "lb": lb})
+	var b := {"u": u, "f": f, "c": at.x, "r": at.y, "lb": lb, "hp": u.hp, "qi": u.qi}
+	bodies.append(b)
+	_label(b)
 
+
+## 頭上的名字與氣血（hp、qi 是畫面上顯示的值，打中的那一刻才更新）
+func _label(b: Dictionary) -> void:
+	var u: Dictionary = b.u
+	var fx := ""
+	for e in u.effects:
+		fx += Fight.EFFECT_NAME.get(e.kind, "")[0]
+	b.lb.text = "%s%s\n%d/%d%s" % [u.name, ("［%s］" % fx) if fx != "" else "", b.hp, u.max_hp, ("　內 %d" % b.qi) if u.side == "hero" else ""]
+
+
+func _body(u: Dictionary) -> Dictionary:
+	for b in bodies:
+		if b.u == u or b.u.id == u.get("id", ""):
+			return b
+	return {}
+
+
+func _body_id(id: String) -> Dictionary:
+	for b in bodies:
+		if b.u.id == id:
+			return b
+	return {}
+
+
+# ── 位置 ────────────────────────────────────────────────
 
 func _occupied(c: int, r: int, except = null) -> bool:
-	for u in units:
-		if u != except and u.hp > 0 and u.c == c and u.r == r:
+	for b in bodies:
+		if b != except and b.u.hp > 0 and b.c == c and b.r == r:
 			return true
 	return false
 
 
+## 一次能走幾步：速度越快走越遠（2～5 步）
+func _steps(b: Dictionary) -> int:
+	return clampi(2 + int(fight.stat(b.u, "spd") / 9.0), 2, 5)
+
+
 ## 走得到的格子（key 是格子，值是路徑）
-func _reach(u: Dictionary) -> Dictionary:
-	var start := Vector2i(u.c, u.r)
+func _reach(b: Dictionary) -> Dictionary:
+	var start := Vector2i(b.c, b.r)
 	var out := {start: [start]}
 	var cost := {start: 0}
 	var q := [start]
+	var limit := _steps(b)
 	while not q.is_empty():
 		var cur: Vector2i = q.pop_front()
 		for n in _around(cur.x, cur.y):
-			if _blocked(n.x, n.y) or _occupied(n.x, n.y, u):
+			if _blocked(n.x, n.y) or _occupied(n.x, n.y, b):
 				continue
 			var climb: int = level[n.y][n.x] - level[cur.y][cur.x]
 			if climb > 1:
 				continue
 			var nd: int = cost[cur] + 1 + max(0, climb) + (1 if T(n.x, n.y) == "f" else 0)
-			if nd > MOVE or nd >= cost.get(n, 999):
+			if nd > limit or nd >= cost.get(n, 999):
 				continue
 			cost[n] = nd
 			var path: Array = out[cur].duplicate()
 			path.append(n)
 			out[n] = path
 			q.append(n)
-	return out
-
-
-func _adjacent_foes(u: Dictionary) -> Array:
-	var out := []
-	for o in units:
-		if o.hp > 0 and o.side != u.side and Vector2i(o.c, o.r) in _around(u.c, u.r) and abs(level[o.r][o.c] - level[u.r][u.c]) <= 1:
-			out.append(o)
 	return out
 
 
@@ -293,102 +339,534 @@ func _clear_marks() -> void:
 		c.queue_free()
 
 
-func _popup(u: Dictionary, text: String) -> void:
-	var l := Mk.label(text, 44, Color("ffe080"), Color("6a1a14"))
-	l.position = u.f.position + Vector3(0, 1.7, 0)
+## 這一招的範圍（格數）
+func _range_of(move_id: String) -> int:
+	var m := Fight.mv(move_id)
+	if m.target == "allEnemies":
+		return 2
+	return 3 if m.kind == "inner" else 1
+
+
+## 從 a 打不打得到 t：在範圍內；只打一格的招式高差不能超過 1
+func _can_hit(a: Dictionary, t: Dictionary, move_id: String) -> bool:
+	var d := _dist(Vector2i(a.c, a.r), Vector2i(t.c, t.r))
+	var rg := _range_of(move_id)
+	if d > rg:
+		return false
+	return rg > 1 or abs(level[t.r][t.c] - level[a.r][a.c]) <= 1
+
+
+func _targets(a: Dictionary, move_id: String) -> Array:
+	var out := []
+	for b in bodies:
+		if b.u.hp > 0 and b.u.side != a.u.side and _can_hit(a, b, move_id):
+			out.append(b)
+	return out
+
+
+# ── 回合 ────────────────────────────────────────────────
+
+func _run() -> void:
+	await get_tree().create_timer(0.4).timeout
+	await _say(enc.get("intro", "打起來了！"))
+	while not _ended:
+		var order: Array = fight.alive().map(func(u): return {"u": u, "k": fight.stat(u, "spd") * (0.85 + randf() * 0.3)})
+		order.sort_custom(func(x, y): return x.k > y.k)
+		for o in order:
+			var u: Dictionary = o.u
+			if u.hp <= 0 or _ended:
+				continue
+			var b := _body(u)
+			var st := fight.start_turn(u)
+			_label(b)
+			await _play(st.events)
+			if st.skip:
+				continue
+			var cmd: Dictionary
+			if u.side == "hero":
+				cmd = await _hero_turn(b)
+			else:
+				cmd = await _enemy_turn(b)
+			if cmd.is_empty():
+				continue
+			var events := fight.act(u, cmd)
+			await _play(events)
+			for e in events:
+				if e.type == "flee" and e.success:
+					_end("flee")
+			var r := fight.outcome()
+			if r != "":
+				_end(r)
+				break
+
+
+func _end(result: String) -> void:
+	if _ended:
+		return
+	_ended = true
+	_clear_marks()
+	_menu.visible = false
+	await get_tree().create_timer(0.6).timeout
+	finished.emit(result, fight)
+
+
+## 敵人：朝主角走，走到旁邊就出手（蓄勢不用走到旁邊）
+func _enemy_turn(b: Dictionary) -> Dictionary:
+	var hero := _body_id("hero")
+	var cmd := fight.enemy_command(b.u, hero.u)
+	if cmd.type == "charge":
+		return cmd
+	if not _can_hit(b, hero, cmd.move):
+		await _walk(b, _approach(b, hero))
+	if not _can_hit(b, hero, cmd.move):
+		await _say("%s逼近了過來。" % b.u.name)
+		return {}
+	return cmd
+
+
+## 往目標靠過去的路徑：走得到的格子裡，離目標最近、又不跟目標重疊的那一格
+func _approach(b: Dictionary, t: Dictionary) -> Array:
+	var best: Array = [Vector2i(b.c, b.r)]
+	var bd := _dist(Vector2i(b.c, b.r), Vector2i(t.c, t.r))
+	for p in _reach(b).values():
+		var end: Vector2i = p[p.size() - 1]
+		var d := _dist(end, Vector2i(t.c, t.r))
+		if d >= 1 and (d < bd or (d == bd and p.size() < best.size())):
+			bd = d
+			best = p
+	return best
+
+
+## 主角的回合：回傳指令（逃跑、出手…）；空字典是只走不做事
+func _hero_turn(b: Dictionary) -> Dictionary:
+	var moved := false
+	while true:
+		if auto:
+			return await _auto_turn(b, moved)
+		var reach := {} if moved else _reach(b)
+		if not moved:
+			_show_marks(reach.keys(), Color("4a8cff"))
+		var items := _menu_items(b, moved)
+		var pick: Dictionary = await _choose(items, "%s的回合" % b.u.name, reach)
+		_clear_marks()
+		_menu.visible = false
+		match pick.get("do", ""):
+			"walk":
+				var cell: Vector2i = pick.cell
+				if cell != Vector2i(b.c, b.r):
+					await _walk(b, reach[cell])
+				moved = true
+			"auto":
+				auto = true
+			"defend":
+				return {"type": "defend"}
+			"flee":
+				return {"type": "flee"}
+			"rest":
+				return {}
+			"item":
+				return {"type": "item", "item": pick.item}
+			"move":
+				var m := Fight.mv(pick.move)
+				if m.kind in ["restore", "buff"]:
+					return {"type": "move", "move": pick.move}
+				var ts := _targets(b, pick.move)
+				if m.target == "allEnemies":
+					var ok := await _confirm_area(ts, m.name)
+					if ok:
+						return {"type": "move", "move": pick.move, "targets": ts.map(func(t): return t.u.id)}
+				else:
+					var t: Dictionary = await _pick_target(ts, m.name)
+					if not t.is_empty():
+						return {"type": "move", "move": pick.move, "target": t.u.id}
+	return {}
+
+
+## 自動戰鬥：打不到人就先往最近的敵人走，再照規則層挑招
+func _auto_turn(b: Dictionary, moved: bool) -> Dictionary:
+	var foes: Array = bodies.filter(func(o): return o.u.side == "enemy" and o.u.hp > 0)
+	foes.sort_custom(func(x, y): return _dist(Vector2i(b.c, b.r), Vector2i(x.c, x.r)) < _dist(Vector2i(b.c, b.r), Vector2i(y.c, y.r)))
+	if not moved and _targets(b, "attack").is_empty() and not foes.is_empty():
+		await _walk(b, _approach(b, foes[0]))
+	var cmd := fight.auto_command(b.u, true, func(id): return not _targets(b, id).is_empty())
+	if cmd.type == "move" and Fight.mv(cmd.move).kind not in ["restore", "buff"]:
+		var ts := _targets(b, cmd.move)
+		if ts.is_empty():
+			return {"type": "defend"}
+		if Fight.mv(cmd.move).target == "allEnemies":
+			cmd.targets = ts.map(func(t): return t.u.id)
+		else:
+			ts.sort_custom(func(x, y): return x.u.hp < y.u.hp)
+			cmd.target = ts[0].u.id
+	await get_tree().create_timer(0.25).timeout
+	return cmd
+
+
+## 指令選單的項目：{text, on, do, …}
+func _menu_items(b: Dictionary, moved: bool) -> Array:
+	var u: Dictionary = b.u
+	var out := []
+	if not moved:
+		out.append({"text": "移動（%d 步）" % _steps(b), "on": true, "do": "walk_pick"})
+	for id in u.moves:
+		var m := Fight.mv(id)
+		var reach_ok: bool = m.kind in ["restore", "buff"] or not _targets(b, id).is_empty()
+		var cost := ("　內力 %d" % m.qi) if m.qi > 0 else ""
+		var why := "" if u.qi >= m.qi else "（內力不足）"
+		if why == "" and not reach_ok:
+			why = "（打不到）"
+		out.append({"text": "%s%s%s" % [m.name, cost, why], "on": u.qi >= m.qi and reach_ok, "do": "move", "move": id, "desc": m.get("desc", "")})
+	var usable: Array = fight.items.keys().filter(func(id): return fight.items[id] > 0 and Fight.usable_in_battle(id))
+	for id in usable:
+		out.append({"text": "用 %s ×%d" % [Ui.item_def(id).name, fight.items[id]], "on": not fight.no_items, "do": "item", "item": id, "desc": Ui.item_def(id).get("desc", "")})
+	out.append({"text": "防禦（受傷減半）", "on": true, "do": "defend"})
+	if moved:
+		out.append({"text": "不做事", "on": true, "do": "rest"})
+	out.append({"text": "逃跑", "on": fight.can_flee, "do": "flee"})
+	out.append({"text": "自動戰鬥（Q）", "on": true, "do": "auto"})
+	return out
+
+
+# ── 輸入 ────────────────────────────────────────────────
+
+func _unhandled_input(e: InputEvent) -> void:
+	if e is InputEventKey and e.pressed and not e.echo:
+		var k := OS.get_keycode_string(e.keycode)
+		if k in ["Space", "Enter", "Kp Enter"]:
+			k = "ok"
+		elif k in ["X", "Escape"]:
+			k = "back"
+		elif k == "Q":
+			auto = not auto
+			ui.toast("自動戰鬥：%s" % ("開" if auto else "關"))
+		get_viewport().set_input_as_handled()
+		_input_ev.emit({"key": k})
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		_input_ev.emit({"click": _cell_at(e.position)})
+
+
+## 開發自動化用：點某一格
+func click(cell: Vector2i) -> void:
+	_input_ev.emit({"click": cell})
+
+
+## 指令選單：回傳選到的項目；在「移動」上按確定（或直接點藍格）就選格子走過去
+func _choose(items: Array, head: String, reach: Dictionary) -> Dictionary:
+	var cur := 0
+	while not items[cur].on:
+		cur += 1
+	while true:
+		_draw_menu(head, items, cur)
+		var ev: Dictionary = await _input_ev
+		if auto:
+			return {"do": "auto"}
+		if ev.has("click"):
+			if reach.has(ev.click):
+				return {"do": "walk", "cell": ev.click}
+			continue
+		match ev.key:
+			"Up", "Down":
+				var step := -1 if ev.key == "Up" else 1
+				for i in items.size():
+					cur = (cur + step + items.size()) % items.size()
+					if items[cur].on:
+						break
+			"ok":
+				if items[cur].do == "walk_pick":
+					var cell = await _pick_cell(reach)
+					if cell != null:
+						return {"do": "walk", "cell": cell}
+				else:
+					return items[cur]
+	return {}
+
+
+## 用方向鍵在藍格裡挑一格（空白鍵走過去、X 取消）
+func _pick_cell(reach: Dictionary):
+	var hero := _body_id("hero")
+	var cur := Vector2i(hero.c, hero.r)
+	_menu.visible = false
+	while true:
+		_show_cursor(cur, Color("ffffff"))
+		var ev: Dictionary = await _input_ev
+		if ev.has("click"):
+			if reach.has(ev.click):
+				_hide_cursor()
+				_menu.visible = true
+				return ev.click
+			continue
+		match ev.key:
+			"ok":
+				_hide_cursor()
+				_menu.visible = true
+				return cur
+			"back":
+				_hide_cursor()
+				_menu.visible = true
+				return null
+			"Up", "Down", "Left", "Right":
+				var nx = _step_cell(cur, ev.key, reach)
+				if nx != null:
+					cur = nx
+	return null
+
+
+## 往畫面上的某個方向，挑最接近那個方向的相鄰藍格
+func _step_cell(cur: Vector2i, key: String, reach: Dictionary):
+	var want: Vector2 = {"Up": Vector2(0, -1), "Down": Vector2(0, 1), "Left": Vector2(-1, 0), "Right": Vector2(1, 0)}[key]
+	var here := rig.cam.unproject_position(top(cur.x, cur.y))
+	var best = null
+	var bd := 0.3
+	for n in _around(cur.x, cur.y):
+		if not reach.has(n):
+			continue
+		var d := (rig.cam.unproject_position(top(n.x, n.y)) - here).normalized().dot(want)
+		if d > bd:
+			bd = d
+			best = n
+	return best
+
+
+## 選一個目標（紅格；←→↑↓ 換、空白鍵確定、X 返回）
+func _pick_target(ts: Array, what: String) -> Dictionary:
+	if ts.is_empty():
+		return {}
+	var cur := 0
+	_menu.visible = false
+	while true:
+		_show_marks(ts.map(func(t): return Vector2i(t.c, t.r)), Color("ff4a4a"))
+		_show_cursor(Vector2i(ts[cur].c, ts[cur].r), Color("ffe080"))
+		_log_line("「%s」打誰？（←→ 換、空白鍵確定、X 返回）　%s" % [what, ts[cur].u.name], true)
+		var ev: Dictionary = await _input_ev
+		if ev.has("click"):
+			for t in ts:
+				if Vector2i(t.c, t.r) == ev.click:
+					_done_pick()
+					return t
+			continue
+		match ev.key:
+			"Left", "Up":
+				cur = (cur + ts.size() - 1) % ts.size()
+			"Right", "Down":
+				cur = (cur + 1) % ts.size()
+			"ok":
+				_done_pick()
+				return ts[cur]
+			"back":
+				_done_pick()
+				return {}
+	return {}
+
+
+func _confirm_area(ts: Array, what: String) -> bool:
+	_menu.visible = false
+	_show_marks(ts.map(func(t): return Vector2i(t.c, t.r)), Color("ff4a4a"))
+	_log_line("「%s」會打到紅格上的 %d 個人。空白鍵出招、X 返回" % [what, ts.size()], true)
+	while true:
+		var ev: Dictionary = await _input_ev
+		if ev.has("key") and ev.key in ["ok", "back"]:
+			_done_pick()
+			return ev.key == "ok"
+	return false
+
+
+func _done_pick() -> void:
+	_hide_cursor()
+	_clear_marks()
+	_menu.visible = true
+	_log_line("", true)
+
+
+# ── 動畫與事件 ──────────────────────────────────────────
+
+func _walk(b: Dictionary, path: Array) -> void:
+	var f: Chibi = b.f
+	for i in range(1, path.size()):
+		var c0: Vector2i = path[i - 1]
+		var c1: Vector2i = path[i]
+		var p0 := top(c0.x, c0.y)
+		var p1 := top(c1.x, c1.y)
+		f.face(p1 - p0)
+		f.walking = true
+		var t := 0.0
+		while t < 1.0:
+			t = minf(1.0, t + get_process_delta_time() * 4.0)
+			f.position = p0.lerp(p1, t) + Vector3(0, sin(t * PI) * 0.3, 0)
+			await get_tree().process_frame
+		b.c = c1.x
+		b.r = c1.y
+	f.walking = false
+
+
+## 照規則層的事件依序演出來：說明一行行出現；出招時撲過去，打中的那一刻才扣血、跳數字
+func _play(events: Array) -> void:
+	for e in events:
+		match e.type:
+			"message":
+				await _say(e.text)
+			"strike":
+				var a := _body_id(e.actor)
+				var first: Dictionary = _body_id(e.hits[0].target) if not e.hits.is_empty() else {}
+				if not first.is_empty():
+					await _lunge(a, first)
+				for h in e.hits:
+					var t := _body_id(h.target)
+					if h.miss:
+						_popup(t, "閃", Color("d8f0ff"))
+					else:
+						t.hp = maxi(0, t.hp - h.damage)
+						_popup(t, ("會心 -%d" if h.crit else "-%d") % h.damage, Color("ffe080") if not h.crit else Color("ff9a4a"))
+						_label(t)
+						if h.killed:
+							_fall(t)
+					await get_tree().create_timer(0.12).timeout
+				a.qi = a.u.qi
+				_label(a)
+			"restore":
+				var a := _body_id(e.actor)
+				a.hp = a.u.hp
+				a.qi = a.u.qi
+				_popup(a, "+%d%s" % [e.hp, ("　內 +%d" % e.qi) if e.qi > 0 else ""], Color("9aff9a"))
+				_label(a)
+			"effects", "guard", "charge":
+				var a := _body_id(e.actor)
+				a.qi = a.u.qi
+				_label(a)
+				if e.type == "guard":
+					_popup(a, "守", Color("d8f0ff"))
+
+
+func _lunge(a: Dictionary, t: Dictionary) -> void:
+	var f: Chibi = a.f
+	var from := top(a.c, a.r)
+	var to := top(t.c, t.r)
+	f.face(to - from)
+	var k := 0.0
+	var reach := 0.45 if _dist(Vector2i(a.c, a.r), Vector2i(t.c, t.r)) <= 1 else 0.2
+	# 撲到最前面就算打中，回傳讓呼叫端扣血、跳數字
+	while k < 0.5:
+		k = minf(0.5, k + get_process_delta_time() * 3.2)
+		f.position = from.lerp(to, sin(k * PI) * reach)
+		await get_tree().process_frame
+	# 收回來的那一半不等它
+	var tw := create_tween()
+	tw.tween_property(f, "position", from, 0.18)
+
+
+func _fall(b: Dictionary) -> void:
+	var tw := create_tween()
+	tw.tween_property(b.f, "rotation:z", PI / 2.0, 0.35)
+	tw.parallel().tween_property(b.f, "position:y", b.f.position.y - 0.2, 0.35)
+	tw.tween_property(b.f, "scale", Vector3.ONE * 0.01, 0.4)
+	tw.tween_callback(func() -> void: b.f.visible = false)
+
+
+func _popup(b: Dictionary, text: String, color := Color("ffe080")) -> void:
+	var l := Mk.label(text, 44, color, Color("3a1410"))
+	l.position = b.f.position + Vector3(0, 1.9, 0)
 	add_child(l)
 	floaters.append({"o": l, "t": 0.0})
 
 
-func _hit(a: Dictionary, d: Dictionary) -> void:
-	var high: bool = level[a.r][a.c] > level[d.r][d.c]
-	var dmg := int(round(a.atk * (0.85 + randf() * 0.3) * (1.2 if high else 1.0)))
-	d.hp = max(0, d.hp - dmg)
-	d.lb.text = "%s\n%d/%d" % [d.name, d.hp, d.max]
-	_popup(d, "-%d%s" % [dmg, "（居高）" if high else ""])
-	if d.hp <= 0:
-		d.f.visible = false
+func _show_cursor(cell: Vector2i, color: Color) -> void:
+	if _cursor == null:
+		_cursor = MeshInstance3D.new()
+		var m := TorusMesh.new()
+		m.inner_radius = R * 0.72
+		m.outer_radius = R * 0.86
+		m.rings = 6
+		m.ring_segments = 6
+		_cursor.mesh = m
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_cursor.material_override = mat
+		_cursor.rotation.y = PI / 6.0
+		add_child(_cursor)
+	(_cursor.material_override as StandardMaterial3D).albedo_color = color
+	_cursor.position = top(cell.x, cell.y) + Vector3(0, 0.06, 0)
+	_cursor.visible = true
 
 
-func _allies() -> Array:
-	return units.filter(func(u): return u.side == "ally" and u.hp > 0)
+func _hide_cursor() -> void:
+	if _cursor:
+		_cursor.visible = false
 
 
-func _foes() -> Array:
-	return units.filter(func(u): return u.side == "foe" and u.hp > 0)
+# ── 畫面上的字 ──────────────────────────────────────────
+
+## 下方左邊的戰況（最近幾行）與右邊的指令選單
+func _hud() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 4
+	add_child(layer)
+	var lp := ui._panel(false)
+	lp.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	lp.position = Vector2(16, -190)
+	lp.custom_minimum_size = Vector2(620, 150)
+	layer.add_child(lp)
+	_log = Label.new()
+	_log.add_theme_font_override("font", Ui.font())
+	_log.add_theme_font_size_override("font_size", 17)
+	_log.add_theme_color_override("font_color", Color("f4ead6"))
+	_log.add_theme_constant_override("line_spacing", 4)
+	_log.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	_log.custom_minimum_size = Vector2(580, 0)
+	lp.add_child(_log)
+	_menu = ui._panel(false)
+	_menu.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_menu.custom_minimum_size = Vector2(330, 0)
+	_menu.position = Vector2(-350, -420)
+	_menu.visible = false
+	layer.add_child(_menu)
+	_menu_box = VBoxContainer.new()
+	_menu_box.add_theme_constant_override("separation", 3)
+	_menu.add_child(_menu_box)
 
 
-func _end_ally(u: Dictionary) -> void:
-	u.done = true
-	_clear_marks()
-	sel = null
-	phase = "pick"
-	if _foes().is_empty():
-		phase = "over"
-		msg = "山賊都打倒了！（換場景再回來可以重打）"
-		return
-	if _allies().all(func(a): return a.done):
-		_enemy_turn()
-	else:
-		msg = "點另一個人行動"
+var _lines: Array[String] = []
+var _hint := ""
 
 
-func _enemy_turn() -> void:
-	phase = "busy"
-	msg = "山賊的回合……"
-	for e in _foes():
-		queue.append(_enemy_act.bind(e))
-	queue.append(_new_round)
-	_next()
+## 加一行戰況；hint 是暫時的提示（選目標時），放在最下面、不進紀錄
+func _log_line(text: String, hint := false) -> void:
+	if hint:
+		_hint = text
+	elif text != "":
+		_lines.append(text)
+		if _lines.size() > 5:
+			_lines.pop_front()
+	_log.text = "\n".join(_lines) + (("\n▸ " + _hint) if _hint != "" else "")
 
 
-## 山賊：朝最近的自己人走，走到旁邊就出手
-func _enemy_act(e: Dictionary) -> void:
-	var targets := _allies()
-	if e.hp <= 0 or targets.is_empty():
-		_next()
-		return
-	var best: Array = [Vector2i(e.c, e.r)]
-	var bd := 999
-	for p in _reach(e).values():
-		var end: Vector2i = p[p.size() - 1]
-		var d := 999
-		for t in targets:
-			d = min(d, _dist(end, Vector2i(t.c, t.r)))
-		if d >= 1 and d < bd:
-			bd = d
-			best = p
-	anim = {"u": e, "path": best, "i": 1, "t": 0.0, "then": _enemy_after_move.bind(e)}
+func _say(text: String) -> void:
+	_log_line(text)
+	await get_tree().create_timer(0.45 if not auto else 0.25).timeout
 
 
-func _enemy_after_move(e: Dictionary) -> void:
-	var fs := _adjacent_foes(e)
-	if fs.is_empty():
-		_next()
-		return
-	anim = {"u": e, "lunge": fs[0], "t": 0.0, "then": _strike.bind(e, fs[0], true)}
-
-
-## 出手：打完以後，山賊接下一個；自己人結束這個人的行動
-func _strike(a: Dictionary, d: Dictionary, enemy: bool) -> void:
-	_hit(a, d)
-	if enemy:
-		_next()
-	else:
-		_end_ally(a)
-
-
-func _new_round() -> void:
-	for u in units:
-		u.done = false
-	phase = "pick" if not _allies().is_empty() else "over"
-	msg = "你的回合：點你或顧小滿" if phase == "pick" else "全軍覆沒……（換場景再回來可以重打）"
-
-
-func _next() -> void:
-	if not queue.is_empty():
-		var f: Callable = queue.pop_front()
-		f.call()
+func _draw_menu(head: String, items: Array, cur: int) -> void:
+	_menu.visible = true
+	for c in _menu_box.get_children():
+		c.queue_free()
+	var h := Label.new()
+	h.text = head
+	h.add_theme_font_size_override("font_size", 16)
+	h.add_theme_color_override("font_color", Ui.GOLD)
+	_menu_box.add_child(h)
+	for i in items.size():
+		var l := Label.new()
+		l.text = ("▶ " if i == cur else "　 ") + items[i].text
+		l.add_theme_font_size_override("font_size", 17)
+		l.add_theme_color_override("font_color", Color("ffffff") if i == cur else (Color("c8bca4") if items[i].on else Color("6a6458")))
+		_menu_box.add_child(l)
+	var d: String = items[cur].get("desc", "")
+	if d != "":
+		var dl := Label.new()
+		dl.text = d
+		dl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+		dl.custom_minimum_size = Vector2(290, 0)
+		dl.add_theme_font_size_override("font_size", 13)
+		dl.add_theme_color_override("font_color", Color("a8a090"))
+		_menu_box.add_child(dl)
 
 
 ## 滑鼠點到哪一格（射線打到地面高度附近，找最近的格子中心）
@@ -410,95 +888,7 @@ func _cell_at(screen: Vector2) -> Vector2i:
 	return best
 
 
-func _unit_at(cell: Vector2i):
-	for u in units:
-		if u.hp > 0 and u.c == cell.x and u.r == cell.y:
-			return u
-	return null
-
-
-func _unhandled_input(e: InputEvent) -> void:
-	if e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_SPACE and sel != null and (phase == "move" or phase == "attack"):
-		_end_ally(sel)
-		return
-	if not (e is InputEventMouseButton) or not e.pressed or e.button_index != MOUSE_BUTTON_LEFT:
-		return
-	click(_cell_at(e.position))
-
-
-func click(cell: Vector2i) -> void:
-	if phase == "busy" or phase == "over" or anim != null or cell.x < 0:
-		return
-	var unit = _unit_at(cell)
-	if phase == "pick" or (phase == "move" and unit != null and unit.side == "ally" and unit != sel):
-		if unit == null or unit.side != "ally" or unit.done:
-			return
-		sel = unit
-		reachable = _reach(unit)
-		_show_marks(reachable.keys(), Color("4a8cff"))
-		phase = "move"
-		msg = "%s：點藍色的格子移動（點自己原地不動；空白鍵結束）" % unit.name
-		return
-	if phase == "move" and sel != null:
-		if not reachable.has(cell):
-			return
-		var u = sel
-		phase = "busy"
-		_clear_marks()
-		anim = {"u": u, "path": reachable[cell], "i": 1, "t": 0.0, "then": _ally_after_move.bind(u)}
-		return
-	if phase == "attack" and sel != null and unit != null and unit.side == "foe" and unit in _adjacent_foes(sel):
-		var u = sel
-		phase = "busy"
-		_clear_marks()
-		anim = {"u": u, "lunge": unit, "t": 0.0, "then": _strike.bind(u, unit, false)}
-
-
-func _ally_after_move(u: Dictionary) -> void:
-	var ts := _adjacent_foes(u)
-	if ts.is_empty():
-		_end_ally(u)
-		return
-	phase = "attack"
-	_show_marks(ts.map(func(t): return Vector2i(t.c, t.r)), Color("ff4a4a"))
-	msg = "%s：點紅色格子上的敵人出手（空白鍵不出手）" % u.name
-
-
 func _process(dt: float) -> void:
-	if anim != null:
-		var a: Dictionary = anim
-		var f: Chibi = a.u.f
-		if a.has("path"):
-			a.t += dt * 4.0
-			if a.i >= a.path.size():
-				anim = null
-				f.walking = false
-				a.then.call()
-			else:
-				var c0: Vector2i = a.path[a.i - 1]
-				var c1: Vector2i = a.path[a.i]
-				var t: float = min(1.0, a.t)
-				var p0 := top(c0.x, c0.y)
-				var p1 := top(c1.x, c1.y)
-				f.position = p0.lerp(p1, t) + Vector3(0, sin(t * PI) * 0.3, 0)
-				f.face(p1 - p0)
-				f.walking = true
-				if t >= 1.0:
-					a.u.c = c1.x
-					a.u.r = c1.y
-					a.i += 1
-					a.t = 0.0
-		else:
-			a.t += dt * 3.0
-			var t: float = min(1.0, a.t)
-			var from := top(a.u.c, a.u.r)
-			var to := top(a.lunge.c, a.lunge.r)
-			f.face(to - from)
-			f.position = from.lerp(to, sin(t * PI) * 0.45)
-			if t >= 1.0:
-				f.position = from
-				anim = null
-				a.then.call()
 	for fl in floaters.duplicate():
 		fl.t += dt
 		fl.o.position.y += dt * 0.8
@@ -508,4 +898,4 @@ func _process(dt: float) -> void:
 
 
 func info_text() -> String:
-	return "六角格戰鬥・%s（臨時規則，只看畫面）%s\n%s" % [NAME[field], "　水過不去，走橋或淺灘（多 1 步）" if field == "river" else "", msg]
+	return "%s・%s%s" % [NAME[field], "自動戰鬥中（Q 關掉）" if auto else "Q 自動戰鬥", "　水過不去，走橋或淺灘（多 1 步）" if field == "river" else ""]

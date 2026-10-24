@@ -169,6 +169,12 @@ func warp(map: String, at: Dictionary) -> void:
 	scene.main.hop(map, at)
 
 
+## 開戰（遭遇戰 id，見 data/enemies.json）；打完回到原地圖再繼續。回傳 "win"／"lose"／"flee"
+## 輸了又不是切磋的話會被送回青竹村，腳本就不要再接著做事
+func battle(encounter: String, field := "") -> String:
+	return await scene.main.battle(encounter, field)
+
+
 ## 打開商店，關了才繼續
 func shop(title: String, stock: Array) -> void:
 	await ui.shop(title, stock)

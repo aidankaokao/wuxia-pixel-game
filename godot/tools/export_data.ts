@@ -10,6 +10,7 @@ import '../../src/game/maps/index';
 import { BUILDINGS } from '../../src/game/art/props';
 import { ITEMS, SKILLS, TIERS } from '../../src/game/character';
 import { MOVES } from '../../src/game/battle/moves';
+import { ENCOUNTERS, ENEMIES } from '../../src/game/battle/enemies';
 import { lifeGroups, type LifeNpc } from '../../src/game/life';
 import { qingzhu } from '../../src/game/maps/qingzhu';
 import { qzNorth } from '../../src/game/maps/qz_north';
@@ -87,6 +88,8 @@ writeFileSync(
 );
 // 武功（品階、裝備與永久加成、招式表）與招式（名稱、說明、內力、威力、效果）
 writeFileSync(OUT + 'skills.json', JSON.stringify({ tiers: TIERS, skills: SKILLS, moves: MOVES }, null, 1));
+// 敵人樣板與遭遇戰
+writeFileSync(OUT + 'enemies.json', JSON.stringify({ enemies: ENEMIES, encounters: ENCOUNTERS }, null, 1));
 // 完整的物品表（回復、秘笈、服飾、價錢…）
 writeFileSync(OUT + 'items_full.json', JSON.stringify(ITEMS, null, 1));
 console.log('匯出完成：', OUT);
