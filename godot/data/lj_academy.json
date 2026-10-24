@@ -43,7 +43,7 @@
    "w": 2,
    "lines": [],
    "label": "讀書",
-   "script": "linjiang/academy_shelf"
+   "script": "arts/academy_shelf"
   },
   {
    "sprite": "f_shelf_scholar_3",
@@ -52,7 +52,7 @@
    "w": 2,
    "lines": [],
    "label": "讀書",
-   "script": "linjiang/academy_shelf"
+   "script": "arts/academy_shelf"
   },
   {
    "sprite": "portrait",
@@ -73,7 +73,7 @@
    "w": 2,
    "lines": [],
    "label": "練字",
-   "script": "linjiang/academy_desk"
+   "script": "arts/academy_desk"
   },
   {
    "sprite": "f_table_scholar_1",

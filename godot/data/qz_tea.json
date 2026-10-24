@@ -76,7 +76,8 @@
    "y": 3,
    "w": 2,
    "lines": [],
-   "label": "打譜"
+   "label": "打譜",
+   "script": "arts/tea_board"
   },
   {
    "sprite": "f_deco_plain_1",

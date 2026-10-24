@@ -588,15 +588,23 @@ func item_name(id: String) -> String:
 	return items.get(id, {}).get("name", id)
 
 
+## 幾折：九五折、九折
+static func _zhe(discount: float) -> String:
+	var n := roundi((1.0 - discount) * 100)
+	return str(n / 10) if n % 10 == 0 else str(n)
+
+
 func item_price(id: String) -> int:
 	return int(items.get(id, {}).get("price", 0))
 
 
 ## 商店：買（stock）與賣（身上的東西，照 sell_rate 收）
-## discount 是買東西的折扣（熟客）；回傳這次一共買賣了多少兩（人際系統算交情用）
+## discount 是買東西的折扣（熟客）；學識另外每級便宜 1%（最多一成），合起來最多三成。回傳這次一共買賣了多少兩（人際系統算交情用）
 ## buys：只收這些東西（空的是什麼都收）
 func shop(title: String, stock: Array, sell_rate := 0.5, discount := 0.0, buys: Array = []) -> int:
 	var moved := 0
+	var regular := discount
+	discount = minf(0.3, discount + minf(0.1, Crafts.level("learning") * 0.01))
 	var buy_price := func(id: String) -> int: return int(ceil(item_price(id) * (1.0 - discount)))
 	var tab := 0
 	var cur := 0
@@ -640,7 +648,7 @@ func shop(title: String, stock: Array, sell_rate := 0.5, discount := 0.0, buys: 
 	while true:
 		var ids: Array = stock if tab == 0 else G.bag.keys().filter(func(k): return G.bag[k] > 0 and (buys.is_empty() or k in buys))
 		cur = clampi(cur, 0, max(0, ids.size() - 1))
-		head.text = "%s　　　銀兩 %d%s" % [title, G.silver, ("　　熟客 %d 折" % roundi((1.0 - discount) * 10)) if discount > 0 else ""]
+		head.text = "%s　　　銀兩 %d%s" % [title, G.silver, ("　　%s%s 折" % ["熟客" if regular > 0 else "講價", _zhe(discount)]) if discount > 0 else ""]
 		tabs.text = ("【買】　賣" if tab == 0 else "　買　【賣】") + "　　（←→ 換分頁）"
 		for c in list.get_children():
 			c.queue_free()

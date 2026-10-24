@@ -83,8 +83,8 @@ static func group() -> Dictionary:
 			"talks": {"default": [_by("何小石", ["奶奶說我長大要去書院念書，可我想去鏢局當鏢師！"]), _by("何小石", ["呂先生今天打了我手心……因為我在書上畫烏龜。"])]}},
 		{"id": "du3", "name": "杜三嫂", "sprite": "lady", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"chat": 3, "stroll": 1, "shop": 1},
 			"talks": {"default": [_by("杜三嫂", ["城北的井水比城南的甜，洗衣裳也乾淨。"]), _by("杜三嫂", ["聽說漕幫跟鏢局又吵起來了，唉，城南那邊老是不太平。"])]}},
-		{"id": "qu", "name": "曲老爹", "sprite": "elder", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 3, "stroll": 1, "chat": 1},
-			"talks": {"chess": [_by("曲老爹", ["年輕人，坐下來陪老頭子下盤棋？……唉，今天手氣不好，改天吧。"]), _by("曲老爹", ["自己跟自己下也有意思——黑棋是我，白棋也是我，總有一個贏。"])],
+		{"id": "qu", "name": "曲老爹", "sprite": "elder", "script": "arts/qu_chess", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 3, "stroll": 1, "chat": 1},
+			"talks": {"chess": [_by("曲老爹", ["今天這盤下得痛快！明天再來陪老頭子。"]), _by("曲老爹", ["自己跟自己下也有意思——黑棋是我，白棋也是我，總有一個贏。"])],
 				"tea": [_by("曲老爹", ["望江樓的茶貴是貴，可費先生說書不收錢，算起來不虧。"])], "default": [_by("曲老爹", ["人老了，就喜歡曬太陽、下棋、聽書。"])]}},
 	]
 	return {"id": "linjiang", "maps": [LJ, TOWER, INN], "outdoor": [LJ], "spots": spots, "npcs": npcs}

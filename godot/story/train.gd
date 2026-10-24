@@ -26,7 +26,7 @@ static func exert(ctx: Ctx, cost: int, tired: String) -> bool:
 
 
 ## 重複的事一次做完：體力夠連做兩回以上，就問一回、三回，還是做到體力剩三成（max 是最多幾回有意義，例如練到上限）。回傳回數，0 是不做
-static func ask_rounds(ctx: Ctx, cost: int, verb: String, max_n := 99) -> int:
+static func ask_rounds(ctx: Ctx, cost: int, verb: String, max_n := 99, ke := KE) -> int:
 	var keep := ceili(Hero.derive(G.hero).max_stamina * KEEP_STAMINA)
 	var n := mini(max_n, (int(G.hero.stamina) - keep) / cost)
 	if n < 2:
@@ -39,13 +39,13 @@ static func ask_rounds(ctx: Ctx, cost: int, verb: String, max_n := 99) -> int:
 	for i in counts.size():
 		var k: int = counts[i]
 		labels.append("%s一回" % verb if k == 1 else ("連%s %d 回（體力剩三成為止）" % [verb, k] if i == counts.size() - 1 else "連%s %d 回" % [verb, k]))
-	var c := await ctx.ask("要%s幾回？（每回兩刻、體力 %d）" % [verb, cost], labels + ["算了"])
+	var c := await ctx.ask("要%s幾回？（每回%s、體力 %d）" % [verb, G.ke_text(ke), cost], labels + ["算了"])
 	return counts[c] if c < counts.size() else 0
 
 
 ## 連做 n 回的說明，例如「（連練 4 回，花了一個時辰）」
-static func rounds_note(verb: String, n: int) -> String:
-	return "（連%s %d 回，花了%s）" % [verb, n, G.ke_text(KE * n)] if n > 1 else "（花了%s）" % G.ke_text(KE)
+static func rounds_note(verb: String, n: int, ke := KE) -> String:
+	return "（連%s %d 回，花了%s）" % [verb, n, G.ke_text(ke * n)] if n > 1 else "（花了%s）" % G.ke_text(ke)
 
 
 ## 每回得多少經驗，要幾回才練到上限
@@ -208,7 +208,8 @@ static func apply(id: String, gained: int, insight_rate: float) -> Array:
 		return ["這一回什麼也沒讀進去。"]
 	if not studyable(id).is_empty():
 		var before: int = s.level
-		var learned := Hero.gain_insight(G.hero, id, gained * insight_rate)
+		# 學識每一級多一點領悟（見 story/arts.gd 的 insight_bonus）
+		var learned := Hero.gain_insight(G.hero, id, gained * insight_rate + Crafts.level("learning"))
 		if learned == "":
 			return ["對「%s」的下一招又多了幾分體會（領悟 %d%%）。" % [name, int(s.insight)]]
 		var out := ["靈光一閃！你從「%s」中悟出了「%s」！" % [name, Hero.move_def(learned).name]]

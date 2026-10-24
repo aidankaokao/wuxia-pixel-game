@@ -100,13 +100,9 @@
    "x": 17,
    "y": 8,
    "w": 3,
-   "lines": [
-    {
-     "text": "聽泉亭。坐在亭中，泉水聲叮咚不絕，讓人心思澄靜。"
-    }
-   ],
-   "label": "",
-   "script": "",
+   "lines": [],
+   "label": "撫琴",
+   "script": "arts/ting_quan",
    "when": "",
    "passable": false
   },
@@ -243,13 +239,9 @@
    "x": 24,
    "y": 17,
    "w": 1,
-   "lines": [
-    {
-     "text": "「望江台」\n站在台上，臨江城與大江盡收眼底。江上白帆點點，遠處的雲水河像一條銀線。"
-    }
-   ],
-   "label": "",
-   "script": "",
+   "lines": [],
+   "label": "寫生",
+   "script": "arts/wang_jiang",
    "when": "",
    "passable": false
   },

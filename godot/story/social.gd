@@ -21,6 +21,10 @@ static func trade(ctx: Ctx) -> void:
 	await Social.trade(ctx, ctx.extra.person, ctx.extra.get("stall", {}))
 
 
+static func hobby(ctx: Ctx) -> void:
+	await Social.hobby(ctx, ctx.extra.person)
+
+
 ## 湊過去聽兩個人聊天（extra.a、extra.b 是那兩個人）：聽一段閒話，有人物檔案的熟一點
 static func listen(ctx: Ctx) -> void:
 	var a: Dictionary = ctx.extra.a

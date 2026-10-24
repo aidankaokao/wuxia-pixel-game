@@ -3,8 +3,8 @@ class_name Social
 ## - 人物檔案在 data/people.json：怎麼稱呼你（address：[條件, 稱呼]，條件可讀 stage、fame 與旗標）、不理人的條件（gate）、
 ##   劇情優先的腳本（story，回傳 true 表示處理了）、交談（每天前 per_day 次加 gain）、各階段台詞（lines，可帶 when 條件）、
 ##   聊夠了之後的閒話（idle）、收禮（gift.likes／dislikes）、切磋（spar）、請教（teach）、交易（trade）、事件（events）、
-##   對方問你的問題（asks）。台詞裡可以寫 {稱}、{姓}、{名}。
-## - 關係存在 G.relations[人物 id]（存檔）。面對有人物檔案的人：空白鍵交談，F 切磋、G 贈禮、R 請教、T 交易（依熟悉度逐步開放）。
+##   對方問你的問題（asks）、琴棋書畫的嗜好（hobby：art 哪一門、level 造詣、stage 幾階起、style 棋風）。台詞裡可以寫 {稱}、{姓}、{名}。
+## - 關係存在 G.relations[人物 id]（存檔）。面對有人物檔案的人：空白鍵交談，F 切磋、G 贈禮、R 請教、T 交易、H 雅趣（依熟悉度逐步開放；雅趣的名稱照嗜好叫對弈、論琴……）。
 ## - 地圖上的人填 person（人物 id）就接上；腳本在 story/social.gd。
 
 const STAGES := [[-100, "反感"], [0, "陌生"], [10, "點頭之交"], [30, "熟識"], [60, "知交"], [90, "莫逆之交"]]
@@ -13,8 +13,9 @@ const NOD := 2
 const FAMILIAR := 3
 const CLOSE := 4
 ## 動作：按鍵、名稱
-const ACTIONS := {"talk": ["空白", "交談"], "spar": ["F", "切磋"], "gift": ["G", "贈禮"], "teach": ["R", "請教"], "trade": ["T", "交易"]}
-const KEYS := {KEY_F: "spar", KEY_G: "gift", KEY_R: "teach", KEY_T: "trade"}
+const ACTIONS := {"talk": ["空白", "交談"], "spar": ["F", "切磋"], "gift": ["G", "贈禮"], "teach": ["R", "請教"], "trade": ["T", "交易"], "hobby": ["H", "雅趣"]}
+const KEYS := {KEY_F: "spar", KEY_G: "gift", KEY_R: "teach", KEY_T: "trade", KEY_H: "hobby"}
+const Arts := preload("res://story/arts.gd")
 
 static var _people := {}
 
@@ -113,7 +114,17 @@ static func actions(id: String, stall := false) -> Array:
 		out.append("teach")
 	if p.has("trade") or stall:
 		out.append("trade")
+	if p.has("hobby") and s >= int(p.hobby.stage):
+		out.append("hobby")
 	return out
+
+
+## 動作的 [按鍵, 名稱]：雅趣照對方的嗜好叫（對弈、論琴、品字、賞畫）
+static func action_label(id: String, a: String) -> Array:
+	var p := def(id)
+	if a == "hobby" and p.has("hobby"):
+		return ["H", Arts.ART_ACTION[p.hobby.art]]
+	return ACTIONS[a]
 
 
 ## 這個人是不是你拜的師父（真傳弟子拜的長老，G.sect.master）：不看熟悉度就肯教，請教時領悟多五成
@@ -138,6 +149,8 @@ static func add_aff(ctx: Ctx, p: Dictionary, n: int) -> void:
 			notes.append("可以和%s切磋了（按 F）" % p.name)
 		if p.has("teach") and before < int(p.teach.stage) and after >= int(p.teach.stage):
 			notes.append("可以向%s%s了（按 R）" % [p.name, p.teach.get("note", "請教武學")])
+		if p.has("hobby") and before < int(p.hobby.stage) and after >= int(p.hobby.stage):
+			notes.append("可以和%s%s了（按 H）" % [p.name, Arts.ART_ACTION[p.hobby.art]])
 	await ctx.say("（你和%s的關係變成了「%s」）%s" % [p.name, STAGES[after][1], ("\n" + "\n".join(notes)) if notes.size() > 0 else ""])
 
 
@@ -342,6 +355,17 @@ static func teach(ctx: Ctx, id: String) -> void:
 	else:
 		await ctx.say("靈光一閃！你從「%s」中悟出了「%s」！%s" % [name, Hero.move_def(learned).name, ("\n「%s」隨之精進至第 %d 重！" % [name, s2.level]) if s2.level > before else ""])
 	await add_aff(ctx, p, 1)
+
+
+## 雅趣：跟有同好的人對弈、論琴、品字、賞畫（一天一次；細節在 story/arts.gd）
+static func hobby(ctx: Ctx, id: String) -> void:
+	var p := def(id)
+	var r := _mut(id)
+	if int(r.get("hobby_day", 0)) == G.day:
+		await ctx.say("%s：「今天盡興了，改日再來。」" % p.name)
+		return
+	r.hobby_day = G.day
+	await add_aff(ctx, p, await Arts.hobby(ctx, p))
 
 
 ## 交易：熟客打折；每花（或賺）per 兩加 1 熟悉度。stall 是沒有交易檔案、只是顧攤子的人的貨單

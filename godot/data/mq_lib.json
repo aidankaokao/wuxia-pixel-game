@@ -39,16 +39,9 @@
    "x": 1,
    "y": 1,
    "w": 2,
-   "lines": [
-    {
-     "text": "一架經史子集與詩詞，是給弟子們讀書明理用的。"
-    },
-    {
-     "text": "（讀書、學識之後開放）"
-    }
-   ],
-   "label": "",
-   "script": ""
+   "lines": [],
+   "label": "讀書",
+   "script": "arts/mq_shelf"
   },
   {
    "sprite": "f_shelf_scholar_3",
@@ -73,16 +66,9 @@
    "x": 3,
    "y": 4,
    "w": 2,
-   "lines": [
-    {
-     "text": "書案上鋪著宣紙，壓著鎮紙，筆架上掛著幾支毛筆。"
-    },
-    {
-     "text": "（練字之後開放）"
-    }
-   ],
-   "label": "",
-   "script": ""
+   "lines": [],
+   "label": "練字",
+   "script": "arts/mq_desk"
   },
   {
    "sprite": "f_deco_plain_1",

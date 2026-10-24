@@ -600,13 +600,9 @@
    "x": 10,
    "y": 37,
    "w": 3,
-   "lines": [
-    {
-     "text": "聽劍亭。亭柱上刻著一副對聯：「洗劍池邊聽泉語，鳴泉山上看劍心」。"
-    }
-   ],
-   "label": "",
-   "script": "",
+   "lines": [],
+   "label": "打譜",
+   "script": "arts/ting_jian",
    "when": "",
    "passable": false
   },

@@ -272,7 +272,7 @@ func _update_hint(busy: bool) -> void:
 		var extra := []
 		for a in Social.actions(pid, _stall_of(t.w).size() > 0):
 			if a != "talk":
-				extra.append("%s %s" % Social.ACTIONS[a])
+				extra.append("%s %s" % Social.action_label(pid, a))
 		text = "交談　" + "　".join(extra) if extra.size() > 0 else "交談"
 		text = "%s（%s）　%s" % [Social.def(pid).name, Social.stage_name(pid), text]
 	# 人頭上；擺設上方一點；門（沒有高度）就在門口低一點的地方
@@ -289,7 +289,7 @@ func _unhandled_input(e: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			_interact(t)
 	elif Social.KEYS.has(e.keycode):
-		# 面對有人物檔案的人：F 切磋、G 贈禮、R 請教、T 交易（還不能做的就照常交給別的按鍵）
+		# 面對有人物檔案的人：F 切磋、G 贈禮、R 請教、T 交易、H 雅趣（還不能做的就照常交給別的按鍵）
 		var t := _target()
 		if t.get("kind", "") != "npc" or t.w.def.get("person", "") == "":
 			return

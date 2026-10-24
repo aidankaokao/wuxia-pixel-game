@@ -119,6 +119,7 @@ const WORK_LOOK := {
 	"chop": ["swing", "柴"], "water": ["swing", "水"], "farm": ["swing", "田"], "bellows": ["stir", "火"], "stake": ["swing", "啪"],
 	"quarry": ["swing", "石"], "haul": ["swing", "貨"], "garden": ["sit", "蓮"], "cook": ["stir", "香"], "fish": ["sit", "魚"],
 	"sit": ["sit", "氣"], "study": ["sit", "書"], "sleep": ["sit", "Ｚ"], "rest": ["sit", "歇"], "pray": ["sit", "香"],
+	"qin": ["sit", "♪"], "chess": ["sit", "棋"], "write": ["sit", "墨"], "paint": ["sit", "畫"],
 }
 
 
@@ -211,6 +212,14 @@ func battle(encounter: String, field := "") -> String:
 		scene = m.scene
 	G.beast_grace = Time.get_ticks_msec() / 1000.0 + 2.5
 	return r
+
+
+## 對著的這個人（場景裡的 walker；自己過日子的人看 act 知道他在做什麼）
+func walker() -> Dictionary:
+	for w in scene.walkers:
+		if w.get("id", "") == extra.get("npc", ""):
+			return w
+	return {}
 
 
 ## 跟對著的這個人照平常那樣聊（劇情的部分處理完、沒事可說時用；顧攤子的人會問要不要買賣）

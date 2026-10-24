@@ -511,11 +511,3 @@ static func teashop_talk(ctx: Ctx) -> void:
 
 static func agent_talk(ctx: Ctx) -> void:
 	await ctx.say(_lines("錢六", ["萬通牙行，錢六。買房、賣房、招租，找我就對了！", "城北這幾間民居，屋主都託我賣。客官要是有意思，改天帶你看看。"]) + ["（房產還沒搬過來）"])
-
-
-static func academy_shelf(ctx: Ctx) -> void:
-	await ctx.say(["書院的藏書，經史子集都有。夫子說，書是給人讀的，不是給人看的。", "（讀書、學識還沒搬過來）"])
-
-
-static func academy_desk(ctx: Ctx) -> void:
-	await ctx.say(["學童練字的書案，硯台裡的墨還沒乾。", "（琴棋書畫還沒搬過來）"])

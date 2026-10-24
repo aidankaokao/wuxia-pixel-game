@@ -7,6 +7,7 @@ extends RefCounted
 ## - 武功頁選一門按空白鍵，攤開一卷手卷（兩根卷軸往左右推開）看細節，在卷上裝備、修練、突破。
 ## 每一頁是左右兩面，_fill(面, 左右) 依分頁填內容；數值能畫的就畫成條、格子、圖（氣血、五維、重數、修為、領悟）。
 
+const Arts := preload("res://story/arts.gd")
 const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "門派", "技藝", "存檔"]
 const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("2e5a6a"), Color("5a6a3a"), Color("4a3a5a")]
 const Cook := preload("res://story/cook.gd")
@@ -1323,13 +1324,14 @@ func _friend_right(v: VBoxContainer) -> void:
 	v.add_child(_rule())
 	# 能做的事（還沒開放的寫幾時開放）
 	var acts := Social.actions(id)
-	for a in ["spar", "gift", "teach", "trade"]:
-		if not p.has({"spar": "spar", "gift": "gift", "teach": "teach", "trade": "trade"}[a]):
+	for a in ["spar", "gift", "teach", "trade", "hobby"]:
+		if not p.has(a):
 			continue
-		var name: String = Social.ACTIONS[a][1]
-		var key: String = Social.ACTIONS[a][0]
+		var name: String = Social.action_label(id, a)[1]
+		var key: String = Social.action_label(id, a)[0]
 		if a in acts:
-			v.add_child(_lab("%s　%s" % [key, name], 15, INK))
+			var done: bool = a == "hobby" and int(r.get("hobby_day", 0)) == G.day
+			v.add_child(_lab("%s　%s%s" % [key, name, "（今天%s過了）" % name if done else ""], 15, FAINT if done else INK))
 		else:
 			var need: int = int(p[a].get("stage", 0))
 			v.add_child(_lab("%s　%s（%s起）" % [key, name, Social.STAGES[need][1]], 15, FAINT))
@@ -1372,8 +1374,7 @@ func _craft_left(v: VBoxContainer) -> void:
 		var frac := 1.0 if p.level >= Crafts.MAX else float(p.exp) / Crafts.exp_to_next(p.level)
 		col.add_child(_bar(frac, 260, 8, GREEN))
 		v.add_child(row)
-	v.add_child(_rule())
-	v.add_child(_lab("做事、做菜、釣魚都會長經驗。\n小遊戲第一次要親自玩，之後可以選自動，\n得上一次親自玩的八成。", 14, FAINT))
+	v.add_child(_lab("小遊戲第一次要親自玩，之後可以選自動（上次親自的八成）。", 13, FAINT))
 
 
 func _craft_right(v: VBoxContainer) -> void:
@@ -1390,6 +1391,12 @@ func _craft_right(v: VBoxContainer) -> void:
 	how.custom_minimum_size = Vector2(PW - 90, 0)
 	v.add_child(how)
 	v.add_child(_rule())
+	if c.id == "learning":
+		_craft_books(v)
+		return
+	if c.id in Arts.ART_ACTION:
+		_craft_art(v, c.id, p.level)
+		return
 	# 菜譜、魚譜：一格一個圖示，熟練度畫成小星
 	var ids: Array = []
 	var all: Array = []
@@ -1417,6 +1424,56 @@ func _craft_right(v: VBoxContainer) -> void:
 		grid.add_child(h)
 	if all.is_empty():
 		v.add_child(_lab("還沒學會什麼菜。", 14, FAINT))
+
+
+## 學識：書目照經史子集分欄，讀過的畫熟讀程度，讀不懂的標學識門檻
+func _craft_books(v: VBoxContainer) -> void:
+	v.add_child(_lab("書　目　　（%s、研讀領悟 +%d）" % ["講價 %s 折" % Ui._zhe(Arts.discount()) if Arts.discount() > 0 else "講價還不打折", Arts.insight_bonus()], 16, SOFT))
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 2)
+	v.add_child(grid)
+	var lv := Arts.learning_level()
+	for b in Arts.books():
+		var w := Crafts.work("learning", b.id)
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 6)
+		h.add_child(_lab(String(b.shelf).left(1), 12, SOFT))
+		var ok := lv >= int(b.level)
+		h.add_child(_lab("《%s》" % b.name, 14, INK if ok else FAINT))
+		if not w.is_empty():
+			h.add_child(_lab("★".repeat(int(w.level)) + "☆".repeat(Crafts.WORK_MAX - int(w.level)), 10, GOLD))
+		elif not ok:
+			h.add_child(_lab("%d級" % b.level, 11, FAINT))
+		grid.add_child(h)
+
+
+## 琴棋書畫：這一門的好處，加上有同好的人（熟了按 H）
+func _craft_art(v: VBoxContainer, art: String, lv: int) -> void:
+	var use: String = {"qin": "撫一曲回內力 %d" % Arts.qin_qi(lv), "chess": "對弈的棋力：每高對方一級，勝算多四分", "calligraphy": "練一回字順帶長學識經驗 3", "painting": "畫藝越高越常畫出佳作、名作"}[art]
+	v.add_child(_lab(use, 15, GREEN))
+	if art == "painting":
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		v.add_child(row)
+		for it in Arts.PAINTINGS:
+			var d := Ui.item_def(it)
+			row.add_child(_item_icon(it, d.get("icon", ""), 30, d.get("category", "")))
+			row.add_child(_lab("%s ×%d" % [d.get("name", it), int(G.bag.get(it, 0))], 14, INK if G.bag.get(it, 0) else FAINT))
+	v.add_child(_rule())
+	v.add_child(_lab("同　好（%s）" % Arts.ART_ACTION[art], 16, SOFT))
+	var people := Social.people()
+	for id in people:
+		var p: Dictionary = people[id]
+		if p.get("hobby", {}).get("art", "") != art:
+			continue
+		var note := "還沒結識"
+		if Social.met(id):
+			note = ("可以%s" % Arts.ART_ACTION[art]) if Social.stage(id) >= int(p.hobby.stage) else "%s起" % Social.STAGES[int(p.hobby.stage)][1]
+		v.add_child(_lab("%s　%s" % [p.name if Social.met(id) else "？？？", note], 15, INK if Social.met(id) else FAINT))
+	if art == "chess":
+		v.add_child(_lab("曲老爹　臨江城樹下下棋時", 15, INK))
 
 
 ## 熟悉度條：0 到 100，標出點頭之交、熟識、知交、莫逆的門檻

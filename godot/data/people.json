@@ -300,7 +300,13 @@
     ]
    }
   ],
-  "id": "liu"
+  "id": "liu",
+  "hobby": {
+   "art": "chess",
+   "level": 5,
+   "stage": 2,
+   "style": 0
+  }
  },
  "qinghe": {
   "name": "柳青禾",
@@ -539,7 +545,12 @@
     ]
    }
   ],
-  "id": "qinghe"
+  "id": "qinghe",
+  "hobby": {
+   "art": "qin",
+   "level": 4,
+   "stage": 2
+  }
  },
  "zhong": {
   "name": "鍾嬸",
