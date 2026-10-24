@@ -13,11 +13,17 @@ const STALLS := {
 	"tao": {"x": 32, "y": 22, "face": Vector3(-1, 0, 0), "title": "陶四的貨郎攤", "stock": ["jinchuang", "tea", "herb", "rice", "flour", "egg", "greens", "sugar"], "greet": "走過路過不要錯過！傷藥、茶葉、草藥，樣樣都有。獸皮、獸肉也收！"},
 	"zhong": {"x": 32, "y": 17, "face": Vector3(0, 0, 1), "title": "鍾嬸的茶攤", "stock": ["tea", "egg"], "greet": "來啦！坐下喝碗茶歇歇腳？"},
 }
+## 做成精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）
+const FINE := ["竹風茶寮"]
+
 ## 做好室內的房子（地圖 id）
 const ROOMS := ["qz_tea"]
 
 var data: Dictionary
 var heights := []
+## 地面網格每個頂點的高度（給山上的樹、石頭找地面高度）
+var _hv := PackedFloat32Array()
+var _vw := 0
 ## 門口那一格 → 房子（走上去就進門）
 var doors := {}
 
@@ -37,6 +43,7 @@ func _ready() -> void:
 	_heights()
 	_ground()
 	_plants()
+	_mountain_plants()
 	for b in data.buildings:
 		_building(b)
 	for p in data.props:
@@ -138,6 +145,8 @@ func _ground() -> void:
 			var hw := -0.45 * smoothstep(0.25, 0.75, _bil(water, u, v))
 			# 山上多一點起伏（低多邊形的稜角）
 			hv[j * vw + i] = hm + hw + (Mk.h01(i, j, 5) - 0.5) * 0.4 * minf(1.0, hm)
+	_hv = hv
+	_vw = vw
 	# 網格：頂點共用，顏色在頂點上算、在三角形裡漸變（邊界用很窄的漸變，看起來是圓順的線，不會鋸齒）
 	var grass_a := Color("7cb262")
 	var grass_b := Color("8cc070")
@@ -201,6 +210,9 @@ func _ground_color(u: float, v: float, h: float, path: Array, plaza: Array, ga: 
 	col = col.lerp(Color(GROUND[":"]), smoothstep(0.42, 0.58, _bil(path, u, v)))
 	# 山：越高越偏淺灰
 	var rock := Color("7a7466").lerp(Color("9a9484"), minf(1.0, h / 3.0)) * (0.92 + Mk.h01(int(u * 4), int(v * 4), 7) * 0.12)
+	# 山坡上一塊塊的青苔、草皮（低處多、高處少），石色不會整片發白
+	var moss := smoothstep(0.0, 0.5, sin(u * 1.1 + v * 0.7) * 0.5 + sin(v * 1.6 - u * 0.4) * 0.5) * (1.0 - smoothstep(2.5, 4.5, h))
+	rock = rock.lerp(Color("587540"), moss * 0.85)
 	col = col.lerp(rock, smoothstep(0.08, 0.3, h))
 	# 水底：岸邊偏沙色，越深越藍
 	var bed := Color("8a8a6a").lerp(Color("3a5f86"), clampf((-h - 0.1) / 0.3, 0.0, 1.0))
@@ -287,6 +299,113 @@ func _bridge(lo: Vector2i, hi: Vector2i, along_x: bool) -> void:
 			var t := -float(spans) / 2.0 + k
 			var p := Vector3(cx + t, -0.3, cz + off) if along_x else Vector3(cx + off, -0.3, cz + t)
 			g.add_child(Mk.box(Vector3(0.16, 0.6, 0.16), Color("5a3a22"), p))
+
+
+## 地面某一點的高度（u、v 以格為單位）
+func ground_h(u: float, v: float) -> float:
+	var fx := clampf(u * SUB, 0, _vw - 1.001)
+	var fy := clampf(v * SUB, 0, _hv.size() / _vw - 1.001)
+	var x0 := floori(fx)
+	var y0 := floori(fy)
+	var tx := fx - x0
+	var ty := fy - y0
+	var a := _hv[y0 * _vw + x0]
+	var b := _hv[y0 * _vw + x0 + 1]
+	var c := _hv[(y0 + 1) * _vw + x0]
+	var d := _hv[(y0 + 1) * _vw + x0 + 1]
+	return lerpf(lerpf(a, b, tx), lerpf(c, d, tx), ty)
+
+
+## 山上的植被：松樹、灌木叢、草叢、大小石頭，照山的高度疏密不同（山腳密、山頂稀、石頭多），
+## 位置、大小、轉向都隨機打散，看起來雜亂自然
+func _mountain_plants() -> void:
+	var cone := func(r: float, h: float, lift: float, sides := 6) -> Mesh:
+		var m := CylinderMesh.new()
+		m.top_radius = 0.0
+		m.bottom_radius = r
+		m.height = h
+		m.radial_segments = sides
+		m.rings = 1
+		var st := SurfaceTool.new()
+		st.create_from(m, 0)
+		var arr := st.commit_to_arrays()
+		var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		for k in verts.size():
+			verts[k].y += lift
+		arr[Mesh.ARRAY_VERTEX] = verts
+		var out := ArrayMesh.new()
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+		return out
+	var trunk_m := CylinderMesh.new()
+	trunk_m.top_radius = 0.06
+	trunk_m.bottom_radius = 0.09
+	trunk_m.height = 0.5
+	trunk_m.radial_segments = 5
+	trunk_m.rings = 1
+	var trunk := Mk.Batch.new(trunk_m, Color("5a3e26"))
+	var pine_a := Mk.Batch.new(cone.call(0.42, 0.8, 0.6))
+	var pine_b := Mk.Batch.new(cone.call(0.3, 0.6, 1.0))
+	var pine_c := Mk.Batch.new(cone.call(0.18, 0.4, 1.35))
+	var bush_m := SphereMesh.new()
+	bush_m.radius = 0.3
+	bush_m.height = 0.45
+	bush_m.radial_segments = 6
+	bush_m.rings = 3
+	var bush := Mk.Batch.new(bush_m)
+	var tuft := Mk.Batch.new(cone.call(0.05, 0.28, 0.1, 4))
+	var rock_m := SphereMesh.new()
+	rock_m.radius = 0.4
+	rock_m.height = 0.6
+	rock_m.radial_segments = 5
+	rock_m.rings = 2
+	var rock := Mk.Batch.new(rock_m)
+	var greens := [Color("2f6a3a"), Color("3a7a40"), Color("285a34"), Color("44803e")]
+	var rocks := [Color("7a7466"), Color("8a8474"), Color("6a6658"), Color("948e7e")]
+	for y in H:
+		for x in W:
+			# 山上、以及山腳旁邊一格的草地
+			var near := tile(x, y) == "^"
+			if not near:
+				continue
+			var tall: float = heights[y][x]
+			# 越高越稀、越多石頭（0 山腳 … 1 山頂）
+			var alt := clampf((tall - 0.6) / 2.7, 0.0, 1.0)
+			var count := 3 + int(Mk.h01(x, y, 31) * 3.0)
+			for k in count:
+				var u := x + Mk.h01(x, y, 40 + k)
+				var v := y + Mk.h01(x, y, 60 + k)
+				var r := Mk.h01(x, y, 80 + k)
+				var h := ground_h(u, v)
+				if h < 0.05:
+					continue
+				var p := Vector3(u + ox, h - 0.04, v + oz)
+				var yaw := r * TAU
+				var roll := Mk.h01(x, y, 100 + k)
+				if roll < 0.45 * (1.0 - alt * 0.7):
+					# 松樹：大小不一，有的歪一點
+					var s := 0.6 + r * 0.7
+					var g: Color = greens[(x + y + k) % 4] * (0.9 + r * 0.2)
+					g.a = 1
+					trunk.add(p + Vector3(0, 0.25 * s, 0), Vector3.ONE * s, yaw)
+					pine_a.add(p, Vector3.ONE * s, yaw, g)
+					pine_b.add(p, Vector3.ONE * s, yaw, g)
+					if s > 0.9:
+						pine_c.add(p, Vector3.ONE * s, yaw, g)
+				elif roll < 0.62:
+					var g2: Color = greens[(x * 3 + k) % 4].lerp(Color("6a8a3a"), r * 0.5)
+					bush.add(p + Vector3(0, 0.1, 0), Vector3(1, 0.8, 1) * (0.6 + r * 0.6), yaw, g2)
+				elif roll < 0.8 + alt * 0.1:
+					# 石頭：半埋在坡裡，扁的、尖的都有
+					var c: Color = rocks[(x + k) % 4]
+					rock.add(p + Vector3(0, 0.02, 0), Vector3(0.6 + r * 0.9, 0.4 + Mk.h01(x, y, 120 + k) * 0.7, 0.5 + r * 0.7), yaw, c)
+				else:
+					for t in 3:
+						var q := p + Vector3((Mk.h01(x, y, 140 + k * 3 + t) - 0.5) * 0.3, 0, (Mk.h01(x, y, 160 + k * 3 + t) - 0.5) * 0.3)
+						tuft.add(q, Vector3.ONE * (0.8 + r * 0.5), 0, Color("7a9a48").lerp(Color("a8a058"), alt))
+	for b in [trunk, pine_a, pine_b, pine_c, bush, tuft, rock]:
+		var mi: MultiMeshInstance3D = b.build()
+		if mi:
+			add_child(mi)
 
 
 func _plants() -> void:
@@ -408,6 +527,13 @@ func _building(b: Dictionary) -> void:
 	var dt := Vector2i(int(b.x + st.door), int(b.y + d - 1))
 	doors[dt] = b
 	props.append({"node": null, "def": {"sprite": "door", "label": "進去", "lines": [], "door": dt}, "at": Vector2(dt.x + 0.5, dt.y + 0.5)})
+	# 做好精細版的房子（fine_house.gd）
+	if b.name in FINE:
+		root.add_child(FineHouse.build(self, b))
+		var lb := Mk.label(b.name, 36)
+		lb.position = Vector3(w / 2.0, 3.7, d / 2.0)
+		root.add_child(lb)
+		return
 	var wall := Color(st.get("wall", "e8dcc4"))
 	var timber := Color(st.get("timber", "6a4428"))
 	var cx := w / 2.0

@@ -110,6 +110,11 @@ class Batch:
 		xf.append(Transform3D(b, pos))
 		colors.append(base if color.r < 0 else color)
 
+	## 用完整的變換放一個（可以任意轉向，例如沿著屋頂斜面躺著的瓦）
+	func add_xf(t: Transform3D, color := Color(-1, 0, 0)) -> void:
+		xf.append(t)
+		colors.append(base if color.r < 0 else color)
+
 	func build() -> MultiMeshInstance3D:
 		if xf.is_empty():
 			return null
@@ -125,6 +130,15 @@ class Batch:
 		mi.multimesh = mm
 		mi.material_override = Mk.vmat()
 		return mi
+
+
+## 從 a 到 b 的一根棒子（圓柱或方塊的 Y 軸對準 a→b，長度剛好）的變換；mesh 的高要是 1
+static func span(a: Vector3, b: Vector3, thick := Vector2(1, 1)) -> Transform3D:
+	var d := b - a
+	var y := d.normalized()
+	var x := y.cross(Vector3.FORWARD if absf(y.dot(Vector3.FORWARD)) < 0.9 else Vector3.RIGHT).normalized()
+	var z := x.cross(y).normalized()
+	return Transform3D(Basis(x * thick.x, y * d.length(), z * thick.y), (a + b) / 2.0)
 
 
 ## 0–1 之間、跟座標綁定的雜訊（同一格每次都一樣）
