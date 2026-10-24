@@ -1200,6 +1200,10 @@ func _sect_left(v: VBoxContainer) -> void:
 	top.add_child(names)
 	names.add_child(_lab(d.name, 24))
 	names.add_child(_lab("%s・住%s" % [Sect.rank_name(), Sect.rank_def().dorm], 15, SOFT))
+	# 職位、掌門（story/mq_order.gd）
+	if G.sect.id == "mingquan" and (G.sect.get("post", "") != "" or G.sect.get("leader", false)):
+		var O: GDScript = load("res://story/mq_order.gd")
+		names.add_child(_lab("鳴泉劍派第八代掌門" if G.sect.get("leader", false) else "%s（月例多 %d 兩）" % [O.post_def(G.sect.post)[1], O.post_bonus()], 15, RED))
 	# 身分的四格：拜入以來走到哪一級
 	var steps := HBoxContainer.new()
 	steps.add_theme_constant_override("separation", 6)
@@ -1264,10 +1268,32 @@ func _sect_right(v: VBoxContainer) -> void:
 			l.custom_minimum_size = Vector2(PW - 120, 0)
 			h.add_child(l)
 	v.add_child(_rule())
+	if G.sect.id == "mingquan":
+		_fund_box(v)
+		v.add_child(_rule())
 	v.add_child(_lab("門規", 17, INK))
 	var rules: Array = Sect.def(G.sect.id).rules
 	for i in rules.size():
 		v.add_child(_lab("%s、%s" % ["一二三四五六七八九十"[i], rules[i][0]], 15, SOFT))
+
+
+## 鳴泉的公庫（story/mq_fund.gd）：內門弟子以上、有職位的看得到細帳，其他人只聽說好壞
+func _fund_box(v: VBoxContainer) -> void:
+	var F: GDScript = load("res://story/mq_fund.gd")
+	var f: Dictionary = F.fund()
+	var mood: String = F.MOOD_NAME[F.mood()]
+	if not F.can_see_books():
+		v.add_child(_lab("公庫　聽說%s" % mood, 15, SOFT))
+		return
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 10)
+	v.add_child(h)
+	h.add_child(_lab("公庫", 17, INK))
+	h.add_child(_tag(mood, RED if mood in ["吃緊", "見底"] else GREEN))
+	h.add_child(_lab("銀兩 %d" % roundi(float(f.silver)), 15, INK))
+	v.add_child(_lab("存糧 %d 石　茶 %d 斤　藥材 %d 份　木料 %d　石料 %d" % [roundi(float(f.grain)), roundi(float(f.tea)), roundi(float(f.herb)), roundi(float(f.get("wood", 0))), roundi(float(f.get("stone", 0)))], 14, SOFT))
+	var m: Dictionary = f.month
+	v.add_child(_lab("這個月　收 %d 兩　支 %d 兩" % [roundi(F.month_in(m)), roundi(F.month_out(m))], 14, SOFT))
 
 
 # ── 交遊 ────────────────────────────────────────────────

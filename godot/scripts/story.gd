@@ -78,6 +78,8 @@ static func _env() -> Dictionary:
 		"cloudy": int(G.weather == "cloudy"), "clear": int(G.weather == "clear"),
 		"fame": int(G.hero.get("fame", 0)), "today": G.day, "festival": G.festival_index(), "xunxiu": int(G.is_xunxiu()), "season": G.season_of(), "shichen": G.shichen_of(),
 		"period": G.festive_period(), "nianhuo": int(G.nianhuo_days()), "lantern": int(G.lantern_time()),
+		# 鳴泉門派產業的設施等級（story/mq_fund.gd）
+		"fac_lumber": int(G.life.get("mq_fund", {}).get("fac", {"lumber": 1}).get("lumber", 0)), "fac_quarry": int(G.life.get("mq_fund", {}).get("fac", {}).get("quarry", 0)),
 	}
 
 

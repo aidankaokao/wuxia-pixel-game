@@ -1,0 +1,166 @@
+{
+ "id": "mq_ridge",
+ "name": "鳴泉南嶺",
+ "subtitle": "鳴泉劍派・山田南邊",
+ "tiles": [
+  "^^^^^^^^^^^^^^^EE^^^^^^^^^^^^^^^^^",
+  "^TTTT.T........::.......^^^^^^^^^^",
+  "^TT.T.T........::.......^^^^^^^^^^",
+  "^T.T...........::........^^^^^^^^^",
+  "^TT............::........o^^^^^^^^",
+  "^T.............::.........^^^^^^^^",
+  "^TT....::::::::::::::::::.....^^^^",
+  "^T.....:.......::.......:......^^^",
+  "^TT....:.......::.......:.......^^",
+  "^T.....:.......::.......:.......^^",
+  "^TT.T..:.......::.......:.......^^",
+  "^TTT...........::...............^^",
+  "^TTTT.T........::.....T.....o...^^",
+  "^^TTTTT.T......::...............^^",
+  "^^^TTTTTTT.....::......T......^^^^",
+  "^^^^TTTTTTTT...::..T........^^^^^^",
+  "^^^^^^TTTTTTT..::.........^^^^^^^^",
+  "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 15,
+  "y": 1,
+  "facing": "down"
+ },
+ "buildings": [],
+ "props": [
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 17,
+   "y": 2,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "mq_industry/ridge_sign",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "log_pile",
+   "x": 3,
+   "y": 7,
+   "w": 2,
+   "lines": [],
+   "label": "查看",
+   "script": "mq_industry/log_pile",
+   "when": "fac_lumber >= 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stump",
+   "x": 6,
+   "y": 7,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "fac_lumber >= 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stump",
+   "x": 5,
+   "y": 11,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "fac_lumber >= 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "log_pile",
+   "x": 8,
+   "y": 12,
+   "w": 2,
+   "lines": [],
+   "label": "查看",
+   "script": "mq_industry/log_pile",
+   "when": "fac_lumber >= 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stump",
+   "x": 11,
+   "y": 13,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "fac_lumber >= 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_pile",
+   "x": 29,
+   "y": 9,
+   "w": 2,
+   "lines": [],
+   "label": "查看",
+   "script": "mq_industry/stone_pile",
+   "when": "fac_quarry >= 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "rock",
+   "x": 28,
+   "y": 6,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "fac_quarry >= 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_pile",
+   "x": 29,
+   "y": 11,
+   "w": 2,
+   "lines": [],
+   "label": "查看",
+   "script": "mq_industry/stone_pile",
+   "when": "fac_quarry >= 1",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     15,
+     0
+    ],
+    [
+     16,
+     0
+    ]
+   ],
+   "to": "mq_farm",
+   "spawn": {
+    "x": 10,
+    "y": 22,
+    "facing": "up"
+   }
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [],
+ "ring": 16
+}

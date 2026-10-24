@@ -6,6 +6,8 @@ class_name Life
 ## - 一群人寫在 story/life_<群>.gd：static func group() 回傳 {id, maps, outdoor, spots, npcs}，
 ##   以及 static func duty(id, 時刻, 下雨) 回傳 {act, at} 或空的；地點 at 是 [地圖, x, y, 朝向]，地圖外（回家、出遠門）用 "_away"。
 ##   需要的話再寫 static func events(時刻, 下雨) 回傳 {人物 id: {act, at, with, force}}：大家一起的活動（例如晨課），醒著的人照它，蓋過吃飯與職責；帶 force 的睡著也照它（守夜）。
+## - 群的檔還可以有（都可省）：absent(id) 這個人不在（下山歷練，看不到）、pair_score(a, b) 聊天配對的分數（要好的高、吵架的 -1 不湊）、
+##   version() 狀態變了要重算排程時改變的字串。
 ## - 畫面那邊（grid_scene 的 life_*）：在這張地圖上的人站到位置上；換事情時自己走過去，換地圖就走到門口消失、從門口走進來。
 
 ## 每件事：名字、頭上的小字、在原地走動的範圍、是不是室外
@@ -25,6 +27,7 @@ const ACTS := {
 	"guard": ["守山門", "守", 0, true], "patrol": ["守夜", "更", 2, true], "class": ["晨課", "課", 0, true],
 	"lead": ["主持", "主", 0, true], "spar": ["比劍", "劍", 0, true], "watch": ["觀看", "看", 0, false],
 	"listen": ["聽講", "聽", 0, false], "tend": ["照料藥圃", "藥", 1, true], "pluck": ["採茶", "茶", 0, true],
+	"chop": ["伐木", "木", 0, true], "quarry": ["採石", "石", 0, true],
 }
 const BLOCK := 4
 const AWAY := "_away"
@@ -71,7 +74,8 @@ static func meal_time(t: int) -> bool:
 static func now(g: Dictionary) -> Dictionary:
 	var block := G.time / BLOCK
 	var wet := G.weather in ["rain", "snow"]
-	var key := "%s:%d:%d:%d:%d" % [g.id, G.day, block, int(wet), int(meal_time(G.time))]
+	var ver: String = g.script.call("version") if g.script.has_method("version") else ""
+	var key := "%s:%d:%d:%d:%d:%s" % [g.id, G.day, block, int(wet), int(meal_time(G.time)), ver]
 	if _cache.has(key):
 		return _cache[key]
 	if _cache.size() > 32:
@@ -80,8 +84,11 @@ static func now(g: Dictionary) -> Dictionary:
 	var taken := {}
 	var free := []
 	var ev: Dictionary = g.script.call("events", G.time, wet) if g.script.has_method("events") else {}
+	var absent: bool = g.script.has_method("absent")
 	for n in g.npcs:
 		if n.has("when") and not Story.cond(n.when):
+			continue
+		if absent and g.script.call("absent", n.id):
 			continue
 		var awake: bool = G.time >= int(n.wake) and G.time < int(n.sleep)
 		# 活動帶 force 的（例如守夜），睡著也得起來
@@ -138,10 +145,29 @@ static func now(g: Dictionary) -> Dictionary:
 		out[n.id] = {"act": act, "at": _spot_at(sp.at)}
 	# 聊天：兩兩一組站到一對面對面的位置；落單的去散步（下雨在家）
 	var pairs: Array = g.spots.filter(func(sp): return "chat" in sp.acts and sp.has("pair") and sp.id < sp.pair and not taken.has(sp.id) and not taken.has(sp.pair) and not (wet and is_outdoor(g, sp.at[0])))
+	# 有交情的先湊一對、吵架的不湊（群的 pair_score）
+	if g.script.has_method("pair_score") and chatters.size() > 2:
+		var pool := chatters.duplicate()
+		var sorted := []
+		while pool.size() > 0:
+			var a: Dictionary = pool.pop_front()
+			sorted.append(a)
+			var best := 0.0
+			var bi := -1
+			for j in pool.size():
+				var v: float = g.script.call("pair_score", a.id, pool[j].id) + _rand([G.day, block, a.id, pool[j].id])
+				if v > best:
+					best = v
+					bi = j
+			if bi >= 0:
+				sorted.append(pool.pop_at(bi))
+		chatters = sorted
 	var i := 0
 	while i + 1 < chatters.size() and pairs.size() > 0:
 		var a: Dictionary = chatters[i]
 		var b: Dictionary = chatters[i + 1]
+		if g.script.has_method("pair_score") and g.script.call("pair_score", a.id, b.id) < 0:
+			break
 		var p: Dictionary = pairs.pop_at(int(_rand([G.day, block, a.id, b.id]) * pairs.size()))
 		var q: Dictionary = g.spots.filter(func(sp): return sp.id == p.pair)[0]
 		taken[p.id] = true

@@ -377,6 +377,21 @@ func _interact_with(t: Dictionary) -> void:
 			return
 		if c == 2:
 			return
+	# 自己過日子的人正在做的事可以一起做（群的 options：一起練、對練、一起打坐）
+	if t.kind == "npc" and t.w.has("life") and life_group.script.has_method("options"):
+		var opts: Array = life_group.script.call("options", t.w.id, t.w.get("act", ""))
+		if opts.size() > 0:
+			var wl: Dictionary = t.w
+			_face_pair(wl)
+			wl.talking = true
+			var c := await ui.ask({"text": "%s正在%s。" % [wl.name, Life.ACTS.get(wl.act, ["做事"])[0]]}, opts.map(func(o): return o[0]) + ["說話", "算了"])
+			if is_instance_valid(wl.f):
+				wl.talking = false
+			if c < opts.size():
+				await Story.run(opts[c][1], self, {"npc": wl.id})
+				return
+			if c > opts.size():
+				return
 	if t.kind == "npc" and t.w.def.get("person", "") != "":
 		var wp: Dictionary = t.w
 		wp.talking = true

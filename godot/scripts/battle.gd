@@ -117,6 +117,7 @@ func _ready() -> void:
 	fight.no_items = enc.get("noItems", false)
 	fight.items = G.bag.duplicate()
 	fight.units = [Fight.hero_unit(G.hero)] + Fight.enemy_units(enc)
+	Fight.power_mult = 1.0
 	var st: Dictionary = START[field]
 	var fi := 0
 	for u in fight.units:

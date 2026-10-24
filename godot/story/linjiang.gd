@@ -511,11 +511,9 @@ static func huang_tea(ctx: Ctx) -> void:
 		await ctx.say(_lines("黃阿順", ["北邊？出了北門往北走，就是鳴泉山。", "山上有個鳴泉劍派，這陣子正在收徒弟，不拘時日。上個月隔壁老顧家的閨女就上山去了，聽說考過了，現在是記名弟子囉。", "想去的話，出城往北走一段山路就到。山門口有知客的弟子接待，說你是來應考的就成。"]))
 
 
-## 泉霧茶莊：鳴泉劍派的產業（門派還沒搬，先當一般茶莊賣茶）
+## 泉霧茶莊：鳴泉劍派的產業（story/mq_trade.gd）
 static func teashop_talk(ctx: Ctx) -> void:
-	var liang := _by("梁敬亭")
-	if await ctx.ask(liang.call("泉霧茶莊，賣的是鳴泉山後山的茶。客官試一盞？"), ["看看茶", "不用了"]) == 0:
-		await ctx.shop("泉霧茶莊", ["quanwu", "yunwu", "tea"])
+	await load("res://story/mq_trade.gd").teashop_talk(ctx)
 
 
 static func agent_talk(ctx: Ctx) -> void:

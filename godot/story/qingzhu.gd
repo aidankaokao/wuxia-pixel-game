@@ -63,6 +63,9 @@ static func _by(who: String) -> Callable:
 
 ## 村長柳承安的劇情部分（人物檔案的 story）：接斷崖寨的委託、打完回來覆命。處理了回傳 true，其餘交給一般交談
 static func liu_story(ctx: Ctx) -> bool:
+	# 鳴泉的外務執事來收祖田的田租（story/mq_trade.gd）
+	if await load("res://story/mq_trade.gd").rent_story(ctx):
+		return true
 	if await Bridge.donation(ctx, "liu"):
 		return true
 	var liu := _by("柳承安")

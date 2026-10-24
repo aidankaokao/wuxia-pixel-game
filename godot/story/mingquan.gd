@@ -21,6 +21,8 @@ const Train := preload("res://story/train.gd")
 const Cook := preload("res://story/cook.gd")
 const Chores := preload("res://story/chores.gd")
 const Schedule := preload("res://story/schedule.gd")
+const MqFund := preload("res://story/mq_fund.gd")
+const MqOrder := preload("res://story/mq_order.gd")
 const LifeMq := preload("res://story/life_mingquan.gd")
 
 const SECT := "mingquan"
@@ -164,6 +166,10 @@ static func lu_story(ctx: Ctx) -> bool:
 		return true
 	if await Festival.lu(ctx):
 		return true
+	# 陸鳴川接任掌門以後，年會由他主持
+	if MqOrder.member() and MqOrder.leader_key() == "lu" and MqOrder.meeting_pending() and not MqOrder.leader():
+		await MqOrder.annual_meeting(ctx)
+		return true
 	if not member():
 		var t := ctx.flag("mq_trial")
 		if t == 2:
@@ -220,6 +226,8 @@ static func wen_story(ctx: Ctx) -> bool:
 	var wen := _by(MQ.wen)
 	if ctx.flag("mq_left") > 0:
 		await ctx.say(wen.call("你我師徒緣分已盡，不必多言。"))
+		return true
+	if await MqOrder.wen_meeting(ctx):
 		return true
 	if await Festival.wen(ctx):
 		return true
@@ -316,18 +324,38 @@ static func _issue_uniform(ctx: Ctx, r: int) -> void:
 
 # ── 大殿：值殿弟子柯靜言（門規、月例、弟子名冊、離開師門） ───
 
+## 名冊上這個人現在的位階：自己過日子的同門照他們練出來的身分（life_mingquan 的 G.life.mq）
+static func _roster_rank(m: Array) -> String:
+	return MqOrder.rank_now(m[0])
+
+
+## 職司，加上下山了沒、比武名次
+static func _roster_note(m: Array) -> String:
+	var role: String = MqOrder.role_now(m[0])
+	var notes := [role] if role != "" else []
+	notes.append("%d 歲" % MqOrder.age_now(m[0]))
+	if LifeMq.GROW.has(m[0]):
+		if LifeMq.away(m[0]):
+			notes.append(LifeMq.mem(m[0]).away.why)
+		var place: int = LifeMq.state().ranking.find(m[0])
+		if place >= 0:
+			notes.append("比武第 %d" % (place + 1))
+	return ("　" + "・".join(notes)) if notes.size() > 0 else ""
+
+
 static func _read_roster(ctx: Ctx) -> void:
 	var ke := _by(MQ.ke)
-	var groups := ["掌門", "長老", "真傳弟子", "內門弟子", "正式弟子", "記名弟子", "雜役"]
+	var groups := ["掌門", "太上長老", "長老", "真傳弟子", "內門弟子", "正式弟子", "記名弟子", "雜役"]
 	var pages := [ke.call("弟子名冊在這兒，本門上下都記在上頭。")]
-	var mine := Sect.rank_name() if member() else ""
+	var mine: String = ("掌門" if MqOrder.leader() else ("長老" if MqOrder.my_post().begins_with("elder") else Sect.rank_name())) if member() else ""
 	for g in groups:
 		var rows := []
 		for m in ROSTER:
-			if m[1] == g:
-				rows.append("%s%s" % [MQ[m[0]], ("　" + m[2]) if m[2] != "" else ""])
+			if _roster_rank(m) == g:
+				rows.append("%s%s" % [MQ[m[0]], _roster_note(m)])
 		if g == mine:
-			rows.append("%s（你）%s" % [G.hero.name, ("・比武第 %d" % meet_place()) if meet_place() > 0 else ""])
+			var my_role: String = "鳴泉劍派第八代掌門" if MqOrder.leader() else (MqOrder.post_def(MqOrder.my_post())[1] if MqOrder.my_post() != "" else "")
+			rows.append("%s（你）%s%s" % [G.hero.name, ("　" + my_role) if my_role != "" else "", ("・比武第 %d" % meet_place()) if meet_place() > 0 else ""])
 		if rows.size() > 0:
 			pages.append("【%s】\n%s" % [g, "\n".join(rows)])
 	pages.append(ke.call("記名弟子還有十來個，名冊上就不一一列了。"))
@@ -348,7 +376,17 @@ static func duty_talk(ctx: Ctx) -> void:
 		await ctx.say(ke.call("你的弟子服還沒領吧？拿去，在門裡要穿得整整齊齊。"))
 		await _issue_uniform(ctx, rank())
 	var ready := G.day >= Sect.next_stipend()
-	var c := await ctx.ask(ke.call("師兄弟有什麼事？"), ["請教門規", "領月例" if ready else "領月例（還沒到日子）", "弟子名冊", "捐銀給門裡", "離開師門", "沒事"])
+	var opts := ["請教門規", "領月例" if ready else "領月例（還沒到日子）", "弟子名冊", "捐銀給門裡", "離開師門"]
+	# 有職位、當掌門的人多一項（story/mq_order.gd）
+	var duty := MqOrder.my_post() != "" or MqOrder.leader()
+	if duty:
+		opts.push_front("職位的差事")
+	var c := await ctx.ask(ke.call("師兄弟有什麼事？"), opts + ["沒事"])
+	if duty:
+		if c == 0:
+			await MqOrder.post_duty(ctx)
+			return
+		c -= 1
 	match c:
 		0:
 			var rules := [ke.call("門規就掛在祖師像旁，一共五條：")]
@@ -363,12 +401,15 @@ static func duty_talk(ctx: Ctx) -> void:
 				return
 			var pay: Dictionary = Sect.rank_def().stipend
 			G.sect.stipend_day = G.day
-			G.silver += int(pay.silver)
-			var out := ["（得到了銀兩 %d 兩）" % pay.silver]
+			# 月例從公庫出（story/mq_fund.gd）：照掌門定的成數，公庫見底只發一半
+			var silver := roundi((int(pay.silver) + MqOrder.post_bonus()) * MqFund.pay_rate())
+			G.silver += silver
+			MqFund.book("out", "pay", silver)
+			var out := ["（得到了銀兩 %d 兩%s）" % [silver, "；公庫見底，只發了一半" if float(MqFund.fund().silver) <= 0 else ""]]
 			for it in pay.get("items", {}):
 				G.bag[it] = int(G.bag.get(it, 0)) + int(pay.items[it])
 				out.append("（得到了%s ×%d）" % [ctx.item_name(it), pay.items[it]])
-			await ctx.say([ke.call("這是%s的月例，收好。" % Sect.rank_name())] + out)
+			await ctx.say([ke.call("這是%s的月例，收好。" % (MqOrder.post_def(MqOrder.my_post())[1] if MqOrder.my_post() != "" else ("掌門" if MqOrder.leader() else Sect.rank_name())))] + out)
 		2:
 			await _read_roster(ctx)
 		3:
@@ -389,6 +430,7 @@ static func _donate_silver(ctx: Ctx) -> void:
 		return
 	var n: int = amounts[i]
 	G.silver -= n
+	MqFund.book("in", "donate", n)
 	Sect.add_contrib(n / 20, false)
 	await ctx.say([ke.call("%d 兩，我記在帳上了。" % n), "（門派貢獻 +%d；捐輸只算貢獻，不算功績）" % (n / 20)])
 
@@ -422,6 +464,9 @@ static func _leave_sect(ctx: Ctx) -> void:
 
 ## 大殿正中的掌門座位
 static func leader_chair(ctx: Ctx) -> void:
+	# 你是掌門：坐上去處理掌門事務（story/mq_order.gd）
+	if await MqOrder.chair(ctx):
+		return
 	await ctx.say("掌門的座位。座前的蒲團上，跪過一代又一代入門的弟子。")
 
 
@@ -466,7 +511,10 @@ static func _quiz(ctx: Ctx, who: String, qs: Array) -> int:
 
 ## 韓靖秋的劇情：記名弟子報考正式、正式弟子試內門、內門弟子拜他為師
 static func han_story(ctx: Ctx) -> bool:
-	if LifeMq.lecture_now():
+	# 授徒考驗（story/mq_order.gd）
+	if await MqOrder.teach_exam(ctx):
+		return true
+	if LifeMq.lecture_now() and MqOrder.holder_of("elder_teach") == "han":
 		await _lecture(ctx)
 		return true
 	if not member():
@@ -1325,8 +1373,8 @@ const DUEL := {"gu": "trial_xiaoman", "bao": "drill_bao", "tang": "drill_tang", 
 
 ## 同門照實力由強到弱
 static func _ranked() -> Array:
-	var r: Array = LifeMq.FIGHTERS.duplicate()
-	r.sort_custom(func(a, b): return LifeMq.POWER[a] > LifeMq.POWER[b])
+	var r: Array = LifeMq.FIGHTERS.filter(func(id): return not LifeMq.away(id))
+	r.sort_custom(func(a, b): return float(LifeMq.mem(a).power) > float(LifeMq.mem(b).power))
 	return r
 
 
@@ -1355,6 +1403,7 @@ static func _tournament(ctx: Ctx) -> void:
 	var wins := 0
 	for id in foes:
 		await ctx.say("第 %d 場：%s上場。" % [wins + 1, MQ[id]])
+		Fight.power_mult = LifeMq.power_mult(id)
 		if await ctx.battle(DUEL[id]) != "win":
 			break
 		wins += 1
@@ -1363,6 +1412,7 @@ static func _tournament(ctx: Ctx) -> void:
 	var place: int = (ranked.find(foes[wins - 1]) if wins > 0 else ranked.size()) + 1
 	ctx.set_flag("mq_meet_day", G.day)
 	ctx.set_flag("mq_meet_place", place)
+	LifeMq.rank_all(place - 1)
 	await ctx.say([lu.call("三戰全勝！" if wins == 3 else ("贏了 %d 場，不錯。" % wins if wins > 0 else "輸了不要緊，下一旬再來。")), lu.call("這一旬的名次，你排第 %d。" % place)])
 	if wins > 0:
 		ctx.silver(wins * 5)
@@ -1424,3 +1474,46 @@ static func night_drum(ctx: Ctx) -> void:
 	ctx.pass_time(8)
 	await ctx.say(["「咚——咚！」你敲著更鼓，沿著院子巡了一圈。"] + WATCH_TALES[randi() % WATCH_TALES.size()] + ["（巡了一個時辰）"])
 	await _contrib(ctx, 4)
+
+
+# ── 跟自己過日子的同門一起做事（GridScene 跟他們說話時問：life_mingquan.options） ──
+
+static func _life_name(id: String) -> String:
+	return Life.npc_def(Life.group("mingquan"), id).get("name", id)
+
+
+static func _life_aff(id: String, n: int) -> void:
+	var person: String = Life.npc_def(Life.group("mingquan"), id).get("person", "")
+	if person != "":
+		_aff(person, n)
+
+
+## 一起練樁、練劍：外功收穫多一成，交情 +2
+static func practice_with(ctx: Ctx) -> void:
+	var id: String = ctx.extra.npc
+	await ctx.say("你在%s旁邊站定，跟著一招一式地練。%s不時出聲提點兩句。" % [_life_name(id), _life_name(id)])
+	await _practice(ctx, roundi(YARD_EXP * 1.1), Train.STAMINA.stake + (RAIN_EXTRA if _wet() else 0), "你跟%s一起練。" % _life_name(id))
+	_life_aff(id, 2)
+
+
+## 一起打坐：交情 +2
+static func sit_with(ctx: Ctx) -> void:
+	var id: String = ctx.extra.npc
+	await ctx.say("你在%s身旁坐下。兩人一起調息，誰也沒出聲。" % _life_name(id))
+	await cushion(ctx)
+	_life_aff(id, 2)
+
+
+## 對練一場：對方的強弱照他自己練出來的實力（G.life.mq），打完他也長進一點
+static func spar_with(ctx: Ctx) -> void:
+	var id: String = ctx.extra.npc
+	if not DUEL.has(id):
+		return
+	if not await Train.exert(ctx, DRILL_STAMINA, "已經累得喘不過氣，這時候過招只會挨打。"):
+		return
+	Fight.power_mult = LifeMq.power_mult(id)
+	var o := await ctx.battle(DUEL[id])
+	ctx.pass_time(2)
+	await ctx.say(_by(_life_name(id)).call("好功夫！再來我可不讓你了。" if o == "win" else ("承讓了！你也進步了不少。" if o == "lose" else "下回再分高下。")))
+	_life_aff(id, 2)
+	LifeMq.mem(id).power = float(LifeMq.mem(id).power) + 0.3

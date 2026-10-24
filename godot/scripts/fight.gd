@@ -114,6 +114,10 @@ static func hero_unit(c: Dictionary) -> Dictionary:
 
 
 ## 遭遇戰的敵人（同一種有好幾個就加甲乙丙丁）
+## 下一場敵人的強弱倍數（同門對練照他自己練出來的實力；氣血、攻擊、防禦一起乘），開戰後由 HexBattle 歸回 1
+static var power_mult := 1.0
+
+
 static func enemy_units(enc: Dictionary) -> Array:
 	var counts := {}
 	for k in enc.enemies:
@@ -126,8 +130,8 @@ static func enemy_units(enc: Dictionary) -> Array:
 		seen[k] = seen.get(k, 0) + 1
 		out.append({
 			"id": "e%d" % i, "name": d.name + (SUFFIX[seen[k] - 1] if counts[k] > 1 else ""), "side": "enemy", "sprite": d.sprite,
-			"max_hp": int(d.hp), "hp": int(d.hp), "max_qi": int(d.get("qi", 0)), "qi": int(d.get("qi", 0)),
-			"atk": d.atk, "ipow": 0, "def": d.def, "spd": d.spd, "eva": d.eva, "moves": d.moves,
+			"max_hp": roundi(int(d.hp) * power_mult), "hp": roundi(int(d.hp) * power_mult), "max_qi": int(d.get("qi", 0)), "qi": int(d.get("qi", 0)),
+			"atk": roundi(float(d.atk) * power_mult), "ipow": 0, "def": roundi(float(d.def) * power_mult), "spd": d.spd, "eva": d.eva, "moves": d.moves,
 			"guard": false, "charging": false, "effects": [], "ai": d.ai, "kind": k,
 		})
 	return out

@@ -65,6 +65,10 @@ static func tasks() -> Array:
 	if G.is_xunxiu():
 		out.append(_t("旬休：臨江城趕集（城南擺出了平時沒有的攤子）"))
 	out += Orders.tasks()
+	out += load("res://story/mq_fund.gd").tasks()
+	out += load("res://story/mq_trade.gd").tasks()
+	out += load("res://story/mq_industry.gd").tasks()
+	out += load("res://story/mq_order.gd").tasks()
 	for b in load("res://story/linjiang.gd").BOUNTIES:
 		var v := _f("lj_b_" + b[0])
 		if v > 0:

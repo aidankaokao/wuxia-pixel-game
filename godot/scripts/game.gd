@@ -56,6 +56,8 @@ var _new_day: Array[Callable] = []
 
 func _ready() -> void:
 	new_game({}, true)
+	for p in NEW_DAY_SCRIPTS:
+		on_new_day(func() -> void: load(p).new_day())
 
 
 ## 開新遊戲：c 是建立好的角色（空的就用預設的「無名」）；dev 是開發測試用，多給一些錢和東西
@@ -177,6 +179,10 @@ func is_xunxiu(d := -1) -> bool:
 
 
 # ── 時間流逝 ────────────────────────────────────────────
+
+## 過了半夜要跑的劇情檔（各檔的 static func new_day，只改狀態、不問話）
+const NEW_DAY_SCRIPTS := ["res://story/mq_fund.gd", "res://story/mq_trade.gd", "res://story/mq_order.gd", "res://story/life_mingquan.gd"]
+
 
 ## 過了半夜要做的事（只改狀態、不問話）
 func on_new_day(f: Callable) -> void:

@@ -26,7 +26,7 @@ const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tav
 	"mq_hall", "mq_dorm", "mq_room_a", "mq_room_b", "mq_cell_1", "mq_cell_2", "mq_train", "mq_lib", "mq_armory", "mq_med", "mq_kitchen",
 	"bp_inn", "bp_trader", "bp_ship", "bp_shrine"]
 ## 做好的室外地圖（出入口通到這些就換過去）
-const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "dabutou"]
+const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "mq_farm", "mq_ridge", "dabutou"]
 ## 地圖四周往外延伸幾格（地圖資料可以用 ring 指定：主角會走到很靠邊的地圖要寬一點，免得看到外面）
 var M := 16
 
@@ -1013,6 +1013,24 @@ func _prop(p: Dictionary) -> void:
 			for i in w * 2:
 				g.add_child(Mk.cyl(0.18, 0.22, 0.42, Color("7a5a3a") if i % 2 else Color("6a4a32"), Vector3(-w / 2.0 + 0.3 + i * 0.45, 0.21, (i % 2) * 0.15), 9))
 			g.add_child(Mk.cyl(0.25, 0.2, 0.3, Color("b8a060"), Vector3(w / 2.0 - 0.3, 0.15, -0.25), 10))
+		"log_pile":
+			# 木料堆：一層層橫放的松木
+			for r in 3:
+				for k in 4 - r:
+					var lg := Mk.cyl(0.13, 0.13, w - 0.2, Color("8a6038") if (r + k) % 2 else Color("7a5230"), Vector3(-0.42 + k * 0.28 + r * 0.14, 0.13 + r * 0.24, 0), 7)
+					lg.rotation.z = PI / 2.0
+					lg.rotation.y = PI / 2.0
+					g.add_child(lg)
+		"stump":
+			g.add_child(Mk.cyl(0.24, 0.28, 0.32, Color("6a4a2a"), Vector3(0, 0.16, 0), 9))
+			g.add_child(Mk.cyl(0.22, 0.22, 0.02, Color("c8a878"), Vector3(0, 0.33, 0), 9))
+		"stone_pile":
+			# 石料堆：方方正正的青石塊
+			for k in 5:
+				g.add_child(Mk.box(Vector3(0.5, 0.3, 0.45), Color("8a8a86") if k % 2 else Color("9a9a94"), Vector3(-w / 2.0 + 0.4 + (k % 3) * 0.55, 0.15 + (k / 3) * 0.3, (k % 2) * 0.1)))
+		"rock":
+			g.add_child(Mk.ball(0.4, Color("8a8478"), Vector3(0, 0.2, 0), 6))
+			g.add_child(Mk.ball(0.25, Color("9a9488"), Vector3(0.3, 0.12, 0.2), 5))
 		"dragon_boat":
 			# 龍舟：細長的船身、龍頭龍尾、中間一面鼓
 			var col: Color = [Color("3e7a4a"), Color("8a2e26"), Color("c89a30")][int(p.x) % 3]
