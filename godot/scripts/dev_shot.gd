@@ -211,6 +211,11 @@ func _run() -> void:
 				await RenderingServer.frame_post_draw
 				var img := get_viewport().get_texture().get_image()
 				img.save_png(arg if arg.is_absolute_path() else OS.get_environment("SHOT_DIR").path_join(arg))
+			"pos":
+				# 印出現在的地圖與主角站的格子
+				var vp = _main().scene
+				if vp is GridScene:
+					print("POS ", vp.get("map_id") if vp.get("map_id") else vp.get("room_id"), " ", vp._grid(vp.hero.position))
 			"print":
 				print("INFO ", _main().ui.info.text.replace("\n", " | "), " | 旗標 ", G.flags, " | 行囊 ", G.bag, " | 交情 ", G.relations.keys().map(func(k): return "%s:%d" % [k, int(G.relations[k].aff)]))
 			"dlg":

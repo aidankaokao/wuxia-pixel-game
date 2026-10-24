@@ -1,7 +1,7 @@
 ## 鳴泉劍派自己過日子的人（照網頁版 story/life_mingquan.ts 搬第一輪）：
 ## 陸鳴川（大師兄，帶晨課）、顧小滿、包小川、唐秋生、曹小豆、鄭大壯、侯三郎、喬木生（記名弟子）、何守一、韋季安（正式弟子）、
 ## 韓靖秋（傳功長老）、聞松年（掌門）。
-## - 晨課：卯時到辰時，陸鳴川在演武廣場帶，記名弟子排兩排（旬休、下雨沒有）。
+## - 晨課：卯時到辰時，陸鳴川在演武廣場正中的演武台（擂台）上帶，記名弟子排兩排（旬休、下雨沒有）。
 ## - 差事：曹小豆一早掃大殿前；何守一上午、喬木生下午輪班守山門；韋季安旬休前一天下山採買（看不到）；
 ##   韓靖秋白天在練功房看弟子練功、未時到廣場巡視；聞松年白天在大殿，未時到後山散步（長老、掌門夜裡回自己的居所，看不到）。
 ## 比武小會、講武、守夜、同門交情與成長之後再搬。
@@ -37,32 +37,32 @@ static func _sp(id: String, at: Array, acts: Array, pair := "") -> Dictionary:
 
 static func group() -> Dictionary:
 	var spots := [
-		_sp("stake16a", ["mq_sect", 16, 23, "up"], ["stake"]),
-		_sp("stake16b", ["mq_sect", 16, 25, "up"], ["stake"]),
-		_sp("stake18a", ["mq_sect", 18, 23, "up"], ["stake"]),
-		_sp("stake18b", ["mq_sect", 18, 25, "up"], ["stake"]),
-		_sp("stake20a", ["mq_sect", 20, 23, "up"], ["stake"]),
-		_sp("stake20b", ["mq_sect", 20, 25, "up"], ["stake"]),
-		_sp("sw1", ["mq_sect", 24, 15, "down"], ["sword"]),
-		_sp("sw2", ["mq_sect", 29, 15, "down"], ["sword"]),
-		_sp("sw3", ["mq_sect", 15, 18, "right"], ["sword"]),
-		_sp("sw4", ["mq_sect", 30, 23, "left"], ["sword"]),
-		_sp("sw5", ["mq_sect", 29, 26, "up"], ["sword"]),
-		_sp("sw6", ["mq_sect", 14, 26, "right"], ["sword"]),
-		_sp("ch1a", ["mq_sect", 15, 16, "right"], ["chat"], "ch1b"),
-		_sp("ch1b", ["mq_sect", 16, 16, "left"], ["chat"], "ch1a"),
-		_sp("ch2a", ["mq_sect", 30, 19, "right"], ["chat"], "ch2b"),
-		_sp("ch2b", ["mq_sect", 31, 19, "left"], ["chat"], "ch2a"),
-		_sp("ch3a", ["mq_sect", 9, 28, "right"], ["chat"], "ch3b"),
-		_sp("ch3b", ["mq_sect", 10, 28, "left"], ["chat"], "ch3a"),
-		_sp("ch4a", ["mq_sect", 26, 29, "right"], ["chat"], "ch4b"),
-		_sp("ch4b", ["mq_sect", 27, 29, "left"], ["chat"], "ch4a"),
+		_sp("stake16a", ["mq_sect", 18, 18, "left"], ["stake"]),
+		_sp("stake16b", ["mq_sect", 18, 20, "left"], ["stake"]),
+		_sp("stake18a", ["mq_sect", 18, 22, "left"], ["stake"]),
+		_sp("stake18b", ["mq_sect", 28, 18, "right"], ["stake"]),
+		_sp("stake20a", ["mq_sect", 28, 20, "right"], ["stake"]),
+		_sp("stake20b", ["mq_sect", 28, 22, "right"], ["stake"]),
+		_sp("sw1", ["mq_sect", 15, 13, "down"], ["sword"]),
+		_sp("sw2", ["mq_sect", 32, 13, "down"], ["sword"]),
+		_sp("sw3", ["mq_sect", 15, 27, "right"], ["sword"]),
+		_sp("sw4", ["mq_sect", 32, 27, "left"], ["sword"]),
+		_sp("sw5", ["mq_sect", 20, 28, "up"], ["sword"]),
+		_sp("sw6", ["mq_sect", 27, 28, "up"], ["sword"]),
+		_sp("ch1a", ["mq_sect", 14, 22, "right"], ["chat"], "ch1b"),
+		_sp("ch1b", ["mq_sect", 15, 22, "left"], ["chat"], "ch1a"),
+		_sp("ch2a", ["mq_sect", 32, 21, "right"], ["chat"], "ch2b"),
+		_sp("ch2b", ["mq_sect", 33, 21, "left"], ["chat"], "ch2a"),
+		_sp("ch3a", ["mq_sect", 13, 35, "right"], ["chat"], "ch3b"),
+		_sp("ch3b", ["mq_sect", 14, 35, "left"], ["chat"], "ch3a"),
+		_sp("ch4a", ["mq_sect", 26, 35, "right"], ["chat"], "ch4b"),
+		_sp("ch4b", ["mq_sect", 27, 35, "left"], ["chat"], "ch4a"),
 		_sp("ch5a", ["mq_dorm", 10, 3, "right"], ["chat"], "ch5b"),
 		_sp("ch5b", ["mq_dorm", 11, 3, "left"], ["chat"], "ch5a"),
-		_sp("ch6a", ["mq_sect", 36, 21, "right"], ["chat"], "ch6b"),
-		_sp("ch6b", ["mq_sect", 37, 21, "left"], ["chat"], "ch6a"),
-		_sp("md1", ["mq_sect", 10, 34, "left"], ["meditate"]),
-		_sp("md2", ["mq_sect", 3, 36, "right"], ["meditate"]),
+		_sp("ch6a", ["mq_sect", 31, 31, "right"], ["chat"], "ch6b"),
+		_sp("ch6b", ["mq_sect", 32, 31, "left"], ["chat"], "ch6a"),
+		_sp("md1", ["mq_sect", 9, 36, "left"], ["meditate"]),
+		_sp("md2", ["mq_sect", 5, 41, "up"], ["meditate"]),
 		_sp("md3", ["mq_train", 3, 6, "left"], ["meditate"]),
 		_sp("md4", ["mq_train", 5, 6, "left"], ["meditate"]),
 		_sp("md5", ["mq_train", 8, 6, "right"], ["meditate"]),
@@ -73,16 +73,16 @@ static func group() -> Dictionary:
 		_sp("rd2", ["mq_lib", 4, 2, "up"], ["read"]),
 		_sp("rd3", ["mq_lib", 7, 2, "up"], ["read"]),
 		_sp("rd4", ["mq_lib", 3, 5, "up"], ["read"]),
-		_sp("sp1", ["mq_sect", 21, 11, "down"], ["sweep"]),
-		_sp("sp2", ["mq_sect", 26, 12, "down"], ["sweep"]),
-		_sp("wt1", ["mq_sect", 34, 30, "up"], ["water"]),
-		_sp("wt2", ["mq_sect", 33, 29, "right"], ["water"]),
-		_sp("gd1", ["mq_sect", 38, 32, "down"], ["garden"]),
-		_sp("gd2", ["mq_sect", 42, 33, "down"], ["garden"]),
-		_sp("st1", ["mq_sect", 12, 29, "down"], ["stroll"]),
+		_sp("sp1", ["mq_sect", 21, 10, "down"], ["sweep"]),
+		_sp("sp2", ["mq_sect", 26, 10, "down"], ["sweep"]),
+		_sp("wt1", ["mq_sect", 33, 35, "up"], ["water"]),
+		_sp("wt2", ["mq_sect", 32, 34, "right"], ["water"]),
+		_sp("gd1", ["mq_sect", 38, 40, "down"], ["garden"]),
+		_sp("gd2", ["mq_sect", 42, 41, "down"], ["garden"]),
+		_sp("st1", ["mq_sect", 14, 38, "down"], ["stroll"]),
 		_sp("st2", ["mq_sect", 30, 38, "down"], ["stroll"]),
-		_sp("st3", ["mq_sect", 18, 40, "down"], ["stroll"]),
-		_sp("st4", ["mq_sect", 40, 29, "down"], ["stroll"]),
+		_sp("st3", ["mq_sect", 18, 42, "down"], ["stroll"]),
+		_sp("st4", ["mq_sect", 30, 42, "down"], ["stroll"]),
 	]
 	var npcs := [
 		{"id": "lu", "name": "陸鳴川", "sprite": "sect_senior", "person": "lu", "likes": {"sword": 4, "meditate": 2, "read": 2, "stroll": 1, "chat": 1}, "home": ["mq_cell_1", 1, 2, "down"], "seat": ["mq_kitchen", 7, 2, "left"], "wake": 19, "sleep": 82},
@@ -102,8 +102,9 @@ static func group() -> Dictionary:
 
 
 ## 晨課：卯時到辰時，陸鳴川帶，記名弟子排兩排；旬休、下雨天沒有
-const LESSON_LEAD := [S, 23, 21, "down"]
-const LESSON_AT := [[S, 21, 23, "up"], [S, 23, 23, "up"], [S, 25, 23, "up"], [S, 21, 25, "up"], [S, 23, 25, "up"], [S, 25, 25, "up"]]
+## 在演武台（擂台）上：大師兄站台後正中，弟子兩排三人
+const LESSON_LEAD := [S, 23, 18, "down"]
+const LESSON_AT := [[S, 21, 20, "up"], [S, 23, 20, "up"], [S, 25, 20, "up"], [S, 21, 22, "up"], [S, 23, 22, "up"], [S, 25, 22, "up"]]
 const PUPILS := ["gu", "bao", "tang", "zheng", "hou", "qiao"]
 
 
@@ -120,7 +121,7 @@ static func duty(id: String, t: int, _wet: bool) -> Dictionary:
 	match id:
 		"cao":
 			if _in(t, 卯, 巳):
-				return {"act": "sweep", "at": [S, 23, 11, "down"]}
+				return {"act": "sweep", "at": [S, 23, 10, "down"]}
 		"qiao":
 			if _in(t, 未, 酉):
 				return {"act": "guard", "at": ["mingquan", 17, 4, "left"]}
@@ -132,7 +133,7 @@ static func duty(id: String, t: int, _wet: bool) -> Dictionary:
 				return {"act": "shop", "at": [AWAY, 0, 0]}
 		"han":
 			if _in(t, 未, 申):
-				return {"act": "stroll", "at": [S, 27, 22, "left"]}
+				return {"act": "stroll", "at": [S, 30, 24, "left"]}
 			if _in(t, 辰, 酉) and not _in(t, 午, 未):
 				return {"act": "watch", "at": ["mq_train", 10, 4, "left"]}
 			return {"act": "sleep", "at": [AWAY, 0, 0]}

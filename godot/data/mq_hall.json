@@ -30,7 +30,7 @@
    "to": "mq_sect",
    "spawn": {
     "x": 23,
-    "y": 10,
+    "y": 9,
     "facing": "down"
    }
   }

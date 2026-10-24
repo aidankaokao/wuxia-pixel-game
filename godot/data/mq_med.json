@@ -28,8 +28,8 @@
    "to": "mq_sect",
    "spawn": {
     "x": 38,
-    "y": 27,
-    "facing": "down"
+    "y": 32,
+    "facing": "up"
    }
   }
  ],

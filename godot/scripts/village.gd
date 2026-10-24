@@ -63,6 +63,7 @@ func _ready() -> void:
 	_heights()
 	_ground()
 	_walls()
+	_platforms()
 	_plants()
 	_mountain_plants()
 	for b in data.buildings:
@@ -336,6 +337,80 @@ func _process(dt: float) -> void:
 			n.rotation.y = t * 1.5
 			# 越近越亮
 			mk.mat.albedo_color.a = clampf(1.3 - hp.distance_to(mk.at) / MARK_NEAR, 0.35, 1.0)
+
+
+## 墊高的台子（資料的 platforms：{kind, x, y, w, h, top}），人可以走上去、站在上面（_ground_y）。
+## 擂台 leitai：石塊砌的台基（一層層錯縫）、石板鋪的台面（一塊塊方石、邊上一圈壓邊的條石），四邊正中各一道石階，四角立一根矮石柱
+func _platforms() -> void:
+	for pf in data.get("platforms", []):
+		var x0: float = pf.x
+		var y0: float = pf.y
+		var w: float = pf.w
+		var d: float = pf.h
+		var top: float = pf.top
+		var g := Node3D.new()
+		g.position = Vector3(x0 + w / 2.0 + ox, 0, y0 + d / 2.0 + oz)
+		add_child(g)
+		var stone := Color("a8a296")
+		var dark := Color("7e786c")
+		# 台基：整塊石，外面一圈錯縫的石塊（兩層）
+		g.add_child(Mk.box(Vector3(w - 0.04, top - 0.06, d - 0.04), stone.darkened(0.08), Vector3(0, (top - 0.06) / 2.0, 0)))
+		var course := (top - 0.06) / 2.0
+		for row in 2:
+			var cy := course * (row + 0.5)
+			for side in 4:
+				var along := w if side < 2 else d
+				var n := int(along / 0.9) + 1
+				var bl := along / n
+				for i in n + (row % 2):
+					var t0 := -along / 2.0 + (i - 0.5 * (row % 2)) * bl
+					var t1 := minf(t0 + bl, along / 2.0)
+					t0 = maxf(t0, -along / 2.0)
+					var mid := (t0 + t1) / 2.0
+					var len := t1 - t0 - 0.03
+					var col := stone.lerp(dark, Mk.h01(i, row * 4 + side, 3) * 0.6)
+					if side < 2:
+						var z := (d / 2.0) * (1 if side == 0 else -1)
+						g.add_child(Mk.box(Vector3(len, course - 0.02, 0.06), col, Vector3(mid, cy, z)))
+					else:
+						var x := (w / 2.0) * (1 if side == 2 else -1)
+						g.add_child(Mk.box(Vector3(0.06, course - 0.02, len), col, Vector3(x, cy, mid)))
+		# 壓邊的條石
+		g.add_child(Mk.box(Vector3(w + 0.12, 0.07, d + 0.12), dark, Vector3(0, top - 0.035, 0)))
+		# 台面：一塊塊方石板，顏色深淺不一
+		var slab := BoxMesh.new()
+		slab.size = Vector3(0.94, 0.04, 0.94)
+		var slabs := Mk.Batch.new(slab)
+		for i in int(w):
+			for j in int(d):
+				slabs.add(Vector3(-w / 2.0 + 0.5 + i, top + 0.01, -d / 2.0 + 0.5 + j), Vector3.ONE, 0.0, Color("b8b2a4").lerp(Color("9a958a"), Mk.h01(i, j, 11)))
+		var smi: MultiMeshInstance3D = slabs.build()
+		smi.position = Vector3.ZERO
+		g.add_child(smi)
+		# 四邊正中的石階（兩階）
+		for dir in [Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)]:
+			var half := (d if dir.y != 0 else w) / 2.0
+			for k in 2:
+				var hgt := top * (2 - k) / 3.0
+				var off := half + 0.17 + k * 0.32
+				var size := Vector3(1.5, hgt, 0.32) if dir.y != 0 else Vector3(0.32, hgt, 1.5)
+				g.add_child(Mk.box(size, stone.lerp(dark, 0.2 * k), Vector3(dir.x * off, hgt / 2.0, dir.y * off)))
+		# 四角的矮石柱
+		for sx in [-1, 1]:
+			for sz in [-1, 1]:
+				var p := Vector3(sx * (w / 2.0 - 0.2), top, sz * (d / 2.0 - 0.2))
+				g.add_child(Mk.box(Vector3(0.28, 0.45, 0.28), stone, p + Vector3(0, 0.225, 0)))
+				g.add_child(Mk.box(Vector3(0.34, 0.08, 0.34), dark, p + Vector3(0, 0.48, 0)))
+
+
+## 站在這裡的地面高度：墊高的台子上是台面的高度
+func _ground_y(p: Vector3) -> float:
+	var u := p.x - ox
+	var v := p.z - oz
+	for pf in data.get("platforms", []):
+		if u >= float(pf.x) and u < float(pf.x) + float(pf.w) and v >= float(pf.y) and v < float(pf.y) + float(pf.h):
+			return float(pf.top)
+	return 0.0
 
 
 ## 城牆（H：灰磚牆、上面一排垛口）與官府、大戶的院牆（R：朱紅牆、灰瓦牆帽），一格一段，成批畫

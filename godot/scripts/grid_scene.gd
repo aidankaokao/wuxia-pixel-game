@@ -168,12 +168,13 @@ func _process(dt: float) -> void:
 			hero.position.x += step.x
 		if _walkable(hero.position + Vector3(0, 0, step.z)):
 			hero.position.z += step.z
-		hero.position.y = _ground_y(hero.position)
 		var g := _grid(hero.position)
 		if g != _last_tile:
 			_last_tile = g
 			_on_tile(g)
 			_trigger(g)
+	# 地面高度每格都算（站在擂台這種墊高的地方，傳送、劇情搬動之後也對）
+	hero.position.y = _ground_y(hero.position)
 	_recheck -= dt
 	if _recheck <= 0:
 		_recheck = 2.0
@@ -183,6 +184,7 @@ func _process(dt: float) -> void:
 		var f: Chibi = w.f
 		if w.get("hidden", false):
 			continue
+		f.position.y = _ground_y(f.position)
 		# 撞上野獸就開打（逃走、讀檔回來的頭幾秒不算）
 		if not busy and w.def.get("encounter", "") != "" and f.position.distance_to(hero.position) < 0.75 and Time.get_ticks_msec() / 1000.0 > G.beast_grace:
 			_fight_beast(w)

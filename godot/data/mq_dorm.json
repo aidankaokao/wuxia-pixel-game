@@ -27,9 +27,9 @@
    ],
    "to": "mq_sect",
    "spawn": {
-    "x": 6,
-    "y": 14,
-    "facing": "down"
+    "x": 12,
+    "y": 15,
+    "facing": "right"
    }
   }
  ],
