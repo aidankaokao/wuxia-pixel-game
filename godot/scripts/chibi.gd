@@ -19,6 +19,7 @@ const LOOKS := {
 	"boss": {"robe": "3a2a2a", "trim": "a83a2a", "sash": "c9a46a", "hair": "2a2228", "style": "topknot", "sword": true, "angry": true, "beard": true},
 	"storyteller": {"robe": "5a6a7a", "trim": "e8e0cc", "sash": "3a4a5a", "hair": "8a8680", "style": "bun", "beard": true, "fan": true},
 	"apprentice": {"robe": "8a6a4a", "trim": "d8c8a8", "sash": "4a3a2a", "hair": "2a2228", "style": "band", "small": false},
+	"monk": {"robe": "b8862e", "trim": "e8d8a8", "sash": "8a2e26", "hair": "f2c9a0", "style": "bald"},
 	"servant": {"robe": "6a6a6a", "trim": "d8d0c0", "sash": "3a3a3a", "hair": "2a2228", "style": "band"},
 	"scholar": {"robe": "8aa0a8", "trim": "f0ece0", "sash": "4a5a68", "hair": "2a2228", "style": "topknot"},
 	"dog": {"animal": "dog"},
@@ -128,6 +129,11 @@ func _build(lk: Dictionary) -> void:
 
 func _hair(head: Node3D, lk: Dictionary) -> void:
 	var hc := _c(lk.hair)
+	if lk.style == "bald":
+		# 光頭：頭頂點著幾個戒疤
+		for i in 6:
+			head.add_child(Mk.ball(0.012, Color("c89a7a"), Vector3((i % 3 - 1) * 0.05, 0.2, (i / 3) * 0.05 - 0.02), 4))
+		return
 	var cap := Mk.ball(0.235, hc, Vector3(0, 0.04, -0.035), 12)
 	cap.scale = Vector3(1, 0.9, 1)
 	head.add_child(cap)

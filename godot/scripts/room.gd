@@ -8,6 +8,8 @@ extends GridScene
 ## - 屋裡的人站在原地，按空白鍵交談（說網頁版的台詞）；對著門口按空白鍵就回村裡。
 
 const WALL_H := 2.1
+## 網頁版沒有對應貼圖、要另外指定外觀的人（例如和尚）
+const LOOK_BY_ID := {"zhiyuan": "monk"}
 ## 牆的厚度：牆貼在牆格靠屋裡的那一邊（牆格其他地方是屋外，空著）
 const WALL_T := 0.2
 
@@ -370,6 +372,18 @@ func _prop(p: Dictionary) -> void:
 			_altar(g, w)
 		"chair":
 			_chair(g)
+		"cushion":
+			# 蒲團：草編的圓墊，一圈圈的紋
+			g.add_child(Mk.cyl(0.3, 0.32, 0.12, Color("b8944e"), Vector3(0, 0.06, 0), 14))
+			for k in 2:
+				var ring := MeshInstance3D.new()
+				var tm := TorusMesh.new()
+				tm.inner_radius = 0.1 + k * 0.09
+				tm.outer_radius = 0.12 + k * 0.09
+				ring.mesh = tm
+				ring.material_override = Mk.mat(Color("9a7a3e"))
+				ring.position = Vector3(0, 0.12, 0)
+				g.add_child(ring)
 		"f_shelf_scholar_2":
 			_bookshelf(g, w)
 		"forge":
@@ -444,13 +458,15 @@ func _wall_prop(g: Node3D, p: Dictionary) -> void:
 ## 供桌：長桌、一排祖先牌位、香爐與三炷香、一對紅燭、一盤供果
 func _altar(g: Node3D, w: int) -> void:
 	var red := Color("6a2a20")
+	if room_id == "qz_temple":
+		_statue(g)
 	g.add_child(Mk.box(Vector3(w - 0.2, 0.08, 0.7), red, Vector3(0, 0.95, -0.05)))
 	g.add_child(Mk.box(Vector3(w - 0.3, 0.7, 0.04), red.darkened(0.2), Vector3(0, 0.6, 0.29)))
 	for sx in [-1, 1]:
 		g.add_child(Mk.box(Vector3(0.1, 0.95, 0.6), red.darkened(0.15), Vector3(sx * (w / 2.0 - 0.2), 0.475, -0.05)))
 	g.add_child(Mk.box(Vector3(w - 0.5, 0.06, 0.08), Color("c9a46a"), Vector3(0, 0.88, 0.3)))
-	# 牌位
-	for i in 5:
+	# 牌位（寺裡是佛像，不擺牌位）
+	for i in (0 if room_id == "qz_temple" else 5):
 		var tx := -0.8 + i * 0.4
 		g.add_child(Mk.box(Vector3(0.14, 0.05, 0.1), Color("3a2a1a"), Vector3(tx, 1.01, -0.28)))
 		g.add_child(Mk.box(Vector3(0.11, 0.38 - absf(i - 2) * 0.04, 0.03), Color("2a1f18"), Vector3(tx, 1.2 - absf(i - 2) * 0.02, -0.28)))
@@ -488,6 +504,38 @@ func _altar(g: Node3D, w: int) -> void:
 	g.add_child(Mk.cyl(0.14, 0.1, 0.03, Color("e8e4d8"), Vector3(0.95, 1.0, 0.1), 10))
 	for k in 4:
 		g.add_child(Mk.ball(0.05, Color("e8603c") if k < 3 else Color("f2c230"), Vector3(0.95 + (k % 2) * 0.08 - 0.04, 1.06 + (k / 3) * 0.06, 0.1 + (k / 2) * 0.06 - 0.03), 6))
+
+
+## 寺裡供桌上的木雕佛像（坐在供桌靠牆那一側）：蓮花座、盤腿坐著、雙手合在腹前，背後一圈光
+func _statue(g: Node3D) -> void:
+	var gold := Color("c9a046")
+	var s := Node3D.new()
+	s.position = Vector3(0, 0.42, -0.2)
+	s.scale = Vector3.ONE * 0.6
+	g.add_child(s)
+	for k in 8:
+		var a := TAU * k / 8.0
+		var petal := Mk.ball(0.12, Color("d88a8a"), Vector3(cos(a) * 0.3, 1.02, sin(a) * 0.22), 6)
+		petal.scale = Vector3(1, 0.5, 1)
+		s.add_child(petal)
+	var legs := Mk.ball(0.34, gold, Vector3(0, 1.12, 0), 10)
+	legs.scale = Vector3(1, 0.4, 0.7)
+	s.add_child(legs)
+	s.add_child(Mk.cyl(0.18, 0.24, 0.5, gold, Vector3(0, 1.4, 0), 10))
+	s.add_child(Mk.ball(0.08, gold.darkened(0.1), Vector3(0, 1.3, 0.2), 8))
+	s.add_child(Mk.ball(0.17, gold, Vector3(0, 1.8, 0), 12))
+	s.add_child(Mk.ball(0.08, Color("3a3a50"), Vector3(0, 1.94, -0.02), 8))
+	for side in [-1, 1]:
+		s.add_child(Mk.box(Vector3(0.04, 0.012, 0.01), Color("5a4020"), Vector3(side * 0.06, 1.81, 0.165)))
+	var halo := MeshInstance3D.new()
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.3
+	tm.outer_radius = 0.36
+	halo.mesh = tm
+	halo.material_override = Mk.mat(Color("e8c060"))
+	halo.rotation.x = PI / 2.0
+	halo.position = Vector3(0, 1.8, -0.2)
+	s.add_child(halo)
 
 
 ## 太師椅：座、高靠背（上緣圓弧）、扶手、四腳，面向 +z
@@ -687,7 +735,7 @@ func _teapot(g: Node3D, at: Vector3) -> void:
 func _people() -> void:
 	_place_hero(data.spawn)
 	for n in data.npcs:
-		var f := Chibi.make(n.sprite)
+		var f := Chibi.make(LOOK_BY_ID.get(n.id, n.sprite))
 		add_child(f)
 		f.position = w3(n.x, n.y)
 		var face := _facing_vec(n.facing)

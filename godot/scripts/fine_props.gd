@@ -138,6 +138,62 @@ static func lantern_post(g: Node3D, v: Village) -> void:
 	g.get_child(g.get_child_count() - 1).rotation.x = PI
 
 
+## 香爐（鼎）：三足、圓肚、兩耳，插滿香，冒著細煙
+static func ding(g: Node3D) -> void:
+	var bronze := Color("7a6a3a")
+	g.add_child(Mk.box(Vector3(0.8, 0.12, 0.8), Color("a8a296"), Vector3(0, 0.06, 0)))
+	for k in 3:
+		var a := TAU * k / 3.0
+		g.add_child(Mk.cyl(0.04, 0.05, 0.3, bronze.darkened(0.2), Vector3(cos(a) * 0.22, 0.27, sin(a) * 0.22), 6))
+	var body := Mk.ball(0.32, bronze, Vector3(0, 0.6, 0), 12)
+	body.scale = Vector3(1, 0.75, 1)
+	g.add_child(body)
+	g.add_child(Mk.cyl(0.3, 0.3, 0.06, bronze.lightened(0.1), Vector3(0, 0.8, 0), 12))
+	for side in [-1, 1]:
+		var ear := MeshInstance3D.new()
+		var tm := TorusMesh.new()
+		tm.inner_radius = 0.06
+		tm.outer_radius = 0.09
+		ear.mesh = tm
+		ear.material_override = Mk.mat(bronze)
+		ear.rotation.z = PI / 2.0
+		ear.position = Vector3(side * 0.3, 0.88, 0)
+		g.add_child(ear)
+	for k in 7:
+		var q := Vector3((Mk.h01(k, 1) - 0.5) * 0.3, 0.95, (Mk.h01(k, 2) - 0.5) * 0.3)
+		g.add_child(Mk.cyl(0.007, 0.007, 0.32, Color("8a4a2a"), q, 3))
+		var tip := Mk.box(Vector3(0.02, 0.02, 0.02), Color("ff7a3a"), q + Vector3(0, 0.16, 0))
+		var tm2 := tip.material_override.duplicate() as StandardMaterial3D
+		tm2.emission_enabled = true
+		tm2.emission = Color("ff5a2a")
+		tip.material_override = tm2
+		g.add_child(tip)
+	FineHouse._smoke(g, Vector3(0, 1.15, 0))
+
+
+## 土地公祠：石台、三面矮牆、小瓦頂，裡面一尊石雕土地公（白鬍子、紅袍），前面一個小香爐與紅布
+static func shrine(g: Node3D, v: Village) -> void:
+	var stone := Color("a8a296")
+	g.add_child(Mk.box(Vector3(0.95, 0.3, 0.8), stone, Vector3(0, 0.15, 0)))
+	g.add_child(Mk.box(Vector3(0.8, 0.75, 0.08), Color("b8b2a4"), Vector3(0, 0.67, -0.32)))
+	for sx in [-1, 1]:
+		g.add_child(Mk.box(Vector3(0.08, 0.75, 0.62), Color("b8b2a4"), Vector3(sx * 0.38, 0.67, -0.03)))
+	g.add_child(Mk.box(Vector3(0.66, 0.6, 0.02), Color("c8302a"), Vector3(0, 0.62, -0.27)))
+	# 土地公：小小一尊
+	var god := Node3D.new()
+	god.position = Vector3(0, 0.3, -0.1)
+	god.add_child(Mk.cyl(0.1, 0.14, 0.28, Color("b83a2a"), Vector3(0, 0.14, 0), 8))
+	god.add_child(Mk.ball(0.08, Color("e8c8a0"), Vector3(0, 0.36, 0), 8))
+	god.add_child(Mk.cone(0.06, 0.12, Color("f0ece0"), Vector3(0, 0.27, 0.05), 6))
+	god.get_child(god.get_child_count() - 1).rotation.x = PI
+	god.add_child(Mk.cyl(0.07, 0.08, 0.06, Color("3a3a40"), Vector3(0, 0.45, 0), 8))
+	g.add_child(god)
+	g.add_child(Mk.cyl(0.06, 0.05, 0.06, Color("8a6a3a"), Vector3(0, 0.33, 0.22), 8))
+	for k in 3:
+		g.add_child(Mk.cyl(0.005, 0.005, 0.2, Color("8a4a2a"), Vector3(-0.03 + k * 0.03, 0.45, 0.22), 3))
+	_tiny_roof(g, 1.05, 0.95, 1.38, 1.06, Color("5a5a62"), Color("3a3a42"))
+
+
 ## 告示欄：兩根柱子、木板上貼著幾張告示（有新有舊、歪歪的）、上面一個小瓦頂
 static func bulletin(g: Node3D) -> void:
 	for dx in [-0.6, 0.6]:

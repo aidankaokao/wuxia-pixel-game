@@ -1,7 +1,8 @@
 /**
  * 把網頁版的遊戲資料匯出成 JSON，給 Godot 版讀（godot/data/）。
  * 跑法（在專案根目錄）：npm run godot:data
- * 目前匯出：青竹村的地圖、建築、擺設、村民與台詞、物品表；青竹村各屋的室內（柳家大宅、竹風茶寮、石家鐵鋪、王家）。
+ * 目前匯出：青竹村、青竹村北的地圖（建築、擺設、出入口、村民與台詞）、物品表；
+ * 各屋的室內（柳家大宅、竹風茶寮、石家鐵鋪、王家、竹隱寺）。
  */
 import { writeFileSync } from 'node:fs';
 // 照遊戲本體的順序載入地圖與劇情（直接載入 life_towns 會碰上循環引用）
@@ -10,7 +11,8 @@ import { BUILDINGS } from '../../src/game/art/props';
 import { ITEMS } from '../../src/game/character';
 import { lifeGroups, type LifeNpc } from '../../src/game/life';
 import { qingzhu } from '../../src/game/maps/qingzhu';
-import { qzLiu, qzSmithy, qzTea, qzWang } from '../../src/game/maps/qingzhu_rooms';
+import { qzNorth } from '../../src/game/maps/qz_north';
+import { qzLiu, qzSmithy, qzTea, qzTemple, qzWang } from '../../src/game/maps/qingzhu_rooms';
 import { BLOCKING, type Line, type MapDef } from '../../src/game/maps/types';
 import { PEOPLE } from '../../src/game/story/people';
 
@@ -26,8 +28,9 @@ function linesOf(n: Pick<LifeNpc, 'person' | 'name'> & { talks?: { default?: Lin
   return n.talks?.default?.length ? n.talks.default : [[{ text: `${n.name}朝你點點頭，又忙自己的事去了。` }]];
 }
 
-function exportMap(def: MapDef, groupId: string) {
-  const group = lifeGroups().find((g) => g.id === groupId);
+/** 室外地圖；groupId 是在這張地圖上過日子的那群人（沒有就不放人） */
+function exportMap(def: MapDef, groupId?: string) {
+  const group = groupId ? lifeGroups().find((g) => g.id === groupId) : undefined;
   const spots = (group?.spots ?? []).filter((s) => s.map === def.id);
   return {
     id: def.id,
@@ -39,7 +42,8 @@ function exportMap(def: MapDef, groupId: string) {
     buildings: def.buildings.map((b) => ({ ...b, st: BUILDINGS[b.style] })),
     props: def.props
       .filter((p) => typeof p.sprite === 'string')
-      .map((p) => ({ sprite: p.sprite, x: p.x, y: p.y, w: p.w ?? 1, lines: p.lines ?? [], label: p.label ?? '' })),
+      .map((p) => ({ id: p.id ?? '', sprite: p.sprite, x: p.x, y: p.y, w: p.w ?? 1, lines: p.lines ?? [], label: p.label ?? '' })),
+    exits: def.exits,
     spots: spots.map((s) => ({ x: s.x, y: s.y, acts: s.acts })),
     people: (group?.npcs ?? []).map((n) => ({ id: n.id, name: n.name, sprite: n.sprite, person: n.person ?? '', lines: linesOf(n) })),
   };
@@ -71,8 +75,9 @@ function exportRoom(def: MapDef) {
   };
 }
 
-for (const r of [qzLiu, qzTea, qzSmithy, qzWang]) writeFileSync(OUT + `${r.id}.json`, JSON.stringify(exportRoom(r), null, 1));
+for (const r of [qzLiu, qzTea, qzSmithy, qzWang, qzTemple]) writeFileSync(OUT + `${r.id}.json`, JSON.stringify(exportRoom(r), null, 1));
 writeFileSync(OUT + 'qingzhu.json', JSON.stringify(exportMap(qingzhu, 'qingzhu'), null, 1));
+writeFileSync(OUT + 'qz_north.json', JSON.stringify(exportMap(qzNorth), null, 1));
 writeFileSync(
   OUT + 'items.json',
   JSON.stringify(Object.fromEntries(Object.entries(ITEMS).map(([id, it]) => [id, { name: it.name, price: it.price ?? 0, desc: it.desc ?? '', category: it.category }])), null, 1),

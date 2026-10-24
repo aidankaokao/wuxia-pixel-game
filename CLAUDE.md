@@ -24,6 +24,7 @@
 - 畫風是低多邊形加卡通描邊：模型全部用程式產生（`scripts/mk.gd` 的方塊、圓柱、圓錐、球、屋頂，成批的同款模型用 `Mk.Batch`／MultiMesh），材質一律用 `Mk.mat(顏色)`（Godot 的卡通明暗）；描邊是鏡頭底下的全畫面後製（`shaders/outline.gdshader`，要 Forward+）。半透明的東西（水、標記、字）會畫在描邊之後，不會被描邊。
 - 人物是 `scripts/chibi.gd` 的 Q 版小人（面向 +Z，`face(方向)` 轉身，`walking` 控制走路動畫），配色照網頁版的人物貼圖名填在 `LOOKS`。
 - 鏡頭 `scripts/cam.gd`：正交、固定俯角、永遠斜 45 度看（轉一次 90 度），方向鍵要用 `ground_dir` 換成地面方向。
+- 室外地圖都用 `village.gd`（`open(地圖 id)`；做好的室外地圖列在 `Village.OUTDOOR`，出入口通到這些就換過去，其他出入口當成往大地圖）。地圖四周往外延伸 `M` 格的景（`_ring`，格子座標可以是負的，陣列一律用 `[y + M][x + M]`），只能看不能走。網頁版沒有對應貼圖的東西，用擺設的 `id`（例如土地公祠 `tudi`）或 `room.gd` 的 `LOOK_BY_ID`（例如和尚）另外指定 Godot 的做法。
 - 能走動的場景都繼承 `scripts/grid_scene.gd`（格子座標、擋路、主角走動、人物、面對時的「E 交談／查看」與對話；走到某格時呼叫 `_on_tile`）：村子 `village.gd`、室內 `room.gd`。換場景用 `main.go(地圖 id, {x, y, facing})`。
 - 精細版房子在 `scripts/fine_house.gd`（`FineHouse.build`，瓦片屋頂用 `Mk.Batch` 的 `add_xf`＋`Mk.span` 沿著斜面排），新的建築樣式要在 `FineHouse.STYLE` 加一筆（柱色、彩繪色、牆色、門釘、春聯、屋頂高、額外擺設）。擺設的精細版在 `scripts/fine_props.gd`（水井、攤子、燈籠柱、告示欄）。
 - 室內：地板與牆的樣式照網頁版的 `theme`（`room.gd` 的 `THEMES`：plain 木地板、scholar 深色木地板、stone 石板地）；擺在牆格（W）上的擺設（掛軸、門）由 `_wall_prop` 貼牆做、掛在那面牆的節點底下。讀 `data/<地圖 id>.json`（匯出腳本的 `exportRoom`），四面牆各掛在一個節點（`sides`），只立背對鏡頭的兩面；新的室內擺設在 `room.gd` 的 `_prop` 依網頁版的擺設名加一種做法；做好的房子要加進 `village.gd` 的 `ROOMS`。

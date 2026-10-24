@@ -247,6 +247,8 @@ export interface BuildingStyle {
 }
 
 export const BUILDINGS: Record<string, BuildingStyle> = {
+  // 小廟：赭黃的牆、紅柱、灰瓦（青竹村北的竹隱寺）
+  temple: { w: 5, h: 4, door: 2, roof: '#4a4a52', roofDark: '#33333a', roofLight: '#62626c', wall: '#d8b878', timber: '#8a2e26', lanterns: true, plaque: true },
   hall: { w: 7, h: 5, door: 3, roof: '#3f4a5e', roofDark: '#2a3242', roofLight: '#5a6880', timber: '#8a2e26', lanterns: true, plaque: true },
   teahouse: { w: 6, h: 4, door: 2, roof: '#3e6656', roofDark: '#284638', roofLight: '#56826f', lanterns: true },
   smithy: { w: 5, h: 4, door: 2, roof: '#4a4248', roofDark: '#302a2e', roofLight: '#625860', wall: '#c9bda6', chimney: true },

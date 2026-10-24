@@ -116,6 +116,38 @@ export const qzTea: MapDef = {
   exits: [exitTo('qingzhu', 31, 16, 4, 7)],
 };
 
+// ── 竹隱寺（青竹村北） ─────────────────────────────────────
+
+const zhiyuan = by('智遠');
+
+export const qzTemple: MapDef = {
+  id: 'qz_temple',
+  name: '竹隱寺',
+  subtitle: '青竹村北・小廟',
+  tiles: room(9, 6, 4),
+  spawn: { x: 4, y: 4, facing: 'up' },
+  theme: 'scholar',
+  buildings: [],
+  props: [
+    { sprite: 'altar', x: 3, y: 1, w: 3, lines: [{ text: '供桌後面坐著一尊木雕的佛像，眉眼低垂，金漆斑駁。' }, { text: '桌上供著清水、鮮花和村裡人送來的果子。' }] },
+    { sprite: 'cushion', x: 3, y: 3, lines: [{ text: '一個磨舊了的蒲團。' }] },
+    { sprite: 'cushion', x: 5, y: 3, lines: [{ text: '一個磨舊了的蒲團。' }] },
+    { sprite: 'f_deco_plain_1', x: 1, y: 1, lines: [{ text: '一盆修竹，葉子擦得乾乾淨淨。' }] },
+    { sprite: 'f_deco_plain_1', x: 7, y: 1, lines: [{ text: '一盆修竹，葉子擦得乾乾淨淨。' }] },
+  ],
+  npcs: [
+    {
+      id: 'zhiyuan', name: '智遠', sprite: 'elder', x: 6, y: 2, facing: 'down',
+      talks: [
+        zhiyuan('阿彌陀佛。施主是從村裡上來的吧？', '這座寺小，就老衲一個人守著。村裡人逢年過節來上炷香，平日清靜得很。'),
+        zhiyuan('竹隱寺建了快一百年了。當年有位雲遊的師父路過，見這片竹林清幽，就留了下來。', '老衲是他的第三代弟子。'),
+        zhiyuan('施主身上帶著兵器，是練武之人。', '練武也好，修心也好，都急不得。'),
+      ],
+    },
+  ],
+  exits: [exitTo('qz_north', 19, 12, 4, 6)],
+};
+
 // ── 石家鐵鋪 ────────────────────────────────────────────
 
 

@@ -15,7 +15,7 @@ import { SECT_MINGQUAN_ROOMS } from './sect_mingquan_rooms';
 import { buildHomeMap, PlacedPlot, withPlots } from './home';
 import { qingzhu } from './qingzhu';
 import { qzNorth } from './qz_north';
-import { qzLiu, qzSmithy, qzTea, qzWang } from './qingzhu_rooms';
+import { qzLiu, qzSmithy, qzTea, qzTemple, qzWang } from './qingzhu_rooms';
 import type { MapDef } from './types';
 import { buildPropertyMap } from './property';
 import { propertyDef, propertyOf, PROPERTIES } from '../property';
@@ -47,6 +47,7 @@ export const MAPS: Record<string, MapDef> = {
   [ljTeashop.id]: ljTeashop,
   [qzLiu.id]: qzLiu,
   [qzTea.id]: qzTea,
+  [qzTemple.id]: qzTemple,
   [qzSmithy.id]: qzSmithy,
   [qzWang.id]: qzWang,
 };

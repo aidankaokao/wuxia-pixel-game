@@ -96,6 +96,11 @@ export const qingzhu: MapDef = {
     { sprite: 'sign', x: 28, y: 33, lines: [{ text: '「青竹村」\n北通蒼嵐山・東往臨江城・南接南嶺古道' }] },
     { sprite: 'sign', x: 28, y: 9, lines: [{ text: '北 ── 蒼嵐山\n山路險峻，日落後勿行。' }] },
     { sprite: 'sign', x: 36, y: 19, lines: [{ text: '東 ── 臨江城　三十里' }] },
+    // 村口的土地公祠（Godot 版用 id 認出來，蓋成一座小祠）
+    {
+      id: 'tudi', sprite: 'stele', x: 52, y: 18,
+      lines: [{ text: '村口一座小小的土地公祠，供著一尊石雕的土地公，香爐裡插著幾炷香。' }, { text: '出遠門的人都會在這裡拜一拜，求一路平安。' }],
+    },
     { sprite: 'stele', x: 5, y: 9, script: steleRead },
     // 村西南的大田是鳴泉劍派的祖田，佃給村裡人種（story/mq_trade.ts）
     { sprite: 'sign', x: 17, y: 31, lines: [{ text: '「鳴泉劍派祖田」\n佃戶：阿牛、鄒老實等\n夏租六月初一、冬租十月初一，交柳村長代收。' }] },

@@ -14,6 +14,7 @@ const STYLE := {
 	"teahouse": {"pillar": "7a3226", "band": "3e6656", "wall": "ece2cc", "studs": true, "couplet": ["竹影搖風", "茶香引客"], "rise": 1.15, "extra": ""},
 	"smithy": {"pillar": "4a3a2e", "band": "5a4a44", "wall": "c9bda6", "studs": false, "couplet": [], "rise": 1.05, "extra": "forge"},
 	"house": {"pillar": "5a3a22", "band": "", "wall": "e8dcc4", "studs": false, "couplet": ["春回大地", "福滿人間"], "rise": 1.05, "extra": "firewood"},
+	"temple": {"pillar": "8a2e26", "band": "3e5a7a", "wall": "d8b878", "studs": true, "couplet": ["竹林聽法", "清泉洗心"], "rise": 1.3, "extra": "temple"},
 	"house2": {"pillar": "5a3a22", "band": "", "wall": "e4d6bc", "studs": false, "couplet": [], "rise": 1.05, "extra": "corn"},
 }
 
@@ -141,8 +142,9 @@ static func build(v: Village, b: Dictionary) -> Node3D:
 	if flag != "":
 		# 屋簷會遮住簷下的東西（鏡頭從斜上方看），所以幌子立在簷口外面、店招掛在簷口
 		_flag(root, Vector3(w - 0.15, 0, front + 0.95), flag)
-		if sign_text != "":
-			_shop_sign(root, Vector3(0.5, top_y + 0.02, front + 0.66), sign_text)
+	# 店家、寺廟在簷口掛一塊直立的招牌（簷下的匾額從斜上方看會被屋簷擋住）
+	if sign_text != "" and (flag != "" or b.style == "temple"):
+		_shop_sign(root, Vector3(0.5, top_y + 0.02, front + 0.66), sign_text)
 	# ── 各樣式自己的東西 ──
 	match S.extra:
 		"drums":
@@ -175,6 +177,21 @@ static func build(v: Village, b: Dictionary) -> Node3D:
 					log.rotation.x = PI / 2.0
 					log.rotation.y = PI / 2.0
 					root.add_child(log)
+		"temple":
+			# 寺廟：門口兩座石燈籠
+			for side in [-1, 1]:
+				var p := Vector3(door_x + side * 1.55, 0, front + 0.3)
+				root.add_child(Mk.box(Vector3(0.3, 0.12, 0.3), Color("a8a296"), p + Vector3(0, 0.06, 0)))
+				root.add_child(Mk.cyl(0.06, 0.07, 0.5, Color("b0aa9c"), p + Vector3(0, 0.37, 0), 6))
+				root.add_child(Mk.box(Vector3(0.3, 0.26, 0.3), Color("b8b2a4"), p + Vector3(0, 0.75, 0)))
+				var glow := Mk.box(Vector3(0.16, 0.14, 0.32), Color("ffd890"), p + Vector3(0, 0.75, 0))
+				var gm := glow.material_override.duplicate() as StandardMaterial3D
+				gm.emission_enabled = true
+				gm.emission = Color("ffc060")
+				gm.emission_energy_multiplier = 0.5
+				glow.material_override = gm
+				root.add_child(glow)
+				root.add_child(Mk.cone(0.26, 0.18, Color("8a867a"), p + Vector3(0, 0.97, 0), 4))
 		"corn":
 			# 民居：簷下掛著一串串玉米與辣椒
 			for k in 4:

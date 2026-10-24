@@ -2,7 +2,7 @@ extends Node3D
 ## 試作品的主控：光線與環境、時辰（T）、天氣（Y）、換場景（Tab 或左上的按鈕）、鏡頭轉向（Q／R，每次 90 度）。
 ## 場景：青竹村（village）、戰鬥・平地（plain）、戰鬥・河湖（river）、戰鬥・山道（hill）。
 
-const SCENES := [["village", "青竹村"], ["qz_tea", "竹風茶寮"], ["plain", "戰鬥・平地"], ["river", "戰鬥・河湖"], ["hill", "戰鬥・山道"]]
+const SCENES := [["village", "青竹村"], ["qz_north", "青竹村北"], ["qz_tea", "竹風茶寮"], ["plain", "戰鬥・平地"], ["river", "戰鬥・河湖"], ["hill", "戰鬥・山道"]]
 ## 時辰：太陽的角度、顏色、亮度；天空與環境光；燈籠亮不亮
 const TIMES := [
 	{"name": "清晨", "pitch": -25.0, "sun": Color("ffd8b0"), "e": 1.0, "bg": Color("9fb4c8"), "amb": Color("8a96b0"), "ae": 0.5, "lamp": 0.0},
@@ -121,10 +121,11 @@ func go(id: String, at := {}) -> void:
 	if scene:
 		scene.queue_free()
 	ui.show_hint("", Vector2.ZERO)
-	if id == "village" or id == "qingzhu":
-		scene_id = "village"
+	if id == "village" or id in Village.OUTDOOR:
 		var v := Village.new()
 		v.setup(ui, rig, self, at)
+		v.open("qingzhu" if id == "village" else id)
+		scene_id = "village" if id == "qingzhu" else id
 		scene = v
 		rig.size = 14.0
 		rig.size_max = 26.0

@@ -1,0 +1,161 @@
+{
+ "id": "qz_north",
+ "name": "青竹村北",
+ "subtitle": "青竹村・村北",
+ "tiles": [
+  "YYYYYYYYYYYEEYYYYYYYYYYY",
+  "YY..T......::......T..YY",
+  "Y....*.....::...*......Y",
+  "Y..o.......::.....nnnn.Y",
+  "YT.........::.....nnnn.Y",
+  "Y....YY....::.....nnnn.Y",
+  "Y...YYYY...::..........Y",
+  "Y....YY....::::::......Y",
+  "Y..........::...:......Y",
+  "Y.nnnn.....::...:......Y",
+  "Y.nnnn.....::...:......Y",
+  "Y.nnnn.....::...:......Y",
+  "Y..........::...::::T..Y",
+  "YT...*.....::..........Y",
+  "YY.........::.......o.YY",
+  "YYYYYYYYYYYEEYYYYYYYYYYY"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 11,
+  "y": 14,
+  "facing": "up"
+ },
+ "buildings": [
+  {
+   "style": "temple",
+   "x": 17,
+   "y": 8,
+   "name": "竹隱寺",
+   "sign": "竹隱寺",
+   "door": [],
+   "enter": {
+    "to": "qz_temple",
+    "spawn": {
+     "x": 4,
+     "y": 4,
+     "facing": "up"
+    }
+   },
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a4a52",
+    "roofDark": "#33333a",
+    "roofLight": "#62626c",
+    "wall": "#d8b878",
+    "timber": "#8a2e26",
+    "lanterns": true,
+    "plaque": true
+   }
+  }
+ ],
+ "props": [
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 13,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「青竹村北」\n北 ── 蒼嵐山\n南 ── 青竹村"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "stele",
+   "x": 5,
+   "y": 8,
+   "w": 1,
+   "lines": [
+    {
+     "text": "路邊的石碑：「竹隱寺　往東半里」。"
+    },
+    {
+     "text": "碑腳下擺著幾個野果子，是過路的人留下的。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "ding",
+   "x": 19,
+   "y": 13,
+   "w": 1,
+   "lines": [
+    {
+     "text": "寺門前的銅香爐，插滿了村裡人供的香，煙一縷縷往上飄。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "rock",
+   "x": 3,
+   "y": 3,
+   "w": 1,
+   "lines": [],
+   "label": "採石"
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 17,
+   "y": 6,
+   "w": 1,
+   "lines": [
+    {
+     "text": "田邊的水井，打上來的水冰涼清甜。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     11,
+     0
+    ],
+    [
+     12,
+     0
+    ]
+   ],
+   "world": "qingzhu",
+   "worldFrom": "canglan"
+  },
+  {
+   "tiles": [
+    [
+     11,
+     15
+    ],
+    [
+     12,
+     15
+    ]
+   ],
+   "to": "qingzhu",
+   "spawn": {
+    "x": 26,
+    "y": 1,
+    "facing": "down"
+   }
+  }
+ ],
+ "spots": [],
+ "people": []
+}

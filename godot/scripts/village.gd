@@ -1,6 +1,8 @@
 class_name Village
 extends GridScene
-## 青竹村：讀網頁版匯出的地圖資料（data/qingzhu.json：字元格子、建築、擺設、村民與台詞），蓋成立體的村子。
+## 室外地圖（青竹村、青竹村北……）：讀網頁版匯出的地圖資料（data/<地圖 id>.json：字元格子、建築、擺設、出入口、
+## 村民與台詞），蓋成立體的村子。地圖四周往外多生一圈 M 格的景（照邊緣的地形接下去：山接山、林接林、河往外流、
+## 路延伸到遠方，最外面一圈是山），只能看、不能走；走到出入口就換地圖（往大地圖的還沒做）。
 ## - 山（^）依周圍有幾格山而隆起，水（~）往下凹，路、田、廣場貼在地面上。
 ## - 主角用方向鍵走（相對鏡頭方向），Shift 跑；村民在自己的位置附近走動，攤販站著不動。
 ## - 面對村民、擺設時頭上冒出「空白鍵 交談／查看」，按空白鍵對話；陶四、鍾嬸可以買賣東西。
@@ -16,9 +18,18 @@ const STALLS := {
 ## 精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）；有樣式設定的都用精細版
 
 ## 做好室內的房子（地圖 id）
-const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang"]
+const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple"]
+## 做好的室外地圖（出入口通到這些就換過去）
+const OUTDOOR := ["qingzhu", "qz_north"]
+## 地圖四周往外延伸幾格
+const M := 16
 
+var map_id := "qingzhu"
 var data: Dictionary
+## 延伸之後的整片格子（含地圖本身），[y + M][x + M]
+var _ext := []
+var EW := 0
+var EH := 0
 var heights := []
 ## 地面網格每個頂點的高度（給山上的樹、石頭找地面高度）
 var _hv := PackedFloat32Array()
@@ -27,14 +38,21 @@ var _vw := 0
 var doors := {}
 
 
+func open(id: String) -> void:
+	map_id = id
+
+
 func _ready() -> void:
-	var f := FileAccess.open("res://data/qingzhu.json", FileAccess.READ)
+	var f := FileAccess.open("res://data/%s.json" % map_id, FileAccess.READ)
 	data = JSON.parse_string(f.get_as_text())
 	var tiles: Array = data.tiles
 	H = tiles.size()
 	W = (tiles[0] as String).length()
 	ox = -W / 2.0
 	oz = -H / 2.0
+	EW = W + M * 2
+	EH = H + M * 2
+	_ring()
 	for y in H:
 		for x in W:
 			if (data.blocking as String).contains(tile(x, y)):
@@ -51,16 +69,54 @@ func _ready() -> void:
 
 
 func tile(x: int, y: int) -> String:
-	if y < 0 or y >= H or x < 0 or x >= W:
+	if y >= 0 and y < H and x >= 0 and x < W:
+		return (data.tiles[y] as String)[x]
+	if y < -M or y >= H + M or x < -M or x >= W + M:
 		return "^"
-	return (data.tiles[y] as String)[x]
+	return _ext[y + M][x + M]
+
+
+## 地圖外圍的景：照最近的邊緣格子往外接——山接山、竹林接竹林、河往外流、路筆直延伸，
+## 草地越往外樹越多（偶爾有石頭、花），最外面三圈是山（路與河從山間穿出去）
+func _ring() -> void:
+	_ext = []
+	for y in range(-M, H + M):
+		var row := []
+		for x in range(-M, W + M):
+			var cx := clampi(x, 0, W - 1)
+			var cy := clampi(y, 0, H - 1)
+			var d := maxi(absi(x - cx), absi(y - cy))
+			if d == 0:
+				row.append((data.tiles[y] as String)[x])
+				continue
+			var b := (data.tiles[cy] as String)[cx]
+			var r := Mk.h01(x, y, 77)
+			var straight := x == cx or y == cy
+			var c := "."
+			if b in ["~", "#"]:
+				c = "~"
+			elif b in [":", "E", "="] and straight:
+				c = ":"
+			elif d >= M - 3:
+				c = "^"
+			elif b == "^":
+				c = "^"
+			elif b == "Y":
+				c = "Y" if r < 0.8 else "T"
+			elif b == "T":
+				c = "T" if r < 0.85 else "."
+			else:
+				var forest := 0.2 + d * 0.06
+				c = "T" if r < forest else ("o" if r < forest + 0.03 else ("*" if r < forest + 0.07 else "."))
+			row.append(c)
+		_ext.append(row)
 
 
 func _heights() -> void:
 	heights = []
-	for y in H:
+	for y in range(-M, H + M):
 		var row := []
-		for x in W:
+		for x in range(-M, W + M):
 			var c := tile(x, y)
 			var h := 0.0
 			if c == "~":
@@ -72,6 +128,10 @@ func _heights() -> void:
 						if tile(x + dx, y + dy) == "^":
 							n += 1
 				h = 0.6 + n / 25.0 * 2.2 + Mk.h01(x, y, 3) * 0.5
+				# 地圖外面越遠的山越高
+				var d := maxi(maxi(-x, x - (W - 1)), maxi(-y, y - (H - 1)))
+				if d > 0:
+					h += d * 0.12
 			row.append(h)
 		heights.append(row)
 
@@ -83,9 +143,9 @@ const SUB := 4
 ## 一張「每格一個數字」的表
 func _grid_of(f: Callable) -> Array:
 	var out := []
-	for y in H:
+	for y in range(-M, H + M):
 		var row := []
-		for x in W:
+		for x in range(-M, W + M):
 			row.append(f.call(x, y))
 		out.append(row)
 	return out
@@ -94,16 +154,16 @@ func _grid_of(f: Callable) -> Array:
 ## 模糊一次（中間 4、上下左右 2、斜角 1），讓邊界變圓
 func _blur(m: Array) -> Array:
 	var out := []
-	for y in H:
+	for y in EH:
 		var row := []
-		for x in W:
+		for x in EW:
 			var sum := 0.0
 			var wsum := 0.0
 			for dy in range(-1, 2):
 				for dx in range(-1, 2):
 					var k := 4.0 if dx == 0 and dy == 0 else (2.0 if dx == 0 or dy == 0 else 1.0)
-					var yy := clampi(y + dy, 0, H - 1)
-					var xx := clampi(x + dx, 0, W - 1)
+					var yy := clampi(y + dy, 0, EH - 1)
+					var xx := clampi(x + dx, 0, EW - 1)
 					sum += float(m[yy][xx]) * k
 					wsum += k
 			row.append(sum / wsum)
@@ -119,7 +179,7 @@ func _bil(m: Array, u: float, v: float) -> float:
 	var y0 := floori(fy)
 	var tx := fx - x0
 	var ty := fy - y0
-	var at := func(x: int, y: int) -> float: return float(m[clampi(y, 0, H - 1)][clampi(x, 0, W - 1)])
+	var at := func(x: int, y: int) -> float: return float(m[clampi(y + M, 0, EH - 1)][clampi(x + M, 0, EW - 1)])
 	return lerpf(lerpf(at.call(x0, y0), at.call(x0 + 1, y0), tx), lerpf(at.call(x0, y0 + 1), at.call(x0 + 1, y0 + 1), tx), ty)
 
 
@@ -129,17 +189,17 @@ func _ground() -> void:
 	var water := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in ["~", "#"] else 0.0))
 	var path := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) in [":", "E", "#"] else 0.0))
 	var plaza := _blur(_grid_of(func(x, y): return 1.0 if tile(x, y) == "=" else 0.0))
-	var mtn := _grid_of(func(x, y): return heights[y][x] if tile(x, y) == "^" else 0.0)
+	var mtn := _grid_of(func(x, y): return heights[y + M][x + M] if tile(x, y) == "^" else 0.0)
 	var n := SUB
-	var vw := W * n + 1
-	var vh := H * n + 1
+	var vw := EW * n + 1
+	var vh := EH * n + 1
 	# 每個頂點的高度
 	var hv := PackedFloat32Array()
 	hv.resize(vw * vh)
 	for j in vh:
 		for i in vw:
-			var u := float(i) / n
-			var v := float(j) / n
+			var u := float(i) / n - M
+			var v := float(j) / n - M
 			var hm := maxf(0.0, _bil(mtn, u, v) - 0.35) * 1.4
 			var hw := -0.45 * smoothstep(0.25, 0.75, _bil(water, u, v))
 			# 山上多一點起伏（低多邊形的稜角）
@@ -155,8 +215,8 @@ func _ground() -> void:
 	cols.resize(vw * vh)
 	for j in vh:
 		for i in vw:
-			var u := float(i) / n
-			var v := float(j) / n
+			var u := float(i) / n - M
+			var v := float(j) / n - M
 			var h := hv[j * vw + i]
 			verts[j * vw + i] = Vector3(u + ox, h, v + oz)
 			cols[j * vw + i] = _ground_color(u, v, h, path, plaza, grass_a, grass_b)
@@ -179,10 +239,13 @@ func _ground() -> void:
 	mi.mesh = st.commit()
 	mi.material_override = Mk.vmat()
 	add_child(mi)
+	# 外圍再遠的地方：一大片深綠色的地，鏡頭拉很遠也不會看到空的
+	var far := Mk.box(Vector3(EW + 400, 0.1, EH + 400), Color("4a7a40"), Vector3(ox + W / 2.0, -0.6, oz + H / 2.0))
+	add_child(far)
 	# 水面
 	var wplane := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
-	pm.size = Vector2(W, H)
+	pm.size = Vector2(EW, EH)
 	wplane.mesh = pm
 	var wm := StandardMaterial3D.new()
 	wm.albedo_color = Color(0.29, 0.55, 0.78, 0.82)
@@ -302,8 +365,8 @@ func _bridge(lo: Vector2i, hi: Vector2i, along_x: bool) -> void:
 
 ## 地面某一點的高度（u、v 以格為單位）
 func ground_h(u: float, v: float) -> float:
-	var fx := clampf(u * SUB, 0, _vw - 1.001)
-	var fy := clampf(v * SUB, 0, _hv.size() / _vw - 1.001)
+	var fx := clampf((u + M) * SUB, 0, _vw - 1.001)
+	var fy := clampf((v + M) * SUB, 0, _hv.size() / _vw - 1.001)
 	var x0 := floori(fx)
 	var y0 := floori(fy)
 	var tx := fx - x0
@@ -360,13 +423,13 @@ func _mountain_plants() -> void:
 	var rock := Mk.Batch.new(rock_m)
 	var greens := [Color("2f6a3a"), Color("3a7a40"), Color("285a34"), Color("44803e")]
 	var rocks := [Color("7a7466"), Color("8a8474"), Color("6a6658"), Color("948e7e")]
-	for y in H:
-		for x in W:
+	for y in range(-M, H + M):
+		for x in range(-M, W + M):
 			# 山上、以及山腳旁邊一格的草地
 			var near := tile(x, y) == "^"
 			if not near:
 				continue
-			var tall: float = heights[y][x]
+			var tall: float = heights[y + M][x + M]
 			# 越高越稀、越多石頭（0 山腳 … 1 山頂）
 			var alt := clampf((tall - 0.6) / 2.7, 0.0, 1.0)
 			var count := 3 + int(Mk.h01(x, y, 31) * 3.0)
@@ -465,8 +528,8 @@ func _plants() -> void:
 	rz.size = Vector3(0.05, 0.06, 1)
 	var rail_z := Mk.Batch.new(rz, Color("9a6a3a"))
 	var flowers := [Color("f2c230"), Color("ffffff"), Color("e86a92"), Color("e8603c")]
-	for y in H:
-		for x in W:
+	for y in range(-M, H + M):
+		for x in range(-M, W + M):
 			var c := tile(x, y)
 			var r := Mk.h01(x, y, 9)
 			var p := w3(x, y)
@@ -622,12 +685,18 @@ func _prop(p: Dictionary) -> void:
 	g.position = Vector3(p.x + w / 2.0 + ox, 0, p.y + 0.5 + oz)
 	add_child(g)
 	props.append({"node": g, "def": p, "at": Vector2(p.x + w / 2.0, p.y + 0.5)})
+	# 村口的土地公祠（網頁版用石碑的圖，這裡認 id 蓋成一座小祠）
+	if p.get("id", "") == "tudi":
+		FineProps.shrine(g, self)
+		return
 	match p.sprite:
 		# 精細版（fine_props.gd）
 		"lantern_post":
 			FineProps.lantern_post(g, self)
 		"well":
 			FineProps.well(g)
+		"ding":
+			FineProps.ding(g)
 		"stall":
 			FineProps.stall(g, w)
 		"stele":
@@ -669,6 +738,21 @@ func _people() -> void:
 
 
 ## 對著門按空白鍵：做好室內的就直接換到屋裡，還沒做的說一聲
+## 走到出入口：通到做好的室外地圖就換過去；往大地圖的路還沒做，說一聲、退回一步
+func _on_tile(g: Vector2i) -> void:
+	for e in data.exits:
+		for t in e.tiles:
+			if g != Vector2i(t[0], t[1]):
+				continue
+			if e.has("to") and e.to in OUTDOOR:
+				main.go(e.to, e.spawn)
+			else:
+				var back := Vector3(clampf(t[0], 1, W - 2) - t[0], 0, clampf(t[1], 1, H - 2) - t[1]).normalized() * 0.6
+				hero.position += back
+				ui.say([{"text": "這條路通往大地圖。（大地圖還沒做好）"}])
+			return
+
+
 func _interact(t: Dictionary) -> void:
 	if not (t.kind == "prop" and t.p.def.has("door")):
 		await super._interact(t)
