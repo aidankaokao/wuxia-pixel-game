@@ -36,6 +36,7 @@
 - 進出房子一律站在門口按空白鍵（門是 `props` 裡 `sprite: "door"` 的一筆，村子帶 `door`、室內帶 `exit`），不要做成走上去就自動進門。
 - 村子的地面（`village.gd` 的 `_ground`）每格切 `SUB`×`SUB` 細網格，高度與顏色在格子之間平滑取值（`_bil`、`_blur`），讓河岸、小路是曲線；擋路仍照格子。
 - 劇情腳本：GDScript 的 static 函式放在 `godot/story/<檔名>.gd`（參數 `ctx: Ctx`，能做的事見 `scripts/ctx.gd`），資料裡用 `"script": "檔名/函式名"` 指到它（擺設、`npcs`、`triggers`）；檔案開頭註解列出用到的旗標。出現條件 `when` 是運算式字串（見 `scripts/story.gd`），NPC 作息欄位 `all_day`／`work`／`night`／`out`／`meal`。`godot/data/` 的 JSON 由 Godot 這邊維護（直接改），`npm run godot:data` 只匯出到 `godot/tools/web_export/` 當參考，不要再拿匯出的檔案蓋掉 `godot/data/`。
+- 角色：`scripts/hero.gd`（`Hero`，照網頁版 character.ts；主角是 `G.hero` 字典）。武功與招式在 `data/skills.json`（`tiers`、`skills`、`moves`），物品在 `data/items.json`（`Ui.item_def(id)`）；新增武功要填品階、裝備加成、永久成長、上限加成與招式表（第一招為初始招，其餘標重數與悟出後的加成），招式加在 `moves`。整頁的介面（標題、建立角色、選單）在 `scripts/screens.gd`。
 - 遊戲狀態在 autoload `G`（`scripts/game.gd`）：主角、銀兩 `G.silver`、行囊 `G.bag`、旗標 `G.flags`、日子與時間（`G.day`、`G.time` 是今天第幾刻）、天氣；時間只能用 `G.advance(刻)` 往前走（畫面接 `time_changed`），日期與時辰的文字用 `G.date_text()`、`G.time_text()`、`G.ke_text()`。存檔 `G.write_save(欄位, main.where())`／`G.read_save`／`G.apply_save`；場景的位置由 `GridScene.where_at()` 提供（州圖存天下格）。存檔格式改了要遞增 `SAVE_VERSION`。網頁版的設計搬過來的順序見 PLAN.md 4.38。
 - 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`、`ui.toast(一行提示)`，開著時 `ui.busy()` 為真；中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
 - 程式註解、介面文字一樣用繁體中文；GDScript 用 tab 縮排、型別推斷（`:=`）時遇到 Variant 要用 `maxf`／`minf` 這類有型別的函式。

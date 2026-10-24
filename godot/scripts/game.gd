@@ -30,7 +30,7 @@ const WEATHER_NAME := {"clear": "晴", "cloudy": "陰", "rain": "雨", "fog": "�
 ## 各季的天氣機率（晴、陰、雨或雪、霧）：夏天雨多，秋天晴多，冬天下的是雪
 const WEATHER_ODDS := [[0.45, 0.22, 0.23, 0.1], [0.5, 0.15, 0.3, 0.05], [0.6, 0.2, 0.1, 0.1], [0.4, 0.28, 0.22, 0.1]]
 
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 ## 手動存檔的欄位數
 const MANUAL_COUNT := 10
 
@@ -45,14 +45,14 @@ var _new_day: Array[Callable] = []
 
 
 func _ready() -> void:
-	new_game()
+	new_game({}, true)
 
 
-## 開新遊戲：試作品先給一些東西，之後換成建角
-func new_game() -> void:
-	hero = {"name": "無名"}
-	silver = 120
-	bag = {"boar_meat": 2, "dog_pelt": 1, "boar_tusk": 1, "herb": 3, "jinchuang": 1}
+## 開新遊戲：c 是建立好的角色（空的就用預設的「無名」）；dev 是開發測試用，多給一些錢和東西
+func new_game(c: Dictionary, dev := false) -> void:
+	hero = c if not c.is_empty() else Hero.new_hero()
+	silver = 120 if dev else 12
+	bag = {"boar_meat": 2, "dog_pelt": 1, "boar_tusk": 1, "herb": 3, "jinchuang": 2, "tea": 1} if dev else {}
 	flags = {}
 	day = 1
 	time = START_TIME
@@ -209,6 +209,14 @@ func slot_name(slot: String) -> String:
 	return "檔案" + "一二三四五六七八九十"[int(slot) - 1]
 
 
+## 所有欄位與內容（沒有存檔的 data 是空的）
+func list_saves() -> Array:
+	var out := []
+	for s in ["quick", "auto"] + range(1, MANUAL_COUNT + 1).map(func(i): return str(i)):
+		out.append({"slot": s, "data": read_save(s)})
+	return out
+
+
 func _path(slot: String) -> String:
 	return "user://save/%s.json" % slot
 
@@ -238,6 +246,14 @@ func read_save(slot: String) -> Dictionary:
 ## 把存檔套用到狀態上（換場景由 main 做）；JSON 讀回來的數字都是小數，要轉回整數
 func apply_save(d: Dictionary) -> void:
 	hero = d.hero
+	# JSON 讀回來的數字都是小數：角色身上的計數改回整數
+	for k in ["fame", "age", "points", "bag_extra", "hp", "qi", "stamina"]:
+		hero[k] = int(hero.get(k, 0))
+	for s in hero.skills:
+		for k in ["level", "exp", "fails"]:
+			s[k] = int(s[k])
+		if s.pos != null:
+			s.pos = int(s.pos)
 	silver = int(d.silver)
 	bag = {}
 	for k in d.bag:
@@ -251,4 +267,4 @@ func apply_save(d: Dictionary) -> void:
 
 ## 存檔的一行說明：「二月初三 辰時初・青竹村」
 func save_summary(d: Dictionary) -> String:
-	return "%s %s・%s" % [date_text(int(d.day)), time_text(int(d.time)), d.where.get("name", "")]
+	return "%s　%s %s・%s" % [d.hero.get("name", ""), date_text(int(d.day)), time_text(int(d.time)), d.where.get("name", "")]

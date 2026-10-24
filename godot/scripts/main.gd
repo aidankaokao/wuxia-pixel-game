@@ -28,6 +28,8 @@ var cur_at := {}
 var rain_fx: GPUParticles3D
 var snow_fx: GPUParticles3D
 var buttons := {}
+## 左上的開發用按鈕
+var dev_box: Control
 
 
 func _ready() -> void:
@@ -57,15 +59,43 @@ func _ready() -> void:
 	_panel()
 	G.time_changed.connect(apply_time)
 	var args := DevShot.args()
-	if args.has("scene"):
-		scene_id = args.scene
 	if args.has("time"):
 		# 開發用：0 清晨、1 正午、2 黃昏、3 夜晚
 		G.time = [24, 48, 72, 88][int(args.time)]
 	if args.has("weather"):
 		G.weather = args.weather
-	go(scene_id)
 	apply_time()
+	# 帶 --scene 是開發測試：跳過標題，用預設的角色直接進場景
+	if args.has("scene"):
+		go(args.scene)
+	else:
+		_title_flow()
+
+
+## 標題畫面 → 新的遊戲（建立角色）或讀取進度
+func _title_flow() -> void:
+	_chrome(false)
+	while true:
+		var r := await Screens.title(ui)
+		if r.do == "new":
+			var c := await Screens.create(ui)
+			if c.is_empty():
+				continue
+			G.new_game(c)
+			_chrome(true)
+			go("village")
+			return
+		G.apply_save(r.data)
+		_chrome(true)
+		go(r.data.where.scene, r.data.where.at)
+		return
+
+
+## 遊戲中才顯示的東西（左上的狀態、開發用按鈕、下方的操作說明）
+func _chrome(on: bool) -> void:
+	ui.info.visible = on
+	ui.help.visible = on
+	dev_box.visible = on
 
 
 func _rain() -> void:
@@ -127,8 +157,9 @@ func _snow() -> void:
 ## 左上：場景、時辰、天氣的按鈕
 func _panel() -> void:
 	var box := VBoxContainer.new()
-	box.position = Vector2(16, 96)
+	box.position = Vector2(16, 118)
 	ui.add_child(box)
+	dev_box = box
 	var row := HBoxContainer.new()
 	box.add_child(row)
 	for s in SCENES:
@@ -139,7 +170,7 @@ func _panel() -> void:
 	box.add_child(row2)
 	row2.add_child(_button("過一個時辰（T）", func() -> void: G.advance(G.KE_PER_SHICHEN)))
 	row2.add_child(_button("換天氣（Y）", _next_weather))
-	ui.help.text = "方向鍵或 WASD 走路、Shift 跑、空白鍵 交談／確認、Q／R 轉鏡頭、滾輪或 Z／X 拉遠近、Ctrl／⌘+S 即時存檔、F9 讀檔、T 過一個時辰、Y 換天氣、Tab 換場景"
+	ui.help.text = "方向鍵或 WASD 走路、Shift 跑、空白鍵 交談／確認、Q／R 轉鏡頭、滾輪或 Z／X 拉遠近、X／Esc 人物與武功、Ctrl／⌘+S 即時存檔、F9 讀檔、T 過一個時辰、Y 換天氣、Tab 換場景"
 
 
 ## 開發用：換到下一種天氣
@@ -312,6 +343,10 @@ func _unhandled_input(e: InputEvent) -> void:
 	match e.keycode:
 		KEY_F9:
 			quick_load()
+		KEY_X, KEY_ESCAPE:
+			if scene is GridScene:
+				get_viewport().set_input_as_handled()
+				Screens.menu(ui)
 		KEY_TAB:
 			var i := 0
 			for j in SCENES.size():
@@ -329,4 +364,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func _process(_dt: float) -> void:
-	ui.info.text = "%s\n%s" % [G.status_text(), scene.info_text() if scene and scene.has_method("info_text") else ""]
+	var c := G.hero
+	var d := Hero.derive(c)
+	ui.info.text = "%s　%s\n氣血 %d/%d　內力 %d/%d　體力 %d/%d\n%s" % [c.name, G.status_text(), c.hp, d.max_hp, c.qi, d.max_qi, c.stamina, d.max_stamina,
+		scene.info_text() if scene and scene.has_method("info_text") else ""]

@@ -8,7 +8,8 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 // 照遊戲本體的順序載入地圖與劇情（直接載入 life_towns 會碰上循環引用）
 import '../../src/game/maps/index';
 import { BUILDINGS } from '../../src/game/art/props';
-import { ITEMS } from '../../src/game/character';
+import { ITEMS, SKILLS, TIERS } from '../../src/game/character';
+import { MOVES } from '../../src/game/battle/moves';
 import { lifeGroups, type LifeNpc } from '../../src/game/life';
 import { qingzhu } from '../../src/game/maps/qingzhu';
 import { qzNorth } from '../../src/game/maps/qz_north';
@@ -84,6 +85,10 @@ writeFileSync(
   OUT + 'items.json',
   JSON.stringify(Object.fromEntries(Object.entries(ITEMS).map(([id, it]) => [id, { name: it.name, price: it.price ?? 0, desc: it.desc ?? '', category: it.category }])), null, 1),
 );
+// 武功（品階、裝備與永久加成、招式表）與招式（名稱、說明、內力、威力、效果）
+writeFileSync(OUT + 'skills.json', JSON.stringify({ tiers: TIERS, skills: SKILLS, moves: MOVES }, null, 1));
+// 完整的物品表（回復、秘笈、服飾、價錢…）
+writeFileSync(OUT + 'items_full.json', JSON.stringify(ITEMS, null, 1));
 console.log('匯出完成：', OUT);
 
 // 大地圖不再從網頁版匯出：Godot 的州圖由天下輿圖產生（godot/data/tianxia.json、godot/data/zhou/）

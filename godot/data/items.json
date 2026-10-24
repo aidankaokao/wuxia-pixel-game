@@ -1,1322 +1,2417 @@
 {
  "jinchuang": {
   "name": "金創藥",
-  "price": 30,
+  "category": "藥品",
+  "icon": "salve",
   "desc": "江湖常備的外傷藥，敷上可止血生肌。回復氣血 80。",
-  "category": "藥品"
+  "hp": 80,
+  "price": 30
  },
  "huiqi_san": {
   "name": "回氣散",
-  "price": 25,
+  "category": "藥品",
+  "icon": "pill",
   "desc": "回春堂配的藥散，溫水送服，調息補氣。回復內力 50。",
-  "category": "藥品"
+  "qi": 50,
+  "price": 25
  },
  "dahuan_dan": {
   "name": "大還丹",
-  "price": 120,
+  "category": "藥品",
+  "icon": "pill",
   "desc": "回春堂的鎮店之寶，一顆就能把人從鬼門關拉回來。回復氣血 200、內力 60。",
-  "category": "藥品"
+  "hp": 200,
+  "qi": 60,
+  "price": 120
  },
  "yangqi_wan": {
   "name": "養氣小丸",
-  "price": 15,
+  "category": "藥品",
+  "icon": "pill",
   "desc": "門裡藥房自製的小藥丸，提神養氣。回復體力 30。",
-  "category": "藥品"
+  "stamina": 30,
+  "price": 15
  },
  "tea": {
   "name": "竹葉清茶",
-  "price": 12,
+  "category": "藥品",
+  "icon": "tea",
   "desc": "鍾嬸親手泡的茶，清心寧神。回復內力 30。",
-  "category": "藥品"
+  "qi": 30,
+  "price": 12
  },
  "quanwu": {
   "name": "泉霧茶",
-  "price": 24,
+  "category": "藥品",
+  "icon": "tea",
   "desc": "鳴泉山後山東坡的茶，泉水澆出來的，香氣清冽。回復內力 50、體力 10。",
-  "category": "藥品"
+  "qi": 50,
+  "stamina": 10,
+  "price": 24
  },
  "yunwu": {
   "name": "雲霧茶",
-  "price": 30,
+  "category": "藥品",
+  "icon": "tea",
   "desc": "高山雲霧間採的好茶，入口回甘。回復內力 60。",
-  "category": "藥品"
+  "qi": 60,
+  "price": 30
  },
  "herb": {
   "name": "止血草",
-  "price": 6,
+  "category": "雜物",
+  "icon": "herb",
   "desc": "常見的草藥，可以拿到藥爐煉成金創藥。",
-  "category": "雜物"
+  "price": 6
  },
  "boar_meat": {
   "name": "山豬肉",
-  "price": 16,
+  "category": "雜物",
+  "icon": "meat",
   "desc": "一大塊山豬肉。可以賣錢，也可以在自家灶台燉來吃。",
-  "category": "雜物"
+  "price": 16
  },
  "boar_tusk": {
   "name": "山豬獠牙",
-  "price": 30,
+  "category": "雜物",
+  "icon": "tusk",
   "desc": "又長又硬的獠牙，貨郎說城裡有人收。",
-  "category": "雜物"
+  "price": 30
  },
  "dog_pelt": {
   "name": "野狗皮",
-  "price": 12,
+  "category": "雜物",
+  "icon": "pelt",
   "desc": "粗硬的狗皮，硝過之後能做些皮件。",
-  "category": "雜物"
+  "price": 12
  },
  "rice": {
   "name": "米",
-  "price": 2,
+  "category": "食材",
+  "icon": "sack",
   "desc": "一小袋白米。",
-  "category": "食材"
+  "price": 2
  },
  "flour": {
   "name": "麵粉",
-  "price": 2,
+  "category": "食材",
+  "icon": "flour",
   "desc": "磨得細細的麵粉，揉麵、做點心都用得上。",
-  "category": "食材"
+  "price": 2
  },
  "egg": {
   "name": "雞蛋",
-  "price": 3,
+  "category": "食材",
+  "icon": "egg",
   "desc": "新鮮的雞蛋。",
-  "category": "食材"
+  "price": 3
  },
  "tofu": {
   "name": "豆腐",
-  "price": 2,
+  "category": "食材",
+  "icon": "tofu",
   "desc": "一方嫩豆腐。",
-  "category": "食材"
+  "price": 2
  },
  "greens": {
   "name": "青菜",
-  "price": 1,
+  "category": "食材",
+  "icon": "greens",
   "desc": "菜圃裡剛摘的青菜。",
-  "category": "食材"
+  "price": 1
  },
  "radish": {
   "name": "蘿蔔",
-  "price": 1,
+  "category": "食材",
+  "icon": "radish",
   "desc": "白白胖胖的蘿蔔。",
-  "category": "食材"
+  "price": 1
  },
  "chicken": {
   "name": "雞肉",
-  "price": 8,
+  "category": "食材",
+  "icon": "chicken",
   "desc": "一隻宰好的雞。",
-  "category": "食材"
+  "price": 8
  },
  "mushroom": {
   "name": "野菌",
-  "price": 5,
+  "category": "食材",
+  "icon": "mushroom",
   "desc": "山裡採的野菌，煮湯最鮮。",
-  "category": "食材"
+  "price": 5
  },
  "redbean": {
   "name": "紅豆",
-  "price": 2,
+  "category": "食材",
+  "icon": "beans",
   "desc": "一把紅豆。",
-  "category": "食材"
+  "price": 2
  },
  "sugar": {
   "name": "糖",
-  "price": 3,
+  "category": "食材",
+  "icon": "sugar",
   "desc": "一包粗糖。",
-  "category": "食材"
+  "price": 3
  },
  "osmanthus": {
   "name": "桂花",
-  "price": 4,
+  "category": "食材",
+  "icon": "flower",
   "desc": "曬乾的桂花，香氣濃郁。",
-  "category": "食材"
+  "price": 4
  },
  "sesame": {
   "name": "芝麻",
-  "price": 3,
+  "category": "食材",
+  "icon": "seeds",
   "desc": "炒香的黑芝麻。",
-  "category": "食材"
+  "price": 3
  },
  "almond": {
   "name": "杏仁",
-  "price": 5,
+  "category": "食材",
+  "icon": "nut",
   "desc": "去了殼的杏仁。",
-  "category": "食材"
+  "price": 5
  },
  "sea_fish": {
   "name": "海魚",
-  "price": 6,
+  "category": "食材",
+  "icon": "fish",
   "desc": "早上剛靠岸的海魚，眼睛還亮著。",
-  "category": "食材"
+  "price": 6
  },
  "shrimp": {
   "name": "鮮蝦",
-  "price": 5,
+  "category": "食材",
+  "icon": "shrimp",
   "desc": "活蹦亂跳的海蝦。",
-  "category": "食材"
+  "price": 5
  },
  "seaweed": {
   "name": "海帶",
-  "price": 2,
+  "category": "食材",
+  "icon": "seaweed",
   "desc": "曬乾的海帶，泡開了煮湯。",
-  "category": "食材"
+  "price": 2
  },
  "stew": {
   "name": "燉山豬肉",
-  "price": 40,
+  "category": "菜餚",
+  "icon": "stew",
   "desc": "燉得軟爛的山豬肉，香氣撲鼻。回復氣血 150。",
-  "category": "菜餚"
+  "hp": 150,
+  "price": 40,
+  "dish": "stew",
+  "quality": 0
  },
  "stew_2": {
   "name": "燉山豬肉（上品）",
-  "price": 52,
+  "category": "菜餚",
+  "icon": "stew",
   "desc": "燉得軟爛的山豬肉，香氣撲鼻。回復氣血 195。",
-  "category": "菜餚"
+  "hp": 195,
+  "price": 52,
+  "dish": "stew",
+  "quality": 1
  },
  "stew_3": {
   "name": "燉山豬肉（精品）",
-  "price": 64,
+  "category": "菜餚",
+  "icon": "stew",
   "desc": "燉得軟爛的山豬肉，香氣撲鼻。回復氣血 240。",
-  "category": "菜餚"
+  "hp": 240,
+  "price": 64,
+  "dish": "stew",
+  "quality": 2
  },
  "baifan": {
   "name": "白米飯",
-  "price": 9,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "一碗熱騰騰的白飯，粒粒分明。回復氣血 40、體力 20。",
-  "category": "菜餚"
+  "hp": 40,
+  "stamina": 20,
+  "price": 9,
+  "dish": "baifan",
+  "quality": 0
  },
  "baifan_2": {
   "name": "白米飯（上品）",
-  "price": 12,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "一碗熱騰騰的白飯，粒粒分明。回復氣血 52、體力 26。",
-  "category": "菜餚"
+  "hp": 52,
+  "stamina": 26,
+  "price": 12,
+  "dish": "baifan",
+  "quality": 1
  },
  "baifan_3": {
   "name": "白米飯（精品）",
-  "price": 14,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "一碗熱騰騰的白飯，粒粒分明。回復氣血 64、體力 32。",
-  "category": "菜餚"
+  "hp": 64,
+  "stamina": 32,
+  "price": 14,
+  "dish": "baifan",
+  "quality": 2
  },
  "danchaofan": {
   "name": "蛋炒飯",
-  "price": 23,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "金黃的蛋包著每一粒飯，撒了點青菜末。回復氣血 70、體力 30。",
-  "category": "菜餚"
+  "hp": 70,
+  "stamina": 30,
+  "price": 23,
+  "dish": "danchaofan",
+  "quality": 0
  },
  "danchaofan_2": {
   "name": "蛋炒飯（上品）",
-  "price": 30,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "金黃的蛋包著每一粒飯，撒了點青菜末。回復氣血 91、體力 39。",
-  "category": "菜餚"
+  "hp": 91,
+  "stamina": 39,
+  "price": 30,
+  "dish": "danchaofan",
+  "quality": 1
  },
  "danchaofan_3": {
   "name": "蛋炒飯（精品）",
-  "price": 37,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "金黃的蛋包著每一粒飯，撒了點青菜末。回復氣血 112、體力 48。",
-  "category": "菜餚"
+  "hp": 112,
+  "stamina": 48,
+  "price": 37,
+  "dish": "danchaofan",
+  "quality": 2
  },
  "zhutongfan": {
   "name": "竹筒香飯",
-  "price": 34,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "米和肉、菌塞進竹筒裡烤，打開滿是竹香。回復氣血 110、體力 45。",
-  "category": "菜餚"
+  "hp": 110,
+  "stamina": 45,
+  "price": 34,
+  "dish": "zhutongfan",
+  "quality": 0
  },
  "zhutongfan_2": {
   "name": "竹筒香飯（上品）",
-  "price": 44,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "米和肉、菌塞進竹筒裡烤，打開滿是竹香。回復氣血 143、體力 59。",
-  "category": "菜餚"
+  "hp": 143,
+  "stamina": 59,
+  "price": 44,
+  "dish": "zhutongfan",
+  "quality": 1
  },
  "zhutongfan_3": {
   "name": "竹筒香飯（精品）",
-  "price": 54,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "米和肉、菌塞進竹筒裡烤，打開滿是竹香。回復氣血 176、體力 72。",
-  "category": "菜餚"
+  "hp": 176,
+  "stamina": 72,
+  "price": 54,
+  "dish": "zhutongfan",
+  "quality": 2
  },
  "laweifan": {
   "name": "臘味煲飯",
-  "price": 45,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "瓦煲煮飯，臘肉的油滲進飯裡，鍋底還有一層焦香的鍋巴。回復氣血 160、體力 60。",
-  "category": "菜餚"
+  "hp": 160,
+  "stamina": 60,
+  "price": 45,
+  "dish": "laweifan",
+  "quality": 0
  },
  "laweifan_2": {
   "name": "臘味煲飯（上品）",
-  "price": 59,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "瓦煲煮飯，臘肉的油滲進飯裡，鍋底還有一層焦香的鍋巴。回復氣血 208、體力 78。",
-  "category": "菜餚"
+  "hp": 208,
+  "stamina": 78,
+  "price": 59,
+  "dish": "laweifan",
+  "quality": 1
  },
  "laweifan_3": {
   "name": "臘味煲飯（精品）",
-  "price": 72,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "瓦煲煮飯，臘肉的油滲進飯裡，鍋底還有一層焦香的鍋巴。回復氣血 256、體力 96。",
-  "category": "菜餚"
+  "hp": 256,
+  "stamina": 96,
+  "price": 72,
+  "dish": "laweifan",
+  "quality": 2
  },
  "yangchun": {
   "name": "陽春麵",
-  "price": 12,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "清湯細麵，幾根青菜，簡簡單單。回復氣血 20、體力 35。",
-  "category": "菜餚"
+  "hp": 20,
+  "stamina": 35,
+  "price": 12,
+  "dish": "yangchun",
+  "quality": 0
  },
  "yangchun_2": {
   "name": "陽春麵（上品）",
-  "price": 16,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "清湯細麵，幾根青菜，簡簡單單。回復氣血 26、體力 46。",
-  "category": "菜餚"
+  "hp": 26,
+  "stamina": 46,
+  "price": 16,
+  "dish": "yangchun",
+  "quality": 1
  },
  "yangchun_3": {
   "name": "陽春麵（精品）",
-  "price": 19,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "清湯細麵，幾根青菜，簡簡單單。回復氣血 32、體力 56。",
-  "category": "菜餚"
+  "hp": 32,
+  "stamina": 56,
+  "price": 19,
+  "dish": "yangchun",
+  "quality": 2
  },
  "rouzao": {
   "name": "肉燥麵",
-  "price": 20,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "細切的肉末滷得油亮，拌著麵吃。回復氣血 40、體力 50。",
-  "category": "菜餚"
+  "hp": 40,
+  "stamina": 50,
+  "price": 20,
+  "dish": "rouzao",
+  "quality": 0
  },
  "rouzao_2": {
   "name": "肉燥麵（上品）",
-  "price": 26,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "細切的肉末滷得油亮，拌著麵吃。回復氣血 52、體力 65。",
-  "category": "菜餚"
+  "hp": 52,
+  "stamina": 65,
+  "price": 26,
+  "dish": "rouzao",
+  "quality": 1
  },
  "rouzao_3": {
   "name": "肉燥麵（精品）",
-  "price": 32,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "細切的肉末滷得油亮，拌著麵吃。回復氣血 64、體力 80。",
-  "category": "菜餚"
+  "hp": 64,
+  "stamina": 80,
+  "price": 32,
+  "dish": "rouzao",
+  "quality": 2
  },
  "daoxiao": {
   "name": "刀削麵",
-  "price": 34,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "麵片一刀一刀削進鍋裡，又厚又有嚼勁。回復氣血 60、體力 70。",
-  "category": "菜餚"
+  "hp": 60,
+  "stamina": 70,
+  "price": 34,
+  "dish": "daoxiao",
+  "quality": 0
  },
  "daoxiao_2": {
   "name": "刀削麵（上品）",
-  "price": 44,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "麵片一刀一刀削進鍋裡，又厚又有嚼勁。回復氣血 78、體力 91。",
-  "category": "菜餚"
+  "hp": 78,
+  "stamina": 91,
+  "price": 44,
+  "dish": "daoxiao",
+  "quality": 1
  },
  "daoxiao_3": {
   "name": "刀削麵（精品）",
-  "price": 54,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "麵片一刀一刀削進鍋裡，又厚又有嚼勁。回復氣血 96、體力 112。",
-  "category": "菜餚"
+  "hp": 96,
+  "stamina": 112,
+  "price": 54,
+  "dish": "daoxiao",
+  "quality": 2
  },
  "quanshui": {
   "name": "泉水涼麵",
-  "price": 45,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "用鳴泉的泉水冰鎮過的麵，清爽彈牙，是卜大勺的拿手絕活。回復氣血 80、體力 100。",
-  "category": "菜餚"
+  "hp": 80,
+  "stamina": 100,
+  "price": 45,
+  "dish": "quanshui",
+  "quality": 0
  },
  "quanshui_2": {
   "name": "泉水涼麵（上品）",
-  "price": 59,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "用鳴泉的泉水冰鎮過的麵，清爽彈牙，是卜大勺的拿手絕活。回復氣血 104、體力 130。",
-  "category": "菜餚"
+  "hp": 104,
+  "stamina": 130,
+  "price": 59,
+  "dish": "quanshui",
+  "quality": 1
  },
  "quanshui_3": {
   "name": "泉水涼麵（精品）",
-  "price": 72,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "用鳴泉的泉水冰鎮過的麵，清爽彈牙，是卜大勺的拿手絕活。回復氣血 128、體力 160。",
-  "category": "菜餚"
+  "hp": 128,
+  "stamina": 160,
+  "price": 72,
+  "dish": "quanshui",
+  "quality": 2
  },
  "doufutang": {
   "name": "青菜豆腐湯",
-  "price": 12,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "清清淡淡的一碗湯。回復內力 30。",
-  "category": "菜餚"
+  "qi": 30,
+  "price": 12,
+  "dish": "doufutang",
+  "quality": 0
  },
  "doufutang_2": {
   "name": "青菜豆腐湯（上品）",
-  "price": 16,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "清清淡淡的一碗湯。回復內力 39。",
-  "category": "菜餚"
+  "qi": 39,
+  "price": 16,
+  "dish": "doufutang",
+  "quality": 1
  },
  "doufutang_3": {
   "name": "青菜豆腐湯（精品）",
-  "price": 19,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "清清淡淡的一碗湯。回復內力 48。",
-  "category": "菜餚"
+  "qi": 48,
+  "price": 19,
+  "dish": "doufutang",
+  "quality": 2
  },
  "luobotang": {
   "name": "蘿蔔排骨湯",
-  "price": 20,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "排骨熬得軟爛，蘿蔔吸飽了湯汁。回復氣血 30、內力 50。",
-  "category": "菜餚"
+  "hp": 30,
+  "qi": 50,
+  "price": 20,
+  "dish": "luobotang",
+  "quality": 0
  },
  "luobotang_2": {
   "name": "蘿蔔排骨湯（上品）",
-  "price": 26,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "排骨熬得軟爛，蘿蔔吸飽了湯汁。回復氣血 39、內力 65。",
-  "category": "菜餚"
+  "hp": 39,
+  "qi": 65,
+  "price": 26,
+  "dish": "luobotang",
+  "quality": 1
  },
  "luobotang_3": {
   "name": "蘿蔔排骨湯（精品）",
-  "price": 32,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "排骨熬得軟爛，蘿蔔吸飽了湯汁。回復氣血 48、內力 80。",
-  "category": "菜餚"
+  "hp": 48,
+  "qi": 80,
+  "price": 32,
+  "dish": "luobotang",
+  "quality": 2
  },
  "jitang": {
   "name": "山菌雞湯",
-  "price": 31,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "整隻雞和野菌慢火熬了兩個時辰，湯色金黃。回復氣血 50、內力 80。",
-  "category": "菜餚"
+  "hp": 50,
+  "qi": 80,
+  "price": 31,
+  "dish": "jitang",
+  "quality": 0
  },
  "jitang_2": {
   "name": "山菌雞湯（上品）",
-  "price": 40,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "整隻雞和野菌慢火熬了兩個時辰，湯色金黃。回復氣血 65、內力 104。",
-  "category": "菜餚"
+  "hp": 65,
+  "qi": 104,
+  "price": 40,
+  "dish": "jitang",
+  "quality": 1
  },
  "jitang_3": {
   "name": "山菌雞湯（精品）",
-  "price": 50,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "整隻雞和野菌慢火熬了兩個時辰，湯色金黃。回復氣血 80、內力 128。",
-  "category": "菜餚"
+  "hp": 80,
+  "qi": 128,
+  "price": 50,
+  "dish": "jitang",
+  "quality": 2
  },
  "qingdun": {
   "name": "鳴泉清燉",
-  "price": 42,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "泉水清燉，不加一點醬色，喝一口通體舒暢。鳴泉劍派待客的招牌湯。回復氣血 80、內力 120。",
-  "category": "菜餚"
+  "hp": 80,
+  "qi": 120,
+  "price": 42,
+  "dish": "qingdun",
+  "quality": 0
  },
  "qingdun_2": {
   "name": "鳴泉清燉（上品）",
-  "price": 55,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "泉水清燉，不加一點醬色，喝一口通體舒暢。鳴泉劍派待客的招牌湯。回復氣血 104、內力 156。",
-  "category": "菜餚"
+  "hp": 104,
+  "qi": 156,
+  "price": 55,
+  "dish": "qingdun",
+  "quality": 1
  },
  "qingdun_3": {
   "name": "鳴泉清燉（精品）",
-  "price": 67,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "泉水清燉，不加一點醬色，喝一口通體舒暢。鳴泉劍派待客的招牌湯。回復氣血 128、內力 192。",
-  "category": "菜餚"
+  "hp": 128,
+  "qi": 192,
+  "price": 67,
+  "dish": "qingdun",
+  "quality": 2
  },
  "hongdou": {
   "name": "紅豆湯",
-  "price": 12,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "紅豆煮得綿密，甜而不膩。回復體力 15。吃了心情好：接下來 2 場戰鬥武功經驗 ×1.1。",
-  "category": "菜餚"
+  "stamina": 15,
+  "treat": {
+   "battles": 2,
+   "mult": 1.1
+  },
+  "price": 12,
+  "dish": "hongdou",
+  "quality": 0
  },
  "hongdou_2": {
   "name": "紅豆湯（上品）",
-  "price": 16,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "紅豆煮得綿密，甜而不膩。回復體力 20。吃了心情好：接下來 3 場戰鬥武功經驗 ×1.1。",
-  "category": "菜餚"
+  "stamina": 20,
+  "treat": {
+   "battles": 3,
+   "mult": 1.1
+  },
+  "price": 16,
+  "dish": "hongdou",
+  "quality": 1
  },
  "hongdou_3": {
   "name": "紅豆湯（精品）",
-  "price": 19,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "紅豆煮得綿密，甜而不膩。回復體力 24。吃了心情好：接下來 4 場戰鬥武功經驗 ×1.1。",
-  "category": "菜餚"
+  "stamina": 24,
+  "treat": {
+   "battles": 4,
+   "mult": 1.1
+  },
+  "price": 19,
+  "dish": "hongdou",
+  "quality": 2
  },
  "guihua": {
   "name": "桂花糕",
-  "price": 23,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "米糕上撒著桂花，咬一口滿嘴花香。回復體力 20。吃了心情好：接下來 3 場戰鬥武功經驗 ×1.15。",
-  "category": "菜餚"
+  "stamina": 20,
+  "treat": {
+   "battles": 3,
+   "mult": 1.15
+  },
+  "price": 23,
+  "dish": "guihua",
+  "quality": 0
  },
  "guihua_2": {
   "name": "桂花糕（上品）",
-  "price": 30,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "米糕上撒著桂花，咬一口滿嘴花香。回復體力 26。吃了心情好：接下來 4 場戰鬥武功經驗 ×1.15。",
-  "category": "菜餚"
+  "stamina": 26,
+  "treat": {
+   "battles": 4,
+   "mult": 1.15
+  },
+  "price": 30,
+  "dish": "guihua",
+  "quality": 1
  },
  "guihua_3": {
   "name": "桂花糕（精品）",
-  "price": 37,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "米糕上撒著桂花，咬一口滿嘴花香。回復體力 32。吃了心情好：接下來 5 場戰鬥武功經驗 ×1.15。",
-  "category": "菜餚"
+  "stamina": 32,
+  "treat": {
+   "battles": 5,
+   "mult": 1.15
+  },
+  "price": 37,
+  "dish": "guihua",
+  "quality": 2
  },
  "tangyuan": {
   "name": "芝麻湯圓",
-  "price": 31,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "糯米皮包著流心的芝麻餡，小心燙口。回復體力 25。吃了心情好：接下來 3 場戰鬥武功經驗 ×1.2。",
-  "category": "菜餚"
+  "stamina": 25,
+  "treat": {
+   "battles": 3,
+   "mult": 1.2
+  },
+  "price": 31,
+  "dish": "tangyuan",
+  "quality": 0
  },
  "tangyuan_2": {
   "name": "芝麻湯圓（上品）",
-  "price": 40,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "糯米皮包著流心的芝麻餡，小心燙口。回復體力 33。吃了心情好：接下來 4 場戰鬥武功經驗 ×1.2。",
-  "category": "菜餚"
+  "stamina": 33,
+  "treat": {
+   "battles": 4,
+   "mult": 1.2
+  },
+  "price": 40,
+  "dish": "tangyuan",
+  "quality": 1
  },
  "tangyuan_3": {
   "name": "芝麻湯圓（精品）",
-  "price": 50,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "糯米皮包著流心的芝麻餡，小心燙口。回復體力 40。吃了心情好：接下來 5 場戰鬥武功經驗 ×1.2。",
-  "category": "菜餚"
+  "stamina": 40,
+  "treat": {
+   "battles": 5,
+   "mult": 1.2
+  },
+  "price": 50,
+  "dish": "tangyuan",
+  "quality": 2
  },
  "xingren": {
   "name": "杏仁酥",
-  "price": 42,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "酥得一碰就掉渣，杏仁香氣十足。回復體力 30。吃了心情好：接下來 4 場戰鬥武功經驗 ×1.25。",
-  "category": "菜餚"
+  "stamina": 30,
+  "treat": {
+   "battles": 4,
+   "mult": 1.25
+  },
+  "price": 42,
+  "dish": "xingren",
+  "quality": 0
  },
  "xingren_2": {
   "name": "杏仁酥（上品）",
-  "price": 55,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "酥得一碰就掉渣，杏仁香氣十足。回復體力 39。吃了心情好：接下來 5 場戰鬥武功經驗 ×1.25。",
-  "category": "菜餚"
+  "stamina": 39,
+  "treat": {
+   "battles": 5,
+   "mult": 1.25
+  },
+  "price": 55,
+  "dish": "xingren",
+  "quality": 1
  },
  "xingren_3": {
   "name": "杏仁酥（精品）",
-  "price": 67,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "酥得一碰就掉渣，杏仁香氣十足。回復體力 48。吃了心情好：接下來 6 場戰鬥武功經驗 ×1.25。",
-  "category": "菜餚"
+  "stamina": 48,
+  "treat": {
+   "battles": 6,
+   "mult": 1.25
+  },
+  "price": 67,
+  "dish": "xingren",
+  "quality": 2
  },
  "haidai": {
   "name": "海帶豆腐湯",
-  "price": 12,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "海帶的鮮味全煮進了湯裡。回復氣血 10、內力 40。",
-  "category": "菜餚"
+  "hp": 10,
+  "qi": 40,
+  "price": 12,
+  "dish": "haidai",
+  "quality": 0
  },
  "haidai_2": {
   "name": "海帶豆腐湯（上品）",
-  "price": 16,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "海帶的鮮味全煮進了湯裡。回復氣血 13、內力 52。",
-  "category": "菜餚"
+  "hp": 13,
+  "qi": 52,
+  "price": 16,
+  "dish": "haidai",
+  "quality": 1
  },
  "haidai_3": {
   "name": "海帶豆腐湯（精品）",
-  "price": 19,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "海帶的鮮味全煮進了湯裡。回復氣血 16、內力 64。",
-  "category": "菜餚"
+  "hp": 16,
+  "qi": 64,
+  "price": 19,
+  "dish": "haidai",
+  "quality": 2
  },
  "yuzhou": {
   "name": "海魚粥",
-  "price": 20,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "魚片鋪在白粥上，熱粥一燙就熟了。回復氣血 85、體力 30。",
-  "category": "菜餚"
+  "hp": 85,
+  "stamina": 30,
+  "price": 20,
+  "dish": "yuzhou",
+  "quality": 0
  },
  "yuzhou_2": {
   "name": "海魚粥（上品）",
-  "price": 26,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "魚片鋪在白粥上，熱粥一燙就熟了。回復氣血 111、體力 39。",
-  "category": "菜餚"
+  "hp": 111,
+  "stamina": 39,
+  "price": 26,
+  "dish": "yuzhou",
+  "quality": 1
  },
  "yuzhou_3": {
   "name": "海魚粥（精品）",
-  "price": 32,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "魚片鋪在白粥上，熱粥一燙就熟了。回復氣血 136、體力 48。",
-  "category": "菜餚"
+  "hp": 136,
+  "stamina": 48,
+  "price": 32,
+  "dish": "yuzhou",
+  "quality": 2
  },
  "xiahun": {
   "name": "鮮蝦餛飩",
-  "price": 20,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "皮薄得透光，咬下去整隻蝦仁。回復氣血 40、體力 55。",
-  "category": "菜餚"
+  "hp": 40,
+  "stamina": 55,
+  "price": 20,
+  "dish": "xiahun",
+  "quality": 0
  },
  "xiahun_2": {
   "name": "鮮蝦餛飩（上品）",
-  "price": 26,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "皮薄得透光，咬下去整隻蝦仁。回復氣血 52、體力 72。",
-  "category": "菜餚"
+  "hp": 52,
+  "stamina": 72,
+  "price": 26,
+  "dish": "xiahun",
+  "quality": 1
  },
  "xiahun_3": {
   "name": "鮮蝦餛飩（精品）",
-  "price": 32,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "皮薄得透光，咬下去整隻蝦仁。回復氣血 64、體力 88。",
-  "category": "菜餚"
+  "hp": 64,
+  "stamina": 88,
+  "price": 32,
+  "dish": "xiahun",
+  "quality": 2
  },
  "jiyu": {
   "name": "鯽魚豆腐湯",
-  "price": 12,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "鯽魚先煎後燉，湯白得像奶。回復氣血 15、內力 45。",
-  "category": "菜餚"
+  "hp": 15,
+  "qi": 45,
+  "price": 12,
+  "dish": "jiyu",
+  "quality": 0
  },
  "jiyu_2": {
   "name": "鯽魚豆腐湯（上品）",
-  "price": 16,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "鯽魚先煎後燉，湯白得像奶。回復氣血 20、內力 59。",
-  "category": "菜餚"
+  "hp": 20,
+  "qi": 59,
+  "price": 16,
+  "dish": "jiyu",
+  "quality": 1
  },
  "jiyu_3": {
   "name": "鯽魚豆腐湯（精品）",
-  "price": 19,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "鯽魚先煎後燉，湯白得像奶。回復氣血 24、內力 72。",
-  "category": "菜餚"
+  "hp": 24,
+  "qi": 72,
+  "price": 19,
+  "dish": "jiyu",
+  "quality": 2
  },
  "lingjiao": {
   "name": "菱角糕",
-  "price": 12,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "菱角磨粉蒸成的糕，清甜爽口。回復體力 18。吃了心情好：接下來 2 場戰鬥武功經驗 ×1.15。",
-  "category": "菜餚"
+  "stamina": 18,
+  "treat": {
+   "battles": 2,
+   "mult": 1.15
+  },
+  "price": 12,
+  "dish": "lingjiao",
+  "quality": 0
  },
  "lingjiao_2": {
   "name": "菱角糕（上品）",
-  "price": 16,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "菱角磨粉蒸成的糕，清甜爽口。回復體力 23。吃了心情好：接下來 3 場戰鬥武功經驗 ×1.15。",
-  "category": "菜餚"
+  "stamina": 23,
+  "treat": {
+   "battles": 3,
+   "mult": 1.15
+  },
+  "price": 16,
+  "dish": "lingjiao",
+  "quality": 1
  },
  "lingjiao_3": {
   "name": "菱角糕（精品）",
-  "price": 19,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "菱角磨粉蒸成的糕，清甜爽口。回復體力 29。吃了心情好：接下來 4 場戰鬥武功經驗 ×1.15。",
-  "category": "菜餚"
+  "stamina": 29,
+  "treat": {
+   "battles": 4,
+   "mult": 1.15
+  },
+  "price": 19,
+  "dish": "lingjiao",
+  "quality": 2
  },
  "yugan": {
   "name": "魚乾燒豆腐",
-  "price": 20,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "魚乾的鹹香全燒進了豆腐裡，下飯得很。回復氣血 45、內力 55。",
-  "category": "菜餚"
+  "hp": 45,
+  "qi": 55,
+  "price": 20,
+  "dish": "yugan",
+  "quality": 0
  },
  "yugan_2": {
   "name": "魚乾燒豆腐（上品）",
-  "price": 26,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "魚乾的鹹香全燒進了豆腐裡，下飯得很。回復氣血 59、內力 72。",
-  "category": "菜餚"
+  "hp": 59,
+  "qi": 72,
+  "price": 26,
+  "dish": "yugan",
+  "quality": 1
  },
  "yugan_3": {
   "name": "魚乾燒豆腐（精品）",
-  "price": 32,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "魚乾的鹹香全燒進了豆腐裡，下飯得很。回復氣血 72、內力 88。",
-  "category": "菜餚"
+  "hp": 72,
+  "qi": 88,
+  "price": 32,
+  "dish": "yugan",
+  "quality": 2
  },
  "tangcu": {
   "name": "糖醋鯉魚",
-  "price": 23,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "鯉魚炸得翹起頭尾，淋上酸甜的醬汁。回復氣血 95、體力 30。",
-  "category": "菜餚"
+  "hp": 95,
+  "stamina": 30,
+  "price": 23,
+  "dish": "tangcu",
+  "quality": 0
  },
  "tangcu_2": {
   "name": "糖醋鯉魚（上品）",
-  "price": 30,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "鯉魚炸得翹起頭尾，淋上酸甜的醬汁。回復氣血 124、體力 39。",
-  "category": "菜餚"
+  "hp": 124,
+  "stamina": 39,
+  "price": 30,
+  "dish": "tangcu",
+  "quality": 1
  },
  "tangcu_3": {
   "name": "糖醋鯉魚（精品）",
-  "price": 37,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "鯉魚炸得翹起頭尾，淋上酸甜的醬汁。回復氣血 152、體力 48。",
-  "category": "菜餚"
+  "hp": 152,
+  "stamina": 48,
+  "price": 37,
+  "dish": "tangcu",
+  "quality": 2
  },
  "yinyu": {
   "name": "銀魚羹",
-  "price": 20,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "銀魚配蛋花勾的羹，滑得一口就下肚。回復氣血 20、內力 70。",
-  "category": "菜餚"
+  "hp": 20,
+  "qi": 70,
+  "price": 20,
+  "dish": "yinyu",
+  "quality": 0
  },
  "yinyu_2": {
   "name": "銀魚羹（上品）",
-  "price": 26,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "銀魚配蛋花勾的羹，滑得一口就下肚。回復氣血 26、內力 91。",
-  "category": "菜餚"
+  "hp": 26,
+  "qi": 91,
+  "price": 26,
+  "dish": "yinyu",
+  "quality": 1
  },
  "yinyu_3": {
   "name": "銀魚羹（精品）",
-  "price": 32,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "銀魚配蛋花勾的羹，滑得一口就下肚。回復氣血 32、內力 112。",
-  "category": "菜餚"
+  "hp": 32,
+  "qi": 112,
+  "price": 32,
+  "dish": "yinyu",
+  "quality": 2
  },
  "qingxia": {
   "name": "青蝦麵",
-  "price": 20,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "剝好的青蝦仁鋪滿一碗麵。回復氣血 40、體力 55。",
-  "category": "菜餚"
+  "hp": 40,
+  "stamina": 55,
+  "price": 20,
+  "dish": "qingxia",
+  "quality": 0
  },
  "qingxia_2": {
   "name": "青蝦麵（上品）",
-  "price": 26,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "剝好的青蝦仁鋪滿一碗麵。回復氣血 52、體力 72。",
-  "category": "菜餚"
+  "hp": 52,
+  "stamina": 72,
+  "price": 26,
+  "dish": "qingxia",
+  "quality": 1
  },
  "qingxia_3": {
   "name": "青蝦麵（精品）",
-  "price": 32,
+  "category": "菜餚",
+  "icon": "noodle",
   "desc": "剝好的青蝦仁鋪滿一碗麵。回復氣血 64、體力 88。",
-  "category": "菜餚"
+  "hp": 64,
+  "stamina": 88,
+  "price": 32,
+  "dish": "qingxia",
+  "quality": 2
  },
  "ouzhou": {
   "name": "蓮藕燉肉",
-  "price": 28,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "蓮藕燉得粉糯，一咬就牽出絲來。回復氣血 70、內力 80。",
-  "category": "菜餚"
+  "hp": 70,
+  "qi": 80,
+  "price": 28,
+  "dish": "ouzhou",
+  "quality": 0
  },
  "ouzhou_2": {
   "name": "蓮藕燉肉（上品）",
-  "price": 36,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "蓮藕燉得粉糯，一咬就牽出絲來。回復氣血 91、內力 104。",
-  "category": "菜餚"
+  "hp": 91,
+  "qi": 104,
+  "price": 36,
+  "dish": "ouzhou",
+  "quality": 1
  },
  "ouzhou_3": {
   "name": "蓮藕燉肉（精品）",
-  "price": 45,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "蓮藕燉得粉糯，一咬就牽出絲來。回復氣血 112、內力 128。",
-  "category": "菜餚"
+  "hp": 112,
+  "qi": 128,
+  "price": 45,
+  "dish": "ouzhou",
+  "quality": 2
  },
  "qingzheng": {
   "name": "清蒸鱖魚",
-  "price": 31,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "鱖魚清蒸，淋一點醬油、蔥絲，鮮得眉毛都要掉下來。回復氣血 145、體力 50。",
-  "category": "菜餚"
+  "hp": 145,
+  "stamina": 50,
+  "price": 31,
+  "dish": "qingzheng",
+  "quality": 0
  },
  "qingzheng_2": {
   "name": "清蒸鱖魚（上品）",
-  "price": 40,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "鱖魚清蒸，淋一點醬油、蔥絲，鮮得眉毛都要掉下來。回復氣血 189、體力 65。",
-  "category": "菜餚"
+  "hp": 189,
+  "stamina": 65,
+  "price": 40,
+  "dish": "qingzheng",
+  "quality": 1
  },
  "qingzheng_3": {
   "name": "清蒸鱖魚（精品）",
-  "price": 50,
+  "category": "菜餚",
+  "icon": "rice",
   "desc": "鱖魚清蒸，淋一點醬油、蔥絲，鮮得眉毛都要掉下來。回復氣血 232、體力 80。",
-  "category": "菜餚"
+  "hp": 232,
+  "stamina": 80,
+  "price": 50,
+  "dish": "qingzheng",
+  "quality": 2
  },
  "jiayu": {
   "name": "甲魚燉菌湯",
-  "price": 36,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "甲魚配山裡的野菌燉了一整個下午，大補元氣。回復氣血 80、內力 130。",
-  "category": "菜餚"
+  "hp": 80,
+  "qi": 130,
+  "price": 36,
+  "dish": "jiayu",
+  "quality": 0
  },
  "jiayu_2": {
   "name": "甲魚燉菌湯（上品）",
-  "price": 47,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "甲魚配山裡的野菌燉了一整個下午，大補元氣。回復氣血 104、內力 169。",
-  "category": "菜餚"
+  "hp": 104,
+  "qi": 169,
+  "price": 47,
+  "dish": "jiayu",
+  "quality": 1
  },
  "jiayu_3": {
   "name": "甲魚燉菌湯（精品）",
-  "price": 58,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "甲魚配山裡的野菌燉了一整個下午，大補元氣。回復氣血 128、內力 208。",
-  "category": "菜餚"
+  "hp": 128,
+  "qi": 208,
+  "price": 58,
+  "dish": "jiayu",
+  "quality": 2
  },
  "yuwan": {
   "name": "魚丸湯",
-  "price": 31,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "魚肉捶成泥再捏成丸子，彈牙得能在桌上跳。回復氣血 40、內力 90。",
-  "category": "菜餚"
+  "hp": 40,
+  "qi": 90,
+  "price": 31,
+  "dish": "yuwan",
+  "quality": 0
  },
  "yuwan_2": {
   "name": "魚丸湯（上品）",
-  "price": 40,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "魚肉捶成泥再捏成丸子，彈牙得能在桌上跳。回復氣血 52、內力 117。",
-  "category": "菜餚"
+  "hp": 52,
+  "qi": 117,
+  "price": 40,
+  "dish": "yuwan",
+  "quality": 1
  },
  "yuwan_3": {
   "name": "魚丸湯（精品）",
-  "price": 50,
+  "category": "菜餚",
+  "icon": "soup",
   "desc": "魚肉捶成泥再捏成丸子，彈牙得能在桌上跳。回復氣血 64、內力 144。",
-  "category": "菜餚"
+  "hp": 64,
+  "qi": 144,
+  "price": 50,
+  "dish": "yuwan",
+  "quality": 2
  },
  "crucian": {
   "name": "鯽魚",
-  "price": 3,
+  "category": "食材",
+  "icon": "f_crucian",
   "desc": "巴掌大的鯽魚，燉湯最鮮。",
-  "category": "食材"
+  "price": 3
  },
  "lake_shrimp": {
   "name": "青蝦",
-  "price": 3,
+  "category": "食材",
+  "icon": "shrimp",
   "desc": "蘆葦叢裡的青殼小蝦，煮熟了才變紅。",
-  "category": "食材"
+  "price": 3
  },
  "carp": {
   "name": "鯉魚",
-  "price": 5,
+  "category": "食材",
+  "icon": "f_carp",
   "desc": "金鱗紅尾的鯉魚，力氣不小。",
-  "category": "食材"
+  "price": 5
  },
  "silverfish": {
   "name": "銀魚",
-  "price": 4,
+  "category": "食材",
+  "icon": "f_silver",
   "desc": "細細的一條，通體透亮，碧漪湖的名產。",
-  "category": "食材"
+  "price": 4
  },
  "grass_carp": {
   "name": "草魚",
-  "price": 6,
+  "category": "食材",
+  "icon": "f_grass",
   "desc": "青灰色的大草魚，愛啃湖邊的水草。",
-  "category": "食材"
+  "price": 6
  },
  "mandarin": {
   "name": "鱖魚",
-  "price": 12,
+  "category": "食材",
+  "icon": "f_mandarin",
   "desc": "「桃花流水鱖魚肥」，春天最肥。身上有黑斑，背鰭帶刺，肉嫩無細刺。",
-  "category": "食材"
+  "price": 12
  },
  "turtle": {
   "name": "甲魚",
-  "price": 25,
+  "category": "食材",
+  "icon": "f_turtle",
   "desc": "縮著頭的甲魚，咬住了就不鬆口。燉湯大補。夏天最多，冬天躲進泥裡。",
-  "category": "食材"
+  "price": 25
  },
  "golden_carp": {
   "name": "金鯉",
-  "price": 60,
+  "category": "食材",
+  "icon": "f_gold",
   "desc": "一身金鱗的鯉魚，漁家說見了金鯉，整年都順。",
-  "category": "食材"
+  "price": 60
  },
  "rod": {
   "name": "釣竿",
-  "price": 6,
+  "category": "雜物",
+  "icon": "rod",
   "desc": "秦老漢削的竹釣竿，配著麻線與魚鉤。有了它，就能在有浮標漣漪的地方釣魚。",
-  "category": "雜物"
+  "price": 6
  },
  "white_carp": {
   "name": "白鯉",
-  "price": 240,
+  "category": "雜物",
+  "icon": "f_silver",
   "desc": "月圓之夜在望月亭釣起的白鯉，通體雪白。牠在簍子裡一動也不動。",
-  "category": "雜物"
+  "price": 240
  },
  "fish_net": {
   "name": "漁網",
-  "price": 14,
+  "category": "雜物",
+  "icon": "net",
   "desc": "棉線結成的漁網。帶在身上，釣魚「慢慢等」的時候把網撒下去，比較容易釣起來，偶爾一次撈上兩條。",
-  "category": "雜物"
+  "price": 14
  },
  "dried_fish": {
   "name": "魚乾",
-  "price": 9,
+  "category": "食材",
+  "icon": "f_dried",
   "desc": "晾魚架上曬乾的魚，又鹹又香，放多久都不會壞。可以入菜，望江樓也收。",
-  "category": "食材"
+  "price": 9
  },
  "stone_slab": {
   "name": "青石條",
-  "price": 0,
+  "category": "雜物",
+  "icon": "slab",
   "desc": "青竹村北採石場鑿下的青石條，沉甸甸的。要送去雲水渡口蓋橋。",
-  "category": "雜物"
+  "price": 0
  },
  "lotus_root": {
   "name": "蓮藕",
-  "price": 3,
+  "category": "食材",
+  "icon": "lotus_root",
   "desc": "碧漪湖荷塘裡挖的蓮藕，一節一節白胖胖的。",
-  "category": "食材"
+  "price": 3
  },
  "water_chestnut": {
   "name": "菱角",
-  "price": 2,
+  "category": "食材",
+  "icon": "water_chestnut",
   "desc": "兩頭尖尖的菱角，剝開是雪白的果肉。",
-  "category": "食材"
+  "price": 2
  },
  "g_headband": {
   "name": "粗布頭巾",
-  "price": 4,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "一條粗布巾子，包住頭髮免得礙事。（粗製・帽子，沒有加成）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 0,
+   "def": 0,
+   "eva": 0
+  },
+  "price": 4
  },
  "g_cap": {
   "name": "青布帽",
-  "price": 12,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "讀書人常戴的青布小帽。（普通・帽子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 1,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 12
  },
  "g_shortcoat": {
   "name": "粗布短褂",
-  "price": 8,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "幹活穿的短褂，耐磨。（粗製・上衣，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 0,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 8
  },
  "g_gown": {
   "name": "棉布長衫",
-  "price": 28,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "厚實的棉布長衫，走江湖最常見的打扮。（普通・上衣，防禦 +2）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 1,
+   "def": 2,
+   "eva": 0
+  },
+  "price": 28
  },
  "g_brocade": {
   "name": "錦緞外袍",
-  "price": 90,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "錦繡布莊的招牌貨，針腳細密，穿上去體面又擋得住刀風。（精良・上衣，防禦 +3）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 2,
+   "def": 3,
+   "eva": 0
+  },
+  "price": 90
  },
  "g_rough_pants": {
   "name": "粗布褲",
-  "price": 6,
+  "category": "服飾",
+  "icon": "pants",
   "desc": "一條粗布褲子。（粗製・褲子，沒有加成）",
-  "category": "服飾"
+  "gear": {
+   "kind": "bottom",
+   "grade": 0,
+   "def": 0,
+   "eva": 0
+  },
+  "price": 6
  },
  "g_pants": {
   "name": "棉布褲",
-  "price": 20,
+  "category": "服飾",
+  "icon": "pants",
   "desc": "厚棉布縫的褲子，膝蓋多襯了一層。（普通・褲子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "bottom",
+   "grade": 1,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 20
  },
  "g_sandals": {
   "name": "草鞋",
-  "price": 3,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "稻草編的鞋，輕便，就是不經穿。（粗製・鞋子，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 0,
+   "def": 0,
+   "eva": 0.01
+  },
+  "price": 3
  },
  "g_shoes": {
   "name": "千層布鞋",
-  "price": 14,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "一層層納出來的鞋底，走山路也不磨腳。（普通・鞋子，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01
+  },
+  "price": 14
  },
  "g_boots": {
   "name": "薄底快靴",
-  "price": 70,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "鞋底薄而軟，落地無聲，輕功好手最愛。（精良・鞋子，防禦 +1　閃避 +1.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 2,
+   "def": 1,
+   "eva": 0.015
+  },
+  "price": 70
  },
  "g_coral": {
   "name": "珊瑚墜",
-  "price": 180,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "一截紅珊瑚磨成的墜子，海商說是從南洋來的。（上品・頸上飾品，防禦 +1　閃避 +1.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.015
+  },
+  "price": 180
  },
  "g_shark_bracer": {
   "name": "鯊皮護腕",
-  "price": 170,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "鯊魚皮鞣成的護腕，又韌又滑，刀鋒容易滑開。（上品・手上飾品，防禦 +1　閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.01
+  },
+  "price": 170
  },
  "g_sea_hat": {
   "name": "海藤笠",
-  "price": 50,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "海島上的藤編斗笠，又輕又透氣。（精良・帽子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 2,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 50
  },
  "w_wood_sword": {
   "name": "木劍",
-  "price": 5,
+  "category": "服飾",
+  "icon": "sword",
   "desc": "一把削得光滑的木劍，練招式剛好。（粗製・劍，攻擊 +2；用劍法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 0,
+   "def": 0,
+   "eva": 0,
+   "atk": 2,
+   "weapon": "劍"
+  },
+  "price": 5
  },
  "w_iron_sword": {
   "name": "鐵劍",
-  "price": 30,
+  "category": "服飾",
+  "icon": "sword",
   "desc": "石記鐵鋪打的鐵劍，樸實耐用。（普通・劍，攻擊 +4；用劍法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 1,
+   "def": 0,
+   "eva": 0,
+   "atk": 4,
+   "weapon": "劍"
+  },
+  "price": 30
  },
  "w_steel_sword": {
   "name": "青鋼劍",
-  "price": 120,
+  "category": "服飾",
+  "icon": "sword",
   "desc": "青鋼百煉，劍身映得出人影。（精良・劍，攻擊 +7；用劍法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 2,
+   "def": 0,
+   "eva": 0,
+   "atk": 7,
+   "weapon": "劍"
+  },
+  "price": 120
  },
  "w_autumn_sword": {
   "name": "秋水劍",
-  "price": 320,
+  "category": "服飾",
+  "icon": "sword",
   "desc": "劍光如一泓秋水，不知是哪位名家的舊物。（上品・劍，攻擊 +10；用劍法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 3,
+   "def": 0,
+   "eva": 0,
+   "atk": 10,
+   "weapon": "劍"
+  },
+  "price": 320
  },
  "w_chopper": {
   "name": "柴刀",
-  "price": 4,
+  "category": "服飾",
+  "icon": "blade",
   "desc": "劈柴用的柴刀，真要拚命也砍得了人。（粗製・刀，攻擊 +2；用刀法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 0,
+   "def": 0,
+   "eva": 0,
+   "atk": 2,
+   "weapon": "刀"
+  },
+  "price": 4
  },
  "w_saber": {
   "name": "樸刀",
-  "price": 28,
+  "category": "服飾",
+  "icon": "blade",
   "desc": "刀身寬厚，長柄雙手握，江湖上最常見的刀。（普通・刀，攻擊 +4；用刀法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 1,
+   "def": 0,
+   "eva": 0,
+   "atk": 4,
+   "weapon": "刀"
+  },
+  "price": 28
  },
  "w_goose_saber": {
   "name": "雁翎刀",
-  "price": 110,
+  "category": "服飾",
+  "icon": "blade",
   "desc": "刀身狹長微彎，形如雁翎，出刀極快。（精良・刀，攻擊 +7；用刀法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 2,
+   "def": 0,
+   "eva": 0,
+   "atk": 7,
+   "weapon": "刀"
+  },
+  "price": 110
  },
  "mq_sword_1": {
   "name": "鳴泉練劍",
-  "price": 0,
+  "category": "服飾",
+  "icon": "sword",
   "desc": "鳴泉劍派記名弟子的佩劍，劍鞘上刻著小小的泉紋。（普通・劍，攻擊 +4；用劍法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 1,
+   "def": 0,
+   "eva": 0,
+   "atk": 4,
+   "weapon": "劍",
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "mq_sword_2": {
   "name": "鳴泉青鋒",
-  "price": 0,
+  "category": "服飾",
+  "icon": "sword",
   "desc": "鳴泉劍派正式弟子的佩劍，青鋒三尺。（精良・劍，攻擊 +7；用劍法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 2,
+   "def": 0,
+   "eva": 0,
+   "atk": 7,
+   "weapon": "劍",
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "mq_sword_3": {
   "name": "鳴泉秋泓",
-  "price": 0,
+  "category": "服飾",
+  "icon": "sword",
   "desc": "鳴泉劍派真傳弟子的佩劍，劍身如泓，揮動時隱隱有泉聲。（上品・劍，攻擊 +10；用劍法才發揮得了全力）",
-  "category": "服飾"
+  "gear": {
+   "kind": "weapon",
+   "grade": 3,
+   "def": 0,
+   "eva": 0,
+   "atk": 10,
+   "weapon": "劍",
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "g_bamboo_hat": {
   "name": "青竹笠",
-  "price": 45,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "細竹篾編的斗笠，遮陽擋雨，邊上還壓著一圈藤。（精良・帽子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 2,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 45
  },
  "g_iron_bracer": {
   "name": "鐵護臂",
-  "price": 150,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "舊貨攤上淘來的鐵護臂，磨得發亮，不知擋過多少刀。（上品・手上飾品，防禦 +1　閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.01
+  },
+  "price": 150
  },
  "g_carp_scale": {
   "name": "白鯉鱗墜",
-  "price": 300,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "月圓之夜白鯉留下的一片鱗，穿了紅繩掛在頸上。夜裡微微發亮，摸起來是涼的。（極品・頸上飾品，防禦 +1　閃避 +2%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 4,
+   "def": 1,
+   "eva": 0.02
+  },
+  "price": 300
  },
  "g_jade_pendant": {
   "name": "青玉墜",
-  "price": 160,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "一塊溫潤的青玉，攤主說是從前大戶人家流出來的。（上品・頸上飾品，防禦 +1　閃避 +1.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.015
+  },
+  "price": 160
  },
  "g_cloud_boots": {
   "name": "雲紋靴",
-  "price": 180,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "靴面繡著雲紋，鞋底輕軟，走起路來悄無聲息。（上品・鞋子，防禦 +1　閃避 +2%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.02
+  },
+  "price": 180
  },
  "g_bracer": {
   "name": "皮護腕",
-  "price": 40,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "牛皮縫的護腕，擋得住刀劍擦過。（精良・手上飾品，防禦 +1　閃避 +0.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 2,
+   "def": 1,
+   "eva": 0.005
+  },
+  "price": 40
  },
  "g_sachet": {
   "name": "繡花香囊",
-  "price": 18,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "繡著蘭草的香囊，戴在頸上，聞著神清氣爽。（普通・頸上飾品，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01
+  },
+  "price": 18
  },
  "mq_robe_gray": {
   "name": "鳴泉灰布服",
-  "price": 0,
+  "category": "服飾",
+  "icon": "robe_gray",
   "desc": "鳴泉劍派記名弟子穿的灰布衣，袖口繡著小小的泉紋。（普通・上衣，防禦 +2）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 1,
+   "def": 2,
+   "eva": 0,
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "mq_robe_white": {
   "name": "月白道袍",
-  "price": 0,
+  "category": "服飾",
+  "icon": "robe_white",
   "desc": "鳴泉劍派正式弟子的月白道袍，素淨挺括。（精良・上衣，防禦 +3）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 2,
+   "def": 3,
+   "eva": 0,
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "mq_boots": {
   "name": "鳴泉布靴",
-  "price": 0,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "鳴泉劍派發給正式弟子的布靴。（普通・鞋子，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01,
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "mq_bracer": {
   "name": "泉紋護腕",
-  "price": 0,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "鳴泉劍派內門弟子的護腕，皮面上燙著泉紋，是內門的記號。（精良・手上飾品，防禦 +1　閃避 +0.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 2,
+   "def": 1,
+   "eva": 0.005,
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "mq_robe_blue": {
   "name": "青紋道袍",
-  "price": 0,
+  "category": "服飾",
+  "icon": "robe_blue",
   "desc": "鳴泉劍派真傳弟子的道袍，衣襬繡著青色泉紋，一看就知道是師門看重的人。（上品・上衣，防禦 +4）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 3,
+   "def": 4,
+   "eva": 0,
+   "sect": "mingquan"
+  },
+  "bound": true
  },
  "painting_1": {
   "name": "山水習作",
-  "price": 8,
+  "category": "雜物",
+  "icon": "painting",
   "desc": "望江台上寫生的山水，筆法還生澀。",
-  "category": "雜物"
+  "price": 8
  },
  "painting_2": {
   "name": "山水佳作",
-  "price": 40,
+  "category": "雜物",
+  "icon": "painting",
   "desc": "江上白帆、遠山雲氣，畫得頗有幾分意境。懂畫的人會喜歡。",
-  "category": "雜物"
+  "price": 40
  },
  "painting_3": {
   "name": "山水名作",
-  "price": 150,
+  "category": "雜物",
+  "icon": "painting",
   "desc": "一幅氣韻生動的大江煙雨圖，掛在哪裡都體面。",
-  "category": "雜物"
+  "price": 150
  },
  "f_jiaozi": {
   "name": "餃子",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "dumpling",
   "desc": "過年包的白菜豬肉餃子，咬開滿口湯汁。回復氣血 80、體力 40。吃了心情好：接下來 2 場戰鬥武功經驗 ×1.1。",
-  "category": "菜餚"
+  "price": 15,
+  "hp": 80,
+  "stamina": 40,
+  "treat": {
+   "battles": 2,
+   "mult": 1.1
+  }
  },
  "f_yuanxiao": {
   "name": "元宵",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "sweet",
   "desc": "滾了一層又一層糯米粉的元宵，裡頭是芝麻餡。回復體力 30。吃了心情好：接下來 3 場戰鬥武功經驗 ×1.15。",
-  "category": "菜餚"
+  "price": 15,
+  "stamina": 30,
+  "treat": {
+   "battles": 3,
+   "mult": 1.15
+  }
  },
  "f_qingtuan": {
   "name": "青團",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "qingtuan",
   "desc": "艾草汁和糯米做的青團，包著豆沙。回復氣血 60、內力 30。",
-  "category": "菜餚"
+  "price": 15,
+  "hp": 60,
+  "qi": 30
  },
  "f_zongzi": {
   "name": "粽子",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "zongzi",
   "desc": "竹葉包的鹹肉粽，綁著五彩線。回復氣血 120、體力 40。",
-  "category": "菜餚"
+  "price": 15,
+  "hp": 120,
+  "stamina": 40
  },
  "f_subao": {
   "name": "素包",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "dumpling",
   "desc": "中元祭祖用的素菜包子。回復氣血 50、內力 40。",
-  "category": "菜餚"
+  "price": 15,
+  "hp": 50,
+  "qi": 40
  },
  "f_yuebing": {
   "name": "月餅",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "mooncake",
   "desc": "印著「鳴泉」二字的月餅，蓮蓉餡。回復體力 30。吃了心情好：接下來 3 場戰鬥武功經驗 ×1.2。",
-  "category": "菜餚"
+  "price": 15,
+  "stamina": 30,
+  "treat": {
+   "battles": 3,
+   "mult": 1.2
+  }
  },
  "f_tangyuan": {
   "name": "冬至湯圓",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "tangyuan",
   "desc": "冬至吃的湯圓，一碗六顆，紅白各半，熱騰騰的甜湯。回復氣血 40、體力 40。吃了心情好：接下來 2 場戰鬥武功經驗 ×1.1。",
-  "category": "菜餚"
+  "price": 15,
+  "stamina": 40,
+  "hp": 40,
+  "treat": {
+   "battles": 2,
+   "mult": 1.1
+  }
  },
  "f_niangao": {
   "name": "年糕",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "niangao",
   "desc": "蒸得軟糯的紅糖年糕，切片煎過，外脆裡黏。「年年高」。回復氣血 70、體力 50。",
-  "category": "菜餚"
+  "price": 15,
+  "hp": 70,
+  "stamina": 50
  },
  "f_shoutao": {
   "name": "壽桃",
-  "price": 15,
+  "category": "菜餚",
+  "icon": "shoutao",
   "desc": "掌門壽宴上的壽桃饅頭，桃尖點著一抹紅。回復氣血 100、內力 50。吃了心情好：接下來 2 場戰鬥武功經驗 ×1.2。",
-  "category": "菜餚"
+  "price": 15,
+  "hp": 100,
+  "qi": 50,
+  "treat": {
+   "battles": 2,
+   "mult": 1.2
+  }
  },
  "firecracker": {
   "name": "鞭炮",
+  "category": "雜物",
+  "icon": "firecracker",
   "price": 4,
   "desc": "一掛紅紙鞭炮。過年放一串，噼哩啪啦，晦氣都嚇跑了。放了心情好：接下來 2 場戰鬥武功經驗 ×1.1。",
-  "category": "雜物"
+  "treat": {
+   "battles": 2,
+   "mult": 1.1
+  }
  },
  "red_lantern": {
   "name": "紅燈籠",
+  "category": "雜物",
+  "icon": "red_lantern",
   "price": 8,
-  "desc": "竹骨糊紅紙的燈籠，畫著福字。年節送人最討喜。",
-  "category": "雜物"
+  "desc": "竹骨糊紅紙的燈籠，畫著福字。年節送人最討喜。"
  },
  "cotton_thread": {
   "name": "棉線",
-  "price": 2,
+  "category": "雜物",
+  "icon": "thread",
   "desc": "一綑紡好的棉線，織布、縫衣都用得上。",
-  "category": "雜物"
+  "price": 2
  },
  "silk_thread": {
   "name": "絲線",
-  "price": 8,
+  "category": "雜物",
+  "icon": "silk",
   "desc": "光滑柔亮的絲線，做香囊、繡花用。",
-  "category": "雜物"
+  "price": 8
  },
  "fine_silk": {
   "name": "上品絲線",
+  "category": "雜物",
+  "icon": "silk",
   "price": 30,
-  "desc": "江南來的上品絲線。織東西時摻一綑，織出來的至少是「精良」。只有旬休趕集時買得到。",
-  "category": "雜物"
+  "desc": "江南來的上品絲線。織東西時摻一綑，織出來的至少是「精良」。只有旬休趕集時買得到。"
  },
  "w_cap_0": {
   "name": "粗製布帽",
-  "price": 5,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "自己縫的布帽。（粗製・帽子，沒有加成）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 0,
+   "def": 0,
+   "eva": 0
+  },
+  "price": 5
  },
  "w_cap_1": {
   "name": "布帽",
-  "price": 10,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "自己縫的布帽。（普通・帽子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 1,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 10
  },
  "w_cap_2": {
   "name": "精良布帽",
-  "price": 20,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "自己縫的布帽。（精良・帽子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 2,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 20
  },
  "w_cap_3": {
   "name": "上品布帽",
-  "price": 40,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "自己縫的布帽。（上品・帽子，防禦 +2）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 3,
+   "def": 2,
+   "eva": 0
+  },
+  "price": 40
  },
  "w_cap_4": {
   "name": "極品布帽",
-  "price": 80,
+  "category": "服飾",
+  "icon": "hat",
   "desc": "自己縫的布帽。（極品・帽子，防禦 +2）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hat",
+   "grade": 4,
+   "def": 2,
+   "eva": 0
+  },
+  "price": 80
  },
  "w_shoes_0": {
   "name": "粗製布鞋",
-  "price": 6,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "一針一線納出來的布鞋。（粗製・鞋子，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 0,
+   "def": 0,
+   "eva": 0.01
+  },
+  "price": 6
  },
  "w_shoes_1": {
   "name": "布鞋",
-  "price": 12,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "一針一線納出來的布鞋。（普通・鞋子，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01
+  },
+  "price": 12
  },
  "w_shoes_2": {
   "name": "精良布鞋",
-  "price": 24,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "一針一線納出來的布鞋。（精良・鞋子，防禦 +1　閃避 +1.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 2,
+   "def": 1,
+   "eva": 0.015
+  },
+  "price": 24
  },
  "w_shoes_3": {
   "name": "上品布鞋",
-  "price": 48,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "一針一線納出來的布鞋。（上品・鞋子，防禦 +1　閃避 +2%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.02
+  },
+  "price": 48
  },
  "w_shoes_4": {
   "name": "極品布鞋",
-  "price": 96,
+  "category": "服飾",
+  "icon": "shoes",
   "desc": "一針一線納出來的布鞋。（極品・鞋子，防禦 +1　閃避 +3%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "shoes",
+   "grade": 4,
+   "def": 1,
+   "eva": 0.03
+  },
+  "price": 96
  },
  "w_pants_0": {
   "name": "粗製布褲",
-  "price": 9,
+  "category": "服飾",
+  "icon": "pants",
   "desc": "親手織布、裁縫的褲子。（粗製・褲子，沒有加成）",
-  "category": "服飾"
+  "gear": {
+   "kind": "bottom",
+   "grade": 0,
+   "def": 0,
+   "eva": 0
+  },
+  "price": 9
  },
  "w_pants_1": {
   "name": "布褲",
-  "price": 18,
+  "category": "服飾",
+  "icon": "pants",
   "desc": "親手織布、裁縫的褲子。（普通・褲子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "bottom",
+   "grade": 1,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 18
  },
  "w_pants_2": {
   "name": "精良布褲",
-  "price": 36,
+  "category": "服飾",
+  "icon": "pants",
   "desc": "親手織布、裁縫的褲子。（精良・褲子，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "bottom",
+   "grade": 2,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 36
  },
  "w_pants_3": {
   "name": "上品布褲",
-  "price": 72,
+  "category": "服飾",
+  "icon": "pants",
   "desc": "親手織布、裁縫的褲子。（上品・褲子，防禦 +2）",
-  "category": "服飾"
+  "gear": {
+   "kind": "bottom",
+   "grade": 3,
+   "def": 2,
+   "eva": 0
+  },
+  "price": 72
  },
  "w_pants_4": {
   "name": "極品布褲",
-  "price": 144,
+  "category": "服飾",
+  "icon": "pants",
   "desc": "親手織布、裁縫的褲子。（極品・褲子，防禦 +3）",
-  "category": "服飾"
+  "gear": {
+   "kind": "bottom",
+   "grade": 4,
+   "def": 3,
+   "eva": 0
+  },
+  "price": 144
  },
  "w_gown_0": {
   "name": "粗製長衫",
-  "price": 14,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "親手織的布做成的長衫。（粗製・上衣，防禦 +1）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 0,
+   "def": 1,
+   "eva": 0
+  },
+  "price": 14
  },
  "w_gown_1": {
   "name": "長衫",
-  "price": 28,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "親手織的布做成的長衫。（普通・上衣，防禦 +2）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 1,
+   "def": 2,
+   "eva": 0
+  },
+  "price": 28
  },
  "w_gown_2": {
   "name": "精良長衫",
-  "price": 56,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "親手織的布做成的長衫。（精良・上衣，防禦 +3）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 2,
+   "def": 3,
+   "eva": 0
+  },
+  "price": 56
  },
  "w_gown_3": {
   "name": "上品長衫",
-  "price": 112,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "親手織的布做成的長衫。（上品・上衣，防禦 +4）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 3,
+   "def": 4,
+   "eva": 0
+  },
+  "price": 112
  },
  "w_gown_4": {
   "name": "極品長衫",
-  "price": 224,
+  "category": "服飾",
+  "icon": "robe",
   "desc": "親手織的布做成的長衫。（極品・上衣，防禦 +5）",
-  "category": "服飾"
+  "gear": {
+   "kind": "top",
+   "grade": 4,
+   "def": 5,
+   "eva": 0
+  },
+  "price": 224
  },
  "w_bracer_0": {
   "name": "粗製皮護腕",
-  "price": 12,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "用硝好的野狗皮縫成的護腕。（粗製・手上飾品，沒有加成）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 0,
+   "def": 0,
+   "eva": 0
+  },
+  "price": 12
  },
  "w_bracer_1": {
   "name": "皮護腕",
-  "price": 24,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "用硝好的野狗皮縫成的護腕。（普通・手上飾品，閃避 +0.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.005
+  },
+  "price": 24
  },
  "w_bracer_2": {
   "name": "精良皮護腕",
-  "price": 48,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "用硝好的野狗皮縫成的護腕。（精良・手上飾品，防禦 +1　閃避 +0.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 2,
+   "def": 1,
+   "eva": 0.005
+  },
+  "price": 48
  },
  "w_bracer_3": {
   "name": "上品皮護腕",
-  "price": 96,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "用硝好的野狗皮縫成的護腕。（上品・手上飾品，防禦 +1　閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.01
+  },
+  "price": 96
  },
  "w_bracer_4": {
   "name": "極品皮護腕",
-  "price": 192,
+  "category": "服飾",
+  "icon": "bracer",
   "desc": "用硝好的野狗皮縫成的護腕。（極品・手上飾品，防禦 +2　閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "hand",
+   "grade": 4,
+   "def": 2,
+   "eva": 0.01
+  },
+  "price": 192
  },
  "w_sachet_0": {
   "name": "粗製香囊",
-  "price": 10,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "絲線繡花的香囊。（粗製・頸上飾品，沒有加成）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 0,
+   "def": 0,
+   "eva": 0
+  },
+  "price": 10
  },
  "w_sachet_1": {
   "name": "香囊",
-  "price": 20,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "絲線繡花的香囊。（普通・頸上飾品，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01
+  },
+  "price": 20
  },
  "w_sachet_2": {
   "name": "精良香囊",
-  "price": 40,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "絲線繡花的香囊。（精良・頸上飾品，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 2,
+   "def": 0,
+   "eva": 0.01
+  },
+  "price": 40
  },
  "w_sachet_3": {
   "name": "上品香囊",
-  "price": 80,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "絲線繡花的香囊。（上品・頸上飾品，防禦 +1　閃避 +1.5%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 3,
+   "def": 1,
+   "eva": 0.015
+  },
+  "price": 80
  },
  "w_sachet_4": {
   "name": "極品香囊",
-  "price": 160,
+  "category": "服飾",
+  "icon": "pouch",
   "desc": "絲線繡花的香囊。（極品・頸上飾品，防禦 +1　閃避 +2%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 4,
+   "def": 1,
+   "eva": 0.02
+  },
+  "price": 160
  },
  "manual_zhuying": {
   "name": "竹影劍痕拓本",
-  "price": 0,
-  "desc": "從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。",
-  "category": "秘笈"
+  "category": "秘笈",
+  "icon": "scroll",
+  "manual": "zhuying",
+  "desc": "從竹林石碑拓下的劍痕。持有時可突破「竹影劍法」的等級上限。"
  },
  "manual_basic_fist": {
   "name": "粗淺拳譜（舊抄本）",
+  "category": "秘笈",
+  "icon": "book",
+  "manual": "basic-fist",
   "price": 60,
-  "desc": "舊書攤上翻出來的拳譜，邊角都捲了。持有時可突破「粗淺拳腳」的等級上限。",
-  "category": "秘笈"
+  "desc": "舊書攤上翻出來的拳譜，邊角都捲了。持有時可突破「粗淺拳腳」的等級上限。"
  },
  "manual_breathing": {
   "name": "吐納要訣（殘卷）",
+  "category": "秘笈",
+  "icon": "scroll",
+  "manual": "breathing",
   "price": 80,
-  "desc": "一卷殘缺的吐納口訣，字跡卻工整。持有時可突破「吐納心法」的等級上限。",
-  "category": "秘笈"
+  "desc": "一卷殘缺的吐納口訣，字跡卻工整。持有時可突破「吐納心法」的等級上限。"
  },
  "manual_qingzhu": {
   "name": "青竹步手札",
-  "price": 0,
-  "desc": "柳承安年輕時寫下的步法心得。持有時可突破「青竹步」的等級上限。",
-  "category": "秘笈"
+  "category": "秘笈",
+  "icon": "book",
+  "manual": "qingzhu",
+  "desc": "柳承安年輕時寫下的步法心得。持有時可突破「青竹步」的等級上限。"
  },
  "mq_token": {
   "name": "鳴泉腰牌",
-  "price": 0,
+  "category": "服飾",
+  "icon": "token",
+  "bound": true,
   "desc": "刻著「鳴泉」二字的木腰牌，是鳴泉劍派弟子的身分憑證。可以繫在頸上。（普通・頸上飾品，閃避 +1%）",
-  "category": "服飾"
+  "gear": {
+   "kind": "neck",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01,
+   "sect": "mingquan"
+  }
  },
  "mq_medpack": {
   "name": "鳴泉藥包",
-  "price": 0,
-  "desc": "鳴泉藥房配好的一包金創藥，要送到臨江城的回春堂。",
-  "category": "雜物"
+  "category": "雜物",
+  "icon": "salve",
+  "bound": true,
+  "desc": "鳴泉藥房配好的一包金創藥，要送到臨江城的回春堂。"
  }
 }

@@ -86,12 +86,28 @@ func pay(silver: int) -> bool:
 	return true
 
 
-## 學會一門武功（角色與武功之後再接上數值，現在先記在主角身上）
-func learn(skill: String) -> void:
-	var list: Array = G.hero.get("skills", [])
-	if not skill in list:
-		list.append(skill)
-	G.hero["skills"] = list
+## 學會一門武功（level 是幾重；已經會了就不說話）
+func learn(skill: String, level := 1) -> void:
+	var t := Hero.learn(G.hero, skill, level)
+	if t != "":
+		await say(t)
+
+
+## 角色的數值（氣血、內力、體力、五維…）
+func hero() -> Dictionary:
+	return G.hero
+
+
+## 氣血、內力、體力回滿
+func restore_all() -> void:
+	Hero.restore_all(G.hero)
+
+
+## 武功累積經驗；升重時說出來
+func gain_skill(id: String, amount: int) -> void:
+	var t := Hero.gain_skill(G.hero, id, amount)
+	if t != "":
+		await say(t)
 
 
 func wait(sec: float) -> void:

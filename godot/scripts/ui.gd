@@ -20,8 +20,11 @@ static func font() -> SystemFont:
 const GOLD := Color("c9a46a")
 const INK := Color(0.09, 0.08, 0.12, 0.93)
 
-## 物品資料（名稱、價錢、說明；銀兩與行囊在 G）
+## 物品資料（名稱、分類、說明、價錢、回復、秘笈、服飾…；銀兩與行囊在 G）
 var items: Dictionary = {}
+static var _items: Dictionary = {}
+## 正在輸入框打字：一般的按鍵交給輸入框，只攔上下、Tab、Enter、Esc
+var typing := false
 var _toast: Label
 var _toast_tw: Tween
 
@@ -69,9 +72,7 @@ func _ready() -> void:
 	_root.add_child(help)
 	_make_pill()
 	_make_ink()
-	var f := FileAccess.open("res://data/items.json", FileAccess.READ)
-	if f:
-		items = JSON.parse_string(f.get_as_text())
+	items = all_items()
 
 
 ## 互動提示：深色半透明的小圓角框，左邊是空白鍵的鍵帽圖示，右邊是動作
@@ -324,6 +325,18 @@ func show_hint(text: String, at: Vector2) -> void:
 	_pill.position = (at - Vector2(_pill.size.x / 2.0, _pill.size.y)).round()
 
 
+## 物品資料表（data/items.json，讀一次）
+static func all_items() -> Dictionary:
+	if _items.is_empty():
+		var f := FileAccess.open("res://data/items.json", FileAccess.READ)
+		_items = JSON.parse_string(f.get_as_text())
+	return _items
+
+
+static func item_def(id: String) -> Dictionary:
+	return all_items().get(id, {})
+
+
 func busy() -> bool:
 	return _open or _transit or Story.running > 0
 
@@ -332,6 +345,8 @@ func _input(e: InputEvent) -> void:
 	if not _open or not (e is InputEventKey) or not e.pressed or e.echo:
 		return
 	var k: String = OS.get_keycode_string(e.keycode)
+	if typing and not k in ["Up", "Down", "Tab", "Enter", "Kp Enter", "Escape"]:
+		return
 	if k in ["Space", "Enter", "Kp Enter"]:
 		k = "ok"
 	elif k in ["X", "Escape"]:

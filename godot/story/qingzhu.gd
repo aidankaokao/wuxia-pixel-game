@@ -8,7 +8,7 @@ static func well_use(ctx: Ctx) -> void:
 		return
 	ctx.pass_time(4)
 	await ctx.work("rest", "打水歇息中……")
-	# 氣血、內力、體力之後接上角色數值
+	ctx.restore_all()
 	await ctx.say(["你打起一桶水，掬起一捧喝了，又洗了把臉，在井邊坐著歇了一會兒。", "（氣血、內力、體力完全恢復。歇了半個時辰）"])
 
 
@@ -22,8 +22,8 @@ static func stele_read(ctx: Ctx) -> void:
 		"碑上刻著八個字，筆畫如劍痕：\n「竹影搖風，劍意自生」",
 		"一陣風吹過，滿林竹影搖曳。你望著碑上的劍痕，忽然看出了其中的起落轉折……",
 	])
-	ctx.learn("zhuying")
-	await ctx.say(["（戰鬥中可以使出「破竹式」與「竹影搖風」了）", "你撕下一片衣角，蘸著溪水把碑上的劍痕拓了下來。"])
+	await ctx.learn("zhuying")
+	await ctx.say(["（戰鬥中可以使出「破竹直刺」了，練得深了還能悟出「竹影搖風」）", "你撕下一片衣角，蘸著溪水把碑上的劍痕拓了下來。"])
 	await ctx.give("manual_zhuying")
 	ctx.set_flag("stele")
 
