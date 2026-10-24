@@ -108,6 +108,7 @@ func _place_hero(spawn: Dictionary) -> void:
 	var s: Dictionary = start if not start.is_empty() else spawn
 	hero.position = w3(s.x, s.y)
 	hero.face(_facing_vec(s.get("facing", "down")))
+	hero.xray(true)
 	rig.target = hero
 	rig.position = hero.position
 
@@ -297,9 +298,11 @@ func _unhandled_input(e: InputEvent) -> void:
 		var w: Dictionary = t.w
 		w.talking = true
 		_face_pair(w)
+		w.f.xray(true, Chibi.XRAY_NPC)
 		await Story.run("social/" + act, self, {"npc": w.id, "person": w.def.person, "stall": _stall_of(w)})
 		if is_instance_valid(w.f):
 			w.talking = false
+			w.f.xray(false)
 
 
 func _fill(text: String) -> String:
@@ -312,7 +315,17 @@ func _fight_beast(w: Dictionary) -> void:
 	Story.run("beast/fight", self, {"npc": w.id, "def": w.def})
 
 
+## 互動的時候，說話的對象被擋住也畫出輪廓
 func _interact(t: Dictionary) -> void:
+	var f: Chibi = t.w.f if t.kind == "npc" else null
+	if f:
+		f.xray(true, Chibi.XRAY_NPC)
+	await _interact_with(t)
+	if f and is_instance_valid(f):
+		f.xray(false)
+
+
+func _interact_with(t: Dictionary) -> void:
 	if t.kind == "npc" and t.w.def.get("encounter", "") != "":
 		_fight_beast(t.w)
 		return

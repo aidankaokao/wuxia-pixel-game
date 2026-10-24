@@ -52,6 +52,27 @@ var _t := 0.0
 var _blink := 2.0
 
 
+## 被房子、牆擋住時畫出輪廓（shaders/xray.gdshader）：主角一直開著，說話的對象說話時才開
+const XRAY_HERO := Color("ffdc80")
+const XRAY_NPC := Color("a8e0ff")
+static var _xray := {}
+
+
+func xray(on: bool, color := XRAY_HERO) -> void:
+	var m: ShaderMaterial = null
+	if on:
+		var key := color.to_html()
+		if not _xray.has(key):
+			m = ShaderMaterial.new()
+			m.shader = load("res://shaders/xray.gdshader")
+			m.set_shader_parameter("color", color)
+			m.render_priority = 5
+			_xray[key] = m
+		m = _xray[key]
+	for g in find_children("*", "MeshInstance3D", true, false):
+		g.material_overlay = m
+
+
 static func make(sprite: String) -> Chibi:
 	var c := Chibi.new()
 	c._build(LOOKS.get(sprite, LOOKS["farmer"]))
