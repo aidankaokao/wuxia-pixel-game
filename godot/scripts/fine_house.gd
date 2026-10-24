@@ -139,7 +139,10 @@ static func build(v: Village, b: Dictionary) -> Node3D:
 			v._lantern(root, Vector3(lx, top_y - 0.35, fz + 0.45))
 	var flag: String = b.get("flag", "")
 	if flag != "":
-		_flag(root, Vector3(w - 0.25, 0, front + 0.25), flag)
+		# 屋簷會遮住簷下的東西（鏡頭從斜上方看），所以幌子立在簷口外面、店招掛在簷口
+		_flag(root, Vector3(w - 0.15, 0, front + 0.95), flag)
+		if sign_text != "":
+			_shop_sign(root, Vector3(0.5, top_y + 0.02, front + 0.66), sign_text)
 	# ── 各樣式自己的東西 ──
 	match S.extra:
 		"drums":
@@ -343,6 +346,28 @@ static func _roof(root: Node3D, st: Dictionary, w: float, back: float, front: fl
 				board.material_override = Mk.mat(Color("5a3a22"))
 				board.transform = Mk.span(a + Vector3(0, 0.02, 0), bb + Vector3(0, 0.02, 0), Vector2(0.06, 0.16))
 				root.add_child(board)
+
+
+## 店招：從簷口挑出的木架上垂下一塊直立的招牌（黑底金字、金框），字由上往下寫
+static func _shop_sign(root: Node3D, top: Vector3, text: String) -> void:
+	var n := text.length()
+	var hgt := 0.22 + n * 0.24
+	root.add_child(Mk.box(Vector3(0.06, 0.06, 0.5), Color("5a3a22"), top + Vector3(0, 0.0, -0.2)))
+	for dx in [-0.1, 0.1]:
+		root.add_child(Mk.cyl(0.008, 0.008, 0.12, Color("3a2a1a"), top + Vector3(dx, -0.06, 0), 3))
+	var c := top + Vector3(0, -0.12 - hgt / 2.0, 0)
+	root.add_child(Mk.box(Vector3(0.36, hgt + 0.06, 0.05), Color("c9a46a"), c))
+	root.add_child(Mk.box(Vector3(0.3, hgt, 0.06), Color("2a1f18"), c))
+	var t := Label3D.new()
+	t.text = "\n".join(Array(text.split("")))
+	t.font = Ui.font()
+	t.font_size = 40
+	t.pixel_size = 0.0055
+	t.line_spacing = -4
+	t.modulate = Color("f0c860")
+	t.outline_size = 0
+	t.position = c + Vector3(0, 0, 0.035)
+	root.add_child(t)
 
 
 ## 幌子：竹竿、橫桿、垂下的布幅（寫一個字）

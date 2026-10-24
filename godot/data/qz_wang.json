@@ -1,0 +1,86 @@
+{
+ "id": "qz_wang",
+ "name": "王家",
+ "subtitle": "青竹村・民居",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWEWWWWWW"
+ ],
+ "spawn": {
+  "x": 2,
+  "y": 4,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     2,
+     5
+    ]
+   ],
+   "to": "qingzhu",
+   "spawn": {
+    "x": 32,
+    "y": 30,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "f_bed_plain_1",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "收拾得整整齊齊的床鋪。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "cradle",
+   "x": 4,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "搖籃裡的娃娃睡得正香，小手攥成了拳頭。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_stove_plain_1",
+   "x": 5,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "灶上溫著一鍋粥，米香陣陣。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 5,
+   "y": 3,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上擺著幾件縫到一半的小衣裳。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": []
+}

@@ -18,6 +18,7 @@ const LOOKS := {
 	"bandit": {"robe": "6a3a2a", "trim": "a87a5a", "sash": "2a2228", "hair": "2a2228", "style": "band", "sword": true, "angry": true},
 	"boss": {"robe": "3a2a2a", "trim": "a83a2a", "sash": "c9a46a", "hair": "2a2228", "style": "topknot", "sword": true, "angry": true, "beard": true},
 	"storyteller": {"robe": "5a6a7a", "trim": "e8e0cc", "sash": "3a4a5a", "hair": "8a8680", "style": "bun", "beard": true, "fan": true},
+	"apprentice": {"robe": "8a6a4a", "trim": "d8c8a8", "sash": "4a3a2a", "hair": "2a2228", "style": "band", "small": false},
 	"servant": {"robe": "6a6a6a", "trim": "d8d0c0", "sash": "3a3a3a", "hair": "2a2228", "style": "band"},
 	"scholar": {"robe": "8aa0a8", "trim": "f0ece0", "sash": "4a5a68", "hair": "2a2228", "style": "topknot"},
 	"dog": {"animal": "dog"},

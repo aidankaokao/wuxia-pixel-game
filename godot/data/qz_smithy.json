@@ -1,0 +1,128 @@
+{
+ "id": "qz_smithy",
+ "name": "石家鐵鋪",
+ "subtitle": "青竹村・鐵匠鋪",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWEWWWWWW"
+ ],
+ "spawn": {
+  "x": 2,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     2,
+     6
+    ]
+   ],
+   "to": "qingzhu",
+   "spawn": {
+    "x": 13,
+    "y": 19,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "forge",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "爐裡的炭火燒得正旺，熱氣烤得人臉發燙。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_martial_1",
+   "x": 5,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "兵器架"
+  },
+  {
+   "sprite": "anvil",
+   "x": 3,
+   "y": 3,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一座鐵砧，表面坑坑窪窪，不知打過多少把刀。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "vat",
+   "x": 7,
+   "y": 5,
+   "w": 1,
+   "lines": [
+    {
+     "text": "淬火用的水缸，水面上浮著一層鐵灰。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "xiaohu",
+   "name": "石小虎",
+   "sprite": "apprentice",
+   "x": 5,
+   "y": 3,
+   "facing": "down",
+   "talks": [
+    [
+     {
+      "speaker": "石小虎",
+      "text": "我爹說我打鐵的時候心不在焉……可我就是想練劍嘛。"
+     }
+    ],
+    [
+     {
+      "speaker": "石小虎",
+      "text": "我爹在外頭打鐵，我負責拉風箱。"
+     },
+     {
+      "speaker": "石小虎",
+      "text": "等我長大了，要打一把比我爹的還好的刀！"
+     }
+    ],
+    [
+     {
+      "speaker": "石小虎",
+      "text": "呼……拉風箱好累喔。"
+     }
+    ],
+    [
+     {
+      "speaker": "石小虎",
+      "text": "{稱}，你看我的手，都磨出繭了！"
+     }
+    ],
+    [
+     {
+      "speaker": "石小虎",
+      "text": "我爹又在罵我偷懶了……"
+     }
+    ]
+   ]
+  }
+ ]
+}

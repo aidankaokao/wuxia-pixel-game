@@ -4,7 +4,7 @@ extends GridScene
 ## - 山（^）依周圍有幾格山而隆起，水（~）往下凹，路、田、廣場貼在地面上。
 ## - 主角用方向鍵走（相對鏡頭方向），Shift 跑；村民在自己的位置附近走動，攤販站著不動。
 ## - 面對村民、擺設時頭上冒出「空白鍵 交談／查看」，按空白鍵對話；陶四、鍾嬸可以買賣東西。
-## - 站在竹風茶寮門口、對著門按空白鍵就換到室內（room.gd）；其他房子的室內還沒做，會說門關著。
+## - 站在門口、對著門按空白鍵就換到室內（room.gd）；沒有室內的房子（趙家）會說門關著。
 
 const GROUND := {":": "c9a46a", "E": "c9a46a", "=": "b9b3a4", "n": "8a6040", "c": "7a5a3a", "g": "8b5e3c", "~": "3a5f86", "#": "a8763f"}
 
@@ -16,7 +16,7 @@ const STALLS := {
 ## 精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）；有樣式設定的都用精細版
 
 ## 做好室內的房子（地圖 id）
-const ROOMS := ["qz_tea"]
+const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang"]
 
 var data: Dictionary
 var heights := []
@@ -678,7 +678,7 @@ func _interact(t: Dictionary) -> void:
 	if enter != null and enter.to in ROOMS:
 		main.go(enter.to, enter.spawn)
 	else:
-		await ui.say([{"text": "%s的門關著。（試作品只做了竹風茶寮的室內）" % b.name}])
+		await ui.say([{"text": "%s的門關著。" % b.name}])
 
 
 func info_text() -> String:

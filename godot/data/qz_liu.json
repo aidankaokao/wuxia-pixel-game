@@ -1,0 +1,166 @@
+{
+ "id": "qz_liu",
+ "name": "柳家大宅",
+ "subtitle": "青竹村・村長家",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     6
+    ]
+   ],
+   "to": "qingzhu",
+   "spawn": {
+    "x": 20,
+    "y": 16,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "altar",
+   "x": 4,
+   "y": 1,
+   "w": 3,
+   "lines": [
+    {
+     "text": "供桌上擺著柳家歷代先人的牌位，香爐裡的三炷香才剛點上。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 2,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一幅字：「耕讀傳家」。墨色已有些淡了。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_scholar_1",
+   "x": 8,
+   "y": 0,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一幅山水，題款是「蒼嵐春色」。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "chair",
+   "x": 3,
+   "y": 2,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一張太師椅，扶手磨得發亮。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "chair",
+   "x": 7,
+   "y": 2,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一張太師椅，扶手磨得發亮。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_shelf_scholar_2",
+   "x": 1,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上多是農書與帳冊，也有幾本泛黃的拳譜。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "f_deco_plain_1",
+   "x": 9,
+   "y": 5,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盆修剪整齊的文竹。"
+    }
+   ],
+   "label": ""
+  },
+  {
+   "sprite": "door_locked",
+   "x": 10,
+   "y": 3,
+   "w": 1,
+   "lines": [
+    {
+     "text": "東廂房的門關著。"
+    },
+    {
+     "speaker": "老福",
+     "text": "那是老爺的書房，沒有老爺吩咐，誰也不能進。"
+    }
+   ],
+   "label": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "fu",
+   "name": "老福",
+   "sprite": "servant",
+   "x": 7,
+   "y": 4,
+   "facing": "left",
+   "talks": [
+    [
+     {
+      "speaker": "老福",
+      "text": "客人請坐。老爺平時都在外頭廣場上跟鄉親們說話，難得回屋。"
+     }
+    ],
+    [
+     {
+      "speaker": "老福",
+      "text": "柳家在青竹村住了五代人了。老太爺那一輩，還出過一位在臨江城開武館的。"
+     },
+     {
+      "speaker": "老福",
+      "text": "可惜後來……唉，不提了。"
+     }
+    ]
+   ]
+  }
+ ]
+}
