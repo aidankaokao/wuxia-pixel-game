@@ -1,0 +1,78 @@
+{
+ "id": "bp_shrine",
+ "name": "海神祠",
+ "subtitle": "大埠頭・海神祠",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     6
+    ]
+   ],
+   "to": "dabutou",
+   "spawn": {
+    "x": 10,
+    "y": 23,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "altar",
+   "x": 3,
+   "y": 1,
+   "w": 3,
+   "lines": [],
+   "label": "上香求籤",
+   "script": "dabutou/shrine_talk"
+  },
+  {
+   "sprite": "portrait",
+   "x": 6,
+   "y": 0,
+   "w": 2,
+   "lines": [
+    {
+     "text": "海神娘娘的畫像，手持如意，腳踏浪花。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "bpsh_mei",
+   "name": "梅婆婆",
+   "sprite": "aunt",
+   "x": 2,
+   "y": 3,
+   "facing": "right",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "dabutou/shrine_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

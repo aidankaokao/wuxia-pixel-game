@@ -225,3 +225,30 @@ static func duty(id: String, t: int, _wet: bool) -> Dictionary:
 				return {"act": "read", "at": ["mq_hall", 7, 4, "down"]}
 			return {"act": "sleep", "at": [AWAY, 0, 0]}
 	return {}
+
+
+## 湊過去聽兩個同門聊天（a、b 是名字）：較勁的鬥嘴、要好的聊家常、顧小滿說大師兄、比武名次、時事
+static func gossip(a: String, b: String) -> Array:
+	var A := func(t: String) -> Dictionary: return {"speaker": a, "text": t}
+	var B := func(t: String) -> Dictionary: return {"speaker": b, "text": t}
+	var pair := [a, b]
+	var out := []
+	if "包小川" in pair and "唐秋生" in pair:
+		out.append([A.call("%s，這次比武我一定贏你。" % b), B.call("上次你也這麼說，結果呢？"), A.call("上次是我讓你！")])
+	if "鄭大壯" in pair and "侯三郎" in pair:
+		out.append([A.call("今年家裡的麥子不知收得怎樣……"), B.call("我娘捎信來說雨水好，應該不差。等旬休下山去看看？")])
+	if "曹小豆" in pair:
+		out.append([A.call("卜師傅今晚燉肉，我聞到了！"), B.call("噓——上次偷吃被抓，掃了三天茅房，你忘啦？")])
+	if "喬木生" in pair or "何守一" in pair:
+		out.append([A.call("今天上山應考的人又多了兩個。"), B.call("有一個連石階都爬不完，坐在半山腰喘氣，哈哈。")])
+	if "顧小滿" in pair:
+		var other: String = b if a == "顧小滿" else a
+		out.append([{"speaker": "顧小滿", "text": "大師兄今天那一劍你看見沒？快得我都沒看清……"}, {"speaker": other, "text": "嘿，又在說大師兄了。"}])
+	var place := int(G.flags.get("mq_meet_place", 0))
+	if place == 1:
+		out.append([A.call("上回比武，頭名竟然是新來的那位。"), B.call("下回換我！")])
+	if int(G.flags.get("bandit_boss", 0)) > 0:
+		out.append([A.call("聽說斷崖寨被人挑了，祁三刀都栽了！"), B.call("不知道是哪路高手，真想見見。")])
+	out.append([A.call("二師姐葉疏桐下山都快一年了，你說她會不會不回來了？"), B.call("別亂說，大師兄聽見要生氣的。")])
+	out.append([A.call("昨晚又聽見後山有笛聲，你聽見沒？"), B.call("別嚇我，我晚上還要守夜呢。")])
+	return out

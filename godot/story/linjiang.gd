@@ -429,7 +429,7 @@ static func guild_talk(ctx: Ctx) -> void:
 		1:
 			await dice(ctx)
 		2:
-			await ctx.say([peng.call("往大埠頭的船三天一班，下回吧。"), "（大埠頭還沒搬過來）"])
+			await load("res://story/dabutou.gd").river_boat(ctx, "dabutou", "彭大江")
 		3:
 			await ctx.say(_lines("彭大江", ["金刀鏢局？哼，他們的鏢船夾帶私貨，我們扣下來查，有什麼不對？", "碼頭是漕幫的碼頭，規矩是漕幫的規矩。", "……三年前那趟鏢的事，跟我們漕幫沒關係。外頭傳的那些話，你別信。"]))
 

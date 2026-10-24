@@ -1,0 +1,117 @@
+{
+ "id": "bp_inn",
+ "name": "望潮客棧",
+ "subtitle": "大埠頭・客棧",
+ "theme": "plain",
+ "tiles": [
+  "WWWWWWWWWWW",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "W_________W",
+  "WWWWWEWWWWW"
+ ],
+ "spawn": {
+  "x": 5,
+  "y": 6,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     5,
+     7
+    ]
+   ],
+   "to": "dabutou",
+   "spawn": {
+    "x": 5,
+    "y": 13,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 1,
+   "y": 1,
+   "w": 3,
+   "lines": [],
+   "label": "住店／點菜",
+   "script": "dabutou/inn_talk"
+  },
+  {
+   "sprite": "f_stove_plain_2",
+   "x": 7,
+   "y": 1,
+   "w": 2,
+   "lines": [],
+   "label": "學做海鮮",
+   "script": "dabutou/cook_talk"
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 2,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "桌上一盤吃剩的魚骨頭，啃得乾乾淨淨。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_table_plain_1",
+   "x": 7,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "窗外就是海，浪聲一陣一陣地傳進來。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "bpi_pan",
+   "name": "潘海生",
+   "sprite": "elder",
+   "x": 2,
+   "y": 2,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "dabutou/inn_talk",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "bpi_panma",
+   "name": "潘大娘",
+   "sprite": "aunt",
+   "x": 7,
+   "y": 2,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "dabutou/cook_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

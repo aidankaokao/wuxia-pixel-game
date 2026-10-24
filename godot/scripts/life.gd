@@ -18,7 +18,7 @@ const ACTS := {
 	"home": ["在家歇著", "", 0, false],
 	"beg": ["討飯", "碗", 0, true], "boat": ["出船", "船", 0, true], "chess": ["下棋", "棋", 0, true],
 	"mend": ["補網", "網", 0, true], "pick": ["採蓮", "蓮", 1, true], "shop": ["採買", "買", 1, true],
-	"study": ["讀書", "書", 0, false],
+	"study": ["讀書", "書", 0, false], "pray": ["上香", "香", 0, false],
 	# 門派（鳴泉）
 	"stake": ["練樁", "樁", 0, false], "sword": ["練劍", "劍", 0, true], "meditate": ["打坐", "坐", 0, false],
 	"sweep": ["掃地", "掃", 1, true], "water": ["挑水", "水", 0, true], "garden": ["照顧菜圃", "菜", 1, true],
@@ -35,7 +35,7 @@ static var _cache := {}
 
 ## 這張地圖上有哪一群人在過日子（沒有就是空的）
 static func group_for(map: String) -> Dictionary:
-	for id in ["qingzhu", "biyi", "linjiang", "mingquan"]:
+	for id in ["qingzhu", "biyi", "linjiang", "mingquan", "dabutou"]:
 		var g := group(id)
 		if map in g.maps:
 			return g

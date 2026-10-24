@@ -1,0 +1,91 @@
+{
+ "id": "bp_ship",
+ "name": "船行",
+ "subtitle": "大埠頭・船行",
+ "theme": "stone",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     6
+    ]
+   ],
+   "to": "dabutou",
+   "spawn": {
+    "x": 29,
+    "y": 13,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 3,
+   "y": 2,
+   "w": 3,
+   "lines": [],
+   "label": "搭船",
+   "script": "dabutou/ship_talk"
+  },
+  {
+   "sprite": "f_deco_plain_1",
+   "x": 1,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "牆上釘著一張大江水路圖，從臨江城一路畫到大埠頭。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "jars",
+   "x": 6,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一捆捆的纜繩和船帆，堆得比人還高。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "bps_ling",
+   "name": "凌萬川",
+   "sprite": "boatman",
+   "x": 4,
+   "y": 1,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "dabutou/ship_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}

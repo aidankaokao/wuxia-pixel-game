@@ -14,15 +14,19 @@ const GROUND := {":": "c9a46a", "E": "c9a46a", "=": "b9b3a4", "n": "8a6040", "c"
 const STALLS := {
 	"tao": {"x": 32, "y": 22, "face": Vector3(-1, 0, 0), "title": "陶四的貨郎攤", "stock": ["jinchuang", "tea", "herb", "rice", "flour", "egg", "tofu", "greens", "radish", "redbean", "sugar", "rod"], "greet": "走過路過不要錯過！傷藥、茶葉、草藥，樣樣都有。獸皮、獸肉也收！"},
 	"zhong": {"x": 32, "y": 17, "face": Vector3(0, 0, 1), "title": "鍾嬸的茶攤", "stock": ["tea", "egg"], "greet": "來啦！坐下喝碗茶歇歇腳？"},
+	# 大埠頭的魚攤（story/life_dabutou.gd）
+	"xiaoluo": {"x": 25, "y": 25, "face": Vector3(0, 0, 1), "title": "大埠頭魚市", "stock": ["sea_fish", "shrimp", "seaweed"], "greet": "今早剛靠岸的海魚！蝦子還在跳呢！"},
+	"xiaolang": {"x": 28, "y": 25, "face": Vector3(0, 0, 1), "title": "大埠頭魚市", "stock": ["sea_fish", "shrimp", "seaweed"], "greet": "海帶、鮮蝦，都是我爹船上撈的！"},
 }
 ## 精細版的房子（瓦片屋頂、斗拱、格子窗……，見 fine_house.gd）；有樣式設定的都用精細版
 
 ## 做好室內的房子（地圖 id）
 const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tavern", "by_qinhome",
 	"lj_cloth", "lj_inn", "lj_tower", "lj_clinic", "lj_pawn", "lj_escort", "lj_guild", "lj_teashop", "lj_academy", "lj_yamen_hall", "lj_yamen_west", "lj_yamen_east",
-	"mq_hall", "mq_dorm", "mq_room_a", "mq_room_b", "mq_cell_1", "mq_cell_2", "mq_train", "mq_lib", "mq_armory", "mq_med", "mq_kitchen"]
+	"mq_hall", "mq_dorm", "mq_room_a", "mq_room_b", "mq_cell_1", "mq_cell_2", "mq_train", "mq_lib", "mq_armory", "mq_med", "mq_kitchen",
+	"bp_inn", "bp_trader", "bp_ship", "bp_shrine"]
 ## 做好的室外地圖（出入口通到這些就換過去）
-const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back"]
+const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "dabutou"]
 ## 地圖四周往外延伸幾格（地圖資料可以用 ring 指定：主角會走到很靠邊的地圖要寬一點，免得看到外面）
 var M := 16
 
@@ -959,6 +963,23 @@ func _prop(p: Dictionary) -> void:
 				g.add_child(Mk.cyl(0.18, 0.22, 0.42, Color("7a5a3a") if i % 2 else Color("6a4a32"), Vector3(-w / 2.0 + 0.3 + i * 0.45, 0.21, (i % 2) * 0.15), 9))
 			g.add_child(Mk.cyl(0.25, 0.2, 0.3, Color("b8a060"), Vector3(w / 2.0 - 0.3, 0.15, -0.25), 10))
 		"boat":
+			# 大船（說明裡寫著海船、商船、客船、運糧船的）：船身、船艙、一根桅杆掛著收起的帆
+			var desc: String = p.lines[0].text if (p.lines as Array).size() > 0 else ""
+			if ["海船", "商船", "客船", "運糧船"].any(func(k): return desc.contains(k)):
+				var wood := Color("6a4428")
+				g.add_child(Mk.box(Vector3(w - 0.2, 0.55, 1.3), wood, Vector3(0, 0.05, 0)))
+				for sx in [-1, 1]:
+					var bow := Mk.box(Vector3(0.9, 0.5, 0.9), wood, Vector3(sx * (w / 2.0 - 0.1), 0.08, 0))
+					bow.rotation.y = PI / 4.0
+					bow.scale = Vector3(1, 1, 0.75)
+					g.add_child(bow)
+				g.add_child(Mk.box(Vector3(w - 0.4, 0.05, 1.15), Color("a8763f"), Vector3(0, 0.34, 0)))
+				g.add_child(Mk.box(Vector3(1.2, 0.6, 0.9), Color("8a6a42"), Vector3(-w / 2.0 + 1.0, 0.66, 0)))
+				g.add_child(Mk.box(Vector3(1.35, 0.08, 1.05), Color("4a3a2e"), Vector3(-w / 2.0 + 1.0, 1.0, 0)))
+				g.add_child(Mk.cyl(0.06, 0.07, 3.2, Color("5a3a22"), Vector3(0.3, 1.9, 0), 6))
+				g.add_child(Mk.box(Vector3(0.12, 0.25, 1.4), Color("e8dcc4"), Vector3(0.3, 3.2, 0)))
+				g.add_child(Mk.box(Vector3(0.05, 1.4, 1.2), Color("d8c8a8"), Vector3(0.38, 2.3, 0)))
+				return
 			# 拴在棧橋邊的小船（擺在水格上）
 			var hull := Mk.box(Vector3(w - 0.3, 0.25, 0.75), Color("7a5232"), Vector3(0, -0.12, 0))
 			g.add_child(hull)

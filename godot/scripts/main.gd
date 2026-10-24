@@ -3,7 +3,7 @@ extends Node3D
 ## 存讀檔（Ctrl／⌘+S 即時存檔、F9 讀取即時存檔；換場景時自動存檔）。開發用：T 過一個時辰、Y 換天氣。
 ## 場景：青竹村（village）、戰鬥・平地（plain）、戰鬥・河湖（river）、戰鬥・山道（hill）。
 
-const SCENES := [["tianxia", "天下輿圖"], ["world", "大地圖"], ["village", "青竹村"], ["qz_north", "青竹村北"], ["qz_tea", "竹風茶寮"], ["canglan", "蒼嵐山道"], ["biyi", "碧漪湖"], ["linjiang", "臨江城"], ["mq_sect", "鳴泉劍派"]]
+const SCENES := [["tianxia", "天下輿圖"], ["world", "大地圖"], ["village", "青竹村"], ["qz_north", "青竹村北"], ["qz_tea", "竹風茶寮"], ["canglan", "蒼嵐山道"], ["biyi", "碧漪湖"], ["linjiang", "臨江城"], ["mq_sect", "鳴泉劍派"], ["dabutou", "大埠頭"]]
 ## 開發用的「開戰測試」能選的遭遇戰
 const DEV_FIGHTS := ["dog", "dogs", "boar", "scouts", "camp", "spar_qinghe", "spar_shiyue", "escort_far", "bounty_river", "trial_han"]
 ## 光線的四種樣子：太陽的角度、顏色、亮度；天空與環境光；燈籠亮不亮。一天裡照 LIGHT_KEYS 在它們之間漸變

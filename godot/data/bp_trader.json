@@ -1,0 +1,91 @@
+{
+ "id": "bp_trader",
+ "name": "海商會館",
+ "subtitle": "大埠頭・會館",
+ "theme": "scholar",
+ "tiles": [
+  "WWWWWWWWW",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "W_______W",
+  "WWWWEWWWW"
+ ],
+ "spawn": {
+  "x": 4,
+  "y": 5,
+  "facing": "up"
+ },
+ "exits": [
+  {
+   "tiles": [
+    [
+     4,
+     6
+    ]
+   ],
+   "to": "dabutou",
+   "spawn": {
+    "x": 14,
+    "y": 13,
+    "facing": "down"
+   }
+  }
+ ],
+ "props": [
+  {
+   "sprite": "counter",
+   "x": 3,
+   "y": 2,
+   "w": 3,
+   "lines": [],
+   "label": "看貨",
+   "script": "dabutou/trader_talk"
+  },
+  {
+   "sprite": "jars",
+   "x": 1,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "木箱上烙著看不懂的外國字，裡頭飄出一股香料味。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  },
+  {
+   "sprite": "f_shelf_scholar_2",
+   "x": 6,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "架上擺著海圖和幾個奇形怪狀的貝殼。"
+    }
+   ],
+   "label": "",
+   "script": ""
+  }
+ ],
+ "npcs": [
+  {
+   "id": "bpt_luo",
+   "name": "駱千帆",
+   "sprite": "scholar",
+   "x": 4,
+   "y": 1,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "dabutou/trader_talk",
+   "when": "",
+   "talks": []
+  }
+ ]
+}
