@@ -34,7 +34,6 @@ var book: Control
 var left: Control
 var right: Control
 var layer: Control
-var note: Label
 var hint: Label
 var tab_labels: Array = []
 var tab := 0
@@ -66,7 +65,6 @@ func _run(u: Ui, t: int) -> void:
 	while true:
 		_chrome()
 		var k: String = await ui._key
-		note.text = ""
 		if focus == "scroll":
 			await _scroll_key(k)
 			continue
@@ -112,7 +110,12 @@ func _run(u: Ui, t: int) -> void:
 					continue
 				if tab == 2 and n > 0:
 					var id: String = G.bag.keys()[cur]
-					note.text = Hero.consume(G.hero, id) if Hero.usable(id) else "這樣東西不能直接使用。"
+					if not Hero.usable(id):
+						ui.notify("這樣東西不能直接使用。", FAINT)
+					elif not Hero.useful(G.hero, id):
+						ui.notify("現在用不著：用了也補不上什麼。", FAINT)
+					elif await _confirm("使用「%s」？" % Ui.item_def(id).get("name", id), "身上有 %d 個，用了就少一個。" % G.bag[id], ["使用", "取消"]) == 0:
+						ui.notify(Hero.consume(G.hero, id))
 					cur = clampi(cur, 0, maxi(0, G.bag.size() - 1))
 		_fill_both()
 	var tw2 := root.create_tween().set_parallel()
@@ -158,12 +161,6 @@ func _build() -> void:
 	layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(layer)
-	note = _lab("", 16, Color("f0d890"))
-	note.set_anchors_preset(Control.PRESET_CENTER)
-	note.position = Vector2(-W / 2, H / 2 + 14 - 29)
-	note.size = Vector2(W, 24)
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	root.add_child(note)
 	hint = _lab("", 15, Color("e8dcc0"))
 	hint.set_anchors_preset(Control.PRESET_CENTER)
 	hint.position = Vector2(-W / 2, H / 2 + 24)
@@ -835,7 +832,7 @@ func _scroll_key(k: String) -> void:
 			"Right":
 				pick = (pick + 1) % Hero.SLOT_LIMIT[slot]
 			"ok":
-				note.text = Hero.equip_at(c, s.id, pick)
+				ui.notify(Hero.equip_at(c, s.id, pick))
 				pick = -1
 			"back":
 				pick = -1
@@ -851,19 +848,88 @@ func _scroll_key(k: String) -> void:
 			cur = (cur + 1) % order.size()
 		"ok":
 			if Hero.is_equipped(s):
-				note.text = Hero.unequip(c, s.id)
+				ui.notify(Hero.unequip(c, s.id))
 			else:
 				var pos = Hero.free_pos(c, slot)
 				if pos != null:
-					note.text = Hero.equip_at(c, s.id, pos)
+					ui.notify(Hero.equip_at(c, s.id, pos))
 				else:
 					pick = 0
 		"T":
 			var used := Hero.train_with_points(c, s.id, Hero.points_to_next(s))
-			note.text = ("花了 %d 點武學點數修練「%s」。" % [used, Hero.skill_def(s.id).name]) if used > 0 else ("已經練到正常上限了，要突破（B）。" if s.level >= Hero.cap_of(s) else "武學點數不足。")
+			ui.notify(("花了 %d 點武學點數修練「%s」。" % [used, Hero.skill_def(s.id).name]) if used > 0 else ("已經練到正常上限了，要突破（B）。" if s.level >= Hero.cap_of(s) else "武學點數不足。"))
 		"B":
-			note.text = Hero.try_breakthrough(c, s.id).text
+			ui.notify(Hero.try_breakthrough(c, s.id).text)
 	_fill_scroll()
+
+
+## 書上跳出一張小紙條問一下：←→（或 ↑↓）選、空白鍵確定、X 取消（等於選最後一個）
+func _confirm(title: String, sub: String, options: Array) -> int:
+	var box := PanelContainer.new()
+	var sb := _sb(Color("f6eedb"), Color("6a4a2a"), 6, 2)
+	sb.content_margin_left = 28
+	sb.content_margin_right = 28
+	sb.content_margin_top = 18
+	sb.content_margin_bottom = 18
+	sb.shadow_color = Color(0, 0, 0, 0.35)
+	sb.shadow_size = 10
+	box.add_theme_stylebox_override("panel", sb)
+	box.set_anchors_preset(Control.PRESET_CENTER)
+	box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	box.grow_vertical = Control.GROW_DIRECTION_BOTH
+	box.custom_minimum_size = Vector2(340, 0)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 10)
+	box.add_child(v)
+	var t := _lab(title, 20)
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(t)
+	if sub != "":
+		var s2 := _lab(sub, 14, SOFT)
+		s2.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		v.add_child(s2)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 18)
+	v.add_child(row)
+	var btns: Array = []
+	for o in options:
+		var b := PanelContainer.new()
+		var l := _lab(o, 17)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.custom_minimum_size = Vector2(80, 0)
+		b.add_child(l)
+		row.add_child(b)
+		btns.append(b)
+	layer.add_child(box)
+	box.scale = Vector2(0.9, 0.9)
+	box.modulate.a = 0.0
+	var tw := box.create_tween().set_parallel()
+	tw.tween_property(box, "modulate:a", 1.0, 0.12)
+	tw.tween_property(box, "scale", Vector2.ONE, 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await box.get_tree().process_frame
+	box.pivot_offset = box.size / 2
+	var at := 0
+	while true:
+		for i in btns.size():
+			var on: bool = i == at
+			var bs := _sb(Color(0.54, 0.18, 0.15, 0.9) if on else Color(0, 0, 0, 0), Color(0.54, 0.18, 0.15, 0.8), 4, 1)
+			bs.content_margin_top = 4
+			bs.content_margin_bottom = 4
+			btns[i].add_theme_stylebox_override("panel", bs)
+			(btns[i].get_child(0) as Label).add_theme_color_override("font_color", Color("f6ecd8") if on else INK)
+		var k: String = await ui._key
+		if k in ["Left", "Up"]:
+			at = (at + btns.size() - 1) % btns.size()
+		elif k in ["Right", "Down"]:
+			at = (at + 1) % btns.size()
+		elif k == "ok":
+			break
+		elif k == "back":
+			at = btns.size() - 1
+			break
+	box.queue_free()
+	return at
 
 
 # ── 行囊 ────────────────────────────────────────────────

@@ -373,6 +373,13 @@ static func usable(id: String) -> bool:
 
 
 ## 用掉一個回復類物品；回傳說明
+## 現在用了有沒有效果（氣血、內力、體力都滿了又不是療傷藥就沒有）
+static func useful(c: Dictionary, id: String) -> bool:
+	var d := Ui.item_def(id)
+	var mx := derive(c)
+	return d.has("treat") or int(d.get("hp", 0)) > 0 and c.hp < mx.max_hp or int(d.get("qi", 0)) > 0 and c.qi < mx.max_qi or int(d.get("stamina", 0)) > 0 and c.stamina < mx.max_stamina
+
+
 static func consume(c: Dictionary, id: String) -> String:
 	var d := Ui.item_def(id)
 	if int(G.bag.get(id, 0)) <= 0 or not usable(id):

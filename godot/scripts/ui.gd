@@ -27,6 +27,7 @@ static var _items: Dictionary = {}
 var typing := false
 var _toast: Label
 var _toast_tw: Tween
+var _notes: VBoxContainer
 
 var _root: Control
 var _box: Control
@@ -253,6 +254,58 @@ func toast(text: String) -> void:
 	_toast_tw.tween_property(_toast, "modulate:a", 0.0, 0.6)
 
 
+## 右上角的通知：一張小紙條從右邊滑進來，停一下就滑出去（使用了物品、裝備武功這類「剛剛做了什麼」）；可以疊好幾張
+func notify(text: String, color := Color("e8c870")) -> void:
+	if _notes == null:
+		_notes = VBoxContainer.new()
+		_notes.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		_notes.position = Vector2(-360, 70)
+		_notes.custom_minimum_size = Vector2(340, 0)
+		_notes.add_theme_constant_override("separation", 6)
+		_notes.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_notes)
+	# 外層只佔位置，裡面的紙條自己滑動
+	var slot := Control.new()
+	slot.custom_minimum_size = Vector2(340, 40)
+	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var p := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.09, 0.08, 0.12, 0.92)
+	sb.border_color = color
+	sb.border_width_left = 4
+	sb.set_corner_radius_all(4)
+	sb.content_margin_left = 14
+	sb.content_margin_right = 14
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+	p.add_theme_stylebox_override("panel", sb)
+	p.custom_minimum_size = Vector2(340, 40)
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_override("font", font())
+	l.add_theme_font_size_override("font_size", 15)
+	l.add_theme_color_override("font_color", Color("f4ead6"))
+	l.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	l.custom_minimum_size = Vector2(300, 0)
+	p.add_child(l)
+	slot.add_child(p)
+	_notes.add_child(slot)
+	while _notes.get_child_count() > 4:
+		var old := _notes.get_child(0)
+		_notes.remove_child(old)
+		old.queue_free()
+	p.position.x = 380
+	var tw := p.create_tween()
+	tw.tween_property(p, "position:x", 0.0, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_interval(2.0)
+	tw.tween_property(p, "position:x", 380.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tw.tween_callback(slot.queue_free)
+	# 紙條變高時（字多換行）外層跟著撐開
+	await get_tree().process_frame
+	if is_instance_valid(slot):
+		slot.custom_minimum_size.y = p.size.y
+
+
 ## 到了新場景，畫面上方漸漸浮出地名，停一下再淡掉
 func show_title(text: String) -> void:
 	if _title == null:
@@ -435,11 +488,15 @@ func _text(t: String, size := 20) -> Label:
 	return l
 
 
-## 一句一句說：lines 是 [{speaker, text}]，按空白鍵下一句
+## 一句一句說：lines 是 [{speaker, text}]。字一個一個冒出來；還沒出完按空白鍵整句出現，出完了再按才是下一句
 func say(lines: Array) -> void:
 	for l in lines:
 		var v := _dialog(l.get("speaker", ""))
-		v.add_child(_text(l.get("text", "")))
+		var t := _text(l.get("text", ""))
+		v.add_child(t)
+		var more := _more_mark(v)
+		await _type(t)
+		_blink(more)
 		while true:
 			var k: String = await _key
 			if k == "ok" or k == "back":
@@ -447,16 +504,63 @@ func say(lines: Array) -> void:
 	_close()
 
 
+## 每秒出幾個字
+const TYPE_SPEED := 45.0
+
+
+## 讓一行字逐字出現；途中按空白鍵（或 X）就整句出現
+func _type(l: Label) -> void:
+	var n := l.get_total_character_count()
+	var skip := [false]
+	var on_key := func(k: String) -> void:
+		if k == "ok" or k == "back":
+			skip[0] = true
+	_key.connect(on_key)
+	var t := 0.0
+	l.visible_characters = 0
+	while not skip[0] and l.visible_characters < n and is_instance_valid(l):
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		l.visible_characters = mini(n, int(t * TYPE_SPEED))
+	_key.disconnect(on_key)
+	if is_instance_valid(l):
+		l.visible_characters = -1
+
+
+## 對話框右下角的 ▼（整句出完才亮、一閃一閃）
+func _more_mark(v: VBoxContainer) -> Label:
+	var m := Label.new()
+	m.text = "▼"
+	m.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	m.add_theme_font_size_override("font_size", 13)
+	m.add_theme_color_override("font_color", GOLD)
+	m.modulate.a = 0.0
+	v.add_child(m)
+	return m
+
+
+func _blink(m: Label) -> void:
+	var tw := m.create_tween().set_loops()
+	tw.tween_property(m, "modulate:a", 1.0, 0.35)
+	tw.tween_property(m, "modulate:a", 0.25, 0.45)
+
+
 ## 問一句、選一個（回傳第幾個；X 等於選最後一個）
 func ask(prompt: Dictionary, options: Array) -> int:
 	var cur := 0
 	var v := _dialog(prompt.get("speaker", ""))
-	v.add_child(_text(prompt.get("text", "")))
+	var q := _text(prompt.get("text", ""))
+	v.add_child(q)
 	var rows: Array[Label] = []
 	for o in options:
 		var r := _text(o, 18)
+		r.modulate.a = 0.0
 		v.add_child(r)
 		rows.append(r)
+	# 問題先逐字出完，選項才出現
+	await _type(q)
+	for r in rows:
+		r.modulate.a = 1.0
 	while true:
 		for i in rows.size():
 			rows[i].text = ("▶ " if i == cur else "　 ") + str(options[i])

@@ -39,7 +39,7 @@
 - 角色：`scripts/hero.gd`（`Hero`，照網頁版 character.ts；主角是 `G.hero` 字典）。武功與招式在 `data/skills.json`（`tiers`、`skills`、`moves`），物品在 `data/items.json`（`Ui.item_def(id)`）；新增武功要填品階、裝備加成、永久成長、上限加成與招式表（第一招為初始招，其餘標重數與悟出後的加成），招式加在 `moves`。整頁的介面（標題、建立角色）在 `scripts/screens.gd`；系統選單是一本書 `scripts/book_menu.gd`（`BookMenu`：書籤分頁、繞書脊翻頁，每一頁左右兩面由 `_fill(面, 左右)` 依分頁填；武功細節是攤開的手卷 `_open_scroll`；數值盡量畫成長條、菱形格、雷達圖、卡片，小元件在檔案最後）。新的分頁加在 `TABS`／`TAB_COLORS` 與 `_fill`。
 - 戰鬥：規則在 `scripts/fight.gd`（`Fight`，照網頁版 engine.ts，不管位置與動畫），六角格戰場 `scripts/battle.gd` 管位置、出手順序、選單與動畫（範圍：單打相鄰、打全部兩格、內功三格）。開戰一律 `await main.battle(遭遇戰 id, 地形)`／腳本 `await ctx.battle(...)`（只能從能走動的場景開戰：要記住回來的位置）；左上的戰場按鈕是開發測試用（`main.go` 開頭攔下 plain／river／hill）；敵人與遭遇戰在 `data/enemies.json`。畫面上的氣血要等出招打中的那一刻才扣（事件照順序演）。
 - 遊戲狀態在 autoload `G`（`scripts/game.gd`）：主角、銀兩 `G.silver`、行囊 `G.bag`、旗標 `G.flags`、日子與時間（`G.day`、`G.time` 是今天第幾刻）、天氣；時間只能用 `G.advance(刻)` 往前走（畫面接 `time_changed`），日期與時辰的文字用 `G.date_text()`、`G.time_text()`、`G.ke_text()`。存檔 `G.write_save(欄位, main.where())`／`G.read_save`／`G.apply_save`；場景的位置由 `GridScene.where_at()` 提供（州圖存天下格）。存檔格式改了要遞增 `SAVE_VERSION`。網頁版的設計搬過來的順序見 PLAN.md 4.38。
-- 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`、`ui.toast(一行提示)`，開著時 `ui.busy()` 為真；中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
+- 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`、`ui.toast(一行提示)`，開著時 `ui.busy()` 為真；對話逐字出現（`_type`，速度 `TYPE_SPEED`；沒出完按空白鍵整句出現，出完右下角 ▼ 閃，再按才下一句；`ask` 的問題出完選項才出現）。「剛剛做了什麼」（用了物品、裝備武功、修練結果）用 `ui.notify(文字, 顏色)`：右上角滑進來的小紙條，兩秒後滑走、最多疊四張；會用掉東西的動作先問一下（書本裡用 `BookMenu._confirm`）。中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
 - 程式註解、介面文字一樣用繁體中文；GDScript 用 tab 縮排、型別推斷（`:=`）時遇到 Variant 要用 `maxf`／`minf` 這類有型別的函式。
 
 ### 網頁版
