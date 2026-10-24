@@ -301,6 +301,16 @@
   },
   {
    "id": "",
+   "sprite": "stake",
+   "x": 4,
+   "y": 11,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "train/stake"
+  },
+  {
+   "id": "",
    "sprite": "sign",
    "x": 17,
    "y": 31,

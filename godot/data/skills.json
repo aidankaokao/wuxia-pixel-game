@@ -943,7 +943,7 @@
    "name": "三刀斷嶺",
    "desc": "",
    "qi": 0,
-   "power": 2.4,
+   "power": 2.6,
    "kind": "outer",
    "target": "enemy",
    "fx": "heavy"

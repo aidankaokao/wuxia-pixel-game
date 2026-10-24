@@ -81,6 +81,31 @@ static func train(c: Dictionary, target: String, fights: int, every: int, items:
 	return out
 
 
+## 只看頭目與石岳（調難度用，比整份報告快）：初始與看過石碑各打 n 場，再看練功曲線
+static func boss(n := 300) -> void:
+	var keep := {"bag": G.bag.duplicate(), "silver": G.silver}
+	var meds := {"jinchuang": 3}
+	for setup in [["初始", false], ["看過石碑", true]]:
+		var line := "%s：" % setup[0]
+		for enc in ["camp", "spar_shiyue"]:
+			var tot := [0.0, 0.0, 0.0]
+			for k in 10:
+				var r := rate(fresh(setup[1]), enc, meds, n / 10)
+				tot = [tot[0] + r.win / 10.0, tot[1] + r.rounds / 10.0, tot[2] + r.hp / 10.0]
+			line += "　%s 勝 %d%%（%.1f 回合、剩血 %d%%）" % [enc, roundi(tot[0] * 100), tot[1], roundi(tot[2] * 100)]
+		print(line)
+	var sum := {}
+	for k in 5:
+		for p in train(fresh(true), "camp", 30, 10, meds, 60):
+			sum[p[0]] = sum.get(p[0], 0.0) + p[1] / 5.0
+	var s := "練功曲線（看過石碑，5 個角色平均）："
+	for f in sum:
+		s += "　%d場→%d%%" % [f, roundi(sum[f] * 100)]
+	print(s)
+	G.bag = keep.bag
+	G.silver = keep.silver
+
+
 ## 整份報告（印在主控台）
 static func report(n := 300) -> void:
 	var keep := {"bag": G.bag.duplicate(), "silver": G.silver}

@@ -410,6 +410,18 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.cyl(0.3, 0.3, 0.07, Color("3a4a52"), Vector3(0, 0.72, 0), 12))
 		"f_bed_plain_1":
 			_bed(g, w)
+		"cot":
+			# 竹榻：竹子綁成的矮床，鋪著草蓆、一個布枕
+			var bl := w - 0.15
+			for sx in [-1, 1]:
+				for sz in [-1, 1]:
+					g.add_child(Mk.box(Vector3(0.06, 0.32, 0.06), Color("8a9a4a"), Vector3(sx * (bl / 2.0 - 0.05), 0.16, sz * 0.32)))
+			for k in 7:
+				var cane := Mk.cyl(0.04, 0.04, bl, Color("a8b46a"), Vector3(0, 0.34, -0.3 + k * 0.1), 6)
+				cane.rotation.z = PI / 2.0
+				g.add_child(cane)
+			g.add_child(Mk.box(Vector3(bl - 0.15, 0.03, 0.62), Color("d8c08a"), Vector3(0, 0.39, 0)))
+			g.add_child(Mk.box(Vector3(0.3, 0.09, 0.42), Color("c8c0b0"), Vector3(-bl / 2.0 + 0.28, 0.44, 0)))
 		"cradle":
 			_cradle(g)
 		"f_stove_plain_1":

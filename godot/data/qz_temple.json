@@ -58,7 +58,8 @@
      "text": "一個磨舊了的蒲團。"
     }
    ],
-   "label": ""
+   "label": "打坐",
+   "script": "train/sit"
   },
   {
    "sprite": "cushion",
@@ -70,7 +71,8 @@
      "text": "一個磨舊了的蒲團。"
     }
    ],
-   "label": ""
+   "label": "打坐",
+   "script": "train/sit"
   },
   {
    "sprite": "f_deco_plain_1",
@@ -95,6 +97,24 @@
     }
    ],
    "label": ""
+  },
+  {
+   "sprite": "f_shelf_scholar_2",
+   "x": 1,
+   "y": 2,
+   "w": 1,
+   "lines": [],
+   "label": "研讀",
+   "script": "train/shelf"
+  },
+  {
+   "sprite": "cot",
+   "x": 6,
+   "y": 4,
+   "w": 2,
+   "lines": [],
+   "label": "歇息",
+   "script": "train/temple_bed"
   }
  ],
  "npcs": [
@@ -134,6 +154,16 @@
      {
       "speaker": "智遠",
       "text": "練武也好，修心也好，都急不得。"
+     }
+    ],
+    [
+     {
+      "speaker": "智遠",
+      "text": "蒲團、經架，施主想用就用。坐一坐，心靜了，功夫也長得快些。"
+     },
+     {
+      "speaker": "智遠",
+      "text": "天晚了沒處去，角落那張竹榻也可以借你睡。"
      }
     ]
    ]

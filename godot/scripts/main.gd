@@ -113,6 +113,10 @@ func _menu() -> void:
 			_chrome(true)
 			go(r.data.where.scene, r.data.where.at)
 			await ui.fade_in()
+		"read":
+			_chrome(true)
+			if scene is GridScene:
+				await Story.run("train/read_manual", scene, {"item": r.item})
 		"title":
 			await ui.fade_out()
 			if scene:

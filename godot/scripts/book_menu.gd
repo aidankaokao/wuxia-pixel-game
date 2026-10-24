@@ -124,6 +124,14 @@ func _run(u: Ui, t: int) -> void:
 					continue
 				if tab == 2 and n > 0:
 					var id: String = G.bag.keys()[cur]
+					# 秘笈：闔上書，到場景裡研讀（小遊戲，見 story/train.gd 的 read_manual）
+					if Ui.item_def(id).has("manual"):
+						if here.is_empty():
+							ui.notify("這裡靜不下心來讀書。", FAINT)
+						elif await _confirm("研讀「%s」？" % Ui.item_def(id).get("name", id), "每回兩刻、體力 %d。" % 10, ["研讀", "取消"]) == 0:
+							result = {"do": "read", "item": id}
+							break
+						continue
 					if not Hero.usable(id):
 						ui.notify("這樣東西不能直接使用。", FAINT)
 					elif not Hero.useful(G.hero, id):
@@ -1041,7 +1049,9 @@ func _bag_right(v: VBoxContainer) -> void:
 		v.add_child(_lab("可研讀「%s」" % Hero.skill_def(d.manual).get("name", d.manual), 15, BLUE))
 	if d.has("price"):
 		v.add_child(_icon_num(_coin(), "值", "%d 兩" % d.price))
-	if focus == "page" and Hero.usable(id):
+	if focus == "page" and d.has("manual"):
+		v.add_child(_lab("（空白鍵研讀）", 13, FAINT))
+	elif focus == "page" and Hero.usable(id):
 		v.add_child(_lab("（空白鍵使用）", 13, FAINT))
 
 

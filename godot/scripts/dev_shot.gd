@@ -105,13 +105,22 @@ func _run() -> void:
 				G.flags[kv2[0]] = int(kv2[1]) if kv2.size() > 1 else 1
 			"sim":
 				# sim 或 sim:300 跑戰鬥平衡模擬（印在主控台，見 scripts/sim.gd）
-				if arg.begins_with("one"):
+				if arg == "boss":
+					Sim.boss()
+				elif arg.begins_with("one"):
 					var t0 := Time.get_ticks_msec()
 					var c := Sim.fresh(false)
 					var r := Sim.one(c, arg.split(",")[1], {"jinchuang": 3})
 					print("SIM one ", r.result, " rounds ", r.rounds, " ms ", Time.get_ticks_msec() - t0)
 				else:
 					Sim.report(int(arg) if arg != "" else 300)
+			"give":
+				# give:manual_qingzhu 或 give:jinchuang,3 放進行囊
+				var gv := arg.split(",")
+				G.bag[gv[0]] = int(G.bag.get(gv[0], 0)) + (int(gv[1]) if gv.size() > 1 else 1)
+			"readbot":
+				# readbot:perfect／readbot:good 研讀的小遊戲自己玩（空的就關掉）
+				ReadGame.bot = arg
 			"autobattle":
 				# autobattle:camp,10 在六角格戰場上用自動戰鬥連打幾場（加速），印出勝負（跟 sim 的規則層模擬對照）
 				var ab := arg.split(",")

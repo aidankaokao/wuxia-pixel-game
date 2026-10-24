@@ -75,8 +75,8 @@
   "shiyue": {
    "name": "石岳",
    "sprite": "smith",
-   "hp": 210,
-   "atk": 19,
+   "hp": 340,
+   "atk": 38,
    "def": 7,
    "spd": 8,
    "eva": 0.02,
@@ -291,8 +291,8 @@
   "boss": {
    "name": "祁三刀",
    "sprite": "boss",
-   "hp": 240,
-   "atk": 22,
+   "hp": 340,
+   "atk": 26,
    "def": 6,
    "spd": 12,
    "eva": 0.06,

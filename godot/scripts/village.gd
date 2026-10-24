@@ -708,6 +708,16 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.75, 0.15, 0.4), Color("6a6a66"), Vector3(0, 0.07, 0)))
 		"bulletin":
 			FineProps.bulletin(g)
+		"stake":
+			# 木人樁：一根粗木樁、三根伸出來的木臂、腳下一圈踩實的土
+			var wd := Color("7a5232")
+			g.add_child(Mk.cyl(0.42, 0.46, 0.04, Color("9a8462"), Vector3(0, 0.02, 0), 12))
+			g.add_child(Mk.cyl(0.17, 0.2, 1.45, wd, Vector3(0, 0.72, 0), 10))
+			g.add_child(Mk.cyl(0.19, 0.19, 0.06, wd.darkened(0.25), Vector3(0, 1.46, 0), 10))
+			for a in [[1.15, 0.5, 0.0], [1.15, -0.5, 0.0], [0.8, 0.0, -0.3]]:
+				var arm := Mk.box(Vector3(0.07, 0.07, 0.42), wd.darkened(0.15), Vector3(sin(a[1]) * 0.3, a[0], cos(a[1]) * 0.3))
+				arm.rotation = Vector3(a[2], a[1], 0)
+				g.add_child(arm)
 		"tent":
 			# 山寨的帳篷：兩片斜布搭成三角，前面掀開一角
 			var cloth := Color("8a7a5a")

@@ -1,34 +1,28 @@
 ## 青竹村的劇情腳本（照網頁版 story/bandits.ts 搬過來的部分）。
-## 用到的旗標：stele 看過竹林石碑、stranger_talk 跟青衫客說過幾次話、stranger 青衫客走了（斷崖寨支線）、tudi 今天上過香（記日子）、
+## 用到的旗標：stele 看懂竹林石碑（學會竹影劍）、stranger_talk 跟青衫客說過幾次話、stranger 青衫客走了（斷崖寨支線）、tudi 今天上過香（記日子）、
 ## q_bandits 斷崖寨的委託（0 未接、1 接了、3 覆命領賞）、met_liu 見過村長、tea 收過鍾嬸的茶、kid_talk 跟小石頭說過幾次話、
 ## xiaohu_tusk 石小虎想要山豬獠牙（1 接下、2 送了）、smith_intro 石小虎替你在石岳面前說了好話
-## （山上的部分在 story/canglan.gd）
+## （山上的部分在 story/canglan.gd；練功與睡覺在 story/train.gd）
+
+const Train := preload("res://story/train.gd")
 
 
-## 村裡的老井：打水歇歇，花半個時辰
+## 村裡的老井：打水歇歇，花半個時辰。氣血、內力回滿，體力只回四分之一（要練功就得睡覺）
 static func well_use(ctx: Ctx) -> void:
 	if await ctx.ask("一口老井，井水清涼。要在井邊歇一會兒嗎？", ["打水歇歇（半個時辰）", "算了"]) != 0:
 		return
 	ctx.pass_time(4)
 	await ctx.work("rest", "打水歇息中……")
-	ctx.restore_all()
-	await ctx.say(["你打起一桶水，掬起一捧喝了，又洗了把臉，在井邊坐著歇了一會兒。", "（氣血、內力、體力完全恢復。歇了半個時辰）"])
+	var d := Hero.derive(G.hero)
+	G.hero.hp = d.max_hp
+	G.hero.qi = d.max_qi
+	G.hero.stamina = mini(d.max_stamina, int(G.hero.stamina) + roundi(d.max_stamina * 0.25))
+	await ctx.say(["你打起一桶水，掬起一捧喝了，又洗了把臉，在井邊坐著歇了一會兒。", "（氣血、內力完全恢復，體力恢復了一些。歇了半個時辰）"])
 
 
-## 竹林深處的石碑：第一次看會悟出竹影劍的招式，拓下劍譜
+## 竹林深處的石碑：要研讀（小遊戲）到一定的體會才看懂竹影劍，見 story/train.gd 的 stele
 static func stele_read(ctx: Ctx) -> void:
-	if ctx.flag("stele"):
-		await ctx.say("碑上的劍痕，你已了然於胸。")
-		return
-	await ctx.say([
-		"竹林深處立著一塊長滿青苔的石碑。",
-		"碑上刻著八個字，筆畫如劍痕：\n「竹影搖風，劍意自生」",
-		"一陣風吹過，滿林竹影搖曳。你望著碑上的劍痕，忽然看出了其中的起落轉折……",
-	])
-	await ctx.learn("zhuying")
-	await ctx.say(["（戰鬥中可以使出「破竹直刺」了，練得深了還能悟出「竹影搖風」）", "你撕下一片衣角，蘸著溪水把碑上的劍痕拓了下來。"])
-	await ctx.give("manual_zhuying")
-	ctx.set_flag("stele")
+	await Train.stele(ctx)
 
 
 ## 青衫客：站在村裡望著北方的山，不太理人
