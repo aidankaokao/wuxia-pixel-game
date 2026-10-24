@@ -197,6 +197,37 @@ func _make_ink() -> void:
 	add_child(_ink)
 
 
+## 做事的過場：畫面中間一條深色帶子寫著正在做什麼（例如「打水中……」），停一下再收起來
+func caption(text: String, sec := 1.2) -> void:
+	var band := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.06, 0.05, 0.08, 0.78)
+	sb.content_margin_top = 14
+	sb.content_margin_bottom = 14
+	band.add_theme_stylebox_override("panel", sb)
+	band.anchor_left = 0.0
+	band.anchor_right = 1.0
+	band.anchor_top = 0.5
+	band.anchor_bottom = 0.5
+	band.grow_vertical = Control.GROW_DIRECTION_BOTH
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var lb := Label.new()
+	lb.text = text
+	lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lb.add_theme_font_override("font", font())
+	lb.add_theme_font_size_override("font_size", 22)
+	lb.add_theme_color_override("font_color", Color("f6ecd4"))
+	band.add_child(lb)
+	add_child(band)
+	band.modulate.a = 0.0
+	var tw := create_tween()
+	tw.tween_property(band, "modulate:a", 1.0, 0.25)
+	tw.tween_interval(sec)
+	tw.tween_property(band, "modulate:a", 0.0, 0.3)
+	await tw.finished
+	band.queue_free()
+
+
 ## 畫面下方中間冒一行小字，過一下就淡掉（存檔成功之類的提示）
 func toast(text: String) -> void:
 	if _toast == null:
@@ -294,7 +325,7 @@ func show_hint(text: String, at: Vector2) -> void:
 
 
 func busy() -> bool:
-	return _open or _transit
+	return _open or _transit or Story.running > 0
 
 
 func _input(e: InputEvent) -> void:

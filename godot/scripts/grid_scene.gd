@@ -3,9 +3,11 @@ extends Node3D
 ## 能走動的場景（村子、室內）共用的部分：格子座標、擋路、主角走動、人物走走停停、
 ## 面對人或擺設時頭上浮出互動提示（空白鍵圖示＋交談／查看），按空白鍵對話（E 鍵留給之後別種互動）。各場景負責把東西蓋出來、填好 walkers 與 props。
 ##
-## walkers 每一筆：{f: Chibi, name, lines: [[{speaker, text}]], home: Vector2, goal, wait, fixed, said, talking,
-##                 face: 原本面向（站著不動的人說完話會轉回去）, stall: 攤子（可以買賣）}
-## props 每一筆：{node, def: {sprite, lines, label}, at: Vector2（格子座標，中心）}
+## walkers 每一筆：{f: Chibi, id, name, lines: [[{speaker, text}]], home: Vector2, goal, wait, fixed, said, talking,
+##                 face: 原本面向（站著不動的人說完話會轉回去）, stall: 攤子（可以買賣）,
+##                 def: 原始資料（when 出現條件、script 腳本、作息 all_day／work／night／out／meal，見 Story）, hidden}
+## props 每一筆：{node, def: {sprite, lines, label, script, when}, at: Vector2（格子座標，中心）, hidden}
+## triggers 每一筆：{tiles: [[x, y]…], when, script}：踩到就跑腳本（例如埋伏）
 
 const PROP_TEXT := {
 	"well": [{"text": "一口老井，井水清涼。"}],
@@ -27,6 +29,9 @@ var walkers: Array = []
 var props: Array = []
 var lamps: Array[OmniLight3D] = []
 var lamp_mats: Array[StandardMaterial3D] = []
+var triggers: Array = []
+## 這張地圖是不是室外（決定村民的作息：室外的人天黑就回家）
+var outdoor := false
 ## 從哪裡進來（格子座標與面向）；沒填就用地圖的出生點
 var start := {}
 
@@ -36,6 +41,20 @@ func setup(u: Ui, r: CamRig, m: Node, at := {}) -> void:
 	rig = r
 	main = m
 	start = at
+	G.time_changed.connect(refresh)
+
+
+## 依旗標、時間重新決定哪些人、擺設要出現（時間變了、腳本跑完都會叫）
+func refresh() -> void:
+	for w in walkers:
+		var on := Story.present(w.get("def", {}), outdoor)
+		w.hidden = not on
+		w.f.visible = on
+	for p in props:
+		var on := Story.cond(p.def.get("when", ""))
+		p.hidden = not on
+		if p.node:
+			p.node.visible = on
 
 
 ## 格子中心的世界座標
@@ -129,8 +148,11 @@ func _process(dt: float) -> void:
 		if g != _last_tile:
 			_last_tile = g
 			_on_tile(g)
+			_trigger(g)
 	for w in walkers:
 		var f: Chibi = w.f
+		if w.get("hidden", false):
+			continue
 		if w.fixed or w.talking:
 			f.walking = false
 			continue
@@ -159,18 +181,31 @@ func _process(dt: float) -> void:
 	_update_hint(busy)
 
 
+## 踩到某格就跑的腳本
+func _trigger(g: Vector2i) -> void:
+	for t in triggers:
+		for c in t.tiles:
+			if Vector2i(c[0], c[1]) == g and Story.cond(t.get("when", "")):
+				Story.run(t.script, self)
+				return
+
+
 ## 主角面前的對象：人優先，再來是擺設
 func _target() -> Dictionary:
 	var fwd := Vector3(sin(hero.rotation.y), 0, cos(hero.rotation.y))
 	var best := {}
 	var best_score := 99.0
 	for w in walkers:
+		if w.get("hidden", false):
+			continue
 		var d: Vector3 = w.f.position - hero.position
 		d.y = 0
 		if d.length() < 1.6 and d.normalized().dot(fwd) > 0.3 and d.length() < best_score:
 			best_score = d.length()
 			best = {"kind": "npc", "w": w, "at": w.f.position}
 	for p in props:
+		if p.get("hidden", false):
+			continue
 		var at := w3(p.at.x - 0.5, p.at.y - 0.5)
 		var d: Vector3 = at - hero.position
 		d.y = 0
@@ -208,6 +243,19 @@ func _fill(text: String) -> String:
 
 
 func _interact(t: Dictionary) -> void:
+	if t.kind == "prop" and t.p.def.get("script", "") != "":
+		await Story.run(t.p.def.script, self)
+		return
+	if t.kind == "npc" and t.w.get("def", {}).get("script", "") != "":
+		var w0: Dictionary = t.w
+		w0.talking = true
+		w0.f.face(hero.position - w0.f.position)
+		hero.face(w0.f.position - hero.position)
+		await Story.run(w0.def.script, self, {"npc": w0.get("id", "")})
+		if w0.has("face"):
+			w0.f.face(w0.face)
+		w0.talking = false
+		return
 	if t.kind == "prop":
 		var p: Dictionary = t.p.def
 		var lines: Array = p.lines if (p.lines as Array).size() > 0 else PROP_TEXT.get(p.sprite, [{"text": "（沒什麼特別的）"}])
@@ -242,6 +290,23 @@ func _interact(t: Dictionary) -> void:
 
 func info_text() -> String:
 	return ""
+
+
+## 照資料放一個人（地圖上的 npcs、室內的人）：{id, name, sprite, x, y, facing, wander, talks, script, when, 作息}
+func add_npc(n: Dictionary) -> Dictionary:
+	var f := Chibi.make(n.get("sprite", "villager"))
+	add_child(f)
+	f.position = w3(n.x, n.y)
+	var face := _facing_vec(n.get("facing", "down"))
+	f.face(face)
+	var lb := Mk.label(n.name, 30, Color("fffbe8"))
+	lb.position.y = 1.3
+	f.add_child(lb)
+	var wander: int = int(n.get("wander", 0))
+	var wk := {"f": f, "id": n.get("id", ""), "name": n.name, "lines": n.get("talks", []), "home": Vector2(n.x + 0.5, n.y + 0.5),
+		"goal": null, "wait": randf() * 3.0, "fixed": wander == 0, "said": 0, "talking": false, "face": face, "def": n, "hidden": false}
+	walkers.append(wk)
+	return wk
 
 
 ## 主角現在的位置（存檔用，讀檔時當成 main.go 的 at）：格子座標與面向

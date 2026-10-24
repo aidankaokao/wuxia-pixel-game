@@ -4,7 +4,7 @@
  * 目前匯出：青竹村、青竹村北的地圖（建築、擺設、出入口、村民與台詞）、物品表；
  * 各屋的室內（柳家大宅、竹風茶寮、石家鐵鋪、王家、竹隱寺）；大地圖（地形、據點、道路、地名）。
  */
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 // 照遊戲本體的順序載入地圖與劇情（直接載入 life_towns 會碰上循環引用）
 import '../../src/game/maps/index';
 import { BUILDINGS } from '../../src/game/art/props';
@@ -16,7 +16,9 @@ import { qzLiu, qzSmithy, qzTea, qzTemple, qzWang } from '../../src/game/maps/qi
 import { BLOCKING, type Line, type MapDef } from '../../src/game/maps/types';
 import { PEOPLE } from '../../src/game/story/people';
 
-const OUT = `${process.cwd()}/godot/data/`;
+// godot/data/ 已經由 Godot 這邊維護（劇情腳本、出現條件都加在那裡），匯出的東西只放到 tools/web_export/ 當參考，要用的再手動搬過去
+const OUT = `${process.cwd()}/godot/tools/web_export/`;
+mkdirSync(OUT, { recursive: true });
 
 /** 村民的台詞：有人物檔案的照「初識」那一階與閒聊台詞，沒有的照日常台詞 */
 function linesOf(n: Pick<LifeNpc, 'person' | 'name'> & { talks?: { default?: Line[][] } }): Line[][] {

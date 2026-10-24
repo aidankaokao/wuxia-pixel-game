@@ -21,6 +21,7 @@ const LOOKS := {
 	"apprentice": {"robe": "8a6a4a", "trim": "d8c8a8", "sash": "4a3a2a", "hair": "2a2228", "style": "band", "small": false},
 	"monk": {"robe": "b8862e", "trim": "e8d8a8", "sash": "8a2e26", "hair": "f2c9a0", "style": "bald"},
 	"servant": {"robe": "6a6a6a", "trim": "d8d0c0", "sash": "3a3a3a", "hair": "2a2228", "style": "band"},
+	"swordsman": {"robe": "4f7f72", "trim": "e4ece4", "sash": "2a3a3a", "hair": "2a2228", "style": "topknot", "sword": true},
 	"scholar": {"robe": "8aa0a8", "trim": "f0ece0", "sash": "4a5a68", "hair": "2a2228", "style": "topknot"},
 	"dog": {"animal": "dog"},
 	"boar": {"animal": "boar"},

@@ -99,7 +99,7 @@ func _run() -> void:
 				var img := get_viewport().get_texture().get_image()
 				img.save_png(arg if arg.is_absolute_path() else OS.get_environment("SHOT_DIR").path_join(arg))
 			"print":
-				print("INFO ", _main().ui.info.text.replace("\n", " | "))
+				print("INFO ", _main().ui.info.text.replace("\n", " | "), " | 旗標 ", G.flags, " | 行囊 ", G.bag)
 			"dlg":
 				# 印出對話框、商店上的字
 				var texts := []

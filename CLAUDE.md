@@ -8,7 +8,7 @@
 - 開發用網址參數：`?zoom=1` 看整張地圖；`?map=canglan&at=15,11` 從指定地圖與位置開始；`?map=world&node=linjiang` 從大地圖的某個節點開始；`?flags=q_bandits:1,bandit_scouts:1` 預設劇情旗標。帶這些參數時會跳過標題畫面、且不自動存檔。開發模式下 `window.__wuxia` 可讀主角位置、NPC 位置與狀態，`__wuxia.battle('dog')` 可直接開打指定的遭遇戰、`__wuxia.warp('qingzhu', 26, 22)` 可瞬間移動、`__wuxia.state().passTime(8)` 可讓時間往前走幾刻（給自動化測試用）。
 - 操作：方向鍵/WASD 移動、Shift 奔跑、E（或 Space/Enter）對話與確認、X/Esc 選單、面對人物時 F／G／R／T／H 切磋／贈禮／請教／交易／雅趣；Ctrl/⌘+S 即時存檔、F9 讀取即時存檔；戰鬥中 Q 切換自動戰鬥。
 - `npm run typecheck`、`npm run build`
-- Godot 版（4.35，正在評估改版）：專案在 `godot/`（Godot 4.3 起，GDScript，Forward+），執行 `/Applications/Godot.app/Contents/MacOS/Godot --path godot`，或用 Godot 編輯器匯入 `godot/project.godot`。資料從網頁版匯出：`npm run godot:data`（`godot/tools/export_data.ts` → `godot/data/*.json`），Godot 只讀這些 JSON，不直接讀 TypeScript。檢查腳本錯誤：`Godot --headless --path godot --quit-after 60 -- --scene=village`（`Parameter "m" is null` 是無畫面模式的雜訊，可以忽略）。自動操作與截圖：`SHOT_DIR=輸出資料夾 Godot --path godot -- --scene=plain "--do=wait:60;click:1,3;shot:a.png;quit"`（指令見 `scripts/dev_shot.gd`，會跳出視窗幾秒）。
+- Godot 版（4.35，正在評估改版）：專案在 `godot/`（Godot 4.3 起，GDScript，Forward+），執行 `/Applications/Godot.app/Contents/MacOS/Godot --path godot`，或用 Godot 編輯器匯入 `godot/project.godot`。資料在 `godot/data/*.json`（由 Godot 這邊維護；網頁版的資料要搬過來時，`npm run godot:data` 會匯出到 `godot/tools/web_export/` 當參考）。檢查腳本錯誤：`Godot --headless --path godot --quit-after 60 -- --scene=village`（`Parameter "m" is null` 是無畫面模式的雜訊，可以忽略）。自動操作與截圖：`SHOT_DIR=輸出資料夾 Godot --path godot -- --scene=plain "--do=wait:60;click:1,3;shot:a.png;quit"`（指令見 `scripts/dev_shot.gd`，會跳出視窗幾秒）。
 
 ## 與使用者合作的約定
 
@@ -35,6 +35,7 @@
 - 交談與確認只用空白鍵（與 Enter），E 鍵留給之後別種互動，不要再拿來交談。互動提示是 `ui.show_hint(動作, 畫面座標)`（鍵帽圖示＋動作，不寫「空白鍵」）。
 - 進出房子一律站在門口按空白鍵（門是 `props` 裡 `sprite: "door"` 的一筆，村子帶 `door`、室內帶 `exit`），不要做成走上去就自動進門。
 - 村子的地面（`village.gd` 的 `_ground`）每格切 `SUB`×`SUB` 細網格，高度與顏色在格子之間平滑取值（`_bil`、`_blur`），讓河岸、小路是曲線；擋路仍照格子。
+- 劇情腳本：GDScript 的 static 函式放在 `godot/story/<檔名>.gd`（參數 `ctx: Ctx`，能做的事見 `scripts/ctx.gd`），資料裡用 `"script": "檔名/函式名"` 指到它（擺設、`npcs`、`triggers`）；檔案開頭註解列出用到的旗標。出現條件 `when` 是運算式字串（見 `scripts/story.gd`），NPC 作息欄位 `all_day`／`work`／`night`／`out`／`meal`。`godot/data/` 的 JSON 由 Godot 這邊維護（直接改），`npm run godot:data` 只匯出到 `godot/tools/web_export/` 當參考，不要再拿匯出的檔案蓋掉 `godot/data/`。
 - 遊戲狀態在 autoload `G`（`scripts/game.gd`）：主角、銀兩 `G.silver`、行囊 `G.bag`、旗標 `G.flags`、日子與時間（`G.day`、`G.time` 是今天第幾刻）、天氣；時間只能用 `G.advance(刻)` 往前走（畫面接 `time_changed`），日期與時辰的文字用 `G.date_text()`、`G.time_text()`、`G.ke_text()`。存檔 `G.write_save(欄位, main.where())`／`G.read_save`／`G.apply_save`；場景的位置由 `GridScene.where_at()` 提供（州圖存天下格）。存檔格式改了要遞增 `SAVE_VERSION`。網頁版的設計搬過來的順序見 PLAN.md 4.38。
 - 文字介面 `scripts/ui.gd`：`await ui.say([...])`、`await ui.ask(提問, 選項)`、`await ui.shop(標題, 貨單)`、`ui.toast(一行提示)`，開著時 `ui.busy()` 為真；中文字型用系統黑體（`Ui.font()`），3D 上的字用 `Mk.label`。
 - 程式註解、介面文字一樣用繁體中文；GDScript 用 tab 縮排、型別推斷（`:=`）時遇到 Variant 要用 `maxf`／`minf` 這類有型別的函式。

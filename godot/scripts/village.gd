@@ -65,7 +65,10 @@ func _ready() -> void:
 		_building(b)
 	for p in data.props:
 		_prop(p)
+	outdoor = true
+	triggers = data.get("triggers", [])
 	_people()
+	refresh()
 
 
 func tile(x: int, y: int) -> String:
@@ -730,11 +733,15 @@ func _people() -> void:
 		var lb := Mk.label(n.name, 30, Color("fffbe8"))
 		lb.position.y = 1.3
 		f.add_child(lb)
-		var wk := {"f": f, "name": n.name, "lines": n.lines, "home": Vector2(s.x + 0.5, s.y + 0.5), "goal": null, "wait": randf() * 3.0, "fixed": not stall.is_empty(), "said": 0, "talking": false}
+		var wk := {"f": f, "id": n.id, "name": n.name, "lines": n.lines, "home": Vector2(s.x + 0.5, s.y + 0.5), "goal": null, "wait": randf() * 3.0,
+			"fixed": not stall.is_empty(), "said": 0, "talking": false, "def": {"id": n.id, "name": n.name}, "hidden": false}
 		if not stall.is_empty():
 			wk.stall = stall
 			wk.face = stall.face
 		walkers.append(wk)
+	# 地圖上另外列的人（例如青衫客）：照出現條件與作息
+	for n in data.get("npcs", []):
+		add_npc(n)
 
 
 ## 往大地圖的出口：先問要不要出去；不出去就退回一步

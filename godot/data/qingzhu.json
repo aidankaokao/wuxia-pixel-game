@@ -211,7 +211,8 @@
    "y": 19,
    "w": 1,
    "lines": [],
-   "label": "打水"
+   "label": "打水",
+   "script": "qingzhu/well_use"
   },
   {
    "id": "",
@@ -285,7 +286,8 @@
      "text": "出遠門的人都會在這裡拜一拜，求一路平安。"
     }
    ],
-   "label": ""
+   "label": "上香",
+   "script": "qingzhu/tudi_pray"
   },
   {
    "id": "",
@@ -294,7 +296,8 @@
    "y": 9,
    "w": 1,
    "lines": [],
-   "label": ""
+   "label": "看碑",
+   "script": "qingzhu/stele_read"
   },
   {
    "id": "",
@@ -783,6 +786,19 @@
      }
     ]
    ]
+  }
+ ],
+ "npcs": [
+  {
+   "id": "stranger",
+   "name": "青衫客",
+   "sprite": "swordsman",
+   "x": 25,
+   "y": 9,
+   "facing": "up",
+   "all_day": true,
+   "when": "not stranger",
+   "script": "qingzhu/stranger_talk"
   }
  ]
 }

@@ -56,7 +56,9 @@ func _ready() -> void:
 	_decor()
 	for p in data.props:
 		_prop(p)
+	triggers = data.get("triggers", [])
 	_people()
+	refresh()
 
 
 func tile(x: int, y: int) -> String:
@@ -744,7 +746,8 @@ func _people() -> void:
 		lb.position.y = 1.3
 		f.add_child(lb)
 		blocked[Vector2i(n.x, n.y)] = true
-		walkers.append({"f": f, "name": n.name, "lines": n.talks, "home": Vector2(n.x + 0.5, n.y + 0.5), "goal": null, "wait": 0.0, "fixed": true, "said": 0, "talking": false, "face": face})
+		walkers.append({"f": f, "id": n.id, "name": n.name, "lines": n.talks, "home": Vector2(n.x + 0.5, n.y + 0.5), "goal": null, "wait": 0.0,
+			"fixed": true, "said": 0, "talking": false, "face": face, "def": n, "hidden": false})
 
 
 ## 只立背對鏡頭的兩道牆：鏡頭在東南就留北、西兩面，以此類推；轉角有一面立著就立著
