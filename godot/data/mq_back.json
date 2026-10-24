@@ -252,6 +252,42 @@
    "script": "",
    "when": "",
    "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "wild_herb",
+   "x": 21,
+   "y": 12,
+   "w": 1,
+   "lines": [],
+   "label": "採藥",
+   "script": "mingquan/herb_quanxin",
+   "when": "mq_mt == 3 and (mq_herbs & 1) == 0",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "wild_herb",
+   "x": 12,
+   "y": 16,
+   "w": 1,
+   "lines": [],
+   "label": "採藥",
+   "script": "mingquan/herb_tiegu",
+   "when": "mq_mt == 3 and (mq_herbs & 2) == 0",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "wild_herb",
+   "x": 26,
+   "y": 16,
+   "w": 1,
+   "lines": [],
+   "label": "採藥",
+   "script": "mingquan/herb_yungen",
+   "when": "mq_mt == 3 and (mq_herbs & 4) == 0",
+   "passable": false
   }
  ],
  "exits": [

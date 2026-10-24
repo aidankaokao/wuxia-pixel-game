@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_commission("mq_c_path"), mq_commission("mq_c_med")]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med")]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -119,3 +119,22 @@ static func mq_commission(flag: String) -> Dictionary:
 		"steps": [["接下委託", true], ["把事情辦完", f >= 2], ["回演武廣場的任務榜覆命", f == 3]],
 		"reward": "門派貢獻 %d、名聲 %d" % [c[5], c[6]],
 	}
+
+
+## 鳴泉的晉升：下一級要做到的事（Sect.promotion_checks）；考過了還沒升，最後一步是去大殿見掌門
+static func mq_rise() -> Dictionary:
+	if not Sect.member("mingquan"):
+		return {}
+	var r := int(G.sect.rank)
+	if r >= 3:
+		return {"id": "mq_rise", "title": "鳴泉・真傳弟子", "giver": "聞松年", "place": "鳴泉劍派", "done": true,
+			"desc": "你拜了%s為師，成了鳴泉劍派的真傳弟子。" % load("res://story/mingquan.gd").MQ.get(G.sect.get("master", ""), "長老"),
+			"steps": [["成為真傳弟子", true]], "reward": "上乘武功、師父每天的指點"}
+	var next: String = Sect.def("mingquan").ranks[r + 1].name
+	var steps := Sect.promotion_checks().map(func(c): return [c[0], c[1]])
+	var waiting := (r == 0 and _f("mq_exam") == 1) or (r == 2 and _f("mq_master") > 0)
+	if r != 1:
+		steps.append(["到大殿拜見掌門", false])
+	return {"id": "mq_rise", "title": "鳴泉・升為%s" % next, "giver": "鳴泉劍派", "place": "鳴泉劍派", "done": false,
+		"desc": "考過了，去大殿見掌門聞松年。" if waiting else ["攢功績、練鳴泉劍法，條件齊了到練功房找傳功長老韓靖秋報考。", "條件齊了到練功房找傳功長老韓靖秋試內門。", "條件齊了，又跟長老熟到「熟識」，就能向三位長老之一求拜師試煉：韓靖秋在練功房、嚴守拙在後山思過崖前、蘇芷蘅在藥房。"][r],
+		"steps": steps, "reward": ["月白道袍、弟子房、鐵木樁、踏石步", "內門弟子的護腕、年會的一票", "上乘武功、真傳弟子房"][r]}

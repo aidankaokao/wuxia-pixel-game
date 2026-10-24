@@ -104,15 +104,30 @@ func _run() -> void:
 				var af := arg.split(",")
 				Social._mut(af[0]).aff = int(af[1])
 			"sect":
-				# sect:mingquan 直接拜入某個門派（記名弟子），sect:mingquan,1 指定身分
+				# sect:mingquan 直接拜入某個門派（記名弟子）；sect:mingquan,1,200 指定身分、功績（入門與升級都當成 90 天前）
 				var sp := arg.split(",")
 				Sect.join(sp[0])
 				G.sect.rank = int(sp[1]) if sp.size() > 1 else 0
+				G.sect.merit = int(sp[2]) if sp.size() > 2 else 0
+				G.sect.joined = G.day - 90
+				G.sect.rank_day = G.day - 90
 				G.flags["mq_join"] = 1
+				# 第四個是真傳弟子的師父：sect:mingquan,3,0,su,hantan
+				if sp.size() > 4:
+					G.sect.master = sp[3]
+					G.sect.master_skill = sp[4]
+			"learn":
+				# learn:mingquan,4 學會（或直接練到）某門武功的第幾重
+				var lp := arg.split(",")
+				Hero.learn(G.hero, lp[0], int(lp[1]) if lp.size() > 1 else 1)
+				var ls := Hero.find_skill(G.hero, lp[0])
+				ls.level = maxi(int(ls.level), int(lp[1]) if lp.size() > 1 else 1)
 			"flag":
 				# flag:bandit_boss=1
 				var kv2 := arg.split("=")
 				G.flags[kv2[0]] = int(kv2[1]) if kv2.size() > 1 else 1
+				if _main().scene is GridScene:
+					_main().scene.refresh()
 			"sim":
 				# sim 或 sim:300 跑戰鬥平衡模擬（印在主控台，見 scripts/sim.gd）
 				if arg == "boss":

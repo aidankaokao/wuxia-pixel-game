@@ -399,6 +399,20 @@
     "e_rush"
    ],
    "ai": "grunt"
+  },
+  "mq_he_exam": {
+   "name": "何守一",
+   "sprite": "disciple",
+   "hp": 340,
+   "atk": 38,
+   "def": 7,
+   "spd": 17,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -792,6 +806,18 @@
    "silver": 0,
    "growth": 0.5,
    "points": 1,
+   "spar": true
+  },
+  "exam_he": {
+   "enemies": [
+    "mq_he_exam"
+   ],
+   "background": "mountain",
+   "intro": "何守一抱劍一禮：「內門試劍，得罪了。」",
+   "canFlee": false,
+   "silver": 0,
+   "growth": 0.8,
+   "points": 3,
    "spar": true
   }
  }

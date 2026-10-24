@@ -14,13 +14,13 @@ const DEFS := {
 		"ranks": [
 			{"name": "記名弟子", "dorm": "大通鋪", "perks": ["跟大師兄做晨課、在廣場的木樁練樁", "書房研讀、抄錄入門武功", "練功房的蒲團打坐", "任務榜的雜務與簡單的下山委託", "每 7 天到大殿領月例"],
 				"stipend": {"silver": 5, "items": {"jinchuang": 1}}, "leave": [["free"]],
-				"promote": {"days": 30, "merit": 150, "skills": [["mingquan", 4]], "test": "正式弟子考核（條件齊了就到練功房找傳功長老報考）"}},
+				"promote": {"days": 30, "merit": 150, "skills": [["mingquan", 4]], "test": "正式弟子考核（條件齊了就到練功房找傳功長老報考）", "test_done": "mq_exam >= 1"}},
 			{"name": "正式弟子", "dorm": "弟子房（兩人一間）", "perks": ["練功房的鐵木人樁", "書房抄錄「踏石步」", "更多下山委託"],
 				"stipend": {"silver": 12, "items": {"jinchuang": 2}}, "leave": [["fine", 500], ["trial", "泉音劍陣"]],
-				"promote": {"days": 45, "merit": 400, "skills": [["mingquan", 6]], "test": "內門試劍（條件齊了就到練功房找傳功長老）"}},
+				"promote": {"days": 45, "merit": 400, "skills": [["mingquan", 6]], "test": "內門試劍（條件齊了就到練功房找傳功長老）", "test_done": "false"}},
 			{"name": "內門弟子", "dorm": "弟子房（兩人一間）", "perks": ["門派年會上選舉長老、執事", "通過授徒考驗後可以收徒弟", "內門弟子的泉紋護腕"],
 				"stipend": {"silver": 18, "items": {"jinchuang": 2}}, "leave": [["fine", 800], ["trial", "泉音劍陣"]],
-				"promote": {"days": 60, "merit": 600, "skills": [["mingquan", 8], ["chengquan", 5]], "test": "真傳拜師試煉（條件齊了就去拜見掌門）"}},
+				"promote": {"days": 60, "merit": 600, "skills": [["mingquan", 8], ["chengquan", 5]], "test": "真傳拜師試煉（條件齊了就去拜見掌門）", "test_done": "mq_master > 0"}},
 			{"name": "真傳弟子", "dorm": "真傳弟子房（一人一間）", "perks": ["拜長老為師，學上乘武功", "每天向師父請教", "掌門傳位時有資格繼承"],
 				"stipend": {"silver": 25, "items": {"jinchuang": 3}}, "leave": [["trial", "泉音劍陣"]]},
 		],
@@ -94,7 +94,7 @@ static func promotion_checks() -> Array:
 		var s := Hero.find_skill(G.hero, k[0])
 		var lv := int(s.level) if not s.is_empty() else 0
 		out.append(["「%s」練到第 %d 重（目前 %d 重）" % [Hero.skill_def(k[0]).name, k[1], lv], lv >= int(k[1])])
-	out.append(["通過%s" % p.test, false])
+	out.append(["通過%s" % p.test, Story.cond(p.get("test_done", "false"))])
 	return out
 
 

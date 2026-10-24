@@ -109,11 +109,16 @@ static func actions(id: String, stall := false) -> Array:
 		out.append("spar")
 	if p.has("gift"):
 		out.append("gift")
-	if p.has("teach") and s >= int(p.teach.stage):
+	if p.has("teach") and (s >= int(p.teach.stage) or is_master(id)):
 		out.append("teach")
 	if p.has("trade") or stall:
 		out.append("trade")
 	return out
+
+
+## 這個人是不是你拜的師父（真傳弟子拜的長老，G.sect.master）：不看熟悉度就肯教，請教時領悟多五成
+static func is_master(id: String) -> bool:
+	return G.sect.get("master", "") == id
 
 
 ## 改變熟悉度：右上角冒通知；跨過階段時說出來，並說明新開放的互動
@@ -306,6 +311,15 @@ static func teach(ctx: Ctx, id: String) -> void:
 		if not nx.is_empty() and s.level >= int(nx.level):
 			ready.append(s)
 	if ready.is_empty():
+		var ms: String = G.sect.get("master_skill", "")
+		var mk := Hero.find_skill(G.hero, ms) if is_master(id) and ms != "" else {}
+		if not mk.is_empty() and mk.level < Hero.cap_of(mk):
+			r.teach_day = G.day
+			ctx.pass_time(2)
+			var up := Hero.gain_skill(G.hero, ms, 40)
+			await ctx.say(["%s看你練了一遍「%s」，一招一式地替你拆解……\n（請教了兩刻）" % [p.name, Hero.skill_def(ms).name], "「%s」經驗 +40。%s" % [Hero.skill_def(ms).name, ("\n" + up) if up != "" else ""]])
+			await add_aff(ctx, p, 1)
+			return
 		await ctx.say("%s：「你眼下的功夫，還得自己多練練，才有可問的。」\n（武功要練到一定重數，才有下一招可以參悟）" % p.name)
 		return
 	var opts := []
@@ -321,7 +335,7 @@ static func teach(ctx: Ctx, id: String) -> void:
 	var before: int = ready[i].level
 	ctx.pass_time(2)
 	await ctx.say("%s聽你說完，指點了幾處關竅……\n（請教了兩刻）" % p.name)
-	var learned := Hero.gain_insight(G.hero, sid, float(p.teach.insight))
+	var learned := Hero.gain_insight(G.hero, sid, float(p.teach.insight) * (1.5 if is_master(id) else 1.0))
 	var s2 := Hero.find_skill(G.hero, sid)
 	if learned == "":
 		await ctx.say("對「%s」的下一招豁然開朗了一些（領悟 %d%%）。" % [name, roundi(s2.insight)])

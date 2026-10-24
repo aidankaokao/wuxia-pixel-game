@@ -3,10 +3,14 @@
 ## - 門裡的日子：卯時到巳時跟陸鳴川做晨課（旬休沒有）、廣場木樁練樁、練功房蒲團打坐、正式弟子起鐵木人樁、書房研讀與抄錄本門武功、
 ##   任務榜的雜務（一天三件）與下山委託、伙房卜大勺發飯教菜、值殿柯靜言發月例與弟子服、看名冊、離開師門。
 ## - 後山：劍塚、試劍石、聽泉亭、霧天泉源旁的白髮老人、野菌。
-## 門派的狀態在 G.sect（scripts/sect.gd）；正式弟子考核、真傳拜師、年會、公庫、產業之後再搬。
+## - 晉升：記名弟子條件齊了找韓靖秋考正式弟子（三問門規＋連戰齊振遠、孟鐸，不許用藥），過了到大殿由掌門升級；正式弟子試內門（跟何守一過一場＋三問）；
+##   內門弟子條件齊了、跟長老熟到熟識，接受三位長老之一的拜師試煉（韓靖秋試劍石、嚴守拙思過崖守三夜、蘇芷蘅採三味藥），過了到大殿升真傳、學上乘武功。
+## 門派的狀態在 G.sect（scripts/sect.gd，真傳弟子的師父在 master、師門武功在 master_skill）；年會、公庫、產業之後再搬。
 ## 用到的旗標：
 ##   mq_seek 知道要找大師兄應考；mq_trial 1 過了問心觀骨、2 試劍也過了；mq_trial_day 試劍輸掉那天；mq_heart 問心的結果（1 守正、2 謙和、3 好勝）
-##   mq_join 是鳴泉弟子（1）；mq_left 離開了鳴泉；mq_exam 正式弟子考核（2 已升正式，之後搬）；mq_true 真傳弟子（之後搬）
+##   mq_join 是鳴泉弟子（1）；mq_left 離開了鳴泉；mq_exam 正式弟子考核 1 考過了（等掌門升級）2 已升正式；mq_exam_day 考核沒過那天
+##   mq_inner 升了內門；mq_inner_day 試過內門那天；mq_true_hint 掌門提過拜師；mq_mt 拜師試煉進行中（1 韓靖秋 2 嚴守拙 3 蘇芷蘅）；mq_mt_day 試煉沒過那天
+##   mq_herbs 採到的藥（位元：1 泉心草 2 鐵骨藤 4 雲根芝）；mq_herb_boar 打跑了護藥山豬；mq_master 試煉過了誰（等掌門升真傳）；mq_true 真傳弟子；mq_teacher 拜的師父（1 韓靖秋 2 嚴守拙 3 蘇芷蘅，師父稱你徒兒）
 ##   mq_morning 做過晨課那天；mq_meal 領過飯那天；mq_chores／mq_chores_day 今天做了幾件雜務；mq_chore_<雜務> 那件做過那天
 ##   mq_c_path 委託「清理山道」1 接下 2 打跑野狗 3 覆命；mq_c_med 委託「回春堂送藥」1 接下 2 送到 3 覆命
 ##   mq_mush_west／mq_mush_east 後山野菌採的那天；mq_fog_old 霧天見過白髮老人那天
@@ -208,6 +212,21 @@ static func wen_story(ctx: Ctx) -> bool:
 		await ctx.say(wen.call("你我師徒緣分已盡，不必多言。"))
 		return true
 	if member():
+		if ctx.flag("mq_exam") == 1 and rank() == 0:
+			await _promotion_ceremony(ctx)
+			return true
+		if rank() != 2:
+			return false
+		if ctx.flag("mq_master") > 0:
+			await _true_ceremony(ctx)
+			return true
+		if _ready_to_promote() and ctx.flag("mq_true_hint") == 0:
+			ctx.set_flag("mq_true_hint")
+			await ctx.say([wen.call("你入了內門以來，功績、武功都長進了不少。是時候拜師了。"),
+				wen.call("本門三位長老，各有一門上乘武功：靖秋的「疊泉劍」、守拙的「斷流掌」、芷蘅的「寒潭心經」。"),
+				wen.call("靖秋在練功房，守拙在後山思過崖前，芷蘅在藥房。想拜誰為師，就去找誰。"),
+				wen.call("只是長老收徒，看的不只是武功，也看緣分——跟長老不夠熟，他們未必肯收。每位長老的試煉也不一樣。")])
+			return true
 		return false
 	if ctx.flag("mq_trial") != 2:
 		await ctx.say(wen.call("想入我鳴泉，先去演武廣場找鳴川，過了入門考驗再來。"))
@@ -394,17 +413,308 @@ static func leader_chair(ctx: Ctx) -> void:
 	await ctx.say("掌門的座位。座前的蒲團上，跪過一代又一代入門的弟子。")
 
 
-# ── 傳功長老韓靖秋：正式弟子考核（之後搬），條件齊了先跟你說一聲 ──
+# ── 晉升：正式弟子考核（韓靖秋）、升級典禮（掌門）、內門試劍（韓靖秋） ─────
 
-static func han_story(ctx: Ctx) -> bool:
-	if not member() or rank() != 0:
-		return false
+## 考沒過隔幾天才能再考
+const EXAM_RETRY := 3
+const EXAM_QUESTIONS := [
+	["第一問：你在後山看見思過崖洞口沒人看守，心裡好奇，該當如何？", ["進去看一眼就出來", "叫上同門一起進去", "不得擅入，轉身離開"], 2],
+	["第二問：同門與你口角，竟拔劍相向，你當如何？", ["退開不與他動手，稟告執法長老", "拔劍還擊，教訓他一頓", "找師兄弟來幫忙"], 0],
+	["第三問：山下的朋友想學你的鳴泉劍法，你當如何？", ["交情好，教他幾招無妨", "未經掌門允許，不得外傳", "收些銀兩再教"], 1],
+]
+const INNER_QUESTIONS := [
+	["同門師弟私下鬥毆，被你撞見了，你怎麼做？", ["先把兩人分開，再稟報值殿", "讓他們打完再說", "各打五十大板"], 0],
+	["記名弟子練劍偷懶，你身為內門弟子該如何？", ["罵他一頓", "陪他練一回，看他卡在哪裡", "不關我的事"], 1],
+	["門派年會選執事，你最看重候選人的什麼？", ["跟我交情好不好", "武功最高", "肯不肯擔事、處事公不公道"], 2],
+]
+
+
+## 晉升條件（考核以外）是不是都齊了
+static func _ready_to_promote() -> bool:
 	var checks := Sect.promotion_checks()
-	var ready := checks.slice(0, checks.size() - 1).all(func(c): return c[1])
-	if not ready:
+	return checks.size() > 0 and checks.slice(0, checks.size() - 1).all(func(c): return c[1])
+
+
+## 上次考沒過還在等的話說一聲，回傳 true
+static func _too_soon(ctx: Ctx, flag: String, who: String, what: String) -> bool:
+	var last := ctx.flag(flag)
+	if last > 0 and G.day < last + EXAM_RETRY:
+		await ctx.say(_by(who).call("上回的%s才過去沒幾天。%s再來。" % [what, G.date_text(last + EXAM_RETRY)]))
+		return true
+	return false
+
+
+static func _quiz(ctx: Ctx, who: String, qs: Array) -> int:
+	var right := 0
+	for q in qs:
+		if await ctx.ask(_by(who).call(q[0]), q[1]) == int(q[2]):
+			right += 1
+	return right
+
+
+## 韓靖秋的劇情：記名弟子報考正式、正式弟子試內門、內門弟子拜他為師
+static func han_story(ctx: Ctx) -> bool:
+	if not member():
 		return false
-	await ctx.say([_by(MQ.han).call("你的功績、劍法都夠了。正式弟子的考核……容我再準備準備。"), "（正式弟子考核之後開放）"])
+	match rank():
+		0:
+			return await _exam(ctx)
+		1:
+			return await _inner_exam(ctx)
+		2:
+			return await _master_story(ctx, 0)
+	return false
+
+
+static func _exam(ctx: Ctx) -> bool:
+	var han := _by(MQ.han)
+	if ctx.flag("mq_exam") == 1:
+		await ctx.say(han.call("考核過了，還愣在這裡做什麼？去大殿見掌門。"))
+		return true
+	if not _ready_to_promote():
+		return false
+	if await _too_soon(ctx, "mq_exam_day", MQ.han, "考核"):
+		return true
+	if await ctx.ask(han.call("你入門也有些日子了，功績、劍法都夠了。要報考正式弟子嗎？"), ["弟子報考", "改天再說"]) != 0:
+		return true
+	await ctx.say(han.call("正式弟子要下山辦事，代表的是鳴泉的臉面。先考門規，再考武功。"))
+	var right := await _quiz(ctx, MQ.han, EXAM_QUESTIONS)
+	if right < 2:
+		ctx.set_flag("mq_exam_day", G.day)
+		await ctx.say([han.call("三問只答對 %d 問。門規都記不住，怎麼放你下山？" % right), han.call("%d 天後再來考吧。" % EXAM_RETRY)])
+		return true
+	await ctx.say([han.call("三問全對。好。" if right == 3 else "答對兩問，勉強過得去。回頭把門規再念熟。"),
+		han.call("武功這一關，連戰兩場：先是教習%s，再來是%s。中間不歇，也不許用藥。" % [MQ.qi, MQ.meng]),
+		"韓靖秋領著你來到演武台。師兄弟們聽說有人考正式弟子，紛紛圍了過來。"])
+	if await ctx.battle("exam_qi") != "win":
+		ctx.set_flag("mq_exam_day", G.day)
+		await ctx.say([han.call("第一場就落敗了。根基還要再打紮實些。"), han.call("%d 天後再來考吧。" % EXAM_RETRY)])
+		return true
+	await ctx.say([{"speaker": MQ.qi, "text": "……好劍法。這一場是我輸了。"}, han.call("不許歇，下一場。")])
+	if await ctx.battle("exam_meng") != "win":
+		ctx.set_flag("mq_exam_day", G.day)
+		await ctx.say([han.call("撐過了一場，第二場力氣就跟不上了。內息與耐力，都還差一點。"), han.call("%d 天後再來考吧。" % EXAM_RETRY)])
+		return true
+	ctx.set_flag("mq_exam", 1)
+	await ctx.say([{"speaker": MQ.meng, "text": "服了。往後下山辦事，算你一份。"}, "圍觀的師兄弟們一陣喝采。", han.call("門規、武功都過了。去大殿見掌門，由掌門親自升你為正式弟子。")])
+	ctx.fame(5)
 	return true
+
+
+static func _promotion_ceremony(ctx: Ctx) -> void:
+	var wen := _by(MQ.wen)
+	await ctx.say([wen.call("靖秋都跟我說了。三問答得好，兩場也打得漂亮。"), wen.call("從今日起，你就是鳴泉劍派的正式弟子。"), "聞松年親手在你的腰牌背面刻上「正」字。"])
+	Sect.promote()
+	ctx.set_flag("mq_exam", 2)
+	await ctx.give("jinchuang", 2)
+	await ctx.say("%s捧來一件月白道袍與一雙布靴：「恭喜師兄弟，這是正式弟子的衣服。」" % MQ.ke)
+	await _issue_uniform(ctx, 1)
+	await ctx.say([wen.call("你搬去弟子房・甲，跟%s同住。練功房的鐵木樁、書房的「踏石步」，往後都能用了；任務榜上的下山委託，也可以接。" % MQ.he),
+		wen.call("只是記住：正式弟子再要離開師門，就不是說走就走了。"),
+		"（成為正式弟子：住處改為弟子房・甲，月例提高；練功房鐵木樁、抄錄踏石步、下山委託「回春堂送藥」開放）"])
+
+
+## 內門試劍：先跟何守一過一場，再答三問
+static func _inner_exam(ctx: Ctx) -> bool:
+	var han := _by(MQ.han)
+	if not _ready_to_promote():
+		return false
+	if await _too_soon(ctx, "mq_inner_day", MQ.han, "試劍"):
+		return true
+	if await ctx.ask(han.call("你的功績、劍法都夠了。要試內門嗎？內門弟子能在年會上選長老、選執事，往後還能收徒。"), ["請長老考我", "改天再說"]) != 0:
+		return true
+	ctx.set_flag("mq_inner_day", G.day)
+	await ctx.say([han.call("先試劍。%s守了六年山門，劍法紮實，你跟他過一場。" % MQ.he), "何守一被叫了過來，抱拳一禮。"])
+	if await ctx.battle("exam_he") != "win":
+		await ctx.say([han.call("劍還不夠穩。"), han.call("%d 天後再來。" % EXAM_RETRY)])
+		return true
+	await ctx.say([{"speaker": MQ.he, "text": "好劍！我服。"}, han.call("再問你三件事。內門弟子要管事、要帶人，光會打不夠。")])
+	var right := await _quiz(ctx, MQ.han, INNER_QUESTIONS)
+	if right < 2:
+		await ctx.say([han.call("三問只對了 %d 問。心性還要再磨一磨。" % right), han.call("%d 天後再來。" % EXAM_RETRY)])
+		return true
+	Sect.promote()
+	ctx.set_flag("mq_inner", 1)
+	await ctx.say([han.call("三問全對。好！" if right == 3 else "答對兩問，過了。"), han.call("從今日起，你是鳴泉的內門弟子。年會上有你一票，往後也能出來競選執事。"),
+		"（成為內門弟子：月例提高；功績、武功再長進，就能向三位長老求拜師試煉，成為真傳弟子）"])
+	await _issue_uniform(ctx, 2)
+	ctx.fame(5)
+	return true
+
+
+# ── 真傳拜師試煉：三位長老各有試煉，通過一位就拜他為師 ─────────
+
+## [人物 id, 武功, 試煉的說明]
+const MASTERS := [
+	["han", "diequan", "到後山試劍石前，接我一套劍。勝了，「疊泉劍」就傳給你。"],
+	["yan", "duanliu", "在思過崖前守三夜，不許下崖、不許用藥。三夜都守住了，「斷流掌」就傳給你。"],
+	["su", "hantan", "到後山採三味藥回來：鳴泉源頭的泉心草、劍塚旁的鐵骨藤、望江台崖邊的雲根芝。採齊了，我還要考你藥性。"],
+]
+## 拜師要跟長老熟到「熟識」
+const MASTER_AFF := 30
+const HERBS := [
+	["quanxin", 1, "泉心草", "鳴泉源頭", "性寒，生在泉眼的石縫裡"],
+	["tiegu", 2, "鐵骨藤", "劍塚旁", "性溫，能續筋接骨"],
+	["yungen", 4, "雲根芝", "望江台崖邊", "性平，長在崖邊的雲氣裡"],
+]
+
+
+static func _mname(i: int) -> String:
+	return MQ[MASTERS[i][0]]
+
+
+static func yan_story(ctx: Ctx) -> bool:
+	return await _master_story(ctx, 1)
+
+
+static func su_story(ctx: Ctx) -> bool:
+	return await _master_story(ctx, 2)
+
+
+## 三位長老共用：內門弟子條件齊了、跟長老夠熟就能接受拜師試煉
+static func _master_story(ctx: Ctx, i: int) -> bool:
+	var say := _by(_mname(i))
+	if rank() != 2:
+		return false
+	var passed := ctx.flag("mq_master")
+	if passed > 0:
+		if passed != i + 1:
+			return false
+		await ctx.say(say.call("還不去大殿見掌門？"))
+		return true
+	if not _ready_to_promote():
+		return false
+	var doing := ctx.flag("mq_mt")
+	if doing > 0 and doing != i + 1:
+		await ctx.say(say.call("你正在接受%s的試煉，先把那邊的事辦完。" % _mname(doing - 1)))
+		return false
+	if doing == i + 1:
+		return await _trial_progress(ctx, i)
+	if await _too_soon(ctx, "mq_mt_day", _mname(i), "試煉"):
+		return true
+	if int(Social.rel(MASTERS[i][0]).get("aff", 0)) < MASTER_AFF:
+		await ctx.say([say.call("聽說你想拜師？你我還談不上熟，我不收不熟的徒弟。"), "（熟悉度要到「熟識」，長老才肯收你）"])
+		return false
+	if await ctx.ask(say.call("想拜我為師？%s" % MASTERS[i][2]), ["接受試煉", "容我再想想"]) != 0:
+		return true
+	ctx.set_flag("mq_mt", i + 1)
+	match i:
+		0:
+			await _trial_han(ctx)
+		1:
+			await _trial_yan(ctx)
+		2:
+			ctx.set_flag("mq_herbs", 0)
+			ctx.refresh()
+			await ctx.say([say.call("藥草要親手採，連根帶土，別弄斷了根鬚。採齊了再來找我。"), "（到後山採三味藥：鳴泉源頭的泉心草、劍塚旁的鐵骨藤、望江台崖邊的雲根芝）"])
+	return true
+
+
+static func _trial_fail(ctx: Ctx, i: int, why: String) -> void:
+	ctx.set_flag("mq_mt", 0)
+	ctx.set_flag("mq_mt_day", G.day)
+	ctx.set_flag("mq_herbs", 0)
+	await ctx.say([_by(_mname(i)).call(why), _by(_mname(i)).call("%d 天後再來吧。" % EXAM_RETRY)])
+
+
+static func _trial_pass(ctx: Ctx, i: int) -> void:
+	ctx.set_flag("mq_mt", 0)
+	ctx.set_flag("mq_master", i + 1)
+	await ctx.say([_by(_mname(i)).call("好。從今往後，你就是我的徒弟了。"), _by(_mname(i)).call("去大殿稟告掌門，由掌門升你為真傳弟子。")])
+	ctx.fame(8)
+
+
+## 韓靖秋：後山試劍石前接他一套劍
+static func _trial_han(ctx: Ctx) -> void:
+	await ctx.say(["韓靖秋領著你上了後山，在試劍石前站定。", _by(MQ.han).call("石上這些劍痕，是歷代真傳留下的。你若勝了，也能在上頭留一道。")])
+	if await ctx.battle("trial_han") != "win":
+		await _trial_fail(ctx, 0, "劍是快了，可還不夠穩。")
+		return
+	await ctx.say("韓靖秋收劍入鞘，看著試劍石上你剛留下的那道劍痕，點了點頭。")
+	await _trial_pass(ctx, 0)
+
+
+## 嚴守拙：思過崖前守三夜，夜裡有東西摸上崖來；白天也不許下崖
+static func _trial_yan(ctx: Ctx) -> void:
+	await ctx.say([_by(MQ.yan).call("崖上夜裡不太平。守住了，才知道你的心定不定。"), "你在思過崖前盤膝坐下。天色漸漸暗了……"])
+	for n in [1, 2, 3]:
+		# 坐到子時（子時初是今天的第 92 刻，跨過半夜就是 0）
+		var to_midnight := (92 - G.time + 96) % 96
+		ctx.pass_time(to_midnight if to_midnight > 0 else 96)
+		if await ctx.battle("trial_night%d" % n) != "win":
+			await _trial_fail(ctx, 1, "第 %d 夜就撐不住了。心不定，掌就不穩。" % n)
+			return
+		ctx.pass_time(G.ke_until_dawn())
+		if n < 3:
+			await ctx.say("天亮了。你揉了揉發僵的腿，又坐回原處。" if n == 1 else "又一個天亮。你的手臂已經抬不太起來了。")
+	await ctx.say(["蒙面人退開幾步，扯下面巾——竟是嚴守拙。", _by(MQ.yan).call("三夜都守住了，最後一夜還接得住我的掌。"), "——%s　%s" % [G.date_text(), G.time_text()]])
+	await _trial_pass(ctx, 1)
+
+
+## 蘇芷蘅：三味藥採齊了，再考一題藥性
+static func _trial_progress(ctx: Ctx, i: int) -> bool:
+	if i != 2:
+		return false
+	var su := _by(MQ.su)
+	var got := ctx.flag("mq_herbs")
+	if got != 7:
+		var left := HERBS.filter(func(h): return (got & int(h[1])) == 0).map(func(h): return "%s（%s）" % [h[2], h[3]])
+		await ctx.say(su.call("還差%s。" % "、".join(left)))
+		return true
+	await ctx.say(["你把三味藥一一攤在蘇芷蘅面前。", su.call("採得不錯，根鬚都完好。"), su.call("最後一問。")])
+	var c := await ctx.ask(su.call("寒潭心經最忌燥熱。用這三味藥配「寒潭散」，哪一味只能放一點，還要最後才下？"), HERBS.map(func(h): return h[2]))
+	if HERBS[c][0] != "tiegu":
+		await _trial_fail(ctx, i, "錯了。%s%s，不是它。藥性不熟，這門心法練了會傷身。" % [HERBS[c][2], HERBS[c][4]])
+		return true
+	await ctx.say(su.call("不錯。鐵骨藤性溫，續筋接骨是好藥，可放多了，寒潭散就成了燥藥。"))
+	await _trial_pass(ctx, i)
+	return true
+
+
+## 後山的藥草（蘇芷蘅的試煉進行中、還沒採到時才出現；雲根芝有一頭護藥山豬）
+static func _herb(ctx: Ctx, i: int) -> void:
+	var h: Array = HERBS[i]
+	if h[0] == "yungen" and ctx.flag("mq_herb_boar") == 0:
+		if await ctx.battle("trial_boar") != "win":
+			return
+		ctx.set_flag("mq_herb_boar")
+		await ctx.say("護藥山豬哼哼兩聲，鑽進林子裡去了。")
+	ctx.set_flag("mq_herbs", ctx.flag("mq_herbs") | int(h[1]))
+	ctx.refresh()
+	await ctx.say("你小心地連根帶土，採下了一株%s。\n（%s%s）" % [h[2], h[2], h[4]])
+
+
+static func herb_quanxin(ctx: Ctx) -> void:
+	await _herb(ctx, 0)
+
+
+static func herb_tiegu(ctx: Ctx) -> void:
+	await _herb(ctx, 1)
+
+
+static func herb_yungen(ctx: Ctx) -> void:
+	await _herb(ctx, 2)
+
+
+static func _true_ceremony(ctx: Ctx) -> void:
+	var i := ctx.flag("mq_master") - 1
+	var m: Array = MASTERS[i]
+	var wen := _by(MQ.wen)
+	await ctx.say([wen.call("%s都跟我說了。好，好。" % _mname(i)), "大殿裡點起了香。你在祖師像前叩首，又轉身向師父行了拜師禮。",
+		wen.call("從今日起，你是鳴泉劍派的真傳弟子，%s的親傳徒弟。" % _mname(i))])
+	Sect.promote()
+	G.sect.master = m[0]
+	G.sect.master_skill = m[1]
+	ctx.set_flag("mq_master", 0)
+	ctx.set_flag("mq_true")
+	ctx.set_flag("mq_teacher", i + 1)
+	await ctx.learn(m[1])
+	await ctx.give("jinchuang", 3)
+	await ctx.say("師父親手替你披上一件青紋道袍。")
+	await _issue_uniform(ctx, 3)
+	await ctx.say([_by(_mname(i)).call("這門「%s」，往後每天來找我請教。" % Hero.skill_def(m[1]).name),
+		wen.call("疏桐下山多年，她的房間空著，你先搬進真傳弟子房・二吧。"),
+		"（成為真傳弟子：住處改為真傳弟子房・二，月例提高；師父不看交情就肯指點，每天可以請教一次；離開師門只能闖「泉音劍陣」）"])
 
 
 # ── 書房：管書的宋知微、書架 ─────────────────────────────
@@ -598,7 +908,7 @@ static func dorm_bed(ctx: Ctx) -> void:
 
 
 static func room_bed(ctx: Ctx) -> void:
-	if rank() < 1:
+	if rank() < 1 or rank() >= 3:
 		await ctx.say("正式弟子的床鋪，被褥比大通鋪的厚實多了。")
 		return
 	await Train.rest(ctx, "你在弟子房的床。要躺下休息嗎？", _wake("room"))

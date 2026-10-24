@@ -1119,6 +1119,15 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.06, 0.9, 0.02), Color("a8b0b8"), Vector3(0, 0.65, 0)))
 			g.add_child(Mk.box(Vector3(0.28, 0.05, 0.06), Color("5a4a3a"), Vector3(0, 1.1, 0)))
 			g.add_child(Mk.box(Vector3(0.05, 0.22, 0.05), Color("4a3a2e"), Vector3(0, 1.23, 0)))
+		"wild_herb":
+			# 野藥草：一叢細長的葉子，頂上幾朵小花
+			for i in 6:
+				var a := i * TAU / 6.0
+				var leaf := Mk.box(Vector3(0.05, 0.4, 0.02), Color("4a8a3a"), Vector3(cos(a) * 0.08, 0.2, sin(a) * 0.08))
+				leaf.rotation = Vector3(sin(a) * 0.4, 0, -cos(a) * 0.4)
+				g.add_child(leaf)
+			for i in 3:
+				g.add_child(Mk.ball(0.04, Color("f0f0d8"), Vector3(-0.08 + i * 0.08, 0.42 + (i % 2) * 0.05, 0), 5))
 		"mushrooms":
 			for i in 4:
 				var q := Vector3(-0.25 + Mk.h01(i, 1) * 0.5, 0, -0.2 + Mk.h01(i, 2) * 0.4)

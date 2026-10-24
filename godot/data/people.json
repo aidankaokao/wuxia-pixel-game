@@ -2396,6 +2396,10 @@
   ],
   "address": [
    [
+    "mq_teacher == 1",
+    "徒兒"
+   ],
+   [
     "mq_join and stage >= 3",
     "{名}"
    ],
@@ -2530,6 +2534,10 @@
   ],
   "address": [
    [
+    "mq_teacher == 2",
+    "徒兒"
+   ],
+   [
     "mq_join and stage >= 3",
     "{名}"
    ],
@@ -2541,7 +2549,8 @@
     "",
     "外人"
    ]
-  ]
+  ],
+  "story": "mingquan/yan_story"
  },
  "su": {
   "id": "su",
@@ -2696,6 +2705,10 @@
   ],
   "address": [
    [
+    "mq_teacher == 3",
+    "徒兒"
+   ],
+   [
     "mq_join and stage >= 3",
     "{名}"
    ],
@@ -2707,7 +2720,8 @@
     "",
     "外人"
    ]
-  ]
+  ],
+  "story": "mingquan/su_story"
  },
  "bu": {
   "id": "bu",
