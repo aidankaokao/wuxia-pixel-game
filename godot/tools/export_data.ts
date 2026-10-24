@@ -14,6 +14,7 @@ import { ENCOUNTERS, ENEMIES } from '../../src/game/battle/enemies';
 import { lifeGroups, type LifeNpc } from '../../src/game/life';
 import { qingzhu } from '../../src/game/maps/qingzhu';
 import { qzNorth } from '../../src/game/maps/qz_north';
+import { canglan } from '../../src/game/maps/canglan';
 import { qzLiu, qzSmithy, qzTea, qzTemple, qzWang } from '../../src/game/maps/qingzhu_rooms';
 import { BLOCKING, type Line, type MapDef } from '../../src/game/maps/types';
 import { PEOPLE } from '../../src/game/story/people';
@@ -82,6 +83,7 @@ function exportRoom(def: MapDef) {
 for (const r of [qzLiu, qzTea, qzSmithy, qzWang, qzTemple]) writeFileSync(OUT + `${r.id}.json`, JSON.stringify(exportRoom(r), null, 1));
 writeFileSync(OUT + 'qingzhu.json', JSON.stringify(exportMap(qingzhu, 'qingzhu'), null, 1));
 writeFileSync(OUT + 'qz_north.json', JSON.stringify(exportMap(qzNorth), null, 1));
+writeFileSync(OUT + 'canglan.json', JSON.stringify(exportMap(canglan), null, 1));
 writeFileSync(
   OUT + 'items.json',
   JSON.stringify(Object.fromEntries(Object.entries(ITEMS).map(([id, it]) => [id, { name: it.name, price: it.price ?? 0, desc: it.desc ?? '', category: it.category }])), null, 1),

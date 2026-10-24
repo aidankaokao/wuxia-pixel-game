@@ -7,8 +7,10 @@ extends RefCounted
 ## - 武功頁選一門按空白鍵，攤開一卷手卷（兩根卷軸往左右推開）看細節，在卷上裝備、修練、突破。
 ## 每一頁是左右兩面，_fill(面, 左右) 依分頁填內容；數值能畫的就畫成條、格子、圖（氣血、五維、重數、修為、領悟）。
 
-const TABS := ["人物", "武功", "行囊", "存檔"]
-const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("4a3a5a")]
+const TABS := ["人物", "武功", "行囊", "江湖", "存檔"]
+const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("4a3a5a")]
+const T_QUEST := 3
+const T_SAVE := 4
 ## 存檔頁的欄位：即時、自動、十個手動，最後一列是回到標題
 const SLOTS := ["quick", "auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "title"]
 const W := 1120.0
@@ -113,7 +115,7 @@ func _run(u: Ui, t: int) -> void:
 					await _flip(1)
 					continue
 			"ok":
-				if tab == 3:
+				if tab == T_SAVE:
 					if await _save_action():
 						break
 				if tab == 1 and n > 0:
@@ -142,7 +144,9 @@ func _list_size() -> int:
 			return G.hero.skills.size()
 		2:
 			return G.bag.size()
-		3:
+		T_QUEST:
+			return Quests.all().size()
+		T_SAVE:
 			return SLOTS.size()
 	return 0
 
@@ -203,8 +207,10 @@ func _chrome() -> void:
 		t = "←→ 翻頁　X 闔上書" if tab == 0 else "←→ 翻頁　↓／空白鍵 進入這一頁　X 闔上書"
 	elif tab == 1:
 		t = "↑↓ 選　空白鍵 攤開卷軸　←→ 翻頁　X 回到書籤"
-	elif tab == 3:
+	elif tab == T_SAVE:
 		t = "↑↓ 選　空白鍵 存檔／讀取　←→ 翻頁　X 回到書籤"
+	elif tab == T_QUEST:
+		t = "↑↓ 選　←→ 翻頁　X 回到書籤"
 	else:
 		t = "方向鍵 選　空白鍵 使用　X 回到書籤"
 	hint.text = t
@@ -318,7 +324,9 @@ func _fill(p: Control, side: int) -> void:
 			_skills_left(_sheet(p, "武　學")) if side == 0 else _skills_right(_sheet(p, "身上的武功"))
 		2:
 			_bag_left(_sheet(p, "行　囊")) if side == 0 else _bag_right(_sheet(p, "細　看"))
-		3:
+		T_QUEST:
+			_quest_left(_sheet(p, "江湖事")) if side == 0 else _quest_right(_sheet(p, "細　看"))
+		T_SAVE:
 			_save_left(_sheet(p, "存　檔")) if side == 0 else _save_right(_sheet(p, "細　看"))
 
 
@@ -1030,6 +1038,84 @@ func _bag_right(v: VBoxContainer) -> void:
 		v.add_child(_icon_num(_coin(), "值", "%d 兩" % d.price))
 	if focus == "page" and Hero.usable(id):
 		v.add_child(_lab("（空白鍵使用）", 13, FAINT))
+
+
+# ── 江湖事（任務） ──────────────────────────────────────
+
+func _quest_left(v: VBoxContainer) -> void:
+	var qs := Quests.all()
+	if qs.is_empty():
+		v.add_child(_lab("還沒有什麼委託。", 16, SOFT))
+		v.add_child(_lab("多跟人聊聊，江湖上總有事找上門。", 14, FAINT))
+		return
+	for i in qs.size():
+		var q: Dictionary = qs[i]
+		var on := focus == "page" and i == cur
+		var row := PanelContainer.new()
+		var sb := _sb(Color(0.54, 0.18, 0.15, 0.12) if on else Color(0, 0, 0, 0), Color(0.54, 0.18, 0.15, 0.5) if on else Color(0, 0, 0, 0), 4, 1)
+		sb.content_margin_left = 6
+		sb.content_margin_right = 6
+		sb.content_margin_top = 3
+		sb.content_margin_bottom = 3
+		row.add_theme_stylebox_override("panel", sb)
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 10)
+		row.add_child(h)
+		h.add_child(_mark(not q.done))
+		var t := _lab(q.title, 18, RED if on else (FAINT if q.done else INK))
+		t.custom_minimum_size = Vector2(150, 0)
+		h.add_child(t)
+		var n := 0
+		for st in q.steps:
+			if st[1]:
+				n += 1
+		h.add_child(_bar(float(n) / q.steps.size(), 90, 8, GREEN))
+		h.add_child(_tag("已了結" if q.done else "進行中", FAINT if q.done else RED))
+		v.add_child(row)
+
+
+func _quest_right(v: VBoxContainer) -> void:
+	var qs := Quests.all()
+	if qs.is_empty():
+		return
+	var q: Dictionary = qs[clampi(cur, 0, qs.size() - 1)]
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 12)
+	v.add_child(top)
+	top.add_child(_lab(q.title, 24))
+	top.add_child(_seal("了" if q.done else "行", 34, FAINT if q.done else RED))
+	v.add_child(_lab("委託　%s　　地點　%s" % [q.giver, q.place], 14, SOFT))
+	var desc := _lab(q.desc, 15, INK)
+	desc.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	desc.custom_minimum_size = Vector2(PW - 90, 0)
+	v.add_child(desc)
+	v.add_child(_rule())
+	# 步驟：做到的打勾，下一步標紅
+	var next_done := false
+	for st in q.steps:
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 10)
+		v.add_child(h)
+		var ok: bool = st[1]
+		var is_next := not ok and not next_done
+		if is_next:
+			next_done = true
+		h.add_child(_check(ok))
+		h.add_child(_lab(st[0], 15, FAINT if ok else (RED if is_next else SOFT)))
+	v.add_child(_rule())
+	v.add_child(_lab("報酬　" + q.reward, 14, GOLD))
+
+
+## 步驟前的圈：做到了打勾
+static func _check(on: bool) -> Control:
+	var c := Control.new()
+	c.custom_minimum_size = Vector2(18, 18)
+	c.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	c.draw.connect(func() -> void:
+		c.draw_arc(Vector2(9, 9), 8, 0, TAU, 24, GREEN if on else FAINT, 1.5)
+		if on:
+			c.draw_polyline(PackedVector2Array([Vector2(4.5, 9), Vector2(8, 12.5), Vector2(14, 5)]), GREEN, 2.0))
+	return c
 
 
 # ── 存檔 ────────────────────────────────────────────────

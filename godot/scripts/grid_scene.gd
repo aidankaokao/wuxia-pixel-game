@@ -47,7 +47,7 @@ func setup(u: Ui, r: CamRig, m: Node, at := {}) -> void:
 ## 依旗標、時間重新決定哪些人、擺設要出現（時間變了、腳本跑完都會叫）
 func refresh() -> void:
 	for w in walkers:
-		var on := Story.present(w.get("def", {}), outdoor)
+		var on := Story.present(w.get("def", {}), outdoor) and not beast_away(w.get("def", {}))
 		w.hidden = not on
 		w.f.visible = on
 	for p in props:
@@ -55,6 +55,19 @@ func refresh() -> void:
 		p.hidden = not on
 		if p.node:
 			p.node.visible = on
+
+
+## 野獸（帶 encounter 的人物）這時候不在：打倒後還沒重生，或雨天、雪天躲起來（約一半）
+func beast_away(def: Dictionary) -> bool:
+	if def.get("encounter", "") == "":
+		return false
+	if float(G.respawn_at.get(beast_key(def), 0.0)) > Time.get_ticks_msec() / 1000.0:
+		return true
+	return G.weather in ["rain", "snow"] and hash(def.get("id", "")) % 2 == 0
+
+
+func beast_key(def: Dictionary) -> String:
+	return "%s:%s" % [main.cur_id if main else "", def.get("id", "")]
 
 
 ## 格子中心的世界座標
@@ -117,6 +130,8 @@ func _ground_y(_p: Vector3) -> float:
 
 
 var _last_tile := Vector2i(-99, -99)
+## 隔一陣子重新看一次誰該出現（野獸重生）
+var _recheck := 0.0
 
 
 func _process(dt: float) -> void:
@@ -149,10 +164,19 @@ func _process(dt: float) -> void:
 			_last_tile = g
 			_on_tile(g)
 			_trigger(g)
+	_recheck -= dt
+	if _recheck <= 0:
+		_recheck = 2.0
+		if walkers.any(func(w): return w.def.get("encounter", "") != ""):
+			refresh()
 	for w in walkers:
 		var f: Chibi = w.f
 		if w.get("hidden", false):
 			continue
+		# 撞上野獸就開打（逃走、讀檔回來的頭幾秒不算）
+		if not busy and w.def.get("encounter", "") != "" and f.position.distance_to(hero.position) < 0.75 and Time.get_ticks_msec() / 1000.0 > G.beast_grace:
+			_fight_beast(w)
+			return
 		if w.fixed or w.talking:
 			f.walking = false
 			continue
@@ -160,8 +184,9 @@ func _process(dt: float) -> void:
 			w.wait -= dt
 			f.walking = false
 			if w.wait <= 0:
-				var gx := int(floor(w.home.x + (randf() - 0.5) * 6))
-				var gy := int(floor(w.home.y + (randf() - 0.5) * 6))
+				var rad := float(w.def.get("wander", 3)) * 2.0
+				var gx := int(floor(w.home.x + (randf() - 0.5) * rad))
+				var gy := int(floor(w.home.y + (randf() - 0.5) * rad))
 				if _free(gx, gy):
 					w.goal = w3(gx, gy)
 				w.wait = 2.0 + randf() * 4.0
@@ -172,7 +197,7 @@ func _process(dt: float) -> void:
 				w.goal = null
 				continue
 			var st: Vector3 = to.normalized() * 1.4 * dt
-			if _walkable(f.position + st, 0.2) and f.position.distance_to(hero.position) > 0.8:
+			if _walkable(f.position + st, 0.2) and (f.position.distance_to(hero.position) > 0.8 or w.def.get("encounter", "") != ""):
 				f.position += st
 				f.face(to)
 				f.walking = true
@@ -222,7 +247,7 @@ func _update_hint(busy: bool) -> void:
 		ui.show_hint("", Vector2.ZERO)
 		return
 	var label: String = t.p.def.get("label", "") if t.kind == "prop" else ""
-	var text := "交談" if t.kind == "npc" else (label if label != "" else "查看")
+	var text := ("動手" if t.w.def.get("encounter", "") != "" else "交談") if t.kind == "npc" else (label if label != "" else "查看")
 	# 人頭上；擺設上方一點；門（沒有高度）就在門口低一點的地方
 	var h: float = 1.75 if t.kind == "npc" else (0.7 if t.p.def.sprite == "door" else 1.4)
 	ui.show_hint(text, rig.cam.unproject_position(t.at + Vector3(0, h, 0)))
@@ -242,7 +267,16 @@ func _fill(text: String) -> String:
 	return text.replace("{稱}", "小兄弟").replace("{姓}", "無").replace("{名}", "名")
 
 
+## 跟野獸開打（腳本在 story/beast.gd：打贏了牠才消失，過一陣子重生）
+func _fight_beast(w: Dictionary) -> void:
+	w.f.face(hero.position - w.f.position)
+	Story.run("beast/fight", self, {"npc": w.id, "def": w.def})
+
+
 func _interact(t: Dictionary) -> void:
+	if t.kind == "npc" and t.w.def.get("encounter", "") != "":
+		_fight_beast(t.w)
+		return
 	if t.kind == "prop" and t.p.def.get("script", "") != "":
 		await Story.run(t.p.def.script, self)
 		return
@@ -261,7 +295,11 @@ func _interact(t: Dictionary) -> void:
 		var lines: Array = p.lines if (p.lines as Array).size() > 0 else PROP_TEXT.get(p.sprite, [{"text": "（沒什麼特別的）"}])
 		await ui.say(lines)
 		return
-	var w: Dictionary = t.w
+	await chat(t.w)
+
+
+## 跟一個人的一般交談：照他的台詞輪著說；顧攤子的人可以買賣（劇情腳本處理完劇情也可以接著呼叫，見 ctx.chat）
+func chat(w: Dictionary) -> void:
 	var f: Chibi = w.f
 	w.talking = true
 	f.face(hero.position - f.position)

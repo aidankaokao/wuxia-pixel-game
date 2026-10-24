@@ -79,6 +79,35 @@ func _run() -> void:
 				if v is GridScene:
 					v.hero.position = v.w3(int(xy[0]), int(xy[1]))
 					v.rig.position = v.hero.position
+			"tread":
+				# tread:15,10 站到那一格並當成踩上去（觸發 triggers）
+				var xy2 := arg.split(",")
+				var v2 = _main().scene
+				if v2 is GridScene:
+					v2.hero.position = v2.w3(int(xy2[0]), int(xy2[1]))
+					v2.rig.position = v2.hero.position
+					v2._trigger(Vector2i(int(xy2[0]), int(xy2[1])))
+			"meet":
+				# meet:liu 站到這個人旁邊、面對他
+				var v3 = _main().scene
+				if v3 is GridScene:
+					for w in v3.walkers:
+						if w.get("id", "") == arg:
+							w.goal = null
+							w.fixed = true
+							var at: Vector3 = w.f.position + Vector3(0, 0, 1.0)
+							v3.hero.position = at
+							v3.hero.face(w.f.position - at)
+							v3.rig.position = at
+			"flag":
+				# flag:bandit_boss=1
+				var kv2 := arg.split("=")
+				G.flags[kv2[0]] = int(kv2[1]) if kv2.size() > 1 else 1
+			"god":
+				# 把主角五維拉高、補滿（測打贏之後的劇情）
+				for k in G.hero.base:
+					G.hero.base[k] = 60
+				Hero.restore_all(G.hero)
 			"go":
 				# go:plain 跟按左上的按鈕一樣
 				_main().go(arg)

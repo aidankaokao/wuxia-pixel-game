@@ -552,7 +552,8 @@
       "text": "{稱}有空多去茶寮坐坐，葛先生的書說得好。"
      }
     ]
-   ]
+   ],
+   "script": "qingzhu/liu_talk"
   },
   {
    "id": "zhong",
@@ -596,7 +597,8 @@
       "text": "天要轉涼了，{稱}記得添件衣裳。"
      }
     ]
-   ]
+   ],
+   "script": "qingzhu/zhong_talk"
   },
   {
    "id": "shi",
@@ -629,7 +631,8 @@
       "text": "小石頭朝你點點頭，又忙自己的事去了。"
      }
     ]
-   ]
+   ],
+   "script": "qingzhu/kid_talk"
   },
   {
    "id": "aniu",
@@ -642,7 +645,8 @@
       "text": "阿牛朝你點點頭，又忙自己的事去了。"
      }
     ]
-   ]
+   ],
+   "script": "qingzhu/aniu_talk"
   },
   {
    "id": "du",

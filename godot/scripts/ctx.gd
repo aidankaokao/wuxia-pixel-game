@@ -171,8 +171,33 @@ func warp(map: String, at: Dictionary) -> void:
 
 ## 開戰（遭遇戰 id，見 data/enemies.json）；打完回到原地圖再繼續。回傳 "win"／"lose"／"flee"
 ## 輸了又不是切磋的話會被送回青竹村，腳本就不要再接著做事
+## 打完會換成新的場景（原本的場景已經釋放），ctx.scene 跟著換過去，腳本可以接著走路、說話
 func battle(encounter: String, field := "") -> String:
-	return await scene.main.battle(encounter, field)
+	var m: Node = scene.main
+	var r: String = await m.battle(encounter, field)
+	if m.scene is GridScene:
+		scene = m.scene
+	G.beast_grace = Time.get_ticks_msec() / 1000.0 + 2.5
+	return r
+
+
+## 跟對著的這個人照平常那樣聊（劇情的部分處理完、沒事可說時用；顧攤子的人會問要不要買賣）
+func chat() -> void:
+	for w in scene.walkers:
+		if w.get("id", "") == extra.get("npc", ""):
+			await scene.chat(w)
+			return
+
+
+## 名聲
+func fame(n: int) -> void:
+	G.hero.fame = int(G.hero.get("fame", 0)) + n
+	ui.notify("名聲 +%d" % n)
+
+
+func silver(n: int) -> void:
+	G.silver += n
+	ui.notify("銀兩 +%d" % n)
 
 
 ## 打開商店，關了才繼續

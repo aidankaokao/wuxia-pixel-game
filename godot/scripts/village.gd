@@ -20,9 +20,9 @@ const STALLS := {
 ## 做好室內的房子（地圖 id）
 const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple"]
 ## 做好的室外地圖（出入口通到這些就換過去）
-const OUTDOOR := ["qingzhu", "qz_north"]
-## 地圖四周往外延伸幾格
-const M := 16
+const OUTDOOR := ["qingzhu", "qz_north", "canglan"]
+## 地圖四周往外延伸幾格（地圖資料可以用 ring 指定：主角會走到很靠邊的地圖要寬一點，免得看到外面）
+var M := 16
 
 var map_id := "qingzhu"
 var data: Dictionary
@@ -45,6 +45,7 @@ func open(id: String) -> void:
 func _ready() -> void:
 	var f := FileAccess.open("res://data/%s.json" % map_id, FileAccess.READ)
 	data = JSON.parse_string(f.get_as_text())
+	M = int(data.get("ring", 16))
 	var tiles: Array = data.tiles
 	H = tiles.size()
 	W = (tiles[0] as String).length()
@@ -707,6 +708,62 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(0.75, 0.15, 0.4), Color("6a6a66"), Vector3(0, 0.07, 0)))
 		"bulletin":
 			FineProps.bulletin(g)
+		"tent":
+			# 山寨的帳篷：兩片斜布搭成三角，前面掀開一角
+			var cloth := Color("8a7a5a")
+			var tw := w - 0.2
+			for sd in [-1, 1]:
+				var m := Mk.box(Vector3(tw, 0.08, 1.15), cloth.darkened(0.1 if sd > 0 else 0.0), Vector3(0, 0.62, sd * 0.36))
+				m.rotation.x = sd * 0.95
+				g.add_child(m)
+			g.add_child(Mk.box(Vector3(0.08, 1.25, 0.08), Color("5a3a22"), Vector3(-tw / 2.0, 0.62, 0)))
+			g.add_child(Mk.box(Vector3(0.08, 1.25, 0.08), Color("5a3a22"), Vector3(tw / 2.0, 0.62, 0)))
+			g.add_child(Mk.box(Vector3(tw + 0.2, 0.06, 0.06), Color("5a3a22"), Vector3(0, 1.2, 0)))
+			g.add_child(Mk.box(Vector3(0.5, 0.6, 0.04), Color("2a2018"), Vector3(0.2, 0.3, 0.42)))
+		"flag":
+			g.add_child(Mk.box(Vector3(0.07, 2.4, 0.07), Color("5a3a22"), Vector3(0, 1.2, 0)))
+			g.add_child(Mk.box(Vector3(0.7, 0.5, 0.03), Color("2a2228"), Vector3(0.37, 2.05, 0)))
+			var fl := Mk.label("斷", 40, Color("d8c8a8"), Color(0, 0, 0, 0))
+			fl.position = Vector3(0.37, 2.05, 0.03)
+			fl.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+			g.add_child(fl)
+		"campfire":
+			for i in 6:
+				var lg := Mk.box(Vector3(0.5, 0.08, 0.08), Color("5a3a22"), Vector3(0, 0.06, 0))
+				lg.rotation.y = i * PI / 3.0
+				g.add_child(lg)
+			for i in 7:
+				var a := i * TAU / 7.0
+				g.add_child(Mk.box(Vector3(0.14, 0.1, 0.14), Color("7a7670"), Vector3(cos(a) * 0.38, 0.05, sin(a) * 0.38)))
+			var fm := StandardMaterial3D.new()
+			fm.albedo_color = Color("ff8a2a")
+			fm.emission_enabled = true
+			fm.emission = Color("ff6a1a")
+			fm.emission_energy_multiplier = 2.0
+			var flame := MeshInstance3D.new()
+			var cm := CylinderMesh.new()
+			cm.top_radius = 0.0
+			cm.bottom_radius = 0.18
+			cm.height = 0.45
+			flame.mesh = cm
+			flame.material_override = fm
+			flame.position.y = 0.3
+			g.add_child(flame)
+			var lt := OmniLight3D.new()
+			lt.light_color = Color("ff9a4a")
+			lt.light_energy = 1.4
+			lt.omni_range = 4.0
+			lt.position.y = 0.6
+			g.add_child(lt)
+		"chest", "chest_open":
+			var wood := Color("7a4a26")
+			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.45), wood, Vector3(0, 0.2, 0)))
+			g.add_child(Mk.box(Vector3(0.72, 0.05, 0.47), Color("c9a46a"), Vector3(0, 0.12, 0)))
+			var lid := Mk.box(Vector3(0.72, 0.12, 0.47), wood.lightened(0.1), Vector3(0, 0.46, 0))
+			if p.sprite == "chest_open":
+				lid.position = Vector3(0, 0.62, -0.26)
+				lid.rotation.x = -1.2
+			g.add_child(lid)
 		_:
 			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.06), Color("b08a5a"), Vector3(0, 0.85, 0)))
 			g.add_child(Mk.box(Vector3(0.07, 0.9, 0.07), Color("6a4428"), Vector3(0, 0.45, -0.04)))
@@ -734,7 +791,7 @@ func _people() -> void:
 		lb.position.y = 1.3
 		f.add_child(lb)
 		var wk := {"f": f, "id": n.id, "name": n.name, "lines": n.lines, "home": Vector2(s.x + 0.5, s.y + 0.5), "goal": null, "wait": randf() * 3.0,
-			"fixed": not stall.is_empty(), "said": 0, "talking": false, "def": {"id": n.id, "name": n.name}, "hidden": false}
+			"fixed": not stall.is_empty(), "said": 0, "talking": false, "def": {"id": n.id, "name": n.name, "script": n.get("script", "")}, "hidden": false}
 		if not stall.is_empty():
 			wk.stall = stall
 			wk.face = stall.face

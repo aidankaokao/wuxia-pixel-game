@@ -41,6 +41,9 @@ var flags := {}
 var day := 1
 var time := START_TIME
 var weather := "clear"
+## 打倒的野獸幾時重生（「地圖:id」→ 秒，照真實時間、不存檔）；撞上野獸的寬限（逃走、回到地圖的頭幾秒不會又撞上）
+var respawn_at := {}
+var beast_grace := 0.0
 var _new_day: Array[Callable] = []
 
 
