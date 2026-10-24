@@ -7,6 +7,7 @@ class_name Social
 ## - 關係存在 G.relations[人物 id]（存檔）。面對有人物檔案的人：空白鍵交談，F 切磋、G 贈禮、R 請教、T 交易、H 雅趣（依熟悉度逐步開放；雅趣的名稱照嗜好叫對弈、論琴……）。
 ## - 地圖上的人填 person（人物 id）就接上；腳本在 story/social.gd。
 
+const Festival := preload("res://story/festival.gd")
 const STAGES := [[-100, "反感"], [0, "陌生"], [10, "點頭之交"], [30, "熟識"], [60, "知交"], [90, "莫逆之交"]]
 const STRANGER := 1
 const NOD := 2
@@ -169,6 +170,9 @@ static func talk(ctx: Ctx, id: String) -> void:
 	_mut(id)
 	if not gate_open(p):
 		await ctx.say(fmt(p, p.gate.refuse))
+		return
+	# 節慶當天第一次交談：互道佳節（story/festival.gd）
+	if await Festival.greet(ctx, p):
 		return
 	if p.has("story") and await Story.run_bool(p.story, ctx):
 		return

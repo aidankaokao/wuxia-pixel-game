@@ -169,6 +169,9 @@ static func practice(ctx: Ctx, art: String, idle: String) -> void:
 
 
 static func ting_quan(ctx: Ctx) -> void:
+	# 中秋入夜在這裡賞月（story/festival.gd）
+	if await load("res://story/festival.gd").moon(ctx):
+		return
 	await practice(ctx, "qin", "聽泉亭。坐在亭中，泉水聲叮咚不絕，讓人心思澄靜。")
 
 

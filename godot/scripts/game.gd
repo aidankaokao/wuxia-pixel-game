@@ -135,6 +135,38 @@ func festival_of(d := -1) -> String:
 	return ""
 
 
+## 今天是第幾個節慶（1 起算，平日 0；條件旗標 festival）
+func festival_index(d := -1) -> int:
+	var name := festival_of(d)
+	for i in FESTIVALS.size():
+		if FESTIVALS[i].name == name:
+			return i + 1
+	return 0
+
+
+## 節期：0 平日、1 年節（臘月十五到正月十五）、2 端午（五月初一到初五）、3 中秋（八月初十到十五）
+func festive_period(d := -1) -> int:
+	var dt := date_of(d)
+	if (dt.month == 11 and dt.date >= 15) or (dt.month == 0 and dt.date <= 15):
+		return 1
+	if dt.month == 4 and dt.date <= 5:
+		return 2
+	if dt.month == 7 and dt.date >= 10 and dt.date <= 15:
+		return 3
+	return 0
+
+
+## 年貨攤的日子：臘月十五到除夕
+func nianhuo_days(d := -1) -> bool:
+	var dt := date_of(d)
+	return dt.month == 11 and dt.date >= 15
+
+
+## 掛燈籠：過年、元宵、中秋、除夕當天，以及年節、中秋節期
+func lantern_time(d := -1) -> bool:
+	return festival_index(d) in [1, 2, 6, 9] or festive_period(d) in [1, 3]
+
+
 ## 旬休：每月初十、二十、三十
 func is_xunxiu(d := -1) -> bool:
 	return date_of(d).date % 10 == 0

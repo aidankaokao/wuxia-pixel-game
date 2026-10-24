@@ -12,6 +12,7 @@
 ## 用到的旗標：lj_rumor 哪天聽過傳聞、lj_escort 哪天走過鏢、lj_b_<懸賞> 1 揭了榜／2 收拾掉了、lj_b_<懸賞>_day 上次領賞的日子、
 ## market 哪天逛過集
 
+const Festival := preload("res://story/festival.gd")
 const Weaving := preload("res://story/weaving.gd")
 const INN_PRICE := 5
 const TEA_PRICE := 2
@@ -94,6 +95,8 @@ static func _rumors() -> Array:
 
 
 static func inn_talk(ctx: Ctx) -> void:
+	if await Festival.inn(ctx):
+		return
 	var he := _by("賀長年")
 	var c := await ctx.ask(he.call("客官，住店還是打尖？"), ["住店（%d 兩，睡到天亮）" % INN_PRICE, "打尖（喝壺茶 %d 兩，聽聽傳聞）" % TEA_PRICE, "不用了"])
 	if c == 0:
@@ -115,6 +118,8 @@ static func inn_talk(ctx: Ctx) -> void:
 # ── 望江樓 ──────────────────────────────────────────────
 
 static func tower_talk(ctx: Ctx) -> void:
+	if await Festival.moon_banquet(ctx):
+		return
 	if await ctx.ask(_by("汪福來").call("客官樓上請！望江樓的菜，臨江城頭一份。"), ["點菜", "不用了"]) == 0:
 		await ctx.shop("望江樓・菜單", TOWER_MENU)
 

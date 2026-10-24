@@ -1106,6 +1106,238 @@
     }
    ],
    "label": ""
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 22,
+   "y": 44,
+   "w": 1,
+   "lines": [
+    {
+     "text": "廣場上掛起了紅燈籠，燈下垂著紙條。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 37,
+   "y": 44,
+   "w": 1,
+   "lines": [
+    {
+     "text": "燈籠上畫著嫦娥奔月、鯉躍龍門。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 22,
+   "y": 50,
+   "w": 1,
+   "lines": [
+    {
+     "text": "紅燈籠在風裡輕輕搖晃。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 37,
+   "y": 50,
+   "w": 1,
+   "lines": [
+    {
+     "text": "孩子們提著兔子燈在燈下跑來跑去。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 33,
+   "y": 47,
+   "w": 2,
+   "lines": [],
+   "label": "年貨攤",
+   "script": "festival/nianhuo_stall",
+   "when": "nianhuo == 1"
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 8,
+   "y": 58,
+   "w": 2,
+   "lines": [],
+   "label": "河燈攤",
+   "script": "festival/river_lamps",
+   "when": "festival == 5"
+  },
+  {
+   "id": "",
+   "sprite": "dragon_boat",
+   "x": 24,
+   "y": 64,
+   "w": 4,
+   "lines": [
+    {
+     "text": "漁戶們的龍舟，龍頭漆得青綠發亮。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "period == 2"
+  },
+  {
+   "id": "",
+   "sprite": "dragon_boat",
+   "x": 31,
+   "y": 65,
+   "w": 4,
+   "lines": [
+    {
+     "text": "漕幫的龍舟，船身比別人長一截。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "period == 2"
+  },
+  {
+   "id": "",
+   "sprite": "dragon_boat",
+   "x": 38,
+   "y": 64,
+   "w": 4,
+   "lines": [
+    {
+     "text": "金刀鏢局的龍舟，船頭插著一面金刀旗。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 4"
+  },
+  {
+   "id": "",
+   "sprite": "river_lamp",
+   "x": 6,
+   "y": 62,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盞河燈順著江水漂遠了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 5"
+  },
+  {
+   "id": "",
+   "sprite": "river_lamp",
+   "x": 12,
+   "y": 64,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盞河燈順著江水漂遠了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 5"
+  },
+  {
+   "id": "",
+   "sprite": "river_lamp",
+   "x": 19,
+   "y": 63,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盞河燈順著江水漂遠了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 5"
+  },
+  {
+   "id": "",
+   "sprite": "river_lamp",
+   "x": 27,
+   "y": 65,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盞河燈順著江水漂遠了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 5"
+  },
+  {
+   "id": "",
+   "sprite": "river_lamp",
+   "x": 35,
+   "y": 63,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盞河燈順著江水漂遠了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 5"
+  },
+  {
+   "id": "",
+   "sprite": "river_lamp",
+   "x": 42,
+   "y": 65,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盞河燈順著江水漂遠了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 5"
+  },
+  {
+   "id": "",
+   "sprite": "river_lamp",
+   "x": 50,
+   "y": 62,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一盞河燈順著江水漂遠了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "festival == 5"
   }
  ],
  "npcs": [
@@ -1493,6 +1725,38 @@
      }
     ]
    ]
+  },
+  {
+   "id": "lj_zhu",
+   "name": "祝老秀才",
+   "sprite": "scholar",
+   "x": 30,
+   "y": 49,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "festival/riddle_stall",
+   "when": "festival == 2 and shichen >= 9",
+   "talks": []
+  },
+  {
+   "id": "lj_hong",
+   "name": "洪大槳",
+   "sprite": "boatman",
+   "x": 30,
+   "y": 58,
+   "facing": "down",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "festival/dragon_boat",
+   "when": "festival == 4",
+   "talks": []
   }
  ],
  "exits": [

@@ -374,6 +374,36 @@
    "lines": [],
    "label": "下田",
    "script": "chores/farm"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 21,
+   "y": 16,
+   "w": 1,
+   "lines": [
+    {
+     "text": "村裡掛起了紅燈籠，孩子們提著小燈跑來跑去。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 33,
+   "y": 16,
+   "w": 1,
+   "lines": [
+    {
+     "text": "燈籠紙上畫著福字。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
   }
  ],
  "exits": [

@@ -16,6 +16,7 @@
 ##   mq_mush_west／mq_mush_east 後山野菌採的那天；mq_fog_old 霧天見過白髮老人那天
 ##   mq_meet_day 參加比武小會那天；mq_meet_place 最近一次比武的名次；mq_lecture 聽講武那天；mq_watch 守過夜的那一班（日子）
 
+const Festival := preload("res://story/festival.gd")
 const Train := preload("res://story/train.gd")
 const Cook := preload("res://story/cook.gd")
 const Chores := preload("res://story/chores.gd")
@@ -160,6 +161,8 @@ static func lu_story(ctx: Ctx) -> bool:
 	if ctx.flag("mq_left") > 0:
 		await ctx.say(lu.call("……你既已離開師門，就各自珍重吧。"))
 		return true
+	if await Festival.lu(ctx):
+		return true
 	if not member():
 		var t := ctx.flag("mq_trial")
 		if t == 2:
@@ -216,6 +219,8 @@ static func wen_story(ctx: Ctx) -> bool:
 	var wen := _by(MQ.wen)
 	if ctx.flag("mq_left") > 0:
 		await ctx.say(wen.call("你我師徒緣分已盡，不必多言。"))
+		return true
+	if await Festival.wen(ctx):
 		return true
 	if member():
 		if ctx.flag("mq_exam") == 1 and rank() == 0:
@@ -1222,8 +1227,14 @@ static func bu_story(ctx: Ctx) -> bool:
 				await ctx.say(bu.call("今天的份你領過啦！明天再來，明天換別的菜。"))
 			else:
 				ctx.set_flag("mq_meal", G.day)
-				await ctx.say(bu.call("今天是%s！趁熱吃。" % meal.name))
-				await ctx.give(meal.id)
+				# 節慶當天換成節令點心兩份
+				var fest := Festival.bu_meal()
+				if fest.size() > 0:
+					await ctx.say(bu.call(fest[1]))
+					await ctx.give(fest[0], 2)
+				else:
+					await ctx.say(bu.call("今天是%s！趁熱吃。" % meal.name))
+					await ctx.give(meal.id)
 		1:
 			var tier := 3 if _bu_stage() >= Social.CLOSE else (2 if _bu_stage() >= Social.FAMILIAR else (1 if _bu_stage() >= Social.NOD else -1))
 			if tier < 0:

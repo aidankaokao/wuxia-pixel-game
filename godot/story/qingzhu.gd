@@ -4,6 +4,7 @@
 ## xiaohu_tusk 石小虎想要山豬獠牙（1 接下、2 送了）、smith_intro 石小虎替你在石岳面前說了好話
 ## （山上的部分在 story/canglan.gd；練功與睡覺在 story/train.gd）
 
+const Festival := preload("res://story/festival.gd")
 const Train := preload("res://story/train.gd")
 const Chores := preload("res://story/chores.gd")
 const Bridge := preload("res://story/bridge.gd")
@@ -107,6 +108,8 @@ static func liu_story(ctx: Ctx) -> bool:
 
 ## 鍾嬸的劇情部分：第一次見面送一碗茶（處理了回傳 true）
 static func zhong_story(ctx: Ctx) -> bool:
+	if await Festival.zhong(ctx):
+		return true
 	if await Bridge.donation(ctx, "zhong"):
 		return true
 	if ctx.flag("tea"):

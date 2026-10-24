@@ -581,16 +581,9 @@
    "x": 6,
    "y": 33,
    "w": 1,
-   "lines": [
-    {
-     "text": "「洗劍池」"
-    },
-    {
-     "text": "相傳開派祖師每練完一套劍，便在此池中洗劍，池水因此終年清冽，不生青苔。"
-    }
-   ],
+   "lines": [],
    "label": "",
-   "script": "",
+   "script": "festival/pool",
    "when": "",
    "passable": false
   },
@@ -649,6 +642,36 @@
    "script": "",
    "when": "",
    "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 21,
+   "y": 10,
+   "w": 1,
+   "lines": [
+    {
+     "text": "大殿前掛起了紅燈籠，燈下垂著紙條。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 26,
+   "y": 10,
+   "w": 1,
+   "lines": [
+    {
+     "text": "紅燈籠在風裡輕輕搖晃。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "lantern == 1"
   }
  ],
  "exits": [

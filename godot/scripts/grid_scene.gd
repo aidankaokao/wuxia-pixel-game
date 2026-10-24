@@ -64,6 +64,11 @@ func refresh() -> void:
 		p.hidden = not on
 		if p.node:
 			p.node.visible = on
+		for c in p.get("cells", []):
+			if on:
+				blocked[c] = true
+			else:
+				blocked.erase(c)
 
 
 ## 野獸（帶 encounter 的人物）這時候不在：打倒後還沒重生，或雨天、雪天躲起來（約一半）

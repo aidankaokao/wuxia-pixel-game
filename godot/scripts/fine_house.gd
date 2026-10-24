@@ -120,6 +120,25 @@ static func build(v: Village, b: Dictionary) -> Node3D:
 		t.position = Vector3(x, base_y + 0.85, fz + 0.175)
 		root.add_child(t)
 
+	# ── 節慶的門飾（蓋房子時看日子）：年節沒春聯的貼福字、掛燈籠的日子簷下兩盞燈籠、端午門邊插艾草 ──
+	if G.festive_period() == 1 and lines.is_empty():
+		var fu := Mk.box(Vector3(0.3, 0.3, 0.02), Color("c8302a"), Vector3(door_x, base_y + 0.8, fz + 0.075))
+		fu.rotation.z = PI / 4.0
+		root.add_child(fu)
+		var ft := Mk.label("福", 40, Color("1e1a18"), Color(0, 0, 0, 0))
+		ft.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+		ft.position = Vector3(door_x, base_y + 0.8, fz + 0.09)
+		root.add_child(ft)
+	if G.lantern_time():
+		for side in [-1, 1]:
+			root.add_child(Mk.cyl(0.006, 0.006, 0.2, Color("3a2a1a"), Vector3(door_x + side * 0.62, top_y - 0.3, fz + 0.22), 3))
+			v._lantern(root, Vector3(door_x + side * 0.62, top_y - 0.55, fz + 0.22))
+	if G.festive_period() == 2:
+		for side in [-1, 1]:
+			var ai := Mk.cone(0.09, 0.7, Color("5a7a3a"), Vector3(door_x + side * 0.75, base_y + 1.0, fz + 0.12), 5)
+			ai.rotation.z = side * 0.25
+			root.add_child(ai)
+
 	# ── 格子窗：前面門兩側各一扇、兩側牆各一扇 ──
 	for x in [(0.3 + door_x - 0.62) / 2.0, (door_x + 0.62 + w - 0.3) / 2.0]:
 		_lattice(root, Vector3(x, base_y + 0.95, fz + 0.015), 0.0, wood)

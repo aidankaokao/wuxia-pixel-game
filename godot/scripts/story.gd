@@ -4,7 +4,7 @@ class_name Story
 ##   例如擺設的 `"script": "qingzhu/well_use"`。執行期間主角不能自由行動（ui.busy() 為真），跑完會重新判斷誰該出現。
 ## - 出現條件 `when` 是一條運算式字串，例如 `"not stranger"`、`"q_bandits >= 2 and not rain"`：
 ##   可以讀劇情旗標（沒設過的是 0），以及 rain、fog、snow、cloudy、clear（是就為 1）、today（今天第幾日）、
-##   fame（名聲）、festival（今天是第幾個節慶，平日 0）、xunxiu（旬休是 1）、season（0 春…3 冬）、shichen（0 子時…11 亥時）。
+##   fame（名聲）、festival（今天是第幾個節慶，平日 0）、xunxiu（旬休是 1）、period（節期：1 年節、2 端午、3 中秋）、nianhuo（年貨攤的日子是 1）、lantern（掛燈籠的日子是 1）、season（0 春…3 冬）、shichen（0 子時…11 亥時）。
 ## - NPC 作息照網頁版 npcPresent：all_day 一直都在；night 只有夜裡在；室外的人與 work 的人白天才在
 ##   （依名字錯開，卯時到辰時之間陸續出門、酉時到戌時之間陸續回房；out 可以指定幾點出門）；
 ##   meal "eat" 只在用餐時段（午時、酉時）出現，"away" 用餐時段不在。
@@ -73,15 +73,11 @@ static func cond(expr: String, extra := {}) -> bool:
 
 ## 條件裡可以讀的世界狀態
 static func _env() -> Dictionary:
-	var fest := 0
-	var name := G.festival_of()
-	for i in G.FESTIVALS.size():
-		if G.FESTIVALS[i].name == name:
-			fest = i + 1
 	return {
 		"rain": int(G.weather == "rain"), "fog": int(G.weather == "fog"), "snow": int(G.weather == "snow"),
 		"cloudy": int(G.weather == "cloudy"), "clear": int(G.weather == "clear"),
-		"fame": int(G.hero.get("fame", 0)), "today": G.day, "festival": fest, "xunxiu": int(G.is_xunxiu()), "season": G.season_of(), "shichen": G.shichen_of(),
+		"fame": int(G.hero.get("fame", 0)), "today": G.day, "festival": G.festival_index(), "xunxiu": int(G.is_xunxiu()), "season": G.season_of(), "shichen": G.shichen_of(),
+		"period": G.festive_period(), "nianhuo": int(G.nianhuo_days()), "lantern": int(G.lantern_time()),
 	}
 
 

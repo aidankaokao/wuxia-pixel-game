@@ -328,6 +328,7 @@ func _door_marker(dt: Vector2i, face: String) -> void:
 
 func _process(dt: float) -> void:
 	super._process(dt)
+	_fireworks(dt)
 	if not hero or marks.is_empty():
 		return
 	var hp := Vector2(hero.position.x - ox, hero.position.z - oz)
@@ -867,6 +868,52 @@ func _building(b: Dictionary) -> void:
 	root.add_child(name_lb)
 
 
+## 煙火：過年、元宵、除夕的夜裡（戌時到丑時），主角附近的天上不時炸開一朵
+var _fw_wait := 1.0
+
+
+func _fireworks(dt: float) -> void:
+	if not hero or not G.festival_index() in [1, 2, 9] or not G.shichen_of() in [10, 11, 0, 1]:
+		return
+	_fw_wait -= dt
+	if _fw_wait > 0:
+		return
+	_fw_wait = randf_range(0.6, 2.2)
+	var at := hero.position + Vector3(randf_range(-9, 9), randf_range(7, 11), randf_range(-9, 3))
+	var col: Color = [Color("ff5a3a"), Color("ffd060"), Color("70d0ff"), Color("ff80c0"), Color("a0ff80")].pick_random()
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_color = col
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	var sm := SphereMesh.new()
+	sm.radius = 0.09
+	sm.height = 0.18
+	sm.radial_segments = 6
+	sm.rings = 3
+	var light := OmniLight3D.new()
+	light.position = at
+	light.light_color = col
+	light.omni_range = 12.0
+	light.light_energy = 2.0
+	add_child(light)
+	var tw := create_tween().set_parallel()
+	tw.tween_property(light, "light_energy", 0.0, 1.2)
+	tw.tween_property(m, "albedo_color:a", 0.0, 1.4).set_delay(0.4)
+	for k in 24:
+		var s := MeshInstance3D.new()
+		s.mesh = sm
+		s.material_override = m
+		s.position = at
+		add_child(s)
+		var dir := Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)).normalized()
+		tw.tween_property(s, "position", at + dir * randf_range(2.2, 3.0) + Vector3(0, -0.8, 0), 1.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tw.chain().tween_callback(func() -> void:
+		light.queue_free()
+		for c in get_children():
+			if c is MeshInstance3D and c.material_override == m:
+				c.queue_free())
+
+
 func _lantern(parent: Node3D, pos: Vector3) -> void:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = Color("c8302a")
@@ -896,13 +943,17 @@ func _lantern(parent: Node3D, pos: Vector3) -> void:
 ## 擺設：井、告示欄、木牌、石碑、攤子、燈籠柱
 func _prop(p: Dictionary) -> void:
 	var w: int = p.w
+	# 這個擺設自己擋住的格子（只在某些日子出現的擺設，不在時要讓開，見 GridScene.refresh）
+	var cells := []
 	for i in w:
-		if not p.get("passable", false):
-			blocked[Vector2i(p.x + i, p.y)] = true
+		var c := Vector2i(p.x + i, p.y)
+		if not p.get("passable", false) and not blocked.has(c):
+			blocked[c] = true
+			cells.append(c)
 	var g := Node3D.new()
 	g.position = Vector3(p.x + w / 2.0 + ox, 0, p.y + 0.5 + oz)
 	add_child(g)
-	props.append({"node": g, "def": p, "at": Vector2(p.x + w / 2.0, p.y + 0.5)})
+	props.append({"node": g, "def": p, "at": Vector2(p.x + w / 2.0, p.y + 0.5), "cells": cells})
 	# 村口的土地公祠（網頁版用石碑的圖，這裡認 id 蓋成一座小祠）
 	if p.get("id", "") == "tudi":
 		FineProps.shrine(g, self)
@@ -962,6 +1013,31 @@ func _prop(p: Dictionary) -> void:
 			for i in w * 2:
 				g.add_child(Mk.cyl(0.18, 0.22, 0.42, Color("7a5a3a") if i % 2 else Color("6a4a32"), Vector3(-w / 2.0 + 0.3 + i * 0.45, 0.21, (i % 2) * 0.15), 9))
 			g.add_child(Mk.cyl(0.25, 0.2, 0.3, Color("b8a060"), Vector3(w / 2.0 - 0.3, 0.15, -0.25), 10))
+		"dragon_boat":
+			# 龍舟：細長的船身、龍頭龍尾、中間一面鼓
+			var col: Color = [Color("3e7a4a"), Color("8a2e26"), Color("c89a30")][int(p.x) % 3]
+			g.add_child(Mk.box(Vector3(w - 0.2, 0.22, 0.6), col, Vector3(0, -0.1, 0)))
+			g.add_child(Mk.box(Vector3(w - 0.4, 0.04, 0.5), Color("a8763f"), Vector3(0, 0.02, 0)))
+			var head := Mk.box(Vector3(0.3, 0.55, 0.28), col.lightened(0.15), Vector3(w / 2.0 - 0.05, 0.25, 0))
+			head.rotation.z = -0.35
+			g.add_child(head)
+			g.add_child(Mk.ball(0.06, Color("f0c860"), Vector3(w / 2.0 + 0.05, 0.45, 0.12), 5))
+			g.add_child(Mk.cone(0.12, 0.4, col, Vector3(-w / 2.0, 0.15, 0), 4))
+			var drum := Mk.cyl(0.16, 0.16, 0.18, Color("a83a2e"), Vector3(0, 0.15, 0), 10)
+			g.add_child(drum)
+			for i in int(w * 2) - 2:
+				var ox2 := -w / 2.0 + 0.5 + i * 0.5
+				if absf(ox2) > 0.3:
+					g.add_child(Mk.box(Vector3(0.04, 0.04, 1.1), Color("8a6a42"), Vector3(ox2, 0.0, 0)))
+		"river_lamp":
+			# 河燈：漂在水上的紙蓮花，點著一點燭光
+			for k in 6:
+				var a := k * TAU / 6.0
+				var pet := Mk.box(Vector3(0.14, 0.03, 0.08), Color("f0d0d8"), Vector3(cos(a) * 0.1, -0.02, sin(a) * 0.1))
+				pet.rotation = Vector3(0, -a, 0.5)
+				g.add_child(pet)
+			_lantern(g, Vector3(0, 0.08, 0))
+			g.get_child(g.get_child_count() - 2).scale = Vector3(0.35, 0.35, 0.35)
 		"boat":
 			# 大船（說明裡寫著海船、商船、客船、運糧船的）：船身、船艙、一根桅杆掛著收起的帆
 			var desc: String = p.lines[0].text if (p.lines as Array).size() > 0 else ""
