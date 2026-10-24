@@ -4,7 +4,7 @@ class_name Story
 ##   例如擺設的 `"script": "qingzhu/well_use"`。執行期間主角不能自由行動（ui.busy() 為真），跑完會重新判斷誰該出現。
 ## - 出現條件 `when` 是一條運算式字串，例如 `"not stranger"`、`"q_bandits >= 2 and not rain"`：
 ##   可以讀劇情旗標（沒設過的是 0），以及 rain、fog、snow、cloudy、clear（是就為 1）、today（今天第幾日）、
-##   festival（今天是第幾個節慶，平日 0）、xunxiu（旬休是 1）、season（0 春…3 冬）、shichen（0 子時…11 亥時）。
+##   fame（名聲）、festival（今天是第幾個節慶，平日 0）、xunxiu（旬休是 1）、season（0 春…3 冬）、shichen（0 子時…11 亥時）。
 ## - NPC 作息照網頁版 npcPresent：all_day 一直都在；night 只有夜裡在；室外的人與 work 的人白天才在
 ##   （依名字錯開，卯時到辰時之間陸續出門、酉時到戌時之間陸續回房；out 可以指定幾點出門）；
 ##   meal "eat" 只在用餐時段（午時、酉時）出現，"away" 用餐時段不在。
@@ -35,11 +35,25 @@ static func run(id: String, scene: GridScene, extra := {}) -> void:
 		scene.refresh()
 
 
-## 出現條件成立嗎（空字串一律成立）
-static func cond(expr: String) -> bool:
+## 跑一段會回傳「處理了沒」的腳本（例如人物檔案的 story：劇情處理了就不走一般交談）
+static func run_bool(id: String, ctx: Ctx) -> bool:
+	var parts := id.split("/")
+	var path := "res://story/%s.gd" % parts[0]
+	if not _cache.has(path):
+		_cache[path] = load(path)
+	var s: GDScript = _cache[path]
+	if s == null or not s.has_method(parts[1]):
+		push_warning("找不到腳本：%s" % id)
+		return false
+	return bool(await s.call(parts[1], ctx))
+
+
+## 出現條件成立嗎（空字串一律成立）；extra 是另外可以讀的值（例如人物檔案的 stage）
+static func cond(expr: String, extra := {}) -> bool:
 	if expr.strip_edges() == "":
 		return true
 	var env := _env()
+	env.merge(extra, true)
 	var names: Array[String] = []
 	var values := []
 	var re := RegEx.create_from_string("[A-Za-z_][A-Za-z0-9_]*")
@@ -67,7 +81,7 @@ static func _env() -> Dictionary:
 	return {
 		"rain": int(G.weather == "rain"), "fog": int(G.weather == "fog"), "snow": int(G.weather == "snow"),
 		"cloudy": int(G.weather == "cloudy"), "clear": int(G.weather == "clear"),
-		"today": G.day, "festival": fest, "xunxiu": int(G.is_xunxiu()), "season": G.season_of(), "shichen": G.shichen_of(),
+		"fame": int(G.hero.get("fame", 0)), "today": G.day, "festival": fest, "xunxiu": int(G.is_xunxiu()), "season": G.season_of(), "shichen": G.shichen_of(),
 	}
 
 

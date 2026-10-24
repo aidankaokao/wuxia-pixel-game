@@ -41,6 +41,8 @@ var flags := {}
 var day := 1
 var time := START_TIME
 var weather := "clear"
+## 人際關係：人物 id → {aff 熟悉度, talk_day, talk_n, chat_idx, gift_day, spar_day, teach_day, asked, last, known, events}（見 social.gd）
+var relations := {}
 ## 打倒的野獸幾時重生（「地圖:id」→ 秒，照真實時間、不存檔）；撞上野獸的寬限（逃走、回到地圖的頭幾秒不會又撞上）
 var respawn_at := {}
 var beast_grace := 0.0
@@ -57,6 +59,8 @@ func new_game(c: Dictionary, dev := false) -> void:
 	silver = 120 if dev else 12
 	bag = {"boar_meat": 2, "dog_pelt": 1, "boar_tusk": 1, "herb": 3, "jinchuang": 2, "tea": 1} if dev else {}
 	flags = {}
+	relations = {}
+	respawn_at = {}
 	day = 1
 	time = START_TIME
 	weather = "clear"
@@ -227,7 +231,7 @@ func _path(slot: String) -> String:
 func write_save(slot: String, where: Dictionary) -> bool:
 	DirAccess.make_dir_recursive_absolute("user://save")
 	var d := {"version": SAVE_VERSION, "saved_at": Time.get_unix_time_from_system(), "where": where,
-		"hero": hero, "silver": silver, "bag": bag, "flags": flags, "day": day, "time": time, "weather": weather}
+		"hero": hero, "silver": silver, "bag": bag, "flags": flags, "relations": relations, "day": day, "time": time, "weather": weather}
 	var f := FileAccess.open(_path(slot), FileAccess.WRITE)
 	if f == null:
 		return false
@@ -262,6 +266,8 @@ func apply_save(d: Dictionary) -> void:
 	for k in d.bag:
 		bag[k] = int(d.bag[k])
 	flags = d.flags
+	relations = d.get("relations", {})
+	respawn_at = {}
 	day = int(d.day)
 	time = int(d.time)
 	weather = d.weather

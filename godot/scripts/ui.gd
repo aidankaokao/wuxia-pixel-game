@@ -557,6 +557,11 @@ func ask(prompt: Dictionary, options: Array) -> int:
 		r.modulate.a = 0.0
 		v.add_child(r)
 		rows.append(r)
+	# 選項多的時候對話框往上長（不要超出畫面下緣）
+	await get_tree().process_frame
+	var panel := v.get_parent() as Control
+	if panel and panel.size.y > 120:
+		(panel.get_parent() as Control).position.y -= panel.size.y - 120
 	# 問題先逐字出完，選項才出現
 	await _type(q)
 	for r in rows:
@@ -588,7 +593,10 @@ func item_price(id: String) -> int:
 
 
 ## 商店：買（stock）與賣（身上的東西，照 sell_rate 收）
-func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
+## discount 是買東西的折扣（熟客）；回傳這次一共買賣了多少兩（人際系統算交情用）
+func shop(title: String, stock: Array, sell_rate := 0.5, discount := 0.0) -> int:
+	var moved := 0
+	var buy_price := func(id: String) -> int: return int(ceil(item_price(id) * (1.0 - discount)))
 	var tab := 0
 	var cur := 0
 	var note := ""
@@ -631,7 +639,7 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 	while true:
 		var ids: Array = stock if tab == 0 else G.bag.keys().filter(func(k): return G.bag[k] > 0)
 		cur = clampi(cur, 0, max(0, ids.size() - 1))
-		head.text = "%s　　　銀兩 %d" % [title, G.silver]
+		head.text = "%s　　　銀兩 %d%s" % [title, G.silver, ("　　熟客 %d 折" % roundi((1.0 - discount) * 10)) if discount > 0 else ""]
 		tabs.text = ("【買】　賣" if tab == 0 else "　買　【賣】") + "　　（←→ 換分頁）"
 		for c in list.get_children():
 			c.queue_free()
@@ -642,7 +650,7 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 			list.add_child(e)
 		for i in ids.size():
 			var id: String = ids[i]
-			var price := item_price(id) if tab == 0 else int(floor(item_price(id) * sell_rate))
+			var price: int = buy_price.call(id) if tab == 0 else int(floor(item_price(id) * sell_rate))
 			var have := ("　×%d" % G.bag[id]) if tab == 1 else (("（身上 %d）" % G.bag[id]) if G.bag.has(id) else "")
 			var row := HBoxContainer.new()
 			var nm := Label.new()
@@ -671,12 +679,13 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 		elif k == "ok" and ids.size() > 0:
 			var id: String = ids[cur]
 			if tab == 0:
-				var p2 := item_price(id)
+				var p2: int = buy_price.call(id)
 				if G.silver < p2:
 					note = "銀兩不夠（要 %d 兩）" % p2
 				else:
 					G.silver -= p2
 					G.bag[id] = G.bag.get(id, 0) + 1
+					moved += p2
 					note = "買了一件%s（-%d 兩）" % [item_name(id), p2]
 			else:
 				var p3 := int(floor(item_price(id) * sell_rate))
@@ -684,5 +693,7 @@ func shop(title: String, stock: Array, sell_rate := 0.5) -> void:
 				G.bag[id] -= 1
 				if G.bag[id] <= 0:
 					G.bag.erase(id)
+				moved += p3
 				note = "賣了一件%s（+%d 兩）" % [item_name(id), p3]
 	_close()
+	return moved

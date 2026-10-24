@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits()]:
+	for q in [bandits(), xiaohu()]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -33,4 +33,17 @@ static func bandits() -> Dictionary:
 			["回青竹村向柳承安覆命", q == 3],
 		],
 		"reward": "銀兩 50、輕功「青竹步」與手札、名聲",
+	}
+
+
+## 小虎的木劍（人物檔案 xiaohu 的熟悉度事件與 on_gift，story/qingzhu.gd 的 xiaohu_gift）
+static func xiaohu() -> Dictionary:
+	var t := _f("xiaohu_tusk")
+	if t == 0:
+		return {}
+	return {
+		"id": "xiaohu", "title": "小虎的木劍", "giver": "石小虎", "place": "青竹村・石家鐵鋪", "done": t == 2,
+		"desc": "石小虎想自己做一把木劍，劍柄要用山豬獠牙。蒼嵐山道上的山豬有時會掉獠牙，拿到後送給他（面對他按 G）。",
+		"steps": [["答應石小虎", true], ["弄到一根山豬獠牙", t == 2 or int(G.bag.get("boar_tusk", 0)) > 0], ["把獠牙送給石小虎", t == 2]],
+		"reward": "名聲、石岳肯理你了",
 	}

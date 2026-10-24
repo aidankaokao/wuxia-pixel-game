@@ -7,10 +7,11 @@ extends RefCounted
 ## - 武功頁選一門按空白鍵，攤開一卷手卷（兩根卷軸往左右推開）看細節，在卷上裝備、修練、突破。
 ## 每一頁是左右兩面，_fill(面, 左右) 依分頁填內容；數值能畫的就畫成條、格子、圖（氣血、五維、重數、修為、領悟）。
 
-const TABS := ["人物", "武功", "行囊", "江湖", "存檔"]
-const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("4a3a5a")]
+const TABS := ["人物", "武功", "行囊", "江湖", "交遊", "存檔"]
+const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("3a5a3a"), Color("7a4a5a"), Color("4a3a5a")]
 const T_QUEST := 3
-const T_SAVE := 4
+const T_FRIEND := 4
+const T_SAVE := 5
 ## 存檔頁的欄位：即時、自動、十個手動，最後一列是回到標題
 const SLOTS := ["quick", "auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "title"]
 const W := 1120.0
@@ -146,6 +147,8 @@ func _list_size() -> int:
 			return G.bag.size()
 		T_QUEST:
 			return Quests.all().size()
+		T_FRIEND:
+			return _friends().size()
 		T_SAVE:
 			return SLOTS.size()
 	return 0
@@ -209,7 +212,7 @@ func _chrome() -> void:
 		t = "↑↓ 選　空白鍵 攤開卷軸　←→ 翻頁　X 回到書籤"
 	elif tab == T_SAVE:
 		t = "↑↓ 選　空白鍵 存檔／讀取　←→ 翻頁　X 回到書籤"
-	elif tab == T_QUEST:
+	elif tab == T_QUEST or tab == T_FRIEND:
 		t = "↑↓ 選　←→ 翻頁　X 回到書籤"
 	else:
 		t = "方向鍵 選　空白鍵 使用　X 回到書籤"
@@ -303,7 +306,7 @@ func _sheet(p: Control, title: String) -> VBoxContainer:
 	head.position = Vector2(30, 34)
 	head.size = Vector2(PW - 60, 24)
 	body.add_child(head)
-	var num := _lab(CN[tab * 2 + side + 1], 14, FAINT)
+	var num := _lab(_cn(tab * 2 + side + 1), 14, FAINT)
 	num.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	num.position = Vector2(30, PH - 50)
 	num.size = Vector2(PW - 60, 20)
@@ -326,6 +329,8 @@ func _fill(p: Control, side: int) -> void:
 			_bag_left(_sheet(p, "行　囊")) if side == 0 else _bag_right(_sheet(p, "細　看"))
 		T_QUEST:
 			_quest_left(_sheet(p, "江湖事")) if side == 0 else _quest_right(_sheet(p, "細　看"))
+		T_FRIEND:
+			_friend_left(_sheet(p, "交　遊")) if side == 0 else _friend_right(_sheet(p, "細　看"))
 		T_SAVE:
 			_save_left(_sheet(p, "存　檔")) if side == 0 else _save_right(_sheet(p, "細　看"))
 
@@ -1115,6 +1120,113 @@ static func _check(on: bool) -> Control:
 		c.draw_arc(Vector2(9, 9), 8, 0, TAU, 24, GREEN if on else FAINT, 1.5)
 		if on:
 			c.draw_polyline(PackedVector2Array([Vector2(4.5, 9), Vector2(8, 12.5), Vector2(14, 5)]), GREEN, 2.0))
+	return c
+
+
+# ── 交遊 ────────────────────────────────────────────────
+
+## 認識的人（跟他說過話的），越熟的排越前面
+func _friends() -> Array:
+	var ids: Array = G.relations.keys().filter(func(k): return not Social.def(k).is_empty())
+	ids.sort_custom(func(a, b): return int(G.relations[a].aff) > int(G.relations[b].aff))
+	return ids
+
+
+func _friend_left(v: VBoxContainer) -> void:
+	var ids := _friends()
+	if ids.is_empty():
+		v.add_child(_lab("還沒有認識什麼人。", 16, SOFT))
+		v.add_child(_lab("找人聊聊天吧：面對有名字的人按空白鍵。", 14, FAINT))
+		return
+	var place := ""
+	for i in ids.size():
+		var p := Social.def(ids[i])
+		if p.place != place:
+			place = p.place
+			v.add_child(_lab(place, 14, SOFT))
+		var on := focus == "page" and i == cur
+		var row := PanelContainer.new()
+		var sb := _sb(Color(0.54, 0.18, 0.15, 0.12) if on else Color(0, 0, 0, 0), Color(0.54, 0.18, 0.15, 0.5) if on else Color(0, 0, 0, 0), 4, 1)
+		sb.content_margin_left = 6
+		sb.content_margin_right = 6
+		row.add_theme_stylebox_override("panel", sb)
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 10)
+		row.add_child(h)
+		var n := _lab(p.name, 18, RED if on else INK)
+		n.custom_minimum_size = Vector2(90, 0)
+		h.add_child(n)
+		var aff := int(G.relations[ids[i]].aff)
+		h.add_child(_bar(absf(aff) / 100.0, 150, 8, Color("a85a7a") if aff >= 0 else FAINT))
+		h.add_child(_tag(Social.stage_name(ids[i]), Color("7a4a5a")))
+		v.add_child(row)
+
+
+func _friend_right(v: VBoxContainer) -> void:
+	var ids := _friends()
+	if ids.is_empty():
+		return
+	var id: String = ids[clampi(cur, 0, ids.size() - 1)]
+	var p := Social.def(id)
+	var r := Social.rel(id)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 14)
+	v.add_child(top)
+	top.add_child(_seal(String(p.name).left(1), 52, Color("7a4a5a")))
+	var nv := VBoxContainer.new()
+	top.add_child(nv)
+	nv.add_child(_lab(p.name, 24))
+	nv.add_child(_lab("%s・%s" % [p.place, p.role], 14, SOFT))
+	v.add_child(_lab("稱呼你「%s」" % Social.address(p), 15))
+	# 熟悉度：一條長條，上面標出各階段的門檻
+	var aff := int(r.aff)
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 10)
+	v.add_child(h)
+	h.add_child(_lab(Social.stage_name(id), 16, Color("7a4a5a")))
+	h.add_child(_stage_bar(aff))
+	h.add_child(_lab(str(aff), 14, SOFT))
+	v.add_child(_rule())
+	# 能做的事（還沒開放的寫幾時開放）
+	var acts := Social.actions(id)
+	for a in ["spar", "gift", "teach", "trade"]:
+		if not p.has({"spar": "spar", "gift": "gift", "teach": "teach", "trade": "trade"}[a]):
+			continue
+		var name: String = Social.ACTIONS[a][1]
+		var key: String = Social.ACTIONS[a][0]
+		if a in acts:
+			v.add_child(_lab("%s　%s" % [key, name], 15, INK))
+		else:
+			var need: int = int(p[a].get("stage", 0))
+			v.add_child(_lab("%s　%s（%s起）" % [key, name, Social.STAGES[need][1]], 15, FAINT))
+	# 送過才知道的喜好
+	if p.has("gift") and r.known.size() > 0:
+		v.add_child(_rule())
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		v.add_child(row)
+		row.add_child(_lab("喜好", 14, SOFT))
+		for it in r.known:
+			var d := Ui.item_def(it)
+			row.add_child(_item_icon(it, d.get("icon", ""), 30, d.get("category", "")))
+			row.add_child(_lab("♥" if p.gift.likes.has(it) else "✕", 14, RED if p.gift.likes.has(it) else FAINT))
+
+
+## 熟悉度條：0 到 100，標出點頭之交、熟識、知交、莫逆的門檻
+static func _stage_bar(aff: int) -> Control:
+	var w := 240.0
+	var c := Control.new()
+	c.custom_minimum_size = Vector2(w, 12)
+	c.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	c.draw.connect(func() -> void:
+		c.draw_style_box(_sb(Color("ddd0b2"), Color("8a7a5a"), 6, 1), Rect2(0, 0, w, 12))
+		var f := clampf(aff / 100.0, 0, 1)
+		if f > 0:
+			c.draw_style_box(_sb(Color("a85a7a"), Color(0, 0, 0, 0), 6), Rect2(1, 1, maxf(10, (w - 2) * f), 10))
+		for st in Social.STAGES:
+			if st[0] > 0:
+				var x: float = w * st[0] / 100.0
+				c.draw_line(Vector2(x, -2), Vector2(x, 14), Color(0.3, 0.2, 0.15, 0.6), 1.0))
 	return c
 
 

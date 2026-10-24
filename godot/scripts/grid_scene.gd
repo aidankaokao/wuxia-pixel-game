@@ -34,6 +34,11 @@ var triggers: Array = []
 var outdoor := false
 ## 從哪裡進來（格子座標與面向）；沒填就用地圖的出生點
 var start := {}
+## 自己過日子的人（scripts/life.gd）：這張地圖的 id、在這裡活動的那一群人；顧攤子的人的貨單（村子填）
+var life_map := ""
+var life_group := {}
+var stall_defs := {}
+var _astar: AStarGrid2D
 
 
 func setup(u: Ui, r: CamRig, m: Node, at := {}) -> void:
@@ -46,7 +51,11 @@ func setup(u: Ui, r: CamRig, m: Node, at := {}) -> void:
 
 ## 依旗標、時間重新決定哪些人、擺設要出現（時間變了、腳本跑完都會叫）
 func refresh() -> void:
+	if not life_group.is_empty():
+		_life_update(false)
 	for w in walkers:
+		if w.has("life"):
+			continue
 		var on := Story.present(w.get("def", {}), outdoor) and not beast_away(w.get("def", {}))
 		w.hidden = not on
 		w.f.visible = on
@@ -177,7 +186,13 @@ func _process(dt: float) -> void:
 		if not busy and w.def.get("encounter", "") != "" and f.position.distance_to(hero.position) < 0.75 and Time.get_ticks_msec() / 1000.0 > G.beast_grace:
 			_fight_beast(w)
 			return
-		if w.fixed or w.talking:
+		if w.talking:
+			f.walking = false
+			continue
+		if w.get("path", []).size() > 0:
+			_follow(w, dt)
+			continue
+		if w.fixed:
 			f.walking = false
 			continue
 		if w.goal == null:
@@ -248,6 +263,15 @@ func _update_hint(busy: bool) -> void:
 		return
 	var label: String = t.p.def.get("label", "") if t.kind == "prop" else ""
 	var text := ("動手" if t.w.def.get("encounter", "") != "" else "交談") if t.kind == "npc" else (label if label != "" else "查看")
+	# 有人物檔案的人：名字與關係，加上能做的事（F 切磋、G 贈禮……）
+	if t.kind == "npc" and t.w.def.get("person", "") != "":
+		var pid: String = t.w.def.person
+		var extra := []
+		for a in Social.actions(pid, _stall_of(t.w).size() > 0):
+			if a != "talk":
+				extra.append("%s %s" % Social.ACTIONS[a])
+		text = "交談　" + "　".join(extra) if extra.size() > 0 else "交談"
+		text = "%s（%s）　%s" % [Social.def(pid).name, Social.stage_name(pid), text]
 	# 人頭上；擺設上方一點；門（沒有高度）就在門口低一點的地方
 	var h: float = 1.75 if t.kind == "npc" else (0.7 if t.p.def.sprite == "door" else 1.4)
 	ui.show_hint(text, rig.cam.unproject_position(t.at + Vector3(0, h, 0)))
@@ -261,6 +285,21 @@ func _unhandled_input(e: InputEvent) -> void:
 		if not t.is_empty():
 			get_viewport().set_input_as_handled()
 			_interact(t)
+	elif Social.KEYS.has(e.keycode):
+		# 面對有人物檔案的人：F 切磋、G 贈禮、R 請教、T 交易（還不能做的就照常交給別的按鍵）
+		var t := _target()
+		if t.get("kind", "") != "npc" or t.w.def.get("person", "") == "":
+			return
+		var act: String = Social.KEYS[e.keycode]
+		if not act in Social.actions(t.w.def.person, _stall_of(t.w).size() > 0):
+			return
+		get_viewport().set_input_as_handled()
+		var w: Dictionary = t.w
+		w.talking = true
+		_face_pair(w)
+		await Story.run("social/" + act, self, {"npc": w.id, "person": w.def.person, "stall": _stall_of(w)})
+		if is_instance_valid(w.f):
+			w.talking = false
 
 
 func _fill(text: String) -> String:
@@ -279,6 +318,24 @@ func _interact(t: Dictionary) -> void:
 		return
 	if t.kind == "prop" and t.p.def.get("script", "") != "":
 		await Story.run(t.p.def.script, self)
+		return
+	if t.kind == "npc" and t.w.get("act", "") == "chat" and _partner(t.w).size() > 0:
+		var pw := _partner(t.w)
+		var c := await ui.ask({"text": "%s正和%s聊著天。" % [t.w.name, pw.name]}, ["跟%s說話" % t.w.name, "湊過去聽", "算了"])
+		if c == 1:
+			await Story.run("social/listen", self, {"a": t.w, "b": pw})
+			return
+		if c == 2:
+			return
+	if t.kind == "npc" and t.w.def.get("person", "") != "":
+		var wp: Dictionary = t.w
+		wp.talking = true
+		_face_pair(wp)
+		await Story.run("social/talk", self, {"npc": wp.id, "person": wp.def.person})
+		if is_instance_valid(wp.f):
+			wp.talking = false
+			if wp.has("face"):
+				wp.f.face(wp.face)
 		return
 	if t.kind == "npc" and t.w.get("def", {}).get("script", "") != "":
 		var w0: Dictionary = t.w
@@ -312,7 +369,7 @@ func chat(w: Dictionary) -> void:
 	else:
 		out.append({"text": "%s朝你點點頭。" % w.name})
 	w.said += 1
-	var stall: Dictionary = w.get("stall", {})
+	var stall := _stall_of(w)
 	if stall.is_empty():
 		await ui.say(out)
 	else:
@@ -328,6 +385,162 @@ func chat(w: Dictionary) -> void:
 
 func info_text() -> String:
 	return ""
+
+
+## 這個人現在顧著攤子嗎（村子的攤販：原本就站攤子的，或自己過日子的人排到「擺攤」）
+func _stall_of(w: Dictionary) -> Dictionary:
+	if w.has("stall"):
+		return w.stall
+	if w.get("act", "") == "stall":
+		return stall_defs.get(w.get("id", ""), {})
+	return {}
+
+
+func _face_pair(w: Dictionary) -> void:
+	w.f.face(hero.position - w.f.position)
+	hero.face(w.f.position - hero.position)
+
+
+## 正在跟這個人聊天的那一位（看得到的話）
+func _partner(w: Dictionary) -> Dictionary:
+	var other: String = w.get("with", "")
+	if other == "":
+		return {}
+	for x in walkers:
+		if x.get("id", "") == other and not x.hidden and x.get("act", "") == "chat":
+			return x
+	return {}
+
+
+# ── 自己過日子的人 ──────────────────────────────────────
+
+## 把在這張地圖活動的那一群人放上來（一開始都藏著，照現在的安排出現）
+func life_setup(map: String) -> void:
+	life_map = map
+	life_group = Life.group_for(map)
+	if life_group.is_empty():
+		return
+	for n in life_group.npcs:
+		var w := add_npc({"id": n.id, "name": n.name, "sprite": n.sprite, "x": 0, "y": 0, "person": n.get("person", ""), "script": n.get("script", "")})
+		w.life = n
+		w.key = ""
+		w.hidden = true
+		w.f.visible = false
+		var badge := Mk.label("", 26, Color("f0c860"))
+		badge.position.y = 1.62
+		w.f.add_child(badge)
+		w.badge = badge
+	_life_update(true)
+
+
+func _life_update(initial: bool) -> void:
+	var now := Life.now(life_group)
+	for w in walkers:
+		if not w.has("life"):
+			continue
+		var a: Dictionary = now.get(w.id, {})
+		if a.is_empty():
+			w.hidden = true
+			w.f.visible = false
+			continue
+		var key := "%s|%s|%d|%d" % [a.act, a.at.map, a.at.x, a.at.y]
+		if key == w.key:
+			continue
+		var here_before: bool = not w.hidden
+		var from_map: String = w.get("map", "")
+		w.key = key
+		w.act = a.act
+		w.map = a.at.map
+		w["with"] = a.get("with", "")
+		w.badge.text = Life.ACTS.get(a.act, ["", "", 0, false])[1]
+		var talks: Dictionary = w.life.get("talks", {})
+		w.lines = talks.get(a.act, talks.get("default", []))
+		w.face = _facing_vec(a.at.facing)
+		var wander: int = Life.ACTS.get(a.act, ["", "", 0, false])[2]
+		if a.at.map == life_map:
+			var to := Vector2i(a.at.x, a.at.y)
+			w.home = Vector2(to.x + 0.5, to.y + 0.5)
+			w.goal = null
+			w.fixed = wander == 0
+			w.leave = false
+			if initial or (here_before == false and from_map == ""):
+				w.f.position = w3(to.x, to.y)
+				w.f.face(w.face)
+				w.path = []
+			elif not here_before:
+				# 從別的地方回來：從那邊的門口走進來
+				w.f.position = w3(_gate(from_map).x, _gate(from_map).y)
+				w.path = _path(_gate(from_map), to)
+			else:
+				w.path = _path(_grid(w.f.position), to)
+			w.hidden = false
+			w.f.visible = true
+		elif here_before and not initial:
+			# 要去別的地方：走到往那邊的門口再消失
+			w.path = _path(_grid(w.f.position), _gate(a.at.map))
+			w.leave = true
+			w.fixed = true
+		else:
+			w.hidden = true
+			w.f.visible = false
+
+
+## 沿著路走；走完了：要離開的就消失，否則轉向該面對的方向
+func _follow(w: Dictionary, dt: float) -> void:
+	var f: Chibi = w.f
+	var to: Vector3 = w.path[0]
+	var d := to - f.position
+	d.y = 0
+	var step := 1.8 * dt
+	if d.length() <= step:
+		f.position = Vector3(to.x, f.position.y, to.z)
+		w.path.pop_front()
+		if w.path.is_empty():
+			f.walking = false
+			if w.get("leave", false):
+				w.leave = false
+				w.hidden = true
+				f.visible = false
+			else:
+				f.face(w.face)
+		return
+	f.position += d.normalized() * step
+	f.position.y = _ground_y(f.position)
+	f.face(d)
+	f.walking = true
+
+
+## 往某張地圖去的門口（格子）；各場景覆寫（村子：屋門、通往村北的路口、往大地圖的出口；室內：門口）
+func _gate(_map: String) -> Vector2i:
+	return Vector2i(start.get("x", 0), start.get("y", 0))
+
+
+## 兩格之間的路（世界座標的一串點）；走不到就直接到終點
+func _path(from: Vector2i, to: Vector2i) -> Array:
+	if _astar == null:
+		_astar = AStarGrid2D.new()
+		_astar.region = Rect2i(0, 0, W, H)
+		_astar.cell_size = Vector2(1, 1)
+		_astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
+		_astar.update()
+		for b in blocked:
+			if _astar.is_in_boundsv(b):
+				_astar.set_point_solid(b, true)
+	if not _astar.is_in_boundsv(from) or not _astar.is_in_boundsv(to):
+		return [w3(to.x, to.y)]
+	var sf := _astar.is_point_solid(from)
+	var st := _astar.is_point_solid(to)
+	_astar.set_point_solid(from, false)
+	_astar.set_point_solid(to, false)
+	var ids := _astar.get_id_path(from, to)
+	_astar.set_point_solid(from, sf)
+	_astar.set_point_solid(to, st)
+	if ids.is_empty():
+		return [w3(to.x, to.y)]
+	var out := []
+	for i in range(1, ids.size()):
+		out.append(w3(ids[i].x, ids[i].y))
+	return out
 
 
 ## 照資料放一個人（地圖上的 npcs、室內的人）：{id, name, sprite, x, y, facing, wander, talks, script, when, 作息}

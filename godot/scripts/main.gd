@@ -194,7 +194,7 @@ func _panel() -> void:
 	box.add_child(row2)
 	row2.add_child(_button("過一個時辰（T）", func() -> void: G.advance(G.KE_PER_SHICHEN)))
 	row2.add_child(_button("換天氣（Y）", _next_weather))
-	ui.help.text = "方向鍵或 WASD 走路、Shift 跑、空白鍵 交談／確認、Q／R 轉鏡頭、滾輪或 Z／X 拉遠近、X／Esc 人物與武功、Ctrl／⌘+S 即時存檔、F9 讀檔、T 過一個時辰、Y 換天氣、Tab 換場景"
+	ui.help.text = "方向鍵走路、Shift 跑、空白鍵 交談／確認、面對人物 F 切磋 G 贈禮 R 請教 T 交易、Q／R 轉鏡頭、滾輪 拉遠近、X／Esc 選單、⌘S 存檔、F9 讀檔、T 過時辰、Y 天氣、Tab 換場景"
 
 
 ## 開發用：換到下一種天氣

@@ -772,9 +772,12 @@ func _prop(p: Dictionary) -> void:
 ## 主角與村民
 func _people() -> void:
 	_place_hero(data.spawn)
+	stall_defs = STALLS
+	# 有一群人在這裡自己過日子（scripts/life.gd）：照他們的作息出現；地圖檔裡的 people 就不用了
+	var living := not Life.group_for(map_id).is_empty()
 	var free_spots := (data.spots as Array).filter(func(s): return _free(s.x, s.y))
 	var i := 0
-	for n in data.people:
+	for n in ([] if living else data.people):
 		var stall: Dictionary = STALLS.get(n.id, {})
 		var s = {"x": stall.x, "y": stall.y} if not stall.is_empty() else (free_spots[(i * 5) % free_spots.size()] if free_spots.size() > 0 else null)
 		i += 1
@@ -799,6 +802,24 @@ func _people() -> void:
 	# 地圖上另外列的人（例如青衫客）：照出現條件與作息
 	for n in data.get("npcs", []):
 		add_npc(n)
+	life_setup(map_id)
+
+
+## 往某張地圖去的門口：屋子的門口、通往那張地圖的出口（往裡收一格）；地圖外（_away）走往大地圖的出口
+func _gate(map: String) -> Vector2i:
+	for dt in doors:
+		var e = doors[dt].get("enter")
+		if e != null and e.get("to", "") == map:
+			return dt
+	var world := Vector2i(-1, -1)
+	for e in data.exits:
+		var t: Array = e.tiles[0]
+		var g := Vector2i(clampi(t[0], 1, W - 2), clampi(t[1], 1, H - 2))
+		if e.get("to", "") == map:
+			return g
+		if e.has("world") and world.x < 0:
+			world = g
+	return world if world.x >= 0 else Vector2i(data.spawn.x, data.spawn.y)
 
 
 ## 往大地圖的出口：先問要不要出去；不出去就退回一步
