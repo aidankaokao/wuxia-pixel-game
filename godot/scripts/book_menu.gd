@@ -3,11 +3,14 @@ extends RefCounted
 ## 系統選單（一本線裝書）：X／Esc 打開。
 ## - 上緣的書籤是分頁：←→ 翻頁（舊的那一面繞著書脊轉過去，背面就是新的一面），Tab 隨時翻到下一頁。
 ## - ↓／空白鍵進入這一頁（人物頁沒有可選的東西），頁裡 X 回到書籤，在書籤上再按 X 闔上書。
+## - 存檔頁：即時、自動、十個手動欄（手動欄可存可讀，即時與自動只能讀），最後一列回到標題；讀檔與回標題由 main 接手（open 的回傳值）。
 ## - 武功頁選一門按空白鍵，攤開一卷手卷（兩根卷軸往左右推開）看細節，在卷上裝備、修練、突破。
 ## 每一頁是左右兩面，_fill(面, 左右) 依分頁填內容；數值能畫的就畫成條、格子、圖（氣血、五維、重數、修為、領悟）。
 
-const TABS := ["人物", "武功", "行囊"]
-const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420")]
+const TABS := ["人物", "武功", "行囊", "存檔"]
+const TAB_COLORS := [Color("8a2e26"), Color("2f4a5a"), Color("6a5420"), Color("4a3a5a")]
+## 存檔頁的欄位：即時、自動、十個手動，最後一列是回到標題
+const SLOTS := ["quick", "auto", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "title"]
 const W := 1120.0
 const H := 640.0
 const PW := 500.0
@@ -42,11 +45,16 @@ var cur := 0
 var pick := -1  # 卷軸上欄位滿了、要選替換哪一格
 var scroll: Control
 var scroll_body: Control
+## 現在在哪（存檔用，main.where()）；選單關掉後要 main 做的事：{do: "load", data} 或 {do: "title"}
+var here: Dictionary
+var result := {}
 
 
-static func open(u: Ui, t := 0) -> void:
+static func open(u: Ui, where := {}, t := 0) -> Dictionary:
 	var b := BookMenu.new()
+	b.here = where
 	await b._run(u, t)
+	return b.result
 
 
 func _run(u: Ui, t: int) -> void:
@@ -105,6 +113,9 @@ func _run(u: Ui, t: int) -> void:
 					await _flip(1)
 					continue
 			"ok":
+				if tab == 3:
+					if await _save_action():
+						break
 				if tab == 1 and n > 0:
 					await _open_scroll()
 					continue
@@ -131,6 +142,8 @@ func _list_size() -> int:
 			return G.hero.skills.size()
 		2:
 			return G.bag.size()
+		3:
+			return SLOTS.size()
 	return 0
 
 
@@ -190,6 +203,8 @@ func _chrome() -> void:
 		t = "←→ 翻頁　X 闔上書" if tab == 0 else "←→ 翻頁　↓／空白鍵 進入這一頁　X 闔上書"
 	elif tab == 1:
 		t = "↑↓ 選　空白鍵 攤開卷軸　←→ 翻頁　X 回到書籤"
+	elif tab == 3:
+		t = "↑↓ 選　空白鍵 存檔／讀取　←→ 翻頁　X 回到書籤"
 	else:
 		t = "方向鍵 選　空白鍵 使用　X 回到書籤"
 	hint.text = t
@@ -303,6 +318,8 @@ func _fill(p: Control, side: int) -> void:
 			_skills_left(_sheet(p, "武　學")) if side == 0 else _skills_right(_sheet(p, "身上的武功"))
 		2:
 			_bag_left(_sheet(p, "行　囊")) if side == 0 else _bag_right(_sheet(p, "細　看"))
+		3:
+			_save_left(_sheet(p, "存　檔")) if side == 0 else _save_right(_sheet(p, "細　看"))
 
 
 # ── 翻頁 ────────────────────────────────────────────────
@@ -1013,6 +1030,122 @@ func _bag_right(v: VBoxContainer) -> void:
 		v.add_child(_icon_num(_coin(), "值", "%d 兩" % d.price))
 	if focus == "page" and Hero.usable(id):
 		v.add_child(_lab("（空白鍵使用）", 13, FAINT))
+
+
+# ── 存檔 ────────────────────────────────────────────────
+
+func _slot_label(slot: String) -> String:
+	return "回到標題" if slot == "title" else G.slot_name(slot)
+
+
+func _save_left(v: VBoxContainer) -> void:
+	v.add_theme_constant_override("separation", 3)
+	for i in SLOTS.size():
+		var slot: String = SLOTS[i]
+		var on := focus == "page" and i == cur
+		if slot == "1" or slot == "title":
+			v.add_child(_rule())
+		var row := PanelContainer.new()
+		var sb := _sb(Color(0.54, 0.18, 0.15, 0.12) if on else Color(0, 0, 0, 0), Color(0.54, 0.18, 0.15, 0.5) if on else Color(0, 0, 0, 0), 4, 1)
+		sb.content_margin_left = 6
+		sb.content_margin_right = 6
+		row.add_theme_stylebox_override("panel", sb)
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 10)
+		row.add_child(h)
+		var name := _lab(_slot_label(slot), 15, RED if on else INK)
+		name.custom_minimum_size = Vector2(76, 0)
+		h.add_child(name)
+		if slot != "title":
+			var d := G.read_save(slot)
+			if d.is_empty():
+				h.add_child(_lab("（空）", 14, FAINT))
+			else:
+				h.add_child(_lab("%s　%s・%s" % [d.hero.get("name", ""), G.date_text(int(d.day)), d.where.get("name", "")], 14, SOFT))
+		v.add_child(row)
+
+
+func _save_right(v: VBoxContainer) -> void:
+	var slot: String = SLOTS[clampi(cur, 0, SLOTS.size() - 1)]
+	v.add_child(_lab(_slot_label(slot), 22))
+	if slot == "title":
+		v.add_child(_lab("闔上書，回到標題畫面。", 15, SOFT))
+		v.add_child(_lab("還沒存的進度會不見。", 15, RED))
+		return
+	var d := G.read_save(slot)
+	if d.is_empty():
+		v.add_child(_lab("這一欄是空的。", 15, SOFT))
+		if slot not in ["quick", "auto"]:
+			v.add_child(_lab("空白鍵把現在的進度存到這裡。", 14, FAINT))
+		return
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 14)
+	v.add_child(top)
+	var c: Dictionary = d.hero
+	top.add_child(_seal(c.get("surname", "") if c.get("surname", "") != "" else str(c.get("name", "？")).left(1), 52, RED))
+	var nv := VBoxContainer.new()
+	top.add_child(nv)
+	nv.add_child(_lab(c.get("name", ""), 24))
+	nv.add_child(_lab(d.where.get("name", ""), 15, SOFT))
+	v.add_child(_lab("%s　%s・%s" % [G.date_text(int(d.day)), G.time_text(int(d.time)), G.WEATHER_NAME.get(d.weather, "")], 15))
+	v.add_child(_rule())
+	for row in [["氣血", "hp", Color("a83a2e")], ["內力", "qi", Color("3a6a9a")], ["體力", "stamina", Color("6a8a3a")]]:
+		var h := HBoxContainer.new()
+		h.add_theme_constant_override("separation", 10)
+		v.add_child(h)
+		h.add_child(_lab(row[0], 15))
+		h.add_child(_lab(str(int(c.get(row[1], 0))), 15, row[2]))
+	v.add_child(_icon_num(_coin(), "銀兩", str(int(d.silver))))
+	var names := []
+	for s in c.get("skills", []):
+		if s.get("pos") != null:
+			names.append(Hero.skill_def(s.id).get("name", s.id))
+	if not names.is_empty():
+		var l := _lab("裝備：" + "、".join(names), 14, SOFT)
+		l.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+		l.custom_minimum_size = Vector2(PW - 90, 0)
+		v.add_child(l)
+	v.add_child(_rule())
+	var bias: int = Time.get_time_zone_from_system().get("bias", 0)
+	var dt := Time.get_datetime_dict_from_unix_time(int(d.get("saved_at", 0)) + bias * 60)
+	v.add_child(_lab("存於 %d/%d/%d %02d:%02d" % [dt.year, dt.month, dt.day, dt.hour, dt.minute], 13, FAINT))
+
+
+## 存檔頁按空白鍵；要讀檔或回標題（選單要關掉）回傳 true
+func _save_action() -> bool:
+	var slot: String = SLOTS[clampi(cur, 0, SLOTS.size() - 1)]
+	if slot == "title":
+		if await _confirm("回到標題畫面？", "還沒存的進度會不見。", ["回去", "取消"]) == 0:
+			result = {"do": "title"}
+			return true
+		return false
+	var d := G.read_save(slot)
+	var manual := slot not in ["quick", "auto"]
+	var opts: Array = []
+	if manual:
+		opts.append("存檔" if d.is_empty() else "蓋過去")
+	if not d.is_empty():
+		opts.append("讀取")
+	if opts.is_empty():
+		ui.notify("這一欄是空的。", FAINT)
+		return false
+	opts.append("取消")
+	var sub := "（空）" if d.is_empty() else G.save_summary(d)
+	var pick_i := await _confirm(_slot_label(slot), sub, opts)
+	var act: String = opts[pick_i]
+	if act == "存檔" or act == "蓋過去":
+		if here.is_empty():
+			ui.notify("這裡不能存檔。", FAINT)
+		elif G.write_save(slot, here):
+			ui.notify("已存到「%s」。" % _slot_label(slot))
+		else:
+			ui.notify("存檔失敗。", FAINT)
+		_fill_both()
+	elif act == "讀取":
+		if await _confirm("讀取「%s」？" % _slot_label(slot), "現在的進度沒存的話就不見了。", ["讀取", "取消"]) == 0:
+			result = {"do": "load", "data": d}
+			return true
+	return false
 
 
 # ── 小元件 ──────────────────────────────────────────────

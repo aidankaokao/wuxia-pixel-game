@@ -62,7 +62,7 @@ func _process(dt: float) -> void:
 		size = min(size_max, size + dt * 10.0)
 	yaw = lerp_angle(yaw, yaw_goal, min(1.0, dt * 8.0))
 	cam.size = lerp(cam.size, size, min(1.0, dt * 8.0))
-	if target:
+	if is_instance_valid(target):
 		position = position.lerp(target.global_position, min(1.0, dt * 6.0))
 	var dist := 200.0
 	outline.set_shader_parameter("px_world", cam.size / maxf(1.0, get_viewport().get_visible_rect().size.y))

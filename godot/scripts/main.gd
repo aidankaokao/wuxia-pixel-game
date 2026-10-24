@@ -102,9 +102,24 @@ func _chrome(on: bool) -> void:
 func _menu() -> void:
 	_chrome(false)
 	ui._title.visible = false
-	await BookMenu.open(ui)
+	var r: Dictionary = await BookMenu.open(ui, where())
 	ui._title.visible = true
-	_chrome(true)
+	match r.get("do", ""):
+		"load":
+			await ui.fade_out()
+			G.apply_save(r.data)
+			_chrome(true)
+			go(r.data.where.scene, r.data.where.at)
+			await ui.fade_in()
+		"title":
+			await ui.fade_out()
+			if scene:
+				scene.queue_free()
+				scene = null
+			_title_flow()
+			await ui.fade_in()
+		_:
+			_chrome(true)
 
 
 func _rain() -> void:
