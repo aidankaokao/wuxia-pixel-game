@@ -421,16 +421,9 @@
    "x": 31,
    "y": 11,
    "w": 1,
-   "lines": [
-    {
-     "text": "大殿前的更鼓。守夜的弟子亥時到子時在這裡敲更。"
-    },
-    {
-     "text": "（守夜輪值之後開放）"
-    }
-   ],
-   "label": "",
-   "script": "",
+   "lines": [],
+   "label": "更鼓",
+   "script": "mingquan/night_drum",
    "when": "",
    "passable": false
   },

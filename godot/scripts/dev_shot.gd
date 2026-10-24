@@ -99,6 +99,16 @@ func _run() -> void:
 							v3.hero.position = at
 							v3.hero.face(w.f.position - at)
 							v3.rig.position = at
+			"day":
+				# day:10,60 跳到第幾天的第幾刻（不經過中間的日子）
+				var dp := arg.split(",")
+				G.day = int(dp[0])
+				if dp.size() > 1:
+					G.time = int(dp[1])
+				G.weather = "clear"
+				G.time_changed.emit()
+				if _main().scene is GridScene:
+					_main().scene.refresh()
 			"aff":
 				# aff:bu,15 把某人的熟悉度設成多少
 				var af := arg.split(",")

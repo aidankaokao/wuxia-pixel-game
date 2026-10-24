@@ -5,7 +5,7 @@ class_name Life
 ## - 下雨、下雪：室外的事換成室內的。同一個位置一次只站一個人；同一天同一時段的安排固定（由日子、時段決定）。
 ## - 一群人寫在 story/life_<群>.gd：static func group() 回傳 {id, maps, outdoor, spots, npcs}，
 ##   以及 static func duty(id, 時刻, 下雨) 回傳 {act, at} 或空的；地點 at 是 [地圖, x, y, 朝向]，地圖外（回家、出遠門）用 "_away"。
-##   需要的話再寫 static func events(時刻, 下雨) 回傳 {人物 id: {act, at, with}}：大家一起的活動（例如晨課），醒著的人照它，蓋過吃飯與職責。
+##   需要的話再寫 static func events(時刻, 下雨) 回傳 {人物 id: {act, at, with, force}}：大家一起的活動（例如晨課），醒著的人照它，蓋過吃飯與職責；帶 force 的睡著也照它（守夜）。
 ## - 畫面那邊（grid_scene 的 life_*）：在這張地圖上的人站到位置上；換事情時自己走過去，換地圖就走到門口消失、從門口走進來。
 
 ## 每件事：名字、頭上的小字、在原地走動的範圍、是不是室外
@@ -23,7 +23,7 @@ const ACTS := {
 	"stake": ["練樁", "樁", 0, false], "sword": ["練劍", "劍", 0, true], "meditate": ["打坐", "坐", 0, false],
 	"sweep": ["掃地", "掃", 1, true], "water": ["挑水", "水", 0, true], "garden": ["照顧菜圃", "菜", 1, true],
 	"guard": ["守山門", "守", 0, true], "patrol": ["守夜", "更", 2, true], "class": ["晨課", "課", 0, true],
-	"lead": ["帶晨課", "課", 0, true], "spar": ["比劍", "劍", 0, true], "watch": ["觀看", "看", 0, false],
+	"lead": ["主持", "主", 0, true], "spar": ["比劍", "劍", 0, true], "watch": ["觀看", "看", 0, false],
 	"listen": ["聽講", "聽", 0, false], "tend": ["照料藥圃", "藥", 1, true], "pluck": ["採茶", "茶", 0, true],
 }
 const BLOCK := 4
@@ -84,7 +84,8 @@ static func now(g: Dictionary) -> Dictionary:
 		if n.has("when") and not Story.cond(n.when):
 			continue
 		var awake: bool = G.time >= int(n.wake) and G.time < int(n.sleep)
-		if not awake:
+		# 活動帶 force 的（例如守夜），睡著也得起來
+		if not awake and not (ev.has(n.id) and ev[n.id].get("force", false)):
 			out[n.id] = {"act": "sleep", "at": _spot_at(n.home)}
 		elif ev.has(n.id):
 			var e: Dictionary = ev[n.id]

@@ -4,7 +4,8 @@
 ## - 晨課：卯時到辰時，陸鳴川在演武廣場正中的演武台（擂台）上帶，記名弟子排兩排（旬休、下雨沒有）。
 ## - 差事：曹小豆一早掃大殿前；何守一上午、喬木生下午輪班守山門；韋季安旬休前一天下山採買（看不到）；
 ##   韓靖秋白天在練功房看弟子練功、未時到廣場巡視；聞松年白天在大殿，未時到後山散步（長老、掌門夜裡回自己的居所，看不到）。
-## 比武小會、講武、守夜、同門交情與成長之後再搬。
+## - 比武小會（旬休未時，演武台）、講武（初五、十五、廿五申時，練功房）、守夜（每晚輪一個人）：見 events；你參加的部分在 story/mingquan.gd。
+## 同門交情與成長之後再搬。
 ## 活動範圍：山道、院落、後山、大通鋪、弟子房、真傳弟子房、練功房、書房、廚房、大殿。
 
 const S := "mq_sect"
@@ -108,12 +109,92 @@ const LESSON_AT := [[S, 21, 20, "up"], [S, 23, 20, "up"], [S, 25, 20, "up"], [S,
 const PUPILS := ["gu", "bao", "tang", "zheng", "hou", "qiao"]
 
 
+# ── 比武小會、講武、守夜 ─────────────────────────────────
+## 比武小會：旬休那天未時，陸鳴川在演武台上主持，同門兩兩上台（每 4 刻換一對），其他人在台邊看（下雨下雪不比）
+## 講武：初五、十五、廿五的申時，韓靖秋在練功房講，同門坐著聽
+## 守夜：每晚輪一個人（拜入門下的話你也排進去），亥時到子時在廣場巡；過了半夜算前一天的班
+
+const 亥 := 11
+## 同門的實力（比武的名次、你上場碰到誰都照這個；之後同門會自己變強）
+const POWER := {"gu": 30, "bao": 24, "tang": 27, "cao": 12, "zheng": 20, "hou": 15, "qiao": 18, "he": 45, "wei": 40}
+const FIGHTERS := ["gu", "bao", "tang", "zheng", "hou", "qiao", "he", "wei", "cao"]
+const WATCH_ORDER := ["qiao", "zheng", "hou", "bao", "tang", "gu", "cao", "he", "wei"]
+const MEET_HOST := [S, 23, 18, "down"]
+const MEET_A := [S, 21, 20, "right"]
+const MEET_B := [S, 25, 20, "left"]
+const MEET_CROWD := [[S, 19, 20, "right"], [S, 19, 22, "right"], [S, 27, 20, "left"], [S, 27, 22, "left"], [S, 21, 24, "up"], [S, 23, 24, "up"], [S, 25, 24, "up"], [S, 22, 17, "down"]]
+const LECTURE_LEAD := ["mq_train", 5, 4, "down"]
+const LECTURE_CROWD := [["mq_train", 3, 6, "up"], ["mq_train", 5, 6, "up"], ["mq_train", 8, 6, "up"], ["mq_train", 2, 5, "up"], ["mq_train", 9, 5, "up"], ["mq_train", 4, 5, "up"]]
+const PATROL_AT := [S, 23, 15, "down"]
+
+
+static func is_meet_day(d := -1) -> bool:
+	return G.is_xunxiu(d)
+
+
+static func meet_now(t := -1) -> bool:
+	return is_meet_day() and _in(G.time if t < 0 else t, 未, 申) and not (G.weather in ["rain", "snow"])
+
+
+static func is_lecture_day(d := -1) -> bool:
+	return int(G.date_of(d).date) % 10 == 5
+
+
+static func lecture_now(t := -1) -> bool:
+	return is_lecture_day() and _in(G.time if t < 0 else t, 申, 酉)
+
+
+## 守夜的時段：亥時初到子時末
+static func night_now(t := -1) -> bool:
+	var x := G.time if t < 0 else t
+	return x >= T(亥) or x < 4
+
+
+## 現在是哪一天的班（過了半夜算前一天）
+static func watch_day() -> int:
+	return G.day - 1 if G.time < 48 else G.day
+
+
+## 某一天輪到誰守夜（"hero" 是你）
+static func watcher_on(d: int) -> String:
+	var order := WATCH_ORDER + (["hero"] if Sect.member("mingquan") else [])
+	return order[posmod(d, order.size())]
+
+
+## 比武小會這個時段台上是哪一對
+static func meet_pair(t: int) -> Array:
+	var block := (t - T(未)) / 4
+	var order := FIGHTERS.duplicate()
+	order.sort_custom(func(a, b): return (a.unicode_at(0) * 31 + G.day) % 17 < (b.unicode_at(0) * 31 + G.day) % 17)
+	return [order[(block * 2) % order.size()], order[(block * 2 + 1) % order.size()]]
+
+
 static func events(t: int, wet: bool) -> Dictionary:
 	var out := {}
 	if not wet and not G.is_xunxiu() and _in(t, 卯, 巳):
 		out.lu = {"act": "lead", "at": LESSON_LEAD}
 		for i in PUPILS.size():
 			out[PUPILS[i]] = {"act": "class", "at": LESSON_AT[i]}
+	if meet_now(t):
+		var pair := meet_pair(t)
+		out.lu = {"act": "lead", "at": MEET_HOST}
+		out[pair[0]] = {"act": "spar", "at": MEET_A, "with": pair[1]}
+		out[pair[1]] = {"act": "spar", "at": MEET_B, "with": pair[0]}
+		var i := 0
+		for id in FIGHTERS:
+			if not out.has(id) and i < MEET_CROWD.size():
+				out[id] = {"act": "watch", "at": MEET_CROWD[i]}
+				i += 1
+	if lecture_now(t):
+		out.han = {"act": "lead", "at": LECTURE_LEAD}
+		var i := 0
+		for id in ["gu", "tang", "bao", "zheng", "hou", "wei"]:
+			out[id] = {"act": "listen", "at": LECTURE_CROWD[i]}
+			i += 1
+	if night_now(t):
+		var who := watcher_on(watch_day())
+		if who != "hero":
+			out[who] = {"act": "patrol", "at": PATROL_AT, "force": true}
 	return out
 
 

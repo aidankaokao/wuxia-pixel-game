@@ -413,6 +413,20 @@
     "e_rush"
    ],
    "ai": "grunt"
+  },
+  "mq_cao": {
+   "name": "曹小豆",
+   "sprite": "disciple",
+   "hp": 110,
+   "atk": 16,
+   "def": 2,
+   "spd": 13,
+   "eva": 0.1,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -818,6 +832,18 @@
    "silver": 0,
    "growth": 0.8,
    "points": 3,
+   "spar": true
+  },
+  "drill_cao": {
+   "enemies": [
+    "mq_cao"
+   ],
+   "background": "mountain",
+   "intro": "曹小豆把掃帚往旁邊一扔，抄起木劍：「師兄弟，請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 1,
    "spar": true
   }
  }

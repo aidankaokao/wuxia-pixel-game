@@ -14,10 +14,12 @@
 ##   mq_morning 做過晨課那天；mq_meal 領過飯那天；mq_chores／mq_chores_day 今天做了幾件雜務；mq_chore_<雜務> 那件做過那天
 ##   mq_c_path 委託「清理山道」1 接下 2 打跑野狗 3 覆命；mq_c_med 委託「回春堂送藥」1 接下 2 送到 3 覆命
 ##   mq_mush_west／mq_mush_east 後山野菌採的那天；mq_fog_old 霧天見過白髮老人那天
+##   mq_meet_day 參加比武小會那天；mq_meet_place 最近一次比武的名次；mq_lecture 聽講武那天；mq_watch 守過夜的那一班（日子）
 
 const Train := preload("res://story/train.gd")
 const Cook := preload("res://story/cook.gd")
 const Chores := preload("res://story/chores.gd")
+const LifeMq := preload("res://story/life_mingquan.gd")
 
 const SECT := "mingquan"
 ## 鳴泉的人（名冊與台詞都用這份名字）
@@ -178,6 +180,10 @@ static func lu_story(ctx: Ctx) -> bool:
 				return true
 		await _sword_trial(ctx)
 		return true
+	# 旬休未時：比武小會
+	if LifeMq.meet_now():
+		await _tournament(ctx)
+		return true
 	# 弟子：晨課在卯時到巳時之間，一天一回；旬休沒有晨課
 	if not _morning_time():
 		return false
@@ -315,7 +321,7 @@ static func _read_roster(ctx: Ctx) -> void:
 			if m[1] == g:
 				rows.append("%s%s" % [MQ[m[0]], ("　" + m[2]) if m[2] != "" else ""])
 		if g == mine:
-			rows.append("%s（你）" % G.hero.name)
+			rows.append("%s（你）%s" % [G.hero.name, ("・比武第 %d" % meet_place()) if meet_place() > 0 else ""])
 		if rows.size() > 0:
 			pages.append("【%s】\n%s" % [g, "\n".join(rows)])
 	pages.append(ke.call("記名弟子還有十來個，名冊上就不一一列了。"))
@@ -454,6 +460,9 @@ static func _quiz(ctx: Ctx, who: String, qs: Array) -> int:
 
 ## 韓靖秋的劇情：記名弟子報考正式、正式弟子試內門、內門弟子拜他為師
 static func han_story(ctx: Ctx) -> bool:
+	if LifeMq.lecture_now():
+		await _lecture(ctx)
+		return true
 	if not member():
 		return false
 	match rank():
@@ -1290,3 +1299,112 @@ static func fog_elder(ctx: Ctx) -> void:
 ## 山道的馬車行：往其他大城的大路還沒通
 static func coachman(ctx: Ctx) -> void:
 	await ctx.say(_lines("梁老四", ["客官要坐車？鳴泉車馬，往大城直達，省得走斷腿。", "……可惜往別州的大路還沒修好，車只能先停在這兒。"]) + ["（馬車之後開放）"])
+
+
+# ── 比武小會、講武、守夜 ─────────────────────────────────
+
+## 比武的對手：記名、正式弟子的切磋遭遇戰
+const DUEL := {"gu": "trial_xiaoman", "bao": "drill_bao", "tang": "drill_tang", "cao": "drill_cao", "zheng": "drill_zheng", "hou": "drill_hou", "qiao": "drill_qiao", "he": "drill_he", "wei": "drill_wei"}
+
+
+## 同門照實力由強到弱
+static func _ranked() -> Array:
+	var r: Array = LifeMq.FIGHTERS.duplicate()
+	r.sort_custom(func(a, b): return LifeMq.POWER[a] > LifeMq.POWER[b])
+	return r
+
+
+## 這一旬你的名次（沒比過是 0）
+static func meet_place() -> int:
+	return int(G.flags.get("mq_meet_place", 0))
+
+
+## 比武小會：連戰三場（從中段挑三個，由弱到強），照打贏的最強那個人排名次，有賞
+static func _tournament(ctx: Ctx) -> void:
+	var lu := _by(MQ.lu)
+	if not member():
+		await ctx.say(lu.call("本門的比武小會，外人只能在旁邊看。"))
+		return
+	if ctx.flag("mq_meet_day") == G.day:
+		await ctx.say(lu.call("今天你已經比過了。下一旬再來！"))
+		return
+	if await ctx.ask(lu.call("比武小會開始了。要上場嗎？連戰三場，點到為止。"), ["上場", "在旁邊看就好"]) != 0:
+		return
+	if not await Train.exert(ctx, DRILL_STAMINA, "已經累得喘不過氣，這時候上場只會挨打。"):
+		return
+	var pool := _ranked()
+	pool.reverse()
+	var mid := maxi(0, pool.size() / 2 - 1)
+	var foes := pool.slice(mid, mid + 3)
+	var wins := 0
+	for id in foes:
+		await ctx.say("第 %d 場：%s上場。" % [wins + 1, MQ[id]])
+		if await ctx.battle(DUEL[id]) != "win":
+			break
+		wins += 1
+	ctx.pass_time(4)
+	var ranked := _ranked()
+	var place: int = (ranked.find(foes[wins - 1]) if wins > 0 else ranked.size()) + 1
+	ctx.set_flag("mq_meet_day", G.day)
+	ctx.set_flag("mq_meet_place", place)
+	await ctx.say([lu.call("三戰全勝！" if wins == 3 else ("贏了 %d 場，不錯。" % wins if wins > 0 else "輸了不要緊，下一旬再來。")), lu.call("這一旬的名次，你排第 %d。" % place)])
+	if wins > 0:
+		ctx.silver(wins * 5)
+		if wins == 3:
+			ctx.fame(2)
+		await _contrib(ctx, wins * 3)
+	_aff("lu", 1)
+
+
+## 長老講武：旁聽半個時辰，挑一門能悟新招的武功有所領悟
+static func _lecture(ctx: Ctx) -> void:
+	var han := _by(MQ.han)
+	if not member():
+		await ctx.say(han.call("本門講武，外人不便旁聽。"))
+		return
+	if ctx.flag("mq_lecture") == G.day:
+		await ctx.say(han.call("今天講的，回去好好琢磨。"))
+		return
+	if await ctx.ask(han.call("今天講「劍隨意走」。坐下來聽吧。"), ["坐下旁聽（半個時辰）", "改天"]) != 0:
+		return
+	ctx.set_flag("mq_lecture", G.day)
+	ctx.pass_time(4)
+	await ctx.say([han.call("劍是死的，人是活的。招式記熟了，要忘掉招式，讓劍跟著心意走。"), han.call("你們練劍時，心裡想的是下一招，還是眼前的對手？"), "（聽了半個時辰）"])
+	var ready := Train.studyable()
+	if ready.size() > 0:
+		var i := await ctx.ask("聽著聽著，你想起了哪一門武功？", ready.map(func(x): return Hero.skill_def(x.id).name))
+		await ctx.say(Train.apply(ready[i].id, 20, 1.0))
+	else:
+		await ctx.say("（你若有所思。等武功練到能悟新招的時候，這番話會更有用）")
+	await _contrib(ctx, 2)
+	_aff("han", 1)
+
+
+## 大殿前的更鼓：輪到你守夜，亥時到子時敲更巡一圈
+const WATCH_TALES := [
+	["你提著燈籠繞過大通鋪，看見一個人影鬼鬼祟祟地從廚房溜出來——", {"speaker": "包小川", "text": "……我、我只是口渴！"}, "他懷裡掉出半個肉包子。"],
+	["巡到洗劍池邊，月光照在水面上。遠處後山傳來一陣若有若無的笛聲，一會兒就聽不見了。"],
+	["大殿後頭亮著燈。從窗縫看進去，掌門一個人在殿裡慢慢地練劍，一招一式都慢得出奇。", "你沒有出聲，悄悄走開了。"],
+	["一夜無事。只有風吹過木樁林，發出嗚嗚的聲音。"],
+]
+
+
+static func night_drum(ctx: Ctx) -> void:
+	var d := LifeMq.watch_day()
+	var who := LifeMq.watcher_on(d)
+	if not member() or who != "hero":
+		await ctx.say(["值夜用的更鼓，鼓面磨得發亮。", "（今晚值夜的是%s）" % ("你" if who == "hero" else MQ[who])])
+		return
+	if ctx.flag("mq_watch") == d:
+		await ctx.say("今晚已經巡過了。")
+		return
+	if not LifeMq.night_now():
+		await ctx.say("今晚輪你守夜。亥時到子時再來敲更鼓巡夜。")
+		return
+	if await ctx.ask("今晚輪你守夜。要敲更巡一圈嗎？（一個時辰）", ["巡夜", "等一下"]) != 0:
+		return
+	ctx.set_flag("mq_watch", d)
+	await ctx.work("water", "巡夜中……")
+	ctx.pass_time(8)
+	await ctx.say(["「咚——咚！」你敲著更鼓，沿著院子巡了一圈。"] + WATCH_TALES[randi() % WATCH_TALES.size()] + ["（巡了一個時辰）"])
+	await _contrib(ctx, 4)

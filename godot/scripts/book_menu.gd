@@ -1221,6 +1221,16 @@ func _sect_left(v: VBoxContainer) -> void:
 		var held: String = G.sect.get("chore", "")
 		if held != "":
 			v.add_child(_lab("　手上：%s（%s）" % [Mq.CHORES[held].name, Mq.CHORES[held].where], 14, RED))
+		var Lm: GDScript = load("res://story/life_mingquan.gd")
+		var place := int(G.flags.get("mq_meet_place", 0))
+		if Lm.is_meet_day():
+			v.add_child(_lab("今天旬休：未時在演武台比武小會（找陸鳴川）" if int(G.flags.get("mq_meet_day", 0)) != G.day else "今天的比武小會比過了", 15, RED if int(G.flags.get("mq_meet_day", 0)) != G.day else SOFT))
+		elif place > 0:
+			v.add_child(_lab("上回比武小會排第 %d（每逢旬休未時）" % place, 15, SOFT))
+		if Lm.is_lecture_day() and int(G.flags.get("mq_lecture", 0)) != G.day:
+			v.add_child(_lab("今天申時，韓長老在練功房講武", 15, RED))
+		if Lm.watcher_on(Lm.watch_day()) == "hero" and int(G.flags.get("mq_watch", 0)) != Lm.watch_day():
+			v.add_child(_lab("今晚輪你守夜（亥時到子時，大殿前敲更鼓）", 15, RED))
 
 
 func _sect_right(v: VBoxContainer) -> void:
