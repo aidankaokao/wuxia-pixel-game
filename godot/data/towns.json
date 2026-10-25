@@ -3,12 +3,14 @@
  "yanzhou": {
   "tier": "fu", "map": "yzfu", "name": "煙州府城", "subtitle": "州府・府河之畔", "plaque": "煙州", "seed": 17, "flavor": "river",
   "shops": [
-   ["yamen", "煙州州衙", "yz_chai"], ["inn", "府前客棧", "yz_guan"], ["restaurant", "醉煙樓", "yz_xi"], ["teahouse", "聽雨茶樓", "yz_yu"],
-   ["bank", "青蚨錢莊", "yz_cui"], ["pawn", "恆裕當鋪", "yz_zhen"], ["clinic", "濟和堂", "yz_yin"], ["goods", "萬全雜貨", "yz_lu"],
+   ["yamen", "煙州州衙", "yz_chai", "yanzhou/yamen", ["yz_wei", "yz_ling"]], ["inn", "府前客棧", "yz_guan"], ["restaurant", "醉煙樓", "yz_xi"], ["teahouse", "聽雨茶樓", "yz_yu"],
+   ["bank", "青蚨錢莊", "yz_cui", "yanzhou/bank"], ["pawn", "恆裕當鋪", "yz_zhen"], ["clinic", "濟和堂", "yz_yin"], ["goods", "萬全雜貨", "yz_lu"],
    ["smith", "百煉鐵鋪", "yz_xiong"], ["cloth", "雲錦布莊", "yz_bai"], ["books", "墨香書肆", "yz_wen"], ["opera", "錦雲戲樓", "yz_hua"],
-   ["stable", "通衢車馬行", "yz_bao"], ["builder", "巧匠木作", "yz_zhuo"]
+   ["stable", "通衢車馬行", "yz_bao"], ["builder", "巧匠木作", "yz_zhuo"],
+   ["guild", "漕幫總舵", "yz_chu", "yanzhou/guild"], ["hq", "青蚨會館", "yz_xiao", "yanzhou/hq"], ["gamble", "青蚨坊", "yz_rui", "yanzhou/gamble"],
+   ["academy", "煙山書院", "yz_yan", "yanzhou/academy", ["yz_mu"]], ["wuguan", "長風武館", "yz_xinc", "yanzhou/wuguan"], ["escort", "金刀鏢局府城分號", "yz_jinh", "yanzhou/escort"]
   ],
-  "street": ["yz_fang", "yz_ding"],
+  "street": ["yz_fang", "yz_ding", "yz_dai", "yz_xinlan", "yz_duan", "yz_fu", "yz_lan", "yz_banxian"],
   "rumors": [
    "漕幫總舵就在府河碼頭，最近跟青蚨會為了泊位鬧得很僵，兩邊的人在碼頭上都不打招呼。",
    "青蚨錢莊的利錢高得嚇人，借了還不起的，鋪子房子都得押給他們。",
@@ -18,9 +20,12 @@
   ],
   "notices": [
    {"title": "州衙告示・官地出售", "text": ["本城有官地數塊，地上插有木牌，可自行前往查看。", "買下後蓋屋、開店悉聽尊便，唯須遵守本州營造規矩。"], "by": "煙州州衙"},
-   {"title": "府河漕運", "text": ["府河碼頭每日卯時起卸漕糧，閒雜人等勿近。"], "by": "漕幫府城總舵"}
+   {"title": "府河漕運", "text": ["府河碼頭每日卯時起卸漕糧，閒雜人等勿近。", "碼頭缺扛貨的人手，有力氣的找戴把頭。"], "by": "漕幫府城總舵"},
+   {"title": "夜市", "text": ["每晚戌時起，州衙前大街以南擺夜市：小吃、雜耍、古玩、算命，到子時收攤。"], "by": "煙州市司"},
+   {"title": "長風武館招收學徒", "text": ["長風武館傳授長風拳，強身健體、保家衛國。", "入館束脩三十兩，館中木人樁、練武場任用。"], "by": "長風武館 辛長風"},
+   {"title": "煙山書院", "text": ["書院藏書任人借讀，每月朔望山長開講。", "好棋者可至書院與山長對弈。"], "by": "煙山書院"}
   ],
-  "guards": ["yamen", "gang"]
+  "guards": ["yamen", "gang", "escort", "wuguan"]
  },
  "chaoxin": {
   "tier": "county", "map": "chaoxin", "name": "潮信城", "subtitle": "海港縣城・鹽課司", "plaque": "潮信", "seed": 23, "flavor": "coast",

@@ -36,6 +36,13 @@ const KINDS := {
 	"opera": {"name": "戲樓", "style": "hall", "w": 7, "h": 5, "flag": "戲", "roof": "green", "lanterns": true, "plaque": true, "red": true, "theme": "plain"},
 	"builder": {"name": "木作", "style": "house2", "w": 5, "h": 4, "flag": "木", "roof": "brown", "theme": "plain"},
 	"chief": {"name": "村長家", "style": "hall", "w": 7, "h": 5, "roof": "hall", "plaque": true, "theme": "plain"},
+	# 手工做的城才有的（劇情在 shops 第四欄指的劇情檔）
+	"guild": {"name": "幫會堂口", "style": "hall", "w": 7, "h": 5, "roof": "hall", "lanterns": true, "plaque": true, "red": true, "theme": "scholar"},
+	"hq": {"name": "會館", "style": "hall", "w": 7, "h": 5, "flag": "蚨", "roof": "hall", "lanterns": true, "plaque": true, "theme": "scholar"},
+	"gamble": {"name": "賭坊", "style": "teahouse", "w": 6, "h": 4, "flag": "賭", "roof": "green", "lanterns": true, "theme": "plain"},
+	"academy": {"name": "書院", "style": "hall", "w": 7, "h": 5, "roof": "grey", "plaque": true, "theme": "scholar"},
+	"wuguan": {"name": "武館", "style": "hall", "w": 7, "h": 5, "flag": "武", "roof": "hall", "plaque": true, "red": true, "theme": "martial"},
+	"escort": {"name": "鏢局", "style": "hall", "w": 7, "h": 5, "flag": "鏢", "roof": "hall", "lanterns": true, "plaque": true, "red": true, "theme": "scholar"},
 }
 const HOUSE_TEXT := ["門關著，裡頭傳出孩子背書的聲音。", "門口曬著一排衣裳，屋裡沒人應門。", "門上的春聯褪了色，主人家大概出門了。",
 	"屋裡傳來剁菜的聲音，飯菜的香味飄出來。", "門閂著。門檻上趴著一隻打盹的黃狗。", "窗台上擺著幾盆花，門關得緊緊的。"]
@@ -134,6 +141,21 @@ static func build(map: String) -> Dictionary:
 		return _cache[map]
 	var node := node_of(map)
 	var c: Dictionary = towns()[node]
+	# 手工做好的地圖（data/<地圖 id>.json）：照樣用樣板的店、室內、空地，只是格子與房子是手擺的
+	if FileAccess.file_exists("res://data/%s.json" % map):
+		var fd: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/%s.json" % map))
+		fd.shop_index = {}
+		for bi in fd.buildings.size():
+			var to: String = fd.buildings[bi].get("enter", {}).get("to", "")
+			if to.begins_with("town:%s:" % map):
+				fd.shop_index[int(to.get_slice(":", 2))] = bi
+		for l in fd.get("lots", []):
+			l.map = map
+			l.price = int(l.get("price", LOT_PRICE[c.tier]))
+		fd.gate_sides = gates(node, c.get("zhou", "yanzhou"))
+		fd.town = node
+		_cache[map] = fd
+		return fd
 	var g := _Grid.new()
 	g.rng.seed = int(c.get("seed", 1))
 	g.cfg = c
@@ -220,9 +242,16 @@ const ROOM_PROPS := {
 	"opera": [["chair", 2, 4, 1, "看戲的座位。"], ["chair", 4, 4, 1, "看戲的座位。"], ["chair", 6, 4, 1, "看戲的座位。"], ["chair", 8, 4, 1, "看戲的座位。"], ["f_deco_scholar_1", 1, 1, 1, "戲班的行頭。"]],
 	"builder": [["f_table_plain_1", 1, 1, 2, "木工台，上面一把刨子。"], ["chest", 8, 1, 1, "工具箱，鑿子、鋸子、墨斗。"], ["f_shelf_plain_1", 8, 4, 2, "一疊疊木料。"]],
 	"chief": [["f_bed_plain_1", 1, 1, 2, "床鋪。"], ["f_shelf_plain_1", 8, 1, 2, "櫃子裡收著村裡的地契冊子。"], ["f_table_plain_1", 1, 4, 2, "方桌。"]],
+	"guild": [["f_deco_martial_1", 1, 1, 1, "兵器架上插著分水刺、鐵篙。"], ["chair", 8, 1, 1, "總舵主的虎皮交椅。"], ["f_table_plain_1", 1, 5, 2, "桌上攤著一張府河的水路圖。"], ["jars", 8, 5, 2, "幾罈燒刀子。"]],
+	"hq": [["f_shelf_scholar_3", 1, 1, 2, "一格格的帳冊，封皮上寫著各家商號的名字。"], ["chair", 8, 1, 1, "紫檀太師椅。"], ["f_deco_scholar_1", 9, 1, 1, "牆上掛著一枚大銅錢，錢眼裡穿著紅繩。"], ["f_table_scholar_1", 7, 5, 2, "桌上擺著算盤與一疊借據。"]],
+	"gamble": [["f_table_plain_1", 1, 4, 2, "賭桌上的骰盅還在晃。"], ["f_table_plain_1", 7, 4, 2, "一群人圍著押大小。"], ["jars", 1, 1, 2, "酒罈。"], ["chest", 9, 1, 1, "裝籌碼的木箱。"]],
+	"academy": [["f_shelf_scholar_3", 1, 1, 2, "書院的藏書，經史子集都有。"], ["f_shelf_scholar_3", 8, 1, 2, "歷代山長的手稿。"], ["f_table_scholar_1", 1, 4, 2, "學子們讀書的書案。"], ["f_table_scholar_1", 7, 5, 2, "書案上擺著棋盤。"]],
+	"wuguan": [["f_dummy_martial_3", 1, 1, 1, "鐵木樁，樁身被打得發亮。"], ["f_dummy_martial_2", 9, 1, 1, "木人樁。"], ["f_deco_martial_1", 1, 4, 1, "兵器架。"], ["f_deco_martial_1", 9, 4, 1, "兵器架。"]],
+	"escort": [["f_deco_martial_1", 1, 1, 1, "兵器架上插著金背大刀。"], ["chest", 8, 1, 1, "待押的鏢箱，貼著封條。"], ["chest", 9, 1, 1, "鏢箱。"], ["f_table_plain_1", 1, 5, 2, "桌上攤著鏢路圖。"]],
 }
 const COUNTER := {"inn": "櫃台", "restaurant": "點菜", "teahouse": "喝茶", "clinic": "看診／買藥", "goods": "買東西", "smith": "打兵器", "cloth": "看衣裳",
-	"stable": "看馬", "yamen": "辦事", "pawn": "典當", "bank": "存取銀兩", "books": "買書", "opera": "看戲", "builder": "營造", "chief": "說話"}
+	"stable": "看馬", "yamen": "辦事", "pawn": "典當", "bank": "存取銀兩", "books": "買書", "opera": "看戲", "builder": "營造", "chief": "說話",
+	"guild": "說話", "hq": "說話", "gamble": "押大小", "academy": "請教", "wuguan": "學武", "escort": "接鏢"}
 
 
 static func room_data(id: String) -> Dictionary:
@@ -237,6 +266,8 @@ static func room_data(id: String) -> Dictionary:
 	var dir: Vector2i = Village.FACE_DIR[b.get("face", "s")]
 	var out_spawn := {"x": dt.x + dir.x, "y": dt.y + dir.y, "facing": {"s": "down", "n": "up", "e": "right", "w": "left"}[b.get("face", "s")]}
 	var props := [{"sprite": "counter", "x": 4, "y": 1, "w": 3, "lines": [], "label": COUNTER[sh[0]], "script": "town/shop"}]
+	if sh[0] == "wuguan":
+		props = []
 	for p in ROOM_PROPS.get(sh[0], []):
 		props.append({"sprite": p[0], "x": p[1], "y": p[2], "w": p[3], "lines": [{"text": p[4]}], "label": ""})
 	var npcs := []
@@ -244,6 +275,14 @@ static func room_data(id: String) -> Dictionary:
 	if Person.alive(pid):
 		npcs.append({"id": pid, "name": Person.full_name(pid), "sprite": Person.field(pid, "look", "servant"), "x": 5, "y": 2, "facing": "down",
 			"all_day": true, "work": false, "night": false, "wander": 0, "person": "", "script": "town/shop", "when": "", "talks": []})
+	# 店裡另外站的人（shops 的第五欄；交談交給第四欄劇情檔的 extra）
+	var spots := [Vector2i(2, 3), Vector2i(8, 3), Vector2i(2, 5), Vector2i(8, 5)]
+	var extra: Array = sh[4] if sh.size() > 4 else []
+	for j in extra.size():
+		var xp: String = extra[j]
+		if Person.alive(xp):
+			npcs.append({"id": xp, "name": Person.full_name(xp), "sprite": Person.field(xp, "look", "servant"), "x": spots[j].x, "y": spots[j].y, "facing": "down",
+				"all_day": true, "work": false, "night": false, "wander": 0, "person": "", "script": "town/extra", "when": "", "talks": []})
 	return {"id": id, "name": sh[1], "subtitle": "%s・%s" % [cfg(map).name, k.name], "theme": k.theme, "tiles": _room(11, 8, 5),
 		"spawn": {"x": 5, "y": 6, "facing": "up"}, "props": props, "npcs": npcs,
 		"exits": [{"tiles": [[5, 7]], "to": map, "spawn": out_spawn}]}

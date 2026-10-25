@@ -75,6 +75,7 @@ static func tasks() -> Array:
 	out += load("res://story/shop.gd").tasks()
 	out += load("res://story/shop_events.gd").tasks()
 	out += load("res://story/managers.gd").tasks()
+	out += load("res://story/yanzhou.gd").tasks()
 	for b in load("res://story/linjiang.gd").BOUNTIES:
 		var v := _f("lj_b_" + b[0])
 		if v > 0:

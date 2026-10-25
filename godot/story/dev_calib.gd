@@ -13,11 +13,19 @@ const CASES := [
 	["寨主戰（看過石碑）", ["camp"], {"zhuying": 1}, 3],
 	["店裡的地痞（鳴泉3）", ["shop_ruffians"], {"mingquan": 3, "breathing": 2}, 0],
 	["路上的甘十一（鳴泉3）", ["spar_wanderer"], {"mingquan": 3, "breathing": 2}, 0],
+	# 煙州府城（4.42）：新的對手，目標是設計時定的難度
+	["長風武館辛嵐（長風拳2、吐納2）", ["spar_xinlan"], {"changfeng": 2, "breathing": 2}, 0],
+	["長風武館辛長風（長風拳6、吐納4）", ["spar_xinc"], {"changfeng": 6, "breathing": 4}, 0],
+	["漕幫戴鐵肩（鳴泉3、吐納2）", ["berth_dai"], {"mingquan": 3, "breathing": 2}, 0],
+	["青蚨會烏大烏二（鳴泉4、吐納2，帶藥）", ["berth_thugs"], {"mingquan": 4, "breathing": 2}, 3],
 ]
+## 只校準這幾組（run:dev_calib/tune_new）
+const NEW := ["長風武館辛嵐（長風拳2、吐納2）", "長風武館辛長風（長風拳6、吐納4）", "漕幫戴鐵肩（鳴泉3、吐納2）", "青蚨會烏大烏二（鳴泉4、吐納2，帶藥）"]
 ## 改之前（固定的遭遇戰）量到的勝率，tune 的目標；改之前就是九成五以上的只要求不要掉到九成五以下
 const TARGET := {"試劍顧小滿（剛出村）": 0.80, "切磋柳青禾（剛出村）": 0.97, "切磋石岳（看過石碑）": 0.78, "正式考核連戰齊振遠、孟鐸（鳴泉4、吐納2）": 0.27,
 	"內門試劍何守一（鳴泉6、澄泉3、吐納3）": 0.97, "真傳試煉韓靖秋（鳴泉8、澄泉5、踏石3、吐納4）": 0.26, "寨主戰（初始）": 0.40,
-	"店裡的地痞（鳴泉3）": 0.97, "路上的甘十一（鳴泉3）": 0.97}
+	"店裡的地痞（鳴泉3）": 0.97, "路上的甘十一（鳴泉3）": 0.97,
+	"長風武館辛嵐（長風拳2、吐納2）": 0.6, "長風武館辛長風（長風拳6、吐納4）": 0.35, "漕幫戴鐵肩（鳴泉3、吐納2）": 0.7, "青蚨會烏大烏二（鳴泉4、吐納2，帶藥）": 0.6}
 
 
 ## 主角：擲一個新角色，學會這些武功、練到這一重，重數到了的招式都悟出來（看過石碑的另外有竹影劍）
@@ -68,14 +76,18 @@ static func rates(_ctx: Ctx) -> void:
 	G.silver = keep.silver
 
 
+static func tune_new(ctx: Ctx) -> void:
+	await tune(ctx, NEW)
+
+
 ## 對每一組二分搜尋遭遇戰的 scale（連戰的兩場用同一個倍數），印出結果
-static func tune(_ctx: Ctx) -> void:
+static func tune(_ctx: Ctx, only: Array = []) -> void:
 	var keep := {"bag": G.bag.duplicate(), "silver": G.silver}
 	var done := {}
 	for cs in CASES:
 		var target: float = TARGET.get(cs[0], -1.0)
 		var key: String = cs[1][0]
-		if target < 0 or done.has(key):
+		if target < 0 or done.has(key) or (only.size() > 0 and not cs[0] in only):
 			continue
 		# 改之前就很好打的：照原樣（scale 1）夠好打就不動
 		if target >= 0.97:

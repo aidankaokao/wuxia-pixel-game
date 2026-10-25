@@ -1,6 +1,11 @@
 {
  "_note": "人物之間開局時的關係：[a, b, 種類]；師徒、父子、母女這類有方向的，a 是師父／長輩。種類：師徒、父子、父女、母子、母女、夫妻、兄弟姐妹、姑姪、叔姪、祖孫、同鄉、結義、恩、仇、情（師徒另外也可以寫在人物的 master）。之後的變化記在 G.persons.rel。",
  "relations": [
+  ["yz_xinc", "yz_xinlan", "父女"],
+  ["yz_xinc", "yz_ling", "師徒"],
+  ["lje_jin", "yz_jinh", "兄弟姐妹"],
+  ["yz_wuda", "yz_wuer", "兄弟姐妹"],
+  ["yz_chu", "yz_xiao", "仇"],
   ["lt_bian", "lt_xiaoling", "父女"],
   ["wy_mao", "wy_maogen", "父子"],
   ["wy_tan", "wy_xiaoya", "母女"],

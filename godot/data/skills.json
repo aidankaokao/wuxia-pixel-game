@@ -403,6 +403,54 @@
      }
     }
    ]
+  },
+  "changfeng": {
+   "id": "changfeng",
+   "name": "長風拳",
+   "kind": "拳掌",
+   "tier": "中品",
+   "desc": "煙州府城長風武館的看家拳法。拳勢如長風過野，一拳接一拳，講究腰馬沉穩、後勁綿長。",
+   "equip": {
+    "strength": 0.8,
+    "constitution": 0.4
+   },
+   "grow": {
+    "strength": 0.4,
+    "constitution": 0.4,
+    "agility": 0.1
+   },
+   "vital": {
+    "hp": 4,
+    "stamina": 1
+   },
+   "moves": [
+    {
+     "id": "cf_polang",
+     "level": 0
+    },
+    {
+     "id": "cf_baiyang",
+     "level": 2,
+     "bonus": {
+      "agility": 1
+     }
+    },
+    {
+     "id": "cf_dingzhou",
+     "level": 4,
+     "bonus": {
+      "strength": 1
+     }
+    },
+    {
+     "id": "cf_juanyun",
+     "level": 6,
+     "bonus": {
+      "strength": 0.5,
+      "constitution": 0.5
+     }
+    }
+   ]
   }
  },
  "moves": {
@@ -987,6 +1035,74 @@
    "kind": "outer",
    "target": "enemy",
    "fx": "heavy"
+  },
+  "cf_polang": {
+   "id": "cf_polang",
+   "name": "長風破浪",
+   "desc": "腰馬一沉，一拳如長風破浪直送出去。",
+   "qi": 8,
+   "power": 1.6,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "changfeng",
+   "fx": "punch"
+  },
+  "cf_baiyang": {
+   "id": "cf_baiyang",
+   "name": "迴風擺柳",
+   "desc": "身如風中柳枝，左右各一拳，之後身法飄忽（閃避 +15%，持續 2 次出手）。",
+   "qi": 12,
+   "power": 0.8,
+   "hits": 2,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "changfeng",
+   "fx": "wind",
+   "self": [
+    {
+     "kind": "evade",
+     "value": 0.15,
+     "turns": 2
+    }
+   ]
+  },
+  "cf_dingzhou": {
+   "id": "cf_dingzhou",
+   "name": "沉肩頂肘",
+   "desc": "欺身入懷，沉肩一肘頂在對手胸口。威力沉重，有機會撞出破綻（防禦 −25%，持續 2 次出手）。",
+   "qi": 15,
+   "power": 2.0,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "changfeng",
+   "fx": "heavy",
+   "foe": [
+    {
+     "kind": "armorBreak",
+     "value": 0.25,
+     "turns": 2,
+     "chance": 0.4
+    }
+   ]
+  },
+  "cf_juanyun": {
+   "id": "cf_juanyun",
+   "name": "風捲殘雲",
+   "desc": "雙拳連環，拳風捲過所有敵人，有機會拖慢對手（速度 −20%，持續 2 次出手）。",
+   "qi": 20,
+   "power": 0.95,
+   "kind": "outer",
+   "target": "allEnemies",
+   "skillId": "changfeng",
+   "fx": "wind",
+   "foe": [
+    {
+     "kind": "slow",
+     "value": 0.2,
+     "turns": 2,
+     "chance": 0.3
+    }
+   ]
   }
  }
 }

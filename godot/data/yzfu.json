@@ -1,0 +1,1586 @@
+{
+ "id": "yzfu",
+ "name": "煙州府城",
+ "subtitle": "州府・府河之畔",
+ "tiles": [
+  ".~~~~.TT..T.*....T..T...T...*T...T...T.T......T:::....T.T...T..*...TT...T..*T..T.......T",
+  "T~~~~TTT.....T.T....TT.T.TTT.........T*T.T....*:::.......*....T........TT....TT..T....T.",
+  ".~~~~T..T....T.T.T.....T....T.T*..T.TTT.*T.T..T:::T.....T.T.*.....T...*...TTTTTT....T.T.",
+  ".~~~~*..*...TT.....TT...TT..T*T.T...T*...TT...T:::...T......T..T....T.........TT.TTTT.TT",
+  ".~~~~T*.T..T..HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH:::HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH..T.",
+  ".~~~~..T..*...H::::::::::::::::::::::::::::::::===:::::::::::::::::::::::::::::::::HT.T.",
+  "T~~~~...T.T.TTH::::::::::::::::::::::::::::::::===:::::::::::::::::::::::::::::::::H.T.T",
+  ".~~~~TT.*.*.TTH::T.......*.RRRRRRRRRRRRRRRRRRR.===.....T.T......*..T.............::H.TTT",
+  ".~~~~T...TTTTTH::..........RYYY...........YYYRT===........RRRRRRRRRRRRRRR........::HT..*",
+  ".~~~~..T......H::.........TRYYY.T.*....*..YYYR.===........RXXXXXXXXXXXXXR........::H.TT.",
+  ".~~~~.TT...*..H::..........R............T....R.===*.......RXXXXXXXXXXXXXR*.......::H.*T.",
+  "T~~~~..T.TT.TTH::........T.R.................R.===........RXXXXXXXXXXXXXR........::H...T",
+  ".~~~~T.......TH::*.........R...~~~~~~~~~~~.o.R.===........RXXXXXXXXXXXXXRT.......::H.T..",
+  ".~~~~..*T.....H::..........R..o~~~~~~~~~~~..TR.===..T...*.RXXXXXXXXXXXXXR........::H*T..",
+  ".~~~~......T.TH::..........R...~~~~~~~~~~~...R.===...T...TRXXXXXXXXXXXXXR.T......::H*TT.",
+  ".~~~~.........H::..........RT..~~~~~~~~~~~...R.===.T......RXXXXXXXXXXXXXR....*...::H...T",
+  "T~~~~========.H::..........R...~~~~~~~~~~~o..R.===........RXXXXXXXXXXXXXR.....T..::H..*.",
+  "T~~~~========TH::..........R...~~~~~~~~~~~...R.===T.......RXXXXXXXXXXXXXR...*...T::H.T.T",
+  "T~~~~========*H::..........R.o.~~~~~~~~~~~...R.===........RXXXXXXXXXXXXXR........::HT..T",
+  ".~~~~========TH::..........R........:.......TR.===........RXXXXXXXXXXXXXR........::HT.T.",
+  ".~~~~.......=.H::.......T..R........:........R.===........RXXXXXXXXXXXXXR........::HT.TT",
+  ".~~~~.......=.H::..........R.*...*..:........R.===.T......RXXXXXXXXXXXXXR.....T..::HT..*",
+  "T~~~~.......=TH::..........R........:........R.===.T.....TRXXXXXXXXXXXXXR........::HT.*.",
+  "T~~~~.......=TH::..........R........:........R.===........RXXXXXXXXXXXXXR........::HT...",
+  ".~~~~.......=TH::..........R.T.*....:........R.===........RXXXXXXXXXXXXXR........::H.TTT",
+  ".~~~~========.H::T.........R*.......:..*....*R.===.T......RXXXXXXXXXXXXXR........::H.T..",
+  ".~~~~========.H::..........RRRRRRRR:::RRRRRRRR.===.....T..RRRRRRRRRRRRRRR........::HT..*",
+  ".~~~~========.H::..T............*..............===....................T..........::H...*",
+  ":####::::::::::====================================================================:::::",
+  ":####::::::::::====================================================================:::::",
+  ":####::::::::::====================================================================:::::",
+  "T~~~~========.H::.........=========...........=====..............................::H.T..",
+  ".~~~~========TH::.........=========........T..=====..............................::H.TT.",
+  ".~~~~========.H::*........=========...........=====..............................::H..TT",
+  ".~~~~========TH::T........=========...........=====........T.....................::H....",
+  ".~~~~========.H::.........=========...........=====........T...T.................::HT...",
+  ".~~~~========TH::.........=========........T*.=====...............T..............::H...T",
+  ".~~~~========.H::.T.......=========....T.T...T=====T..T......*..T......T.........::HTT..",
+  ".~~~~========TH::........*...T...T......T...*.=====..............................::HT...",
+  ".~~~~========.H::........T.............T......=====..............T......*........::H....",
+  "T~~~~========TH::.............................=====..............................::H.T..",
+  ".~~~~========.H::............................T=====..............................::H..T.",
+  ".~~~~========.H::......T...................T..=====.......T*.....T...............::H..T.",
+  "T~~~~....TT...H::............................*=====......................*......T::HTTT.",
+  ".~~~~.TT...T..H::........*............T.......=====T.....TT.....T...........T....::H.*.T",
+  ".~~~~.T....TT.H::...........T..T............*.=====*.....*................T......::H...T",
+  "T~~~~T.T.T...TH::.................T...........=====.T.T..**.T..................T.::H.T..",
+  ".~~~~TTT..TT..H::........T.....T..............=====.............................T::H*.T.",
+  ".~~~~TT.T...T.H::..............T..............=====..............................::H.T..",
+  ".~~~~TT..*...TH::T............................=====..............................::HT...",
+  ".~~~~.TT.T..TTH::T......*......*..............=====............................T.::HT.TT",
+  ".~~~~..TT....TH::::::::::::::::::::::::::::::::===:::::::::::::::::::::::::::::::::H....",
+  ".~~~~..TT.....H::::::::::::::::::::::::::::::::===:::::::::::::::::::::::::::::::::H.T..",
+  ".~~~~..T..*...HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH:::HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH....",
+  ".~~~~........T....TT.T.T.T.T.......*....T....T.:::.T.T..T.T.T...T.....T.T*T...T.TTTT.T..",
+  ".~~~~..T.T*.T..T....T*TT..T.*T...T...T....T*T.T:::TT....T...T....T.*TT........T...TT..T.",
+  ".~~~~.....T....*...T...TT.*T..T.T...TTTT......*:::...T.TT..............TT.T..*...T......",
+  ".~~~~T........TT.T.....TT......T..T..........T.:::....T..T..T....TT.TTTT.T.T.....TTT..T."
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 48,
+  "y": 56,
+  "facing": "up"
+ },
+ "gate_spawn": {
+  "s": {
+   "map": "yzfu",
+   "x": 48,
+   "y": 56,
+   "facing": "up"
+  },
+  "n": {
+   "map": "yzfu",
+   "x": 48,
+   "y": 1,
+   "facing": "down"
+  },
+  "w": {
+   "map": "yzfu",
+   "x": 1,
+   "y": 29,
+   "facing": "right"
+  },
+  "e": {
+   "map": "yzfu",
+   "x": 86,
+   "y": 29,
+   "facing": "left"
+  }
+ },
+ "buildings": [
+  {
+   "style": "hall",
+   "x": 5,
+   "y": 20,
+   "face": "s",
+   "name": "漕幫總舵",
+   "sign": "漕幫總舵",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "lanterns": true,
+    "plaque": true,
+    "timber": "#8a2e26"
+   },
+   "enter": {
+    "to": "town:yzfu:14",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house2",
+   "x": 6,
+   "y": 34,
+   "face": "n",
+   "name": "漕幫貨棧",
+   "door": [
+    {
+     "text": "貨棧的門上了大鎖，門縫裡飄出米糠的味道。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "hall",
+   "x": 18,
+   "y": 8,
+   "face": "s",
+   "name": "煙山書院",
+   "sign": "煙山書院",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a",
+    "plaque": true
+   },
+   "enter": {
+    "to": "town:yzfu:17",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house",
+   "x": 19,
+   "y": 22,
+   "face": "s",
+   "name": "墨香書肆",
+   "sign": "墨香書肆",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:yzfu:10",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "書"
+  },
+  {
+   "style": "teahouse",
+   "x": 38,
+   "y": 20,
+   "face": "s",
+   "name": "聽雨茶樓",
+   "sign": "聽雨茶樓",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f"
+   },
+   "enter": {
+    "to": "town:yzfu:3",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "茶"
+  },
+  {
+   "style": "hall",
+   "x": 51,
+   "y": 8,
+   "face": "s",
+   "name": "青蚨會館",
+   "sign": "青蚨會館",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "lanterns": true,
+    "plaque": true
+   },
+   "enter": {
+    "to": "town:yzfu:15",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "蚨"
+  },
+  {
+   "style": "house",
+   "x": 52,
+   "y": 16,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門閂著。門檻上趴著一隻打盹的黃狗。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "house",
+   "x": 52,
+   "y": 22,
+   "face": "s",
+   "name": "恆裕當鋪",
+   "sign": "恆裕當鋪",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880"
+   },
+   "enter": {
+    "to": "town:yzfu:5",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "當"
+  },
+  {
+   "style": "yamen_hall",
+   "x": 62,
+   "y": 11,
+   "face": "s",
+   "name": "州衙大堂",
+   "door": [
+    {
+     "text": "院牆擋著，得從大門進去。"
+    }
+   ],
+   "st": {
+    "w": 7,
+    "h": 4,
+    "door": 3,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "timber": "#8a2e26",
+    "doorPaint": "#5a1a14",
+    "lanterns": true,
+    "plaque": true
+   },
+   "decor": true,
+   "sign": "明鏡堂"
+  },
+  {
+   "style": "yamen_wing",
+   "x": 59,
+   "y": 17,
+   "face": "e",
+   "name": "州衙西廂",
+   "door": [
+    {
+     "text": "院牆擋著，得從大門進去。"
+    }
+   ],
+   "st": {
+    "w": 3,
+    "h": 3,
+    "door": 1,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "timber": "#8a2e26"
+   },
+   "decor": true
+  },
+  {
+   "style": "yamen_wing",
+   "x": 69,
+   "y": 17,
+   "face": "w",
+   "name": "州衙東廂",
+   "door": [
+    {
+     "text": "院牆擋著，得從大門進去。"
+    }
+   ],
+   "st": {
+    "w": 3,
+    "h": 3,
+    "door": 1,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "timber": "#8a2e26"
+   },
+   "decor": true
+  },
+  {
+   "style": "yamen_gate",
+   "x": 64,
+   "y": 24,
+   "face": "s",
+   "name": "煙州州衙",
+   "sign": "煙州州衙",
+   "door": [],
+   "st": {
+    "w": 3,
+    "h": 3,
+    "door": 1,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "wall": "#9a3a2e",
+    "timber": "#5a1a14",
+    "doorPaint": "#1e1a1a",
+    "lanterns": true
+   },
+   "enter": {
+    "to": "town:yzfu:0",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house2",
+   "x": 74,
+   "y": 22,
+   "face": "s",
+   "name": "通衢車馬行",
+   "sign": "通衢車馬行",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:yzfu:12",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "馬"
+  },
+  {
+   "style": "hall",
+   "x": 18,
+   "y": 31,
+   "face": "n",
+   "name": "長風武館",
+   "sign": "長風武館",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "plaque": true,
+    "timber": "#8a2e26"
+   },
+   "enter": {
+    "to": "town:yzfu:18",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "武"
+  },
+  {
+   "style": "teahouse",
+   "x": 37,
+   "y": 31,
+   "face": "n",
+   "name": "府前客棧",
+   "sign": "府前客棧",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "enter": {
+    "to": "town:yzfu:1",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "客"
+  },
+  {
+   "style": "house2",
+   "x": 18,
+   "y": 40,
+   "face": "s",
+   "name": "巧匠木作",
+   "sign": "巧匠木作",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:yzfu:13",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "木"
+  },
+  {
+   "style": "house",
+   "x": 35,
+   "y": 40,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "屋裡傳來剁菜的聲音，飯菜的香味飄出來。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "teahouse",
+   "x": 18,
+   "y": 46,
+   "face": "s",
+   "name": "醉煙樓",
+   "sign": "醉煙樓",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 5,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "enter": {
+    "to": "town:yzfu:2",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "酒"
+  },
+  {
+   "style": "smithy",
+   "x": 26,
+   "y": 47,
+   "face": "s",
+   "name": "百煉鐵鋪",
+   "sign": "百煉鐵鋪",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:yzfu:8",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "鐵"
+  },
+  {
+   "style": "house",
+   "x": 32,
+   "y": 47,
+   "face": "s",
+   "name": "雲錦布莊",
+   "sign": "雲錦布莊",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:yzfu:9",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "布"
+  },
+  {
+   "style": "hall",
+   "x": 52,
+   "y": 31,
+   "face": "n",
+   "name": "青蚨錢莊",
+   "sign": "青蚨錢莊",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "lanterns": true,
+    "plaque": true
+   },
+   "enter": {
+    "to": "town:yzfu:4",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "錢"
+  },
+  {
+   "style": "teahouse",
+   "x": 60,
+   "y": 31,
+   "face": "n",
+   "name": "青蚨坊",
+   "sign": "青蚨坊",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "enter": {
+    "to": "town:yzfu:16",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "賭"
+  },
+  {
+   "style": "hall",
+   "x": 67,
+   "y": 31,
+   "face": "n",
+   "name": "錦雲戲樓",
+   "sign": "錦雲戲樓",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true,
+    "plaque": true,
+    "timber": "#8a2e26"
+   },
+   "enter": {
+    "to": "town:yzfu:11",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "戲"
+  },
+  {
+   "style": "hall",
+   "x": 74,
+   "y": 31,
+   "face": "n",
+   "name": "金刀鏢局府城分號",
+   "sign": "金刀鏢局府城分號",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "lanterns": true,
+    "plaque": true,
+    "timber": "#8a2e26"
+   },
+   "enter": {
+    "to": "town:yzfu:19",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "鏢"
+  },
+  {
+   "style": "house2",
+   "x": 52,
+   "y": 47,
+   "face": "s",
+   "name": "萬全雜貨",
+   "sign": "萬全雜貨",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:yzfu:7",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "雜"
+  },
+  {
+   "style": "house",
+   "x": 58,
+   "y": 47,
+   "face": "s",
+   "name": "濟和堂",
+   "sign": "濟和堂",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:yzfu:6",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "藥"
+  },
+  {
+   "style": "house",
+   "x": 73,
+   "y": 47,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門上的春聯褪了色，主人家大概出門了。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   }
+  },
+  {
+   "style": "house2",
+   "x": 53,
+   "y": 40,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門上的春聯褪了色，主人家大概出門了。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "house",
+   "x": 60,
+   "y": 40,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門上的春聯褪了色，主人家大概出門了。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   }
+  },
+  {
+   "style": "home1",
+   "x": 67,
+   "y": 40,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門口曬著一排衣裳，屋裡沒人應門。"
+    }
+   ],
+   "st": {
+    "w": 4,
+    "h": 3,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "home2",
+   "x": 76,
+   "y": 40,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "窗台上擺著幾盆花，門關得緊緊的。"
+    }
+   ],
+   "st": {
+    "w": 4,
+    "h": 3,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   }
+  }
+ ],
+ "props": [
+  {
+   "id": "",
+   "sprite": "paifang_city",
+   "x": 47,
+   "y": 2,
+   "w": 3,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": true,
+   "plaque": "煙州"
+  },
+  {
+   "id": "",
+   "sprite": "paifang_city",
+   "x": 47,
+   "y": 55,
+   "w": 3,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": true,
+   "plaque": "煙州"
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 48,
+   "y": 29,
+   "w": 1,
+   "lines": [
+    {
+     "text": "州城正中的大井，井欄是整塊青石鑿的，上面刻著「萬家」兩個字。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "bulletin",
+   "x": 46,
+   "y": 27,
+   "w": 1,
+   "lines": [],
+   "label": "看告示",
+   "script": "town/board",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_lion",
+   "x": 62,
+   "y": 27,
+   "w": 1,
+   "lines": [
+    {
+     "text": "州衙門口的石獅子，張著嘴，嘴裡含著一顆石珠。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_lion",
+   "x": 68,
+   "y": 27,
+   "w": 1,
+   "lines": [
+    {
+     "text": "州衙門口的石獅子，爪下按著一頭小獅。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "drum",
+   "x": 63,
+   "y": 27,
+   "w": 1,
+   "lines": [],
+   "label": "擊鼓",
+   "script": "yanzhou/drum",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "boat",
+   "x": 1,
+   "y": 21,
+   "w": 3,
+   "lines": [
+    {
+     "text": "漕幫的運糧船，船頭插著一面黑底白字的「漕」字旗。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "boat",
+   "x": 1,
+   "y": 36,
+   "w": 3,
+   "lines": [
+    {
+     "text": "一條卸空了的漕船，船工在甲板上曬網。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "jars",
+   "x": 5,
+   "y": 26,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一排米罈，罈口封著漕幫的火漆。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "log_pile",
+   "x": 11,
+   "y": 26,
+   "w": 1,
+   "lines": [
+    {
+     "text": "堆得老高的米袋。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "chest",
+   "x": 5,
+   "y": 40,
+   "w": 1,
+   "lines": [
+    {
+     "text": "裝貨的木箱，箱上烙著「府河漕運」。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "chest",
+   "x": 6,
+   "y": 40,
+   "w": 1,
+   "lines": [
+    {
+     "text": "木箱。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 12,
+   "y": 27,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「府河碼頭」\n漕幫府城總舵。往北白水渡、往南大江，船期問戴把頭。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "log_pile",
+   "x": 23,
+   "y": 43,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一堆松木料，等著蓋房子用。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "carriage",
+   "x": 74,
+   "y": 20,
+   "w": 2,
+   "lines": [
+    {
+     "text": "車馬行的馬車，車廂上漆著「通衢」兩字。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "pavilion",
+   "x": 35,
+   "y": 10,
+   "w": 3,
+   "lines": [],
+   "label": "撫琴／寫生",
+   "script": "yanzhou/garden_pavilion",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 36,
+   "y": 18,
+   "w": 1,
+   "lines": [],
+   "label": "釣魚",
+   "script": "yanzhou/garden_fish",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stele",
+   "x": 30,
+   "y": 23,
+   "w": 1,
+   "lines": [],
+   "label": "讀碑",
+   "script": "yanzhou/garden_stele",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "dummy_post",
+   "x": 27,
+   "y": 33,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "yanzhou/yard_dummy",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "dummy_post",
+   "x": 30,
+   "y": 33,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "yanzhou/yard_dummy",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "dummy_post",
+   "x": 33,
+   "y": 33,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "yanzhou/yard_dummy",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "dummy_post",
+   "x": 27,
+   "y": 36,
+   "w": 1,
+   "lines": [],
+   "label": "練樁",
+   "script": "yanzhou/yard_dummy",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 46,
+   "y": 31,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 50,
+   "y": 31,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 46,
+   "y": 49,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 50,
+   "y": 49,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 46,
+   "y": 34,
+   "w": 1,
+   "lines": [],
+   "label": "小吃",
+   "script": "yanzhou/night_food",
+   "when": "shichen >= 10",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 50,
+   "y": 34,
+   "w": 1,
+   "lines": [],
+   "label": "古玩",
+   "script": "yanzhou/night_curio",
+   "when": "shichen >= 10",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 46,
+   "y": 40,
+   "w": 1,
+   "lines": [],
+   "label": "算命",
+   "script": "yanzhou/night_fortune",
+   "when": "shichen >= 10",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 50,
+   "y": 40,
+   "w": 1,
+   "lines": [],
+   "label": "看把戲",
+   "script": "yanzhou/night_show",
+   "when": "shichen >= 10",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     47,
+     0
+    ],
+    [
+     48,
+     0
+    ],
+    [
+     49,
+     0
+    ]
+   ],
+   "world": "yanzhou",
+   "worldFrom": "baishuiyi"
+  },
+  {
+   "tiles": [
+    [
+     47,
+     57
+    ],
+    [
+     48,
+     57
+    ],
+    [
+     49,
+     57
+    ]
+   ],
+   "world": "yanzhou",
+   "worldFrom": "beilingguan"
+  },
+  {
+   "tiles": [
+    [
+     0,
+     28
+    ],
+    [
+     0,
+     29
+    ],
+    [
+     0,
+     30
+    ]
+   ],
+   "world": "yanzhou",
+   "worldFrom": "santang"
+  },
+  {
+   "tiles": [
+    [
+     87,
+     28
+    ],
+    [
+     87,
+     29
+    ],
+    [
+     87,
+     30
+    ]
+   ],
+   "world": "yanzhou",
+   "worldFrom": "chaoxin"
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [
+  {
+   "id": "yz_fang",
+   "name": "方硯秋",
+   "sprite": "",
+   "x": 22,
+   "y": 14,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 2,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "text": "在下方硯秋，在書院寄讀。山長的棋比他的文章還難懂。"
+     }
+    ],
+    [
+     {
+      "text": "書院旁那塊空地，聽說州衙要賣，不知道誰買得起。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "yz_ding",
+   "name": "丁大嬸",
+   "sprite": "",
+   "x": 44,
+   "y": 29,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 3,
+   "person": "",
+   "script": "",
+   "when": "",
+   "talks": [
+    [
+     {
+      "text": "夜市戌時才開，段二娘的湯圓可得早點去排。"
+     }
+    ],
+    [
+     {
+      "text": "漕幫跟青蚨會為了碼頭的泊位，吵了一個多月了。"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "yz_dai",
+   "name": "戴鐵肩",
+   "sprite": "",
+   "x": 9,
+   "y": 31,
+   "facing": "up",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/dock",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "yz_xinlan",
+   "name": "辛嵐",
+   "sprite": "",
+   "x": 30,
+   "y": 35,
+   "facing": "left",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/xinlan",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "yz_duan",
+   "name": "段二娘",
+   "sprite": "",
+   "x": 45,
+   "y": 34,
+   "facing": "right",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/night_food",
+   "when": "shichen >= 10",
+   "talks": []
+  },
+  {
+   "id": "yz_lan",
+   "name": "藍守拙",
+   "sprite": "",
+   "x": 51,
+   "y": 34,
+   "facing": "left",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/night_curio",
+   "when": "shichen >= 10",
+   "talks": []
+  },
+  {
+   "id": "yz_banxian",
+   "name": "余半仙",
+   "sprite": "",
+   "x": 45,
+   "y": 40,
+   "facing": "right",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/night_fortune",
+   "when": "shichen >= 10",
+   "talks": []
+  },
+  {
+   "id": "yz_fu",
+   "name": "傅小猴",
+   "sprite": "",
+   "x": 51,
+   "y": 40,
+   "facing": "left",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/night_show",
+   "when": "shichen >= 10",
+   "talks": []
+  },
+  {
+   "id": "yz_wuda",
+   "name": "烏大",
+   "sprite": "",
+   "x": 8,
+   "y": 41,
+   "facing": "up",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/thugs",
+   "when": "yz_berth == 3",
+   "talks": []
+  },
+  {
+   "id": "yz_wuer",
+   "name": "烏二",
+   "sprite": "",
+   "x": 10,
+   "y": 41,
+   "facing": "up",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "yanzhou/thugs",
+   "when": "yz_berth == 3",
+   "talks": []
+  }
+ ],
+ "ring": 18,
+ "lots": [
+  {
+   "id": "yzfu_lot1",
+   "name": "書院旁空地",
+   "x": 18,
+   "y": 15
+  },
+  {
+   "id": "yzfu_lot2",
+   "name": "城東北空地",
+   "x": 74,
+   "y": 8
+  },
+  {
+   "id": "yzfu_lot3",
+   "name": "城東南空地",
+   "x": 64,
+   "y": 46
+  },
+  {
+   "id": "yzfu_lot4",
+   "name": "城南空地",
+   "x": 39,
+   "y": 46
+  },
+  {
+   "id": "yzfu_lot5",
+   "name": "武館後空地",
+   "x": 26,
+   "y": 40
+  }
+ ]
+}

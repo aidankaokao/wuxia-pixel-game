@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med")]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth()]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -105,6 +105,21 @@ static func mq_join() -> Dictionary:
 		"steps": [["找大師兄陸鳴川應考", seek > 0 or t > 0 or joined], ["問心、觀骨", t >= 1 or joined], ["試劍：勝過記名弟子顧小滿", t >= 2 or joined], ["到大殿拜見掌門聞松年", joined]],
 		"reward": "成為鳴泉劍派的記名弟子、鳴泉劍法、鳴泉腰牌與弟子服",
 	}
+
+
+## 府河泊位（story/yanzhou.gd）：幫漕幫查假執照，或收青蚨會的錢替他們傳話
+static func yz_berth() -> Dictionary:
+	var b := _f("yz_berth")
+	if b == 0:
+		return {}
+	if b in [4, 5]:
+		return {"id": "yz_berth", "title": "府河泊位", "giver": "蕭萬貫", "place": "煙州府城・青蚨會館、漕幫總舵", "done": b == 5 and _f("yz_qf_paid") == 1,
+			"desc": "你收了青蚨會會首蕭萬貫的錢，替他把信送給漕幫總舵主褚萬川，勸漕幫按青蚨會的規矩交泊位錢。",
+			"steps": [["收下蕭萬貫的五十兩與信", true], ["把信交給褚萬川", b == 5], ["回青蚨會館領尾款", _f("yz_qf_paid") == 1]], "reward": "銀兩 100，跟漕幫翻臉"}
+	return {"id": "yz_berth", "title": "府河泊位", "giver": "褚萬川", "place": "煙州府城・漕幫總舵、州衙", "done": b == 7,
+		"desc": "府河碼頭東段的泊位，漕幫的船停了三十年。青蚨會拿出州衙的執照說泊位歸他們。漕幫總舵主褚萬川覺得執照有鬼，託你去州衙打聽。",
+		"steps": [["答應褚萬川去州衙打聽", true], ["問州衙的師爺柴守中", b >= 2], ["稟告知州韋明德", b >= 3], ["打退青蚨會來尋仇的打手（碼頭上）", b >= 6], ["回漕幫總舵覆命", b == 7]],
+		"reward": "銀兩 80、名聲、漕幫的交情（碼頭扛貨工錢多兩成）"}
 
 
 ## 鳴泉的下山委託（演武廣場的任務榜）

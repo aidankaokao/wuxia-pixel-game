@@ -684,9 +684,13 @@ func _path(from: Vector2i, to: Vector2i) -> Array:
 ## 照資料放一個人（地圖上的 npcs、室內的人）：{id, name, sprite, x, y, facing, wander, talks, script, when, 作息}
 func add_npc(n: Dictionary) -> Dictionary:
 	# 人物表裡的人：名字照人物表（scripts/person.gd）
-	if Person.resolve(n.get("id", "")) != "":
+	var pid := Person.resolve(n.get("id", ""))
+	if pid != "":
 		n = n.duplicate()
-		n.name = Person.name_of(n.id, n.name)
+		n.name = Person.name_of(n.id, n.get("name", ""))
+		# 地圖上沒寫樣子的，照人物表的 look
+		if n.get("sprite", "") == "":
+			n.sprite = Person.field(pid, "look", "villager")
 	var f := Chibi.make(n.get("sprite", "villager"))
 	add_child(f)
 	f.position = w3(n.x, n.y)

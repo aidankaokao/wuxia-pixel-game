@@ -180,5 +180,327 @@
   "home": "yzfu",
   "role": "府城的街坊，什麼消息都知道一點",
   "talk": ""
+ },
+ "yz_wei": {
+  "surname": "韋",
+  "given": "明德",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 6,
+  "look": "sect_judge",
+  "job": "書生",
+  "faction": {
+   "sect": "yz_yamen",
+   "rank": 3
+  },
+  "home": "yzfu",
+  "role": "煙州知州，做官謹慎，最怕地方上出亂子",
+  "talk": ""
+ },
+ "yz_ling": {
+  "surname": "凌",
+  "given": "鋒",
+  "gender": "男",
+  "born": -39,
+  "look": "guard",
+  "job": "捕快",
+  "base": {
+   "strength": 15,
+   "agility": 15,
+   "constitution": 14,
+   "energy": 10,
+   "insight": 12
+  },
+  "skills": {
+   "changfeng": 5,
+   "breathing": 4
+  },
+  "faction": {
+   "sect": "yz_yamen",
+   "rank": 2
+  },
+  "home": "yzfu",
+  "role": "州衙的總捕頭，長風武館出身",
+  "talk": ""
+ },
+ "yz_chu": {
+  "surname": "褚",
+  "given": "萬川",
+  "gender": "男",
+  "born": -53,
+  "life_roll": 4,
+  "look": "boss",
+  "job": "船家",
+  "traits": [
+   "好酒"
+  ],
+  "base": {
+   "strength": 17,
+   "agility": 12,
+   "constitution": 16,
+   "energy": 10,
+   "insight": 11
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 5
+  },
+  "faction": {
+   "sect": "caobang",
+   "rank": 3
+  },
+  "home": "yzfu",
+  "role": "漕幫總舵主，在府河上跑了四十年的船",
+  "talk": ""
+ },
+ "yz_dai": {
+  "surname": "戴",
+  "given": "鐵肩",
+  "gender": "男",
+  "born": -37,
+  "look": "boatman",
+  "job": "船家",
+  "base": {
+   "strength": 17,
+   "agility": 11,
+   "constitution": 16,
+   "energy": 8,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 3
+  },
+  "faction": {
+   "sect": "caobang",
+   "rank": 1
+  },
+  "home": "yzfu",
+  "role": "府河碼頭的把頭，管扛貨的腳夫",
+  "talk": ""
+ },
+ "yz_xiao": {
+  "surname": "蕭",
+  "given": "萬貫",
+  "gender": "男",
+  "born": -55,
+  "life_roll": 4,
+  "look": "storyteller",
+  "faction": {
+   "sect": "qingfu",
+   "rank": 3
+  },
+  "home": "yzfu",
+  "role": "青蚨會的會首，煙州一半的商號都欠他錢",
+  "talk": ""
+ },
+ "yz_rui": {
+  "surname": "芮",
+  "given": "通",
+  "gender": "男",
+  "born": -39,
+  "look": "peddler",
+  "faction": {
+   "sect": "qingfu",
+   "rank": 1
+  },
+  "home": "yzfu",
+  "role": "青蚨坊的管事，搖骰子的手比誰都快",
+  "talk": ""
+ },
+ "yz_wuda": {
+  "surname": "烏",
+  "name": "烏大",
+  "gender": "男",
+  "born": -32,
+  "look": "bandit",
+  "traits": [
+   "暴躁"
+  ],
+  "base": {
+   "strength": 16,
+   "agility": 13,
+   "constitution": 15,
+   "energy": 8,
+   "insight": 8
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 2
+  },
+  "faction": {
+   "sect": "qingfu",
+   "rank": 0
+  },
+  "home": "yzfu",
+  "role": "青蚨會養的打手，專替會裡討債",
+  "talk": ""
+ },
+ "yz_wuer": {
+  "surname": "烏",
+  "name": "烏二",
+  "gender": "男",
+  "born": -29,
+  "look": "bandit",
+  "base": {
+   "strength": 14,
+   "agility": 15,
+   "constitution": 13,
+   "energy": 8,
+   "insight": 8
+  },
+  "skills": {
+   "basic-fist": 4,
+   "breathing": 2
+  },
+  "faction": {
+   "sect": "qingfu",
+   "rank": 0
+  },
+  "home": "yzfu",
+  "role": "烏大的弟弟，跟著哥哥討債",
+  "talk": ""
+ },
+ "yz_yan": {
+  "surname": "顏",
+  "given": "敬齋",
+  "gender": "男",
+  "born": -63,
+  "life_roll": 8,
+  "look": "elder",
+  "job": "書生",
+  "traits": [
+   "清心寡欲"
+  ],
+  "hobby": {
+   "art": "chess",
+   "level": 6,
+   "stage": 0,
+   "style": 0
+  },
+  "home": "yzfu",
+  "role": "煙山書院的山長，棋下得比書教得還好",
+  "talk": ""
+ },
+ "yz_mu": {
+  "surname": "穆",
+  "given": "雲帆",
+  "gender": "男",
+  "born": -18,
+  "look": "scholar",
+  "job": "書生",
+  "home": "yzfu",
+  "role": "煙山書院的學子，一心想考功名",
+  "talk": ""
+ },
+ "yz_xinc": {
+  "surname": "辛",
+  "given": "長風",
+  "gender": "男",
+  "born": -49,
+  "look": "smith",
+  "base": {
+   "strength": 17,
+   "agility": 14,
+   "constitution": 16,
+   "energy": 12,
+   "insight": 13
+  },
+  "skills": {
+   "changfeng": 8,
+   "breathing": 5
+  },
+  "home": "yzfu",
+  "role": "長風武館的館主，一套長風拳在府城沒有對手",
+  "talk": ""
+ },
+ "yz_xinlan": {
+  "surname": "辛",
+  "given": "嵐",
+  "gender": "女",
+  "born": -19,
+  "look": "disciple_girl",
+  "base": {
+   "strength": 13,
+   "agility": 16,
+   "constitution": 13,
+   "energy": 11,
+   "insight": 13
+  },
+  "skills": {
+   "changfeng": 4,
+   "breathing": 3
+  },
+  "home": "yzfu",
+  "role": "館主的女兒，武館的大師姊",
+  "talk": ""
+ },
+ "yz_jinh": {
+  "surname": "金",
+  "given": "萬河",
+  "gender": "男",
+  "born": -45,
+  "look": "escort",
+  "job": "鏢師",
+  "base": {
+   "strength": 16,
+   "agility": 13,
+   "constitution": 15,
+   "energy": 10,
+   "insight": 11
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 4
+  },
+  "faction": {
+   "sect": "jindao",
+   "rank": 2
+  },
+  "home": "yzfu",
+  "role": "金刀鏢局府城分號的鏢頭，總鏢頭金萬山的弟弟",
+  "talk": ""
+ },
+ "yz_duan": {
+  "surname": "段",
+  "name": "段二娘",
+  "gender": "女",
+  "born": -43,
+  "look": "aunt",
+  "home": "yzfu",
+  "role": "夜市擺小吃攤，湯圓、餛飩一碗一兩",
+  "talk": ""
+ },
+ "yz_fu": {
+  "surname": "傅",
+  "given": "小猴",
+  "gender": "男",
+  "born": -16,
+  "look": "child",
+  "home": "yzfu",
+  "role": "夜市耍把戲的少年，翻筋斗、頂碗樣樣行",
+  "talk": ""
+ },
+ "yz_lan": {
+  "surname": "藍",
+  "given": "守拙",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 7,
+  "look": "storyteller",
+  "home": "yzfu",
+  "role": "夜市擺古玩攤，什麼都說是前朝的",
+  "talk": ""
+ },
+ "yz_banxian": {
+  "surname": "余",
+  "name": "余半仙",
+  "gender": "男",
+  "born": -61,
+  "life_roll": 8,
+  "look": "elder",
+  "home": "yzfu",
+  "role": "夜市的算命先生",
+  "talk": ""
  }
 }

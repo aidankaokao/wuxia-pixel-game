@@ -1038,6 +1038,14 @@ func _prop(p: Dictionary) -> void:
 			pl.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 			pl.position = Vector3(0, 2.25, 0.3)
 			g.add_child(pl)
+		"dummy_post":
+			# 練武場的木人樁：一根粗木樁，伸出三根木臂
+			g.add_child(Mk.cyl(0.2, 0.22, 1.5, Color("7a5230"), Vector3(0, 0.75, 0), 9))
+			g.add_child(Mk.cyl(0.3, 0.3, 0.1, Color("6a6458"), Vector3(0, 0.05, 0), 9))
+			for k in 3:
+				var arm := Mk.box(Vector3(0.08, 0.08, 0.45), Color("8a6038"), Vector3(0, 0.75 + k * 0.28, 0.3))
+				arm.rotation.y = [-0.6, 0.6, 0.0][k]
+				g.add_child(arm)
 		"stone_lion":
 			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.7), Color("a8a296"), Vector3(0, 0.2, 0)))
 			g.add_child(Mk.ball(0.3, Color("b8b2a4"), Vector3(0, 0.65, -0.05), 8))

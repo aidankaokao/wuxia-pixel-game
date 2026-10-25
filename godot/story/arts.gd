@@ -134,9 +134,9 @@ static func painting_roll(level: int) -> int:
 
 
 ## 自己練一門雅藝：每回半個時辰與體力，加技能經驗，各有一點小用處
-static func practice(ctx: Ctx, art: String, idle: String) -> void:
+static func practice(ctx: Ctx, art: String, idle: String, ask := "") -> void:
 	var p: Dictionary = PRACTICE[art]
-	if await ctx.ask("%s\n%s" % [idle, p.ask], ["好", "算了"]) != 0:
+	if await ctx.ask("%s\n%s" % [idle, ask if ask != "" else p.ask], ["好", "算了"]) != 0:
 		return
 	var n := await Train.ask_rounds(ctx, PRACTICE_STAMINA, p.verb, 99, PRACTICE_KE)
 	if n == 0 or not await Train.exert(ctx, PRACTICE_STAMINA * n, "累得提不起精神，靜不下心來。"):

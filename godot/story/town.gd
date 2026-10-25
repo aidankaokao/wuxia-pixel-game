@@ -69,7 +69,14 @@ static func _here(ctx: Ctx) -> Dictionary:
 	var c := TownGen.cfg(map)
 	var sh: Array = c.shops[i]
 	var pid: String = sh[2]
-	return {"map": map, "i": i, "kind": sh[0], "name": sh[1], "keeper": pid, "who": Person.full_name(pid) if Person.alive(pid) else "夥計", "cfg": c}
+	return {"map": map, "i": i, "kind": sh[0], "name": sh[1], "keeper": pid, "who": Person.full_name(pid) if Person.alive(pid) else "夥計", "cfg": c,
+		"script": sh[3] if sh.size() > 3 else ""}
+
+
+## 第四欄「檔名/函式」指到的劇情（手工做的城裡，店家另外有事）：func(ctx, h)
+static func _override(h: Dictionary) -> Callable:
+	var parts: PackedStringArray = String(h.script).split("/")
+	return Callable(load("res://story/%s.gd" % parts[0]), parts[1])
 
 
 ## 今天打聽到的消息（一天一則，店家各說各的）
@@ -91,6 +98,21 @@ static func _rumor(ctx: Ctx, h: Dictionary) -> void:
 
 static func shop(ctx: Ctx) -> void:
 	var h := _here(ctx)
+	if h.script != "":
+		await _override(h).call(ctx, h)
+		return
+	await default_shop(ctx, h)
+
+
+## 店裡另外站的人（shops 的第五欄）：交給第四欄劇情檔的 extra(ctx, 人物 id, h)
+static func extra(ctx: Ctx) -> void:
+	var h := _here(ctx)
+	var parts: PackedStringArray = String(h.script).split("/")
+	await Callable(load("res://story/%s.gd" % parts[0]), "extra").call(ctx, ctx.extra.get("npc", ""), h)
+
+
+## 照店種的一般做法（手工做的店也可以先處理自己的事，再交回這裡）
+static func default_shop(ctx: Ctx, h: Dictionary) -> void:
 	match h.kind:
 		"inn":
 			await _inn(ctx, h)

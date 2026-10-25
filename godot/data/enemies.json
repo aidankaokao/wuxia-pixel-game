@@ -487,6 +487,56 @@
    "points": 3,
    "spar": true,
    "cap": 171
+  },
+  "spar_xinlan": {
+   "enemies": [
+    "person:yz_xinlan"
+   ],
+   "background": "mountain",
+   "intro": "辛嵐把袖子一挽：「師父說了，來武館的都得先過我這一關。請！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.6,
+   "points": 1,
+   "spar": true,
+   "scale": 0.68
+  },
+  "spar_xinc": {
+   "enemies": [
+    "person:yz_xinc"
+   ],
+   "background": "mountain",
+   "intro": "辛長風站定馬步：「來，讓我看看你的拳頭有幾斤重。」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.8,
+   "points": 2,
+   "spar": true,
+   "scale": 0.89
+  },
+  "berth_dai": {
+   "enemies": [
+    "person:yz_dai"
+   ],
+   "background": "mountain",
+   "intro": "戴鐵肩把扁擔往地上一頓：「拿了青蚨會的錢來壓我們漕幫？先問問我這副肩膀！」",
+   "canFlee": true,
+   "silver": 0,
+   "points": 2,
+   "spar": true,
+   "scale": 0.88
+  },
+  "berth_thugs": {
+   "enemies": [
+    "person:yz_wuda",
+    "person:yz_wuer"
+   ],
+   "background": "mountain",
+   "intro": "烏大捏著拳頭冷笑：「壞了會首的好事，今天就讓你躺著離開碼頭。」",
+   "canFlee": true,
+   "silver": 12,
+   "points": 3,
+   "scale": 0.77
   }
  }
 }

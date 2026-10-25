@@ -2,6 +2,18 @@
 ## 門口走得到、房子不重疊、出口都在、從城門走得到每間店與每塊空地。
 
 
+## run:dev_town/parse 載入樣板與府城的劇情檔（檢查有沒有語法錯誤），印出今日事與任務
+static func parse(_ctx: Ctx) -> void:
+	for p in ["res://story/town.gd", "res://story/yanzhou.gd"]:
+		print("TOWN 載入 %s：%s" % [p, "好" if load(p) != null else "失敗"])
+	G.flags["yz_berth"] = 2
+	G.life.loan = {"owe": 120, "due": G.day + 2, "day": G.day}
+	print("TOWN 任務 %s" % str(Quests.yz_berth().steps))
+	print("TOWN 今日事 %s" % str(load("res://story/yanzhou.gd").tasks()))
+	G.flags.erase("yz_berth")
+	G.life.erase("loan")
+
+
 ## run:dev_town/rich 身上多五千兩（測買地、蓋屋）
 static func rich(_ctx: Ctx) -> void:
 	G.silver += 5000
@@ -22,7 +34,7 @@ static func data(_ctx: Ctx) -> void:
 		var c: Dictionary = TownGen.towns()[node]
 		for i in c.shops.size():
 			var r := TownGen.room_data("town:%s:%d" % [c.map, i])
-			if r.npcs.size() != 1:
+			if r.npcs.size() < 1:
 				errs.append("%s 的 %s 沒有掌櫃" % [c.name, c.shops[i][1]])
 			var sp: Dictionary = r.exits[0].spawn
 			if r.exits[0].to != c.map:
@@ -78,7 +90,7 @@ static func check(_ctx: Ctx) -> void:
 			for yy in range(int(b.y), int(b.y) + fp.y):
 				for xx in range(int(b.x), int(b.x) + fp.x):
 					var k := Vector2i(xx, yy)
-					if blocked.has(k) and grid[yy][xx] != "." and grid[yy][xx] != "=" and grid[yy][xx] != ":":
+					if blocked.has(k) and not grid[yy][xx] in [".", "=", ":", "X", "R"]:
 						errs.append("%s 壓在地形 %s 上 (%d,%d)" % [b.name, grid[yy][xx], xx, yy])
 					if blocked.get(k, false) is String:
 						errs.append("%s 跟 %s 重疊" % [b.name, blocked[k]])
@@ -86,7 +98,7 @@ static func check(_ctx: Ctx) -> void:
 					grid[yy][xx] = "B"
 		for p in d.props:
 			if not p.get("passable", false):
-				for i in int(p.w):
+				for i in int(p.w) if p.get("when", "") == "" else 0:
 					blocked[Vector2i(int(p.x) + i, int(p.y))] = true
 					grid[p.y][int(p.x) + i] = "P"
 		for l in d.lots:
@@ -108,6 +120,8 @@ static func check(_ctx: Ctx) -> void:
 				seen[n] = true
 				q.append(n)
 		for b in d.buildings:
+			if b.get("decor", false):
+				continue
 			var dt := Village.door_tile(b)
 			var fr: Vector2i = dt + Village.FACE_DIR[b.get("face", "s")]
 			if not seen.has(fr):
