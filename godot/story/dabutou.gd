@@ -84,6 +84,8 @@ static func stall_lang(ctx: Ctx) -> void:
 
 static func trader_talk(ctx: Ctx) -> void:
 	var luo := _by("駱千帆")
+	if await load("res://story/managers.gd").offer(ctx, "bp_trader"):
+		return
 	var c := await ctx.ask(luo.call("在下駱千帆，跑南洋的海商。這些都是船上帶回來的好東西，看看？"), ["看看", "閒聊", "不用了"])
 	if c == 0:
 		await ctx.shop("海商會館", TRADER_STOCK)
@@ -172,6 +174,8 @@ static func tide_watch(ctx: Ctx) -> void:
 
 static func fisher_talk(ctx: Ctx) -> void:
 	var pang := _by("龐老大")
+	if await load("res://story/managers.gd").offer(ctx, "bp_pang"):
+		return
 	if await ctx.ask(pang.call("船剛靠岸，網裡全是魚。來幫忙收網？給你工錢，再分你幾條魚。"), ["幫忙收網（一個時辰、體力 %d，工錢 %d 兩）" % [NET_STAMINA, NET_PAY], "不用了"]) != 0:
 		return
 	if not await Train.exert(ctx, NET_STAMINA, "腿都站不穩了，上船只會掉下海。"):

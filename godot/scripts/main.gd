@@ -297,7 +297,7 @@ func go(id: String, at := {}) -> void:
 		scene = v
 		rig.size = 14.0
 		rig.size_max = 26.0
-	elif id in Village.ROOMS:
+	elif Village.is_room(id):
 		var r := Room.new()
 		r.setup(ui, rig, self, at)
 		r.open(id)
@@ -305,6 +305,8 @@ func go(id: String, at := {}) -> void:
 		rig.size = 8.0
 		rig.size_max = 12.0
 	add_child(scene)
+	# 經營：到過哪些城（總號帳簿只列去過的地方的供應商）
+	Biz.visit(id)
 	if id.begins_with("zhou:"):
 		scene_id = "world"
 	if scene.get("data") is Dictionary:
@@ -425,8 +427,9 @@ func apply_time() -> void:
 	env.fog_light_color = bg
 	env.fog_enabled = w in ["rain", "fog", "snow"]
 	env.fog_density = 0.015 if w == "fog" else 0.003
-	rain_fx.emitting = w == "rain"
-	snow_fx.emitting = w == "snow"
+	# 屋裡不下雨、不下雪
+	rain_fx.emitting = w == "rain" and not scene is Room
+	snow_fx.emitting = w == "snow" and not scene is Room
 	var lamp_e := lerpf(a.lamp, b.lamp, f)
 	if scene is GridScene:
 		# 屋裡的燈白天也點著（亮度低一些）

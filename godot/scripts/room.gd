@@ -36,8 +36,13 @@ func open(id: String) -> void:
 
 
 func _ready() -> void:
-	var f := FileAccess.open("res://data/%s.json" % room_id, FileAccess.READ)
-	data = JSON.parse_string(f.get_as_text())
+	data = {}
+	for k in Village.GEN_ROOMS:
+		if room_id.begins_with(k):
+			data = load(Village.GEN_ROOMS[k]).room_data(room_id)
+	if data.is_empty():
+		var f := FileAccess.open("res://data/%s.json" % room_id, FileAccess.READ)
+		data = JSON.parse_string(f.get_as_text())
 	th = THEMES.get(data.get("theme", "plain"), THEMES["plain"])
 	var tiles: Array = data.tiles
 	H = tiles.size()
@@ -46,7 +51,7 @@ func _ready() -> void:
 	oz = -H / 2.0
 	for y in H:
 		for x in W:
-			if tile(x, y) in ["W", "E"]:
+			if tile(x, y) in ["W", "E", "f", "~"]:
 				blocked[Vector2i(x, y)] = true
 	# 門口：對著門按空白鍵出去
 	for e in data.exits:
@@ -81,6 +86,10 @@ func _floor() -> void:
 			var col: Color = planks[(x * 7 + y * 3) % 3]
 			if c == "E":
 				col = Color("8a8478")
+			# 院子（自宅）：草地、籬笆底下也是草、石板、池塘
+			if c in [".", "f", "=", "~"]:
+				_yard(x, y, c)
+				continue
 			# 地板一格接一格（不留縫，不然每格都會被描邊）；木地板畫兩條木紋，石板地畫十字的石縫
 			add_child(Mk.box(Vector3(1.0, 0.1, 1.0), col, w3(x, y, -0.05)))
 			if c == "E":
@@ -95,6 +104,37 @@ func _floor() -> void:
 	for e in data.exits:
 		var t: Array = e.tiles[0]
 		add_child(Mk.box(Vector3(1.6, 0.08, 0.8), Color("9a968a"), w3(t[0], t[1] + 0.8, -0.06)))
+
+
+## 隔間牆的寬深：橫著連的牆薄在 z、直著連的薄在 x，兩邊都連（轉角）就是一根方柱
+func _inner_w(x: int, y: int) -> Vector2:
+	var wall := ["W", "d"]
+	var h := tile(x - 1, y) in wall or tile(x + 1, y) in wall
+	var v := tile(x, y - 1) in wall or tile(x, y + 1) in wall
+	if h and not v:
+		return Vector2(1.0, WALL_T)
+	if v and not h:
+		return Vector2(WALL_T, 1.0)
+	return Vector2(WALL_T * 1.5, WALL_T * 1.5)
+
+
+## 院子的一格：草地（深淺兩色）、籬笆（草地上兩根竹樁、兩道橫竹）、石板、池塘（往下凹的水面）
+func _yard(x: int, y: int, c: String) -> void:
+	match c:
+		"=":
+			add_child(Mk.box(Vector3(1.0, 0.1, 1.0), Color("a8a296") if (x + y) % 2 == 0 else Color("9e988c"), w3(x, y, -0.05)))
+		"~":
+			add_child(Mk.box(Vector3(1.0, 0.1, 1.0), Color("6a5a42"), w3(x, y, -0.2)))
+			add_child(Mk.box(Vector3(1.0, 0.02, 1.0), Color("4a7a96"), w3(x, y, -0.08)))
+		_:
+			add_child(Mk.box(Vector3(1.0, 0.1, 1.0), Color("7aa04a") if (x * 3 + y) % 2 == 0 else Color("729848"), w3(x, y, -0.05)))
+			if c == "f":
+				var bamboo := Color("a89a5a")
+				for dx in [-0.3, 0.3]:
+					add_child(Mk.cyl(0.04, 0.045, 0.75, bamboo, w3(x, y, 0.375) + Vector3(dx, 0, 0), 6))
+				var horiz := tile(x - 1, y) == "f" or tile(x + 1, y) == "f" or tile(x - 1, y) == "E" or tile(x + 1, y) == "E"
+				for hy in [0.3, 0.6]:
+					add_child(Mk.box(Vector3(1.0, 0.04, 0.04) if horiz else Vector3(0.04, 0.04, 1.0), bamboo.darkened(0.15), w3(x, y, hy)))
 
 
 ## 牆：每一格一段，底下是深色牆腳、上面白牆、牆頂木條
@@ -118,6 +158,13 @@ func _walls() -> void:
 				on.append("e")
 			var seg := Node3D.new()
 			seg.position = w3(x, y)
+			if on.is_empty():
+				# 屋裡的隔間牆（自宅的屋子與院子之間、客房）：矮一點、一直立著，不擋住視線
+				var iw := _inner_w(x, y)
+				seg.add_child(Mk.box(Vector3(iw.x, 1.0, iw.y), Color(th.wall), Vector3(0, 0.5, 0)))
+				seg.add_child(Mk.box(Vector3(iw.x + 0.04, 0.08, iw.y + 0.04), Color("5a3a22"), Vector3(0, 1.03, 0)))
+				add_child(seg)
+				continue
 			# 牆只佔靠屋裡的那一條：北牆貼這一格的南緣、西牆貼東緣……；轉角只立一根小方柱接起兩面牆
 			var inner := 0.5 - WALL_T / 2.0
 			var off := Vector3.ZERO
@@ -142,11 +189,13 @@ func _walls() -> void:
 			if on.size() >= 2:
 				add_child(seg)
 				corners.append({"node": seg, "sides": on})
-			elif on.size() == 1:
+			else:
 				sides[on[0]].add_child(seg)
-	# 門框（在門所在的那面牆上）
+	# 門框（在門所在的那面牆上；院子的籬笆門不用）
 	for e in data.exits:
 		var t: Array = e.tiles[0]
+		if tile(t[0] - 1, t[1]) != "W":
+			continue
 		for dx in [-0.48, 0.48]:
 			sides["s"].add_child(Mk.box(Vector3(0.14, WALL_H, WALL_T + 0.06), Color("5a3a22"), w3(t[0], t[1], WALL_H / 2.0) + Vector3(dx, 0, -(0.5 - WALL_T / 2.0))))
 
@@ -321,7 +370,35 @@ func _prop(p: Dictionary) -> void:
 	add_child(g)
 	var wood := Color("7a5232")
 	var dark := Color("5a3a22")
-	match p.sprite:
+	match _canon(p.sprite):
+		"garden":
+			# 藥圃：一畦翻好的土、一排排止血草
+			g.add_child(Mk.box(Vector3(w - 0.1, 0.12, 0.85), Color("6a4a30"), Vector3(0, 0.06, 0)))
+			for i in w * 3:
+				g.add_child(Mk.ball(0.12, Color("5a8a3a") if i % 2 else Color("6a9a42"), Vector3(-w / 2.0 + 0.2 + i * 0.32, 0.2, -0.2 + (i % 2) * 0.4), 6))
+			return
+		"fish_rack":
+			# 晾魚架：兩根竹竿撐一根橫竿
+			for sx in [-w / 2.0 + 0.15, w / 2.0 - 0.15]:
+				g.add_child(Mk.cyl(0.04, 0.045, 1.4, Color("a89a5a"), Vector3(sx, 0.7, 0), 6))
+			g.add_child(Mk.box(Vector3(w - 0.2, 0.05, 0.05), Color("8a7a42"), Vector3(0, 1.35, 0)))
+			var est: Dictionary = load("res://story/estate.gd").estates().get(room_id.substr(5), {})
+			for i in mini(5, int(est.get("rack", {}).get("n", 0))):
+				g.add_child(Mk.box(Vector3(0.12, 0.4, 0.04), Color("b8a888"), Vector3(-w / 2.0 + 0.4 + i * 0.28, 1.1, 0)))
+			return
+		"ripple":
+			for k in 2:
+				var ring := MeshInstance3D.new()
+				var tm := TorusMesh.new()
+				tm.inner_radius = 0.15 + k * 0.15
+				tm.outer_radius = 0.18 + k * 0.15
+				ring.mesh = tm
+				ring.material_override = Mk.mat(Color("a8d0e0"))
+				ring.position = Vector3(0, -0.06, 0)
+				ring.scale.y = 0.2
+				g.add_child(ring)
+			return
+	match _canon(p.sprite):
 		"counter":
 			# 長櫃台：深色檯面、前面一排木板，檯上茶壺、茶碗、梅子罐
 			g.add_child(Mk.box(Vector3(w - 0.1, 0.85, 0.7), wood, Vector3(0, 0.425, 0)))
@@ -492,6 +569,34 @@ func _prop(p: Dictionary) -> void:
 			_stove(g, w)
 		_:
 			g.add_child(Mk.box(Vector3(w * 0.8, 0.8, 0.6), wood, Vector3(0, 0.4, 0)))
+
+
+## 自宅的家具（f_家具_風格_等級，見 story/estate.gd）換成這裡做好的畫法；其他照原名
+static func _canon(sprite: String) -> String:
+	var parts := sprite.split("_")
+	if parts.size() < 4 or parts[0] != "f":
+		return sprite
+	var lv := int(parts[3])
+	match parts[1]:
+		"bed", "guestbed":
+			return "f_bed_plain_1"
+		"stove":
+			return "f_stove_plain_1"
+		"shelf":
+			return "f_shelf_plain_1"
+		"table":
+			return "f_table_plain_1"
+		"deco":
+			return "f_deco_martial_1" if parts[2] == "martial" else "f_deco_plain_1"
+		"dummy":
+			return "f_dummy_martial_3" if lv >= 3 else "f_dummy_martial_2"
+		"furnace":
+			return "f_furnace_plain_2"
+		"garden":
+			return "garden"
+		"rack":
+			return "fish_rack"
+	return sprite
 
 
 ## 牆上的擺設：掛軸（寫字的或山水）、上鎖的門；g 的 +z 朝屋裡

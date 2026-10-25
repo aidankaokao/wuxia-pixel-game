@@ -15,6 +15,9 @@ const COSTS := {
 	"fishing/river": [1, 5], "fishing/pier": [1, 5], "fishing/reeds": [1, 5], "fishing/isle": [1, 5], "biyi/lotus_pond": [4, 10],
 	"arts/mq_shelf": [4, 10], "arts/academy_shelf": [4, 10], "arts/mq_desk": [4, 8], "arts/academy_desk": [4, 8],
 	"arts/ting_quan": [4, 8], "arts/ting_jian": [4, 8], "arts/tea_board": [4, 8], "arts/wang_jiang": [4, 8],
+	# 自宅的家具（story/estate.gd；共用 estate/use，冒號後是哪一件）
+	"estate/use:dummy": [2, 20], "estate/use:shelf": [2, 10], "estate/use:stove": [2, 6], "estate/use:garden": [2, 0], "estate/use:furnace": [4, 0],
+	"estate/pond": [1, 5],
 }
 
 

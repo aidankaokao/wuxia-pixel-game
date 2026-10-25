@@ -169,6 +169,8 @@ static func lotus_pond(ctx: Ctx) -> void:
 
 static func ruan_stall(ctx: Ctx) -> void:
 	var ruan := _by("阮大水")
+	if await load("res://story/managers.gd").offer(ctx, "by_ruan"):
+		return
 	var c := await ctx.ask(ruan.call("今天的魚都在簍子裡。你要是自己釣了魚，我也收——價錢公道！"), ["買魚／賣魚", "聊聊", "不用了"])
 	if c == 0:
 		var buys: Array = Crafts.data().fish.map(func(f): return f.id) + ["lotus_root", "water_chestnut", "white_carp"]

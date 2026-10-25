@@ -69,6 +69,12 @@ static func tasks() -> Array:
 	out += load("res://story/mq_trade.gd").tasks()
 	out += load("res://story/mq_industry.gd").tasks()
 	out += load("res://story/mq_order.gd").tasks()
+	# 自宅、房產與經營
+	out += load("res://story/estate.gd").tasks()
+	out += load("res://story/property.gd").tasks()
+	out += load("res://story/shop.gd").tasks()
+	out += load("res://story/shop_events.gd").tasks()
+	out += load("res://story/managers.gd").tasks()
 	for b in load("res://story/linjiang.gd").BOUNTIES:
 		var v := _f("lj_b_" + b[0])
 		if v > 0:

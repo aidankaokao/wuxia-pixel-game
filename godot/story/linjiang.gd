@@ -95,15 +95,22 @@ static func _rumors() -> Array:
 	return out
 
 
+## 你是這家老店的東家嗎（買下照舊經營，見 story/property.gd）：掌櫃改口叫東家、東西打八折、客棧免費住
+static func _boss(pid: String) -> bool:
+	return Biz.owned(pid).get("use", "") == "business"
+
+
 static func inn_talk(ctx: Ctx) -> void:
 	if await Festival.inn(ctx):
 		return
 	var he := _by("賀長年")
-	var c := await ctx.ask(he.call("客官，住店還是打尖？"), ["住店（%d 兩，睡到天亮）" % INN_PRICE, "打尖（喝壺茶 %d 兩，聽聽傳聞）" % TEA_PRICE, "不用了"])
+	var boss := _boss("ljb_inn")
+	var price := 0 if boss else INN_PRICE
+	var c := await ctx.ask(he.call("東家來了！今天住店，還是坐坐喝壺茶？" if boss else "客官，住店還是打尖？"), ["住店（東家免費，睡到天亮）" if boss else "住店（%d 兩，睡到天亮）" % INN_PRICE, "打尖（喝壺茶 %d 兩，聽聽傳聞）" % TEA_PRICE, "不用了"])
 	if c == 0:
-		if not await _pay(ctx, INN_PRICE, "賀長年"):
+		if not await _pay(ctx, price, "賀長年"):
 			return
-		await ctx.say(he.call("天字二號房，被褥都是今天新曬的。小旺，帶客官上去！"))
+		await ctx.say(he.call("東家的房間一直空著，天天有人打掃。小旺，帶東家上去！" if boss else "天字二號房，被褥都是今天新曬的。小旺，帶客官上去！"))
 		await Train.rest(ctx, "要睡到天亮，還是歇幾個時辰？")
 	elif c == 1:
 		if ctx.flag("lj_rumor") == G.day:
@@ -121,8 +128,9 @@ static func inn_talk(ctx: Ctx) -> void:
 static func tower_talk(ctx: Ctx) -> void:
 	if await Festival.moon_banquet(ctx) or await Orders.talk(ctx, "tower"):
 		return
-	if await ctx.ask(_by("汪福來").call("客官樓上請！望江樓的菜，臨江城頭一份。"), ["點菜", "不用了"]) == 0:
-		await ctx.shop("望江樓・菜單", TOWER_MENU)
+	var boss := _boss("ljb_tower")
+	if await ctx.ask(_by("汪福來").call("東家來了！樓上雅座給您留著，今天想吃點什麼？" if boss else "客官樓上請！望江樓的菜，臨江城頭一份。"), ["點菜" + ("（東家八折）" if boss else ""), "不用了"]) == 0:
+		await ctx.ui.shop("望江樓・菜單", TOWER_MENU, 0.5, 0.2 if boss else 0.0)
 
 
 const TALES := [
@@ -148,6 +156,8 @@ static func clinic_talk(ctx: Ctx) -> void:
 	# 鳴泉的委託「回春堂送藥」：帶著藥包來
 	if ctx.flag("mq_c_med") == 1 and ctx.has("mq_medpack"):
 		await load("res://story/mingquan.gd").med_delivery(ctx)
+		return
+	if await load("res://story/managers.gd").offer(ctx, "lj_clinic"):
 		return
 	var c := await ctx.ask(bai.call("哪裡不舒服？"), ["買藥", "賣草藥（收得比別處高）", "看傷（%d 兩，氣血、內力回滿）" % HEAL_PRICE, "不用了"])
 	if c == 0:
@@ -183,9 +193,10 @@ static func pawn_stock() -> Array:
 
 static func pawn_talk(ctx: Ctx) -> void:
 	var ho := _by("和守義")
-	var c := await ctx.ask(ho.call("當東西，還是看看死當的貨？"), ["看看死當貨（每旬換一批）", "典當（收得比別處高）", "不用了"])
+	var boss := _boss("ljb_pawn")
+	var c := await ctx.ask(ho.call("東家來了。這一旬的死當貨都在架上，您先挑。" if boss else "當東西，還是看看死當的貨？"), ["看看死當貨（每旬換一批%s）" % ("，東家八折" if boss else ""), "典當（收得比別處高）", "不用了"])
 	if c == 0:
-		await ctx.shop("和記當鋪・死當貨", pawn_stock())
+		await ctx.ui.shop("和記當鋪・死當貨", pawn_stock(), 0.5, 0.2 if boss else 0.0)
 	elif c == 1:
 		await ctx.say(ho.call("拿出來我瞧瞧。……嗯，就這個價，童叟無欺。"))
 		await ctx.ui.shop("和記當鋪・典當", [], PAWN_RATE)
@@ -194,7 +205,7 @@ static func pawn_talk(ctx: Ctx) -> void:
 # ── 錦繡布莊 ────────────────────────────────────────────
 
 static func cloth_talk(ctx: Ctx) -> void:
-	if await Orders.talk(ctx, "jin"):
+	if await Orders.talk(ctx, "jin") or await load("res://story/managers.gd").offer(ctx, "lj_cloth"):
 		return
 	var jin := _by("魏錦娘")
 	var c := await ctx.ask(jin.call("客官要看看什麼？"), ["看看衣物", "買紡織的材料", "學紡織", "閒聊", "不用了"])
@@ -350,6 +361,8 @@ static func notices(tab: String) -> Array:
 		"daily":
 			out.append({"title": "旬休趕集", "text": ["每逢初十、二十、三十旬休之日，城南商街擺出外地來的攤子：山貨、絲線、舊書、舊貨，平日少見。", "天黑收攤。"], "by": "臨江縣市司"})
 			out.append({"title": "鳴泉劍派開山收徒", "text": ["鳴泉劍派開山收徒，不拘時日。", "凡年滿十五、身家清白、有志習武者，可自行上鳴泉山應考，過得入門考驗即可拜師。"], "by": "鳴泉劍派"})
+			# 房屋、店鋪出售與轉讓（story/property.gd）
+			out += load("res://story/property.gd").notices()
 	return out
 
 
@@ -416,8 +429,9 @@ static func magistrate_talk(ctx: Ctx) -> void:
 		await ctx.say(_lines("盧秉文", ["本官盧秉文，臨江知縣。", "城裡的事，大小都歸衙門管。有事找師爺，懸賞找捕頭。"]))
 
 
+## 師爺苗守正：房產與商號（story/property.gd）
 static func clerk_talk(ctx: Ctx) -> void:
-	await ctx.say(_lines("苗守正", ["在下苗守正，忝為本縣刑名錢穀師爺。", "房契地契、過戶登記、商號開業，都歸在下管。有事儘管說。"]) + ["（房產與開店還沒搬過來）"])
+	await load("res://story/property.gd").clerk(ctx)
 
 
 # ── 漕幫分舵 ────────────────────────────────────────────
@@ -516,5 +530,6 @@ static func teashop_talk(ctx: Ctx) -> void:
 	await load("res://story/mq_trade.gd").teashop_talk(ctx)
 
 
+## 萬通牙行的錢六：房產、供貨合約、介紹掌櫃（story/property.gd）
 static func agent_talk(ctx: Ctx) -> void:
-	await ctx.say(_lines("錢六", ["萬通牙行，錢六。買房、賣房、招租，找我就對了！", "城北這幾間民居，屋主都託我賣。客官要是有意思，改天帶你看看。"]) + ["（房產還沒搬過來）"])
+	await load("res://story/property.gd").agent(ctx)

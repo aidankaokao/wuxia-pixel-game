@@ -67,7 +67,7 @@ static func group() -> Dictionary:
 		{"id": "shi", "name": "石岳", "sprite": "smith", "person": "shi", "home": [SMITH, 5, 5, "up"], "seat": [SMITH, 4, 4, "down"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1}},
 		{"id": "kid", "name": "小石頭", "sprite": "child", "script": "qingzhu/kid_talk", "home": none, "seat": none, "wake": T(辰), "sleep": T(酉, 4), "likes": {"play": 5, "fish": 1}},
 		{"id": "aniu", "name": "阿牛", "sprite": "farmer", "script": "qingzhu/aniu_talk", "home": [WANG, 7, 2, "down"], "seat": [WANG, 4, 3, "right"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 1, "chat": 1}},
-		{"id": "du", "name": "杜大樑", "sprite": "carpenter", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1},
+		{"id": "du", "name": "杜大樑", "sprite": "carpenter", "script": "estate/carpenter", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1},
 			"talks": {"carve": [_by("杜大樑", ["刨子一推，木花就捲起來了。好木頭，聞著都香。"])], "default": [_by("杜大樑", ["村裡誰家的門窗壞了，都是我杜大樑來修。"]), _by("杜大樑", ["竹子做家具輕巧，可要論結實，還是得用杉木。"])]}},
 		{"id": "tao", "name": "陶四", "sprite": "peddler", "person": "tao", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 2}},
 		{"id": "tong", "name": "童老根", "sprite": "fisher", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1},

@@ -85,6 +85,10 @@ static func liu_story(ctx: Ctx) -> bool:
 			liu.call("步法的要訣在「輕」與「變」。多加練習，閃躲刀劍時自有妙用。"),
 			liu.call("那本手札是老夫當年的心得。等你把步法練熟了，再翻翻看，或許能更上一層樓。"),
 		])
+		# 地契：村裡的空地挑一塊，免費蓋屋（story/estate.gd）
+		if ctx.flag("home_deed") == 0 and load("res://story/estate.gd").estates().is_empty():
+			await ctx.say([liu.call("還有這張地契。村東、村西南有幾塊空地，你喜歡哪一塊，就在那兒安個家吧。"), "（得到地契：到空地的木牌前就能免費蓋一間茅草屋）"])
+			ctx.set_flag("home_deed", 1)
 		return true
 	if q != 0:
 		return false
@@ -161,6 +165,8 @@ static func kid_talk(ctx: Ctx) -> void:
 
 static func aniu_talk(ctx: Ctx) -> void:
 	var a := _by("阿牛")
+	if await load("res://story/managers.gd").offer(ctx, "qz_farm"):
+		return
 	if ctx.flag("bandit_boss"):
 		await ctx.say([a.call("山賊沒了，今年總算能安心收成了！"), a.call("少俠，等稻子熟了，我送一袋新米到你那兒！")])
 		return

@@ -289,6 +289,9 @@ func _update_thought(busy: bool, t: Dictionary, dt: float) -> void:
 		text = _musing
 	elif not t.is_empty():
 		var sc: String = t.p.def.get("script", "") if t.kind == "prop" else ""
+		# 自宅的家具共用一個腳本，代價照是哪一件（estate/use:dummy）
+		if t.kind == "prop" and t.p.def.has("furn"):
+			sc += ":" + t.p.def.furn
 		text = Thought.cost_of(sc)
 	ui.show_thought(text, rig.cam.unproject_position(hero.position + Vector3(0, 2.0, 0)))
 
@@ -367,7 +370,7 @@ func _interact_with(t: Dictionary) -> void:
 		_fight_beast(t.w)
 		return
 	if t.kind == "prop" and t.p.def.get("script", "") != "":
-		await Story.run(t.p.def.script, self)
+		await Story.run(t.p.def.script, self, {"prop": t.p.def})
 		return
 	if t.kind == "npc" and t.w.get("act", "") == "chat" and _partner(t.w).size() > 0:
 		var pw := _partner(t.w)

@@ -27,8 +27,22 @@ const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tav
 	"bp_inn", "bp_trader", "bp_ship", "bp_shrine"]
 ## 做好的室外地圖（出入口通到這些就換過去）
 const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "mq_farm", "mq_ridge", "dabutou"]
+## 依狀態產生的室內（自宅 home:空地id、房產 prop:物件id），由這些劇情檔的 room_data 給地圖資料
+const GEN_ROOMS := {"home:": "res://story/estate.gd", "prop:": "res://story/property.gd"}
+## 載入室外地圖資料時，依狀態補上東西的劇情檔（patch_map：自宅的空地與房子、名下房產的門與店名）
+const MAP_PATCHES := ["res://story/estate.gd", "res://story/property.gd"]
 ## 地圖四周往外延伸幾格（地圖資料可以用 ring 指定：主角會走到很靠邊的地圖要寬一點，免得看到外面）
 var M := 16
+
+
+## 這個 id 是不是做好的室內（含依狀態產生的）
+static func is_room(id: String) -> bool:
+	if id in ROOMS:
+		return true
+	for k in GEN_ROOMS:
+		if id.begins_with(k):
+			return true
+	return false
 
 var map_id := "qingzhu"
 var data: Dictionary
@@ -51,6 +65,8 @@ func open(id: String) -> void:
 func _ready() -> void:
 	var f := FileAccess.open("res://data/%s.json" % map_id, FileAccess.READ)
 	data = JSON.parse_string(f.get_as_text())
+	for p in MAP_PATCHES:
+		load(p).patch_map(map_id, data)
 	M = int(data.get("ring", 16))
 	var tiles: Array = data.tiles
 	H = tiles.size()
@@ -805,7 +821,7 @@ func _building(b: Dictionary) -> void:
 	doors[dt] = b
 	props.append({"node": null, "def": {"sprite": "door", "label": "進去", "lines": [], "door": dt}, "at": Vector2(dt.x + 0.5, dt.y + 0.5)})
 	var enter = b.get("enter")
-	if enter != null and (enter.to in ROOMS or enter.to in OUTDOOR):
+	if enter != null and (is_room(enter.to) or enter.to in OUTDOOR):
 		_door_marker(dt, b.get("face", "s"))
 	# 做好精細版的房子（fine_house.gd）
 	if FineHouse.STYLE.has(b.style):
@@ -1262,6 +1278,11 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(w - 0.2, 0.06, 0.08), Color("5a3a22"), Vector3(0, 0.3, 0)))
 			for i in int(w * 3):
 				g.add_child(Mk.box(Vector3(0.04, 0.85, 0.03), Color("b8a070") if i % 2 else Color("a8b0b8"), Vector3(-w / 2.0 + 0.35 + i * 0.3, 0.62, 0.03)))
+		"plot_stake":
+			# 空地四角標地界的小木樁，樁頂綁一圈紅繩（踩得過去）
+			g.add_child(Mk.cyl(0.06, 0.07, 0.5, Color("8a6a42"), Vector3(0, 0.25, 0), 6))
+			g.add_child(Mk.cone(0.07, 0.1, Color("8a6a42"), Vector3(0, 0.55, 0), 6))
+			g.add_child(Mk.cyl(0.075, 0.075, 0.05, Color("c8302a"), Vector3(0, 0.42, 0), 6))
 		"chest", "chest_open":
 			var wood := Color("7a4a26")
 			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.45), wood, Vector3(0, 0.2, 0)))
@@ -1364,7 +1385,7 @@ func _interact(t: Dictionary) -> void:
 		return
 	var b: Dictionary = doors[t.p.def.door]
 	var enter = b.get("enter")
-	if enter != null and (enter.to in ROOMS or enter.to in OUTDOOR):
+	if enter != null and (is_room(enter.to) or enter.to in OUTDOOR):
 		main.hop(enter.to, enter.spawn)
 	elif (b.get("door", []) as Array).size() > 0:
 		await ui.say(b.door)

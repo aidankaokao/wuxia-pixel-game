@@ -406,6 +406,11 @@
    "when": "lantern == 1"
   }
  ],
+ "plots": [
+  {"id": "qz_east", "name": "東坡空地", "x": 46, "y": 9, "price": 200},
+  {"id": "qz_creek", "name": "東溪空地", "x": 45, "y": 15, "price": 200},
+  {"id": "qz_west", "name": "西竹空地", "x": 11, "y": 23, "price": 200}
+ ],
  "exits": [
   {
    "tiles": [
