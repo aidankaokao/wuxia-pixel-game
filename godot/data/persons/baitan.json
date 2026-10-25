@@ -9,8 +9,12 @@
   "look": "fisher",
   "job": "鹽丁",
   "home": "baitan",
-  "role": "白灘的灘頭，鹽丁們都聽他的",
-  "talk": ""
+  "role": "白灘的灘頭，也是白沙幫的總堂主，鹽丁們都聽他的",
+  "talk": "",
+  "faction": {
+   "sect": "baisha",
+   "rank": 3
+  }
  },
  "bt_zhuang": {
   "surname": "莊",
@@ -43,6 +47,10 @@
   "job": "鹽丁",
   "home": "baitan",
   "role": "灘頭的姪子，曬鹽的年輕鹽丁",
-  "talk": ""
+  "talk": "",
+  "faction": {
+   "sect": "baisha",
+   "rank": 0
+  }
  }
 }

@@ -1,0 +1,186 @@
+{
+ "_note": "回瀾刀門的人（PLAN.md 4.44）：潮信北邊海崖上的中派，刀。",
+ "hl_pei": {
+  "surname": "裴",
+  "given": "驚濤",
+  "gender": "男",
+  "born": -57,
+  "look": "sect_master",
+  "base": {
+   "strength": 18,
+   "agility": 15,
+   "constitution": 17,
+   "energy": 15,
+   "insight": 16
+  },
+  "skills": {
+   "huilan_dao": 8,
+   "guanchao": 8,
+   "talang": 6
+  },
+  "faction": {
+   "sect": "huilan",
+   "rank": 5
+  },
+  "home": "huilan",
+  "role": "回瀾刀門的門主，在崖上看了四十年的潮水",
+  "talk": "",
+  "life_roll": 6,
+  "ai": "boss"
+ },
+ "hl_hong": {
+  "surname": "洪",
+  "given": "定潮",
+  "gender": "男",
+  "born": -51,
+  "look": "sect_elder",
+  "base": {
+   "strength": 17,
+   "agility": 14,
+   "constitution": 16,
+   "energy": 13,
+   "insight": 14
+  },
+  "skills": {
+   "huilan_dao": 8,
+   "guanchao": 6,
+   "talang": 4
+  },
+  "faction": {
+   "sect": "huilan",
+   "rank": 4
+  },
+  "home": "huilan",
+  "role": "傳功長老，管教刀法與考核",
+  "talk": "",
+  "life_roll": 4
+ },
+ "hl_qiu": {
+  "surname": "邱",
+  "given": "海棠",
+  "gender": "女",
+  "born": -40,
+  "look": "sect_healer",
+  "base": {
+   "strength": 13,
+   "agility": 14,
+   "constitution": 13,
+   "energy": 13,
+   "insight": 14
+  },
+  "skills": {
+   "huilan_dao": 5,
+   "guanchao": 5
+  },
+  "faction": {
+   "sect": "huilan",
+   "rank": 4
+  },
+  "home": "huilan",
+  "role": "執事，管門裡的月例、弟子服與雜務",
+  "talk": ""
+ },
+ "hl_lei": {
+  "surname": "雷",
+  "given": "震洋",
+  "gender": "男",
+  "born": -26,
+  "look": "sect_senior",
+  "base": {
+   "strength": 16,
+   "agility": 15,
+   "constitution": 15,
+   "energy": 12,
+   "insight": 13
+  },
+  "skills": {
+   "huilan_dao": 7,
+   "guanchao": 4,
+   "talang": 4
+  },
+  "faction": {
+   "sect": "huilan",
+   "rank": 3
+  },
+  "home": "huilan",
+  "role": "大師兄，門主的真傳弟子，管入門考驗",
+  "talk": "",
+  "master": "hl_pei"
+ },
+ "hl_wei": {
+  "surname": "蔚",
+  "given": "雲舒",
+  "gender": "女",
+  "born": -22,
+  "look": "disciple_girl",
+  "base": {
+   "strength": 13,
+   "agility": 17,
+   "constitution": 13,
+   "energy": 12,
+   "insight": 14
+  },
+  "skills": {
+   "huilan_dao": 6,
+   "guanchao": 3,
+   "talang": 4
+  },
+  "faction": {
+   "sect": "huilan",
+   "rank": 2
+  },
+  "home": "huilan",
+  "role": "內門師姊，刀快如浪",
+  "talk": ""
+ },
+ "hl_guo": {
+  "surname": "郭",
+  "given": "長纜",
+  "gender": "男",
+  "born": -19,
+  "look": "disciple",
+  "base": {
+   "strength": 16,
+   "agility": 12,
+   "constitution": 15,
+   "energy": 9,
+   "insight": 10
+  },
+  "skills": {
+   "huilan_dao": 4,
+   "guanchao": 2
+  },
+  "faction": {
+   "sect": "huilan",
+   "rank": 1
+  },
+  "home": "huilan",
+  "role": "正式弟子，漁家出身，力氣大",
+  "talk": ""
+ },
+ "hl_lin": {
+  "surname": "林",
+  "given": "小漁",
+  "gender": "男",
+  "born": -15,
+  "look": "disciple",
+  "base": {
+   "strength": 12,
+   "agility": 13,
+   "constitution": 12,
+   "energy": 9,
+   "insight": 11
+  },
+  "skills": {
+   "huilan_dao": 2,
+   "guanchao": 1
+  },
+  "faction": {
+   "sect": "huilan",
+   "rank": 0
+  },
+  "home": "huilan",
+  "role": "記名弟子，去年八月大潮後才入門",
+  "talk": ""
+ }
+}

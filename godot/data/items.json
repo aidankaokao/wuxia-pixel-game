@@ -2430,5 +2430,130 @@
   "category": "雜物",
   "icon": "book",
   "desc": "鹽課司書辦葉茂才私賣充公鹽的帳冊，一筆一筆記著賣給青蚨會的鹽與銀兩。"
+ },
+ "hl_robe_1": {
+  "name": "回瀾海青布衣",
+  "category": "服飾",
+  "icon": "robe_gray",
+  "desc": "回瀾刀門記名弟子的海青色布衣，耐得住海風鹽霜。（普通・上衣，防禦 +2）",
+  "gear": {
+   "kind": "top",
+   "grade": 1,
+   "def": 2,
+   "eva": 0,
+   "sect": "huilan"
+  },
+  "bound": true
+ },
+ "hl_robe_2": {
+  "name": "回瀾藍布勁裝",
+  "category": "服飾",
+  "icon": "robe_blue",
+  "desc": "回瀾刀門正式弟子的藍布勁裝，袖口綁得緊緊的，揮刀不礙事。（精良・上衣，防禦 +3）",
+  "gear": {
+   "kind": "top",
+   "grade": 2,
+   "def": 3,
+   "eva": 0,
+   "sect": "huilan"
+  },
+  "bound": true
+ },
+ "hl_robe_3": {
+  "name": "回瀾墨浪袍",
+  "category": "服飾",
+  "icon": "robe_blue",
+  "desc": "回瀾刀門真傳弟子的墨藍長袍，下襬繡著翻捲的浪花。（上品・上衣，防禦 +4）",
+  "gear": {
+   "kind": "top",
+   "grade": 3,
+   "def": 4,
+   "eva": 0,
+   "sect": "huilan"
+  },
+  "bound": true
+ },
+ "hl_saber_1": {
+  "name": "回瀾練刀",
+  "category": "服飾",
+  "icon": "blade",
+  "desc": "回瀾刀門記名弟子的練習刀，刀背厚、刃口鈍，砍浪樁用的。（普通・刀，攻擊 +4；用刀法才發揮得了全力）",
+  "gear": {
+   "kind": "weapon",
+   "grade": 1,
+   "def": 0,
+   "eva": 0,
+   "sect": "huilan",
+   "atk": 4,
+   "weapon": "刀"
+  },
+  "bound": true
+ },
+ "hl_saber_2": {
+  "name": "回瀾鋼刀",
+  "category": "服飾",
+  "icon": "blade",
+  "desc": "回瀾刀門正式弟子的佩刀，刀身微彎，像一道浪。（精良・刀，攻擊 +7；用刀法才發揮得了全力）",
+  "gear": {
+   "kind": "weapon",
+   "grade": 2,
+   "def": 0,
+   "eva": 0,
+   "sect": "huilan",
+   "atk": 7,
+   "weapon": "刀"
+  },
+  "bound": true
+ },
+ "hl_saber_3": {
+  "name": "回瀾潮生刀",
+  "category": "服飾",
+  "icon": "blade",
+  "desc": "回瀾刀門真傳弟子的佩刀，刀身上隱隱有水紋。（上品・刀，攻擊 +10；用刀法才發揮得了全力）",
+  "gear": {
+   "kind": "weapon",
+   "grade": 3,
+   "def": 0,
+   "eva": 0,
+   "sect": "huilan",
+   "atk": 10,
+   "weapon": "刀"
+  },
+  "bound": true
+ },
+ "hl_bracer": {
+  "name": "浪紋護腕",
+  "category": "服飾",
+  "icon": "bracer",
+  "desc": "回瀾刀門內門弟子的護腕，鯊皮上烙著浪紋。（精良・手上飾品，防禦 +1　閃避 +0.5%）",
+  "gear": {
+   "kind": "hand",
+   "grade": 2,
+   "def": 1,
+   "eva": 0.005,
+   "sect": "huilan"
+  },
+  "bound": true
+ },
+ "hl_token": {
+  "name": "回瀾腰牌",
+  "category": "服飾",
+  "icon": "token",
+  "desc": "刻著一道浪花的鐵腰牌，是回瀾刀門弟子的身分憑證。可以繫在頸上。（普通・頸上飾品，閃避 +1%）",
+  "gear": {
+   "kind": "neck",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01,
+   "sect": "huilan"
+  },
+  "bound": true
+ },
+ "pearl": {
+  "name": "海珠",
+  "category": "雜物",
+  "icon": "pouch",
+  "desc": "崖下礁石間的蚌裡採到的珍珠，圓潤有光。海商會館收得最高。",
+  "price": 40
  }
 }

@@ -8,7 +8,7 @@ extends GridScene
 ## - 面對村民、擺設時頭上冒出「空白鍵 交談／查看」，按空白鍵對話；陶四、鍾嬸可以買賣東西。
 ## - 站在門口、對著門按空白鍵就換到室內（room.gd）；沒有室內的房子（趙家）會說門關著。
 
-const GROUND := {":": "c9a46a", "E": "c9a46a", "=": "b9b3a4", "n": "8a6040", "c": "7a5a3a", "g": "8b5e3c", "~": "3a5f86", "#": "a8763f"}
+const GROUND := {":": "c9a46a", "E": "c9a46a", "=": "b9b3a4", "n": "8a6040", "c": "7a5a3a", "g": "8b5e3c", "w": "e6e2d6", "~": "3a5f86", "#": "a8763f"}
 
 ## 顧攤子的人：站哪、面向哪、賣什麼（貨郎照網頁版陶四的貨）
 const STALLS := {
@@ -479,9 +479,9 @@ var _moss := Season.tint(Color("587540"), "ground")
 func _ground_color(u: float, v: float, h: float, path: Array, plaza: Array, ga: Color, gb: Color) -> Color:
 	var w := 0.5 + 0.25 * sin(u * 0.45 + v * 0.2) + 0.25 * sin(v * 0.6 - u * 0.15)
 	var col := ga.lerp(gb, w)
-	# 田地、茶壟、藥畦：看這個頂點周圍四格是不是都是同一種田（田的邊維持方正）
+	# 田地、茶壟、藥畦、鹽田（w）：看這個頂點周圍四格是不是都是同一種田（田的邊維持方正）
 	var t := tile(floori(u - 0.01), floori(v - 0.01))
-	if t in ["n", "c", "g"] and tile(floori(u + 0.01), floori(v + 0.01)) == t:
+	if t in ["n", "c", "g", "w"] and tile(floori(u + 0.01), floori(v + 0.01)) == t:
 		col = Color(GROUND[t])
 		if t == "n" and int(floor(v * 2.0)) % 2 == 1:
 			col = col * 0.88

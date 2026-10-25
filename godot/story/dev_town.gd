@@ -4,7 +4,7 @@
 
 ## run:dev_town/parse 載入樣板與府城的劇情檔（檢查有沒有語法錯誤），印出今日事與任務
 static func parse(_ctx: Ctx) -> void:
-	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd"]:
+	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd"]:
 		print("TOWN 載入 %s：%s" % [p, "好" if load(p) != null else "失敗"])
 	G.flags["yz_berth"] = 2
 	G.life.loan = {"owe": 120, "due": G.day + 2, "day": G.day}
@@ -48,6 +48,8 @@ static func data(_ctx: Ctx) -> void:
 				errs.append("%s 出口不對" % c.shops[i][1])
 			print("TOWN 室內 %s：%s，出門站 (%d,%d)" % [r.name, r.subtitle, sp.x, sp.y])
 		var ls := TownGen.lots(c.map)
+		if ls.is_empty():
+			continue
 		# 第一塊蓋自宅、第二塊蓋鋪面
 		TownGen.lot_state()[ls[0].id] = {"use": "home", "paid": 1, "day": 1}
 		E.estates()[ls[0].id] = {"plot": ls[0].id, "tier": 1, "style": "plain", "furniture": {}}

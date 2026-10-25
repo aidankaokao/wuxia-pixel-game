@@ -161,6 +161,20 @@
     "e_rush"
    ],
    "ai": "grunt"
+  },
+  "pirate_scout": {
+   "name": "黑帆探子",
+   "sprite": "bandit",
+   "hp": 200,
+   "atk": 35,
+   "def": 9,
+   "spd": 13,
+   "eva": 0.08,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -572,6 +586,82 @@
    "intro": "火把一亮，兩個巡鹽兵丁攔住了鹽車：「站住！車上裝的什麼？」",
    "canFlee": true,
    "silver": 0,
+   "points": 3
+  },
+  "spar_hl_lin": {
+   "enemies": [
+    "person:hl_lin"
+   ],
+   "background": "mountain",
+   "intro": "林小漁抱刀一禮：「師兄說要我試試你。得罪了！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.6,
+   "points": 1,
+   "spar": true,
+   "scale": 0.75
+  },
+  "spar_hl_lei": {
+   "enemies": [
+    "person:hl_lei"
+   ],
+   "background": "mountain",
+   "intro": "雷震洋刀尖點地：「來。浪不會等你準備好。」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.8,
+   "points": 2,
+   "spar": true,
+   "scale": 0.86
+  },
+  "spar_hl_wei": {
+   "enemies": [
+    "person:hl_wei"
+   ],
+   "background": "mountain",
+   "intro": "蔚雲舒反手提刀：「看清楚了，我只出一刀——一刀之後，還有一刀。」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.7,
+   "points": 2,
+   "spar": true,
+   "scale": 0.85
+  },
+  "exam_hl_guo": {
+   "enemies": [
+    "person:hl_guo"
+   ],
+   "background": "mountain",
+   "intro": "郭長纜把刀舉過頭頂：「考核就是考核，我不會讓你的！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.7,
+   "points": 2,
+   "spar": true,
+   "scale": 0.95
+  },
+  "exam_hl_wei": {
+   "enemies": [
+    "person:hl_wei"
+   ],
+   "background": "mountain",
+   "intro": "浪頭打上浪樁，蔚雲舒站得紋絲不動：「下面是海，上面是刀。來吧。」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.8,
+   "points": 3,
+   "spar": true,
+   "scale": 1.02
+  },
+  "hl_scouts": {
+   "enemies": [
+    "pirate_scout",
+    "pirate_scout"
+   ],
+   "background": "mountain",
+   "intro": "礁石後面跳出兩個腰繫黑布的人，手裡的彎刀在太陽下閃著光。",
+   "canFlee": true,
+   "silver": 10,
    "points": 3
   }
  }

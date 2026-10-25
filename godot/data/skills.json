@@ -451,6 +451,117 @@
      }
     }
    ]
+  },
+  "huilan_dao": {
+   "id": "huilan_dao",
+   "name": "回瀾刀法",
+   "kind": "刀法",
+   "tier": "中品",
+   "desc": "回瀾刀門的看家刀法。祖師在海崖上看了三十年潮水，悟出「潮有回瀾，刀有回勢」：一刀砍出，刀勢如浪退而復來，一浪疊一浪。",
+   "equip": {
+    "strength": 0.8,
+    "agility": 0.3,
+    "constitution": 0.2
+   },
+   "grow": {
+    "strength": 0.4,
+    "constitution": 0.3,
+    "agility": 0.2
+   },
+   "vital": {
+    "hp": 3,
+    "stamina": 1
+   },
+   "moves": [
+    {
+     "id": "hl_yingchao",
+     "level": 0
+    },
+    {
+     "id": "hl_sandie",
+     "level": 2,
+     "bonus": {
+      "agility": 1
+     }
+    },
+    {
+     "id": "hl_liean",
+     "level": 4,
+     "bonus": {
+      "strength": 1
+     }
+    },
+    {
+     "id": "hl_canghai",
+     "level": 6,
+     "bonus": {
+      "strength": 0.5,
+      "constitution": 0.5
+     }
+    }
+   ]
+  },
+  "guanchao": {
+   "id": "guanchao",
+   "name": "觀潮心法",
+   "kind": "內功",
+   "tier": "中品",
+   "desc": "回瀾刀門的內功。吐納隨潮起落，漲潮時氣息深長，退潮時收斂沉潛；練到深處，刀勢自然有了潮的節奏。",
+   "equip": {
+    "energy": 1,
+    "constitution": 0.3
+   },
+   "grow": {
+    "energy": 0.4,
+    "constitution": 0.3,
+    "insight": 0.1
+   },
+   "vital": {
+    "qi": 4
+   },
+   "moves": [
+    {
+     "id": "hl_chaoxi",
+     "level": 0
+    },
+    {
+     "id": "hl_chaoyin",
+     "level": 3,
+     "bonus": {
+      "energy": 1
+     }
+    }
+   ]
+  },
+  "talang": {
+   "id": "talang",
+   "name": "踏浪步",
+   "kind": "輕功",
+   "tier": "中品",
+   "desc": "回瀾刀門在浪樁上練出來的步法。腳下隨浪起伏，看著搖搖晃晃，卻怎麼也打不倒。",
+   "equip": {
+    "agility": 1
+   },
+   "grow": {
+    "agility": 0.4,
+    "constitution": 0.1
+   },
+   "vital": {
+    "stamina": 2
+   },
+   "moves": [
+    {
+     "id": "hl_talang",
+     "level": 0
+    },
+    {
+     "id": "hl_suibo",
+     "level": 3,
+     "bonus": {
+      "agility": 1
+     }
+    }
+   ]
   }
  },
  "moves": {
@@ -1101,6 +1212,138 @@
      "value": 0.2,
      "turns": 2,
      "chance": 0.3
+    }
+   ]
+  },
+  "hl_yingchao": {
+   "id": "hl_yingchao",
+   "name": "迎潮一刀",
+   "desc": "迎著浪頭一刀劈下，刀勢沉猛。",
+   "qi": 9,
+   "power": 1.7,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "huilan_dao",
+   "fx": "slash"
+  },
+  "hl_sandie": {
+   "id": "hl_sandie",
+   "name": "回瀾三疊",
+   "desc": "一刀砍出，刀勢退而復來，連砍三刀，一浪疊一浪。",
+   "qi": 14,
+   "power": 0.62,
+   "hits": 3,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "huilan_dao",
+   "fx": "wind"
+  },
+  "hl_liean": {
+   "id": "hl_liean",
+   "name": "怒濤裂岸",
+   "desc": "縱身躍起，一刀如怒濤拍岸。威力沉重，有機會劈出破綻（防禦 −30%，持續 2 次出手）。",
+   "qi": 18,
+   "power": 2.3,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "huilan_dao",
+   "fx": "heavy",
+   "foe": [
+    {
+     "kind": "armorBreak",
+     "value": 0.3,
+     "turns": 2,
+     "chance": 0.5
+    }
+   ]
+  },
+  "hl_canghai": {
+   "id": "hl_canghai",
+   "name": "滄海橫流",
+   "desc": "刀光如潮水漫過所有敵人，有機會震懾對手（無法出手 1 次）。",
+   "qi": 22,
+   "power": 1.05,
+   "kind": "outer",
+   "target": "allEnemies",
+   "skillId": "huilan_dao",
+   "fx": "slash",
+   "foe": [
+    {
+     "kind": "stun",
+     "value": 1,
+     "turns": 1,
+     "chance": 0.15
+    }
+   ]
+  },
+  "hl_chaoxi": {
+   "id": "hl_chaoxi",
+   "name": "潮息歸元",
+   "desc": "吐納隨潮，回復內力與些許氣血。",
+   "qi": 0,
+   "power": 1.2,
+   "kind": "restore",
+   "target": "self",
+   "skillId": "guanchao",
+   "fx": "qi"
+  },
+  "hl_chaoyin": {
+   "id": "hl_chaoyin",
+   "name": "潮音貫耳",
+   "desc": "以內力催出潮聲，震得對手氣血翻湧。內功招式，有機會使對手力竭（攻擊 −20%，持續 2 次出手）。",
+   "qi": 12,
+   "power": 1.6,
+   "kind": "inner",
+   "target": "enemy",
+   "skillId": "guanchao",
+   "fx": "qi",
+   "foe": [
+    {
+     "kind": "weaken",
+     "value": 0.2,
+     "turns": 2,
+     "chance": 0.4
+    }
+   ]
+  },
+  "hl_talang": {
+   "id": "hl_talang",
+   "name": "踏浪而行",
+   "desc": "腳下隨浪起伏，閃避大增（+20%，持續 2 次出手）。",
+   "qi": 6,
+   "power": 0,
+   "kind": "buff",
+   "target": "self",
+   "skillId": "talang",
+   "fx": "qi",
+   "self": [
+    {
+     "kind": "evade",
+     "value": 0.2,
+     "turns": 2
+    }
+   ]
+  },
+  "hl_suibo": {
+   "id": "hl_suibo",
+   "name": "隨波逐流",
+   "desc": "身隨波走，閃避與速度都提高（閃避 +15%、速度 +20%，持續 2 次出手）。",
+   "qi": 10,
+   "power": 0,
+   "kind": "buff",
+   "target": "self",
+   "skillId": "talang",
+   "fx": "wind",
+   "self": [
+    {
+     "kind": "evade",
+     "value": 0.15,
+     "turns": 2
+    },
+    {
+     "kind": "speed",
+     "value": 0.2,
+     "turns": 2
     }
    ]
   }

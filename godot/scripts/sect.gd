@@ -37,6 +37,33 @@ const DEFS := {
 		# 弟子服：各身分該有的（服飾都帶 gear.sect，離開門派時收回）
 		"uniforms": [["mq_robe_gray", "mq_sword_1"], ["mq_robe_white", "mq_boots", "mq_sword_2"], ["mq_robe_white", "mq_boots", "mq_sword_2", "mq_bracer"], ["mq_robe_blue", "mq_boots", "mq_sword_3", "mq_bracer"]],
 	},
+	# 回瀾刀門（story/huilan.gd，PLAN.md 4.44）
+	"huilan": {
+		"name": "回瀾刀門", "size": "中", "recruit": "每季頭十天（二、五、八、十一月初一到初十）與八月大潮之後（八月十六到廿五）收徒，要過入門考驗",
+		"ranks": [
+			{"name": "記名弟子", "dorm": "弟子房的大通鋪", "perks": ["崖下浪樁練刀（漲潮、滿潮經驗多）", "崖頂觀潮打坐", "乾潮時下礁石採珠", "執事派的雜務", "每 7 天到執事房領月例"],
+				"stipend": {"silver": 6, "items": {"jinchuang": 1}}, "leave": [["free"]],
+				"promote": {"days": 30, "merit": 150, "skills": [["huilan_dao", 4]], "test": "正式弟子考核（條件齊了到傳功堂找洪長老）", "test_done": "hl_exam >= 1"}},
+			{"name": "正式弟子", "dorm": "弟子房", "perks": ["向傳功長老學踏浪步", "漲潮時可以獨自下崖", "巡海的差事"],
+				"stipend": {"silver": 14, "items": {"jinchuang": 2}}, "leave": [["fine", 500]],
+				"promote": {"days": 45, "merit": 400, "skills": [["huilan_dao", 6], ["guanchao", 3]], "test": "內門試刀（條件齊了，滿潮時到崖下浪樁找洪長老）", "test_done": "hl_inner >= 1"}},
+			{"name": "內門弟子", "dorm": "弟子房", "perks": ["內門弟子的浪紋護腕", "八月大潮時跟門主一起下崖觀刀"],
+				"stipend": {"silver": 20, "items": {"jinchuang": 2}}, "leave": [["fine", 800]],
+				"promote": {"days": 60, "merit": 700, "skills": [["huilan_dao", 8], ["guanchao", 5]], "test": "真傳拜師（之後開放）", "test_done": "false"}},
+			{"name": "真傳弟子", "dorm": "弟子房", "perks": ["拜門主或長老為師"],
+				"stipend": {"silver": 28, "items": {"jinchuang": 3}}, "leave": [["trial", "回瀾刀陣"]]},
+		],
+		"rules": [
+			["漲潮不得獨自下崖", "未成正式弟子，漲潮、滿潮時不得獨自下崖練刀。"],
+			["同門不得私鬥", "切磋點到為止。"],
+			["不得勾結海寇", "與黑帆船有往來者，逐出師門。"],
+			["本門武功不得外傳", "未經門主允許，不得把本門武功傳給外人。"],
+		],
+		# 傳功長老能教的本門武功：[武功, 幾級身分起, 要花的貢獻]
+		"skills": [["huilan_dao", 0, 0], ["guanchao", 0, 30], ["talang", 1, 60]],
+		"weapons": ["刀法", "拳掌"],
+		"uniforms": [["hl_robe_1", "hl_saber_1"], ["hl_robe_2", "hl_saber_2"], ["hl_robe_2", "hl_saber_2", "hl_bracer"], ["hl_robe_3", "hl_saber_3", "hl_bracer"]],
+	},
 }
 
 

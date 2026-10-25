@@ -1230,7 +1230,7 @@ func _sect_left(v: VBoxContainer) -> void:
 		m.add_child(_bar(minf(1.0, float(G.sect.merit) / float(p.merit)), 110, 8, GREEN))
 	v.add_child(_rule())
 	var pay: Dictionary = Sect.rank_def().stipend
-	v.add_child(_lab("月例　%d 兩＋金創藥（每 %d 天到大殿領）" % [pay.silver, Sect.STIPEND_DAYS], 15, SOFT))
+	v.add_child(_lab("月例　%d 兩＋金創藥（每 %d 天到%s領）" % [pay.silver, Sect.STIPEND_DAYS, "執事房" if G.sect.id == "huilan" else "大殿"], 15, SOFT))
 	var next := Sect.next_stipend()
 	v.add_child(_lab("　　　今天就能領" if G.day >= next else "　　　下次 %s" % G.date_text(next), 14, GOLD if G.day >= next else FAINT))
 	if G.sect.id == "mingquan":

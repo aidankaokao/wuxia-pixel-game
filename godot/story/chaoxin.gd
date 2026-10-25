@@ -80,7 +80,7 @@ static func tide_state(day := -1, time := -1) -> String:
 ## 大潮的日子：初一、十五，八月十八最大
 static func spring_tide() -> String:
 	var dt := G.date_of()
-	if int(dt.month) == 8 and int(dt.date) == 18:
+	if int(dt.month) == 7 and int(dt.date) == 18:
 		return "今天八月十八，一年裡最大的潮"
 	if int(dt.date) in [1, 2, 15, 16]:
 		return "這兩天是大潮"

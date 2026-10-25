@@ -626,7 +626,7 @@
    "x": 883,
    "y": 531,
    "desc": "潮信北邊的海崖，崖上是回瀾刀門。漲潮時浪頭打上崖壁，門裡的弟子就在崖下的礁石上練刀。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null
