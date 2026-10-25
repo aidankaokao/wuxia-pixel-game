@@ -1,5 +1,6 @@
 ## 鳴泉劍派的門派秩序與職位差事（照網頁版 story/mq_order.ts、story/mq_posts.ts）：年齡、職位與年會選舉、收徒、掌門傳位、職位的差事、掌門事務。
-## - 年齡：名冊上每人有第一年的年紀（AGE），每過一年長一歲；你也是（G.hero.age，預設十八）。體力 vigor：四十五歲以後慢慢衰退。
+## - 人、年齡、實力、位階、職司、師父都在人物表與人物狀態（scripts/person.gd、data/persons/mingquan.json）：年齡照生年算，
+##   實力 power_of 照五維與武功算，位階是 faction.rank（RANK_ORDER 的索引）。體力 vigor：四十五歲以後慢慢衰退；快到壽命的人想退隱。
 ## - 職位（POSTS）：傳功、執法、藥堂三位長老與外務、巡山、典儀三個執事。你當執事月例多 8 兩、長老多 25 兩、掌門多 60 兩（post_bonus）。
 ## - 年會：每年正月十六（辰時到午時）在大殿找掌門。先議退位（七十二歲以上的長老）與傳位（掌門七十五歲或體力衰到五成五以下），
 ##   再選舉空出來的長老席與三個執事。投票的是內門弟子以上；你是內門以上能投一票、競選執事（長老席要真傳弟子、功績一千二）。你沒來，年會照開（隔天半夜補算）。
@@ -23,12 +24,14 @@ const POSTS := [
 	["st_patrol", "巡山執事", "steward", "he", 8, "排守山門、守夜的班，管山上的安危。"],
 	["st_rite", "典儀執事", "steward", "", 8, "籌辦年會、比武小會、節慶與入門拜師的典禮。"],
 ]
-## 名冊上每人第一年的年紀
-const AGE := {"wen": 68, "han": 52, "yan": 71, "su": 45, "lu": 27, "ye": 24, "qi": 31, "fang": 26, "ke": 29, "song": 25, "miao": 21, "meng": 30,
-	"he": 24, "wei": 23, "gu": 16, "qiao": 18, "bao": 17, "tang": 17, "cao": 15, "zheng": 20, "hou": 19, "bu": 52, "shao": 74, "gan": 61}
-## 不在日常系統裡的人的實力（給選舉用）
-const STATIC_POWER := {"qi": 62, "fang": 50, "ke": 55, "song": 45, "miao": 48, "meng": 58, "ye": 95, "yan": 160, "su": 120, "han": 200, "wen": 300}
+## 門派位階（人物狀態的 faction.rank 是這裡的索引；-1 是雜役）
 const RANK_ORDER := ["記名弟子", "正式弟子", "內門弟子", "真傳弟子", "長老", "太上長老", "掌門"]
+## 實力（選舉、名次、收徒比大小用的一個數字）：Person.power 去掉底子 100 再乘這個
+const POWER_SCALE := 0.55
+## 指點徒弟一次、主持比試、講武、看診給同門的經驗
+const TEACH_EXP := 30.0
+## 快到壽命（差幾年以內）的長老、掌門會想退下
+const RETIRE_YEARS := 6
 const POLICY := {"martial": ["重武", "同門練功更勤，長得快兩成；但較勁的人更容易吵架。"], "steady": ["守成", "一切照舊。"],
 	"gentle": ["寬和", "同門和氣，很少吵架，也更常下山歷練、行俠；只是練功鬆一些。"]}
 
@@ -72,11 +75,16 @@ static func year() -> int:
 
 
 static func age_now(k: String) -> int:
-	return int(AGE.get(k, 20)) + year() - 1
+	return Person.age(k)
 
 
 static func hero_age() -> int:
 	return Person.age("hero")
+
+
+## 離壽命還有幾年（Person.lifespan）
+static func years_left(k: String) -> float:
+	return Person.lifespan(k).total - Person.age(k)
 
 
 ## 體力：45 歲以前 1，之後每年 -1%，60 歲時 0.85、之後每年 -2%（最低 0.3）
@@ -84,60 +92,52 @@ static func vigor(age: int) -> float:
 	return 1.0 if age <= 45 else (1.0 - (age - 45) * 0.01 if age <= 60 else maxf(0.3, 0.85 - (age - 60) * 0.02))
 
 
+## 實力：照各人的五維、武功、裝備算（Person.power），主角也一樣；快到壽命的打七折
 static func power_of(k: String) -> float:
-	if _life().GROW.has(k):
-		return float(_life().mem(k).power)
-	return float(STATIC_POWER.get(k, 20))
+	var p := maxf(5.0, (Person.power(k) - 100.0) * POWER_SCALE)
+	return p * (0.7 if k != "hero" and Person.frail(k) else 1.0)
 
 
 static func hero_power() -> float:
-	var s := 0
-	for sk in G.hero.skills:
-		s += int(sk.level)
-	return s * 4 + int(G.hero.get("fame", 0)) / 2.0
+	return power_of("hero")
 
 
 static func name_of(k: String) -> String:
-	return G.hero.name if k == "hero" else _mq().MQ.get(k, k)
+	return Person.full_name(k)
 
 
-static func _roster_row(k: String) -> Array:
-	for m in _mq().ROSTER:
-		if m[0] == k:
-			return m
-	return []
-
-
-## 某人現在的位階（年會、任免改過的優先；自己過日子的同門照他們練出來的身分）
+## 某人現在的位階（人物狀態的 faction.rank；雜役是 -1）
 static func rank_now(k: String) -> String:
-	var over: Dictionary = _st().get("ranks", {}).get(k, {})
-	if over.has("rank"):
-		return over.rank
-	var row := _roster_row(k)
-	if row.is_empty():
+	if not Person.exists(k) or Person.sect(k) != "mingquan":
 		return ""
-	if _life().GROW.has(k) and k != "lu":
-		return _life().RANK_NAME[maxi(int(_life().mem(k).rank), _life().RANK_NAME.find(row[1]))]
-	return row[1]
+	var r := Person.rank(k)
+	return "雜役" if r < 0 else RANK_ORDER[clampi(r, 0, RANK_ORDER.size() - 1)]
+
+
+## 把某人的位階、職司改掉（年會、任免、傳位）
+static func set_rank(k: String, rank_name: String, role := "") -> void:
+	Person.set_faction(k, "mingquan", RANK_ORDER.find(rank_name), Person.of(k).get("faction", {}).get("post", ""))
+	Person.put(k, "rank_day", G.day)
+	if role != "":
+		Person.put(k, "role", role)
 
 
 static func role_now(k: String) -> String:
-	var over: Dictionary = _st().get("ranks", {}).get(k, {})
-	var row := _roster_row(k)
-	var role: String = over.get("role", row[2] if row.size() > 2 else "")
+	var role: String = Person.of(k).get("role", "")
 	var p := post_of(k)
-	if not over.has("role") and not p.is_empty() and p[2] == "steward":
+	if not p.is_empty() and p[2] == "steward":
 		role = ("%s・%s" % [role, p[1]]) if role != "" else p[1]
-	if _life().GROW.has(k) and _life().mem(k).get("master", "") == "hero":
+	if Person.of(k).get("master", "") == "hero":
 		role = ("%s・你的徒弟" % role) if role != "" else "你的徒弟"
 	return role
 
 
 static func away(k: String) -> bool:
-	if _life().GROW.has(k) and _life().away(k):
+	if not Person.alive(k):
 		return true
-	var row := _roster_row(k)
-	return row.size() > 2 and String(row[2]).contains("下山")
+	if _life().MEMBERS.has(k) and _life().away(k):
+		return true
+	return String(Person.of(k).get("role", "")).contains("下山")
 
 
 static func at_least(r: String, min_r: String) -> bool:
@@ -177,22 +177,20 @@ static func seat(p: Array, winner: String) -> void:
 	var st := _st()
 	if not st.has("posts"):
 		st.posts = {}
-	if not st.has("ranks"):
-		st.ranks = {}
 	st.posts[p[0]] = winner
 	if winner == "hero":
 		G.sect.post = p[0]
 	else:
 		if p[2] == "elder":
-			st.ranks[winner] = {"rank": "長老", "role": p[1]}
+			set_rank(winner, "長老", p[1])
 		if my_post() == p[0]:
 			G.sect.erase("post")
 
 
-## 現任掌門（名冊 key）
+## 現任掌門（人物 id；你當了掌門就沒有 NPC 掌門，照舊回傳聞松年）
 static func leader_key() -> String:
-	for k in _st().get("ranks", {}):
-		if _st().ranks[k].get("rank", "") == "掌門":
+	for k in _mq().MQ:
+		if Person.alive(k) and Person.sect(k) == "mingquan" and Person.rank(k) == 6:
 			return k
 	return "wen"
 
@@ -208,8 +206,13 @@ static func meeting_pending() -> bool:
 	return is_meeting_day() and int(_st().get("meeting_year", 0)) != year()
 
 
+## 還在世的鳴泉門人（人物 id）
+static func _ids() -> Array:
+	return _mq().MQ.keys().filter(func(k): return Person.alive(k) and Person.sect(k) == "mingquan")
+
+
 static func _voters() -> Array:
-	return _mq().ROSTER.map(func(m): return m[0]).filter(func(k): return at_least(rank_now(k), "內門弟子") and rank_now(k) != "太上長老" and not away(k))
+	return _ids().filter(func(k): return at_least(rank_now(k), "內門弟子") and rank_now(k) != "太上長老" and not away(k))
 
 
 ## 同門投票的心意：實力、資歷、現任、交情，再加一點運氣（同一天同一人固定）
@@ -227,7 +230,7 @@ static func _preference(voter: String, cand: String, p: Array) -> float:
 
 
 static func _candidates(p: Array, hero_runs: bool) -> Array:
-	var pool: Array = _mq().ROSTER.map(func(m): return m[0]).filter(func(k):
+	var pool: Array = _ids().filter(func(k):
 		var op := post_of(k)
 		if away(k) or (not op.is_empty() and op[2] == "elder") or k in ["wen", "bu", "shao", "gan"]:
 			return false
@@ -261,7 +264,7 @@ static func _tally(p: Array, cands: Array, hero_vote: String) -> Dictionary:
 	return {"winner": winner, "count": count, "tie": tie}
 
 
-## 退位：七十二歲以上的長老，年會上一半機會退下
+## 退位：快到壽命（RETIRE_YEARS 年以內）或七十二歲以上的長老，年會上大約一半機會退下（越老越想退）
 static func _retirements() -> Array:
 	var out := []
 	for p in POSTS:
@@ -271,7 +274,7 @@ static func _retirements() -> Array:
 		if h == "" or h == "hero":
 			continue
 		var age := age_now(h)
-		if age >= 72 and float((age * 7 + G.day) % 10) / 10.0 < 0.5 + (1 - vigor(age)):
+		if (age >= 72 or years_left(h) <= RETIRE_YEARS) and float((age * 7 + G.day) % 10) / 10.0 < 0.5 + (1 - vigor(age)):
 			out.append([h, p])
 	return out
 
@@ -280,22 +283,21 @@ static func _retire(who: String, p: Array) -> void:
 	var st := _st()
 	if not st.has("posts"):
 		st.posts = {}
-	if not st.has("ranks"):
-		st.ranks = {}
 	st.posts[p[0]] = ""
-	st.ranks[who] = {"rank": "太上長老", "role": "前%s" % p[1]}
+	set_rank(who, "太上長老", "前%s" % p[1])
 	_news("%s卸下%s之職" % [name_of(who), p[1]])
 
 
 static func _wants_to_retire() -> bool:
 	if leader():
 		return false
-	var age := age_now(leader_key())
-	return age >= 75 or vigor(age) < 0.55
+	var k := leader_key()
+	var age := age_now(k)
+	return age >= 75 or vigor(age) < 0.55 or years_left(k) <= RETIRE_YEARS
 
 
 static func _successor() -> String:
-	var pool: Array = _mq().ROSTER.map(func(m): return m[0]).filter(func(k): return rank_now(k) == "真傳弟子" and not away(k))
+	var pool: Array = _ids().filter(func(k): return rank_now(k) == "真傳弟子" and not away(k))
 	if member() and int(G.sect.rank) >= 3:
 		pool.append("hero")
 	var score := func(c: String) -> float:
@@ -308,12 +310,10 @@ static func _successor() -> String:
 
 static func _hand_over(heir: String) -> void:
 	var st := _st()
-	if not st.has("ranks"):
-		st.ranks = {}
 	if not st.has("posts"):
 		st.posts = {}
 	var old := leader_key()
-	st.ranks[old] = {"rank": "太上長老", "role": "卸任的掌門，在後山清修"}
+	set_rank(old, "太上長老", "卸任的掌門，在後山清修")
 	for p in POSTS:
 		if holder_of(p[0]) == heir:
 			st.posts[p[0]] = ""
@@ -321,7 +321,7 @@ static func _hand_over(heir: String) -> void:
 		G.sect.leader = true
 		G.sect.erase("post")
 	else:
-		st.ranks[heir] = {"rank": "掌門", "role": "鳴泉劍派第八代掌門"}
+		set_rank(heir, "掌門", "鳴泉劍派第八代掌門")
 	_news("%s傳位給%s" % [name_of(old), name_of(heir)])
 
 
@@ -418,7 +418,7 @@ static func _apprentice_cap() -> int:
 
 
 static func apprentices() -> Array:
-	return _life().GROW.keys().filter(func(k): return _life().mem(k).get("master", "") == "hero")
+	return _life().MEMBERS.filter(func(k): return Person.of(k).get("master", "") == "hero" and Person.alive(k))
 
 
 ## 韓靖秋的劇情前面：條件齊了就考授徒（處理了回傳 true）
@@ -458,7 +458,7 @@ static func take_apprentice(ctx: Ctx) -> void:
 	if not willing:
 		await ctx.say({"speaker": d.name, "text": "……我們還不算太熟，這事讓我再想想。" if person != "" else "師兄的好意我心領了，只是……我想再多看看。"})
 		return
-	_life().mem(id).master = "hero"
+	Person.put(id, "master", "hero")
 	_life()._news("%s拜了%s為師" % [d.name, G.hero.name], [id])
 	await ctx.say(["%s跪下來，恭恭敬敬地磕了三個頭：「師父在上，請受徒兒一拜！」" % d.name, "（收了一個徒弟。每天可以找他「指點」一次，他會長得比別人快）"])
 
@@ -469,7 +469,7 @@ static func teach_apprentice(ctx: Ctx) -> void:
 	var d: Dictionary = Life.npc_def(Life.group("mingquan"), id)
 	ctx.pass_time(2)
 	var m: Dictionary = _life().mem(id)
-	m.power = float(m.power) + 1.5
+	Person.train(id, TEACH_EXP)
 	m.taught_day = G.day
 	await ctx.say(["你看著%s練了一遍劍，指出幾處毛病，又親手示範了兩招。" % d.name, {"speaker": d.name, "text": "多謝師父！我明白了！"}, "（指點了兩刻）"])
 	await ctx.say("（%s）" % Sect.add_contrib(1))
@@ -486,12 +486,13 @@ static func options(id: String, act: String) -> Array:
 		out.append(["開講", "mq_order/hero_lecture"])
 	if act == "lead":
 		return out
-	if _life().GROW.has(id):
+	if _life().MEMBERS.has(id):
 		var m: Dictionary = _life().mem(id)
-		if m.get("master", "") == "hero":
+		var master: String = Person.of(id).get("master", "")
+		if master == "hero":
 			if int(m.get("taught_day", 0)) != G.day:
 				out.append(["指點徒弟（兩刻）", "mq_order/teach_apprentice"])
-		elif can_teach() and int(m.rank) <= 1 and not m.has("master") and not id in ["lu", "han", "wen"]:
+		elif can_teach() and Person.rank(id) <= 1 and master == "" and not id in ["lu", "han", "wen"]:
 			out.append(["收為徒弟", "mq_order/take_apprentice"])
 	return out
 
@@ -632,8 +633,8 @@ static func host_match(ctx: Ctx) -> void:
 	await ctx.say(["你高聲唱名：「%s對%s——點到為止，開始！」" % [name_of(a), name_of(b)],
 		"兩人你來我往，鬥了四五十招仍分不出高下。最後%s搶到半步先機，劍尖點在%s肩頭。" % [name_of(win), name_of(lose)] if absf(pa - pb) < 5 else "%s出手又快又穩，不到十招就逼得%s收劍認輸。" % [name_of(win), name_of(lose)],
 		"你判%s勝。兩人互相行禮下場，圍觀的師兄弟一陣喝采。" % name_of(win)])
-	_life().mem(win).power = float(_life().mem(win).power) + 0.4
-	_life().mem(lose).power = float(_life().mem(lose).power) + 0.2
+	Person.train(win, TEACH_EXP * 0.3)
+	Person.train(lose, TEACH_EXP * 0.15)
 	_mark("mq:host")
 	ctx.fame(1)
 	await ctx.say("（主持了一場比試）\n（%s）" % Sect.add_contrib(4))
@@ -665,7 +666,7 @@ static func hero_lecture(ctx: Ctx) -> void:
 	_mark("mq:lecture")
 	for id in _life().FIGHTERS:
 		if not _life().away(id):
-			_life().mem(id).power = float(_life().mem(id).power) + 0.6
+			Person.train(id, TEACH_EXP * 0.4)
 	ctx.pass_time(4)
 	await ctx.say(["你講「%s」：從起手的步法講到收勢的呼吸，再挑了兩招拆給大家看。" % Hero.skill_def(sk.id).name, "底下的弟子聽得入神，有人拿著樹枝在地上比劃。講到後來，你自己也想通了一兩處從前沒留意的地方。", "（講了半個時辰。聽講的同門都有長進）"])
 	if Train.studyable(sk.id).size() > 0:
@@ -675,7 +676,7 @@ static func hero_lecture(ctx: Ctx) -> void:
 
 static func _feuds() -> Array:
 	var out := []
-	for id in _life().GROW:
+	for id in _life().MEMBERS:
 		var m: Dictionary = _life().mem(id)
 		if m.has("feud") and int(m.feud.until) >= G.day and not out.any(func(x): return x[0] == m.feud.with and x[1] == id):
 			out.append([id, m.feud.with])
@@ -711,7 +712,7 @@ static func _clinic(ctx: Ctx) -> void:
 	var herb := ctx.take("herb")
 	var who: String = _life().FIGHTERS.pick_random()
 	await ctx.say(["藥堂裡排著幾個練功扭了腳、被木劍敲腫手腕的弟子。你一個一個看過，%s該推拿的推拿，該包紮的包紮。" % ("搗了止血草敷上，" if herb else ""), "%s的舊傷總算好了，直說要回去練劍。" % name_of(who), "（看診兩刻%s）" % ("，用了止血草 1 件" if herb else "")])
-	_life().mem(who).power = float(_life().mem(who).power) + 0.3
+	Person.train(who, TEACH_EXP * 0.2)
 	await ctx.say("（%s）" % Sect.add_contrib(3 if herb else 2))
 
 
@@ -754,7 +755,7 @@ static func _rent_note(ctx: Ctx) -> void:
 # ── 掌門座位 ────────────────────────────────────────────
 
 static func _appointable(p: Array) -> Array:
-	var pool: Array = _mq().ROSTER.map(func(m): return m[0]).filter(func(k):
+	var pool: Array = _ids().filter(func(k):
 		if k in ["wen", "bu", "shao", "gan"] or away(k) or k == leader_key():
 			return false
 		var r := rank_now(k)
@@ -783,13 +784,13 @@ static func _appoint_menu(ctx: Ctx) -> void:
 		await ctx.say("%s本來就是%s。" % [name_of(prev), p[1]])
 		return
 	var st := _st()
-	if not st.has("ranks"):
-		st.ranks = {}
+	# 卸下長老職的人：本來就是長老的留長老身分；本來是弟子被拔擢上來的回到原本的身分
 	if prev != "" and prev != "hero" and p[2] == "elder":
-		if _roster_row(prev).size() > 0 and _roster_row(prev)[1] == "長老":
-			st.ranks[prev] = {"rank": "長老", "role": "長老（未掌職）"}
+		var orig: Dictionary = Person.defs().get(prev, {}).get("faction", {})
+		if int(orig.get("rank", 0)) == RANK_ORDER.find("長老"):
+			set_rank(prev, "長老", "長老（未掌職）")
 		else:
-			st.ranks.erase(prev)
+			set_rank(prev, RANK_ORDER[clampi(int(orig.get("rank", 0)), 0, 3)], Person.defs()[prev].get("role", ""))
 	if who != "":
 		seat(p, who)
 	else:
@@ -812,7 +813,7 @@ static func _policy_menu(ctx: Ctx) -> void:
 
 
 static func _sect_news(ctx: Ctx) -> void:
-	var counts := ["記名弟子", "正式弟子", "內門弟子", "真傳弟子"].map(func(r): return "%s %d 人" % [r, _mq().ROSTER.filter(func(m): return rank_now(m[0]) == r).size()])
+	var counts := ["記名弟子", "正式弟子", "內門弟子", "真傳弟子"].map(func(r): return "%s %d 人" % [r, _ids().filter(func(k): return rank_now(k) == r).size()])
 	var n: Array = _st().news.slice(-6)
 	n.reverse()
 	await ctx.say(["門下：%s（記名弟子另有十來人）。方針：%s。" % ["、".join(counts), POLICY[_st().get("policy", "steady")][0]],

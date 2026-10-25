@@ -26,24 +26,26 @@ const MqOrder := preload("res://story/mq_order.gd")
 const LifeMq := preload("res://story/life_mingquan.gd")
 
 const SECT := "mingquan"
-## 鳴泉的人（名冊與台詞都用這份名字）
-const MQ := {
-	"wen": "聞松年", "han": "韓靖秋", "yan": "嚴守拙", "su": "蘇芷蘅", "lu": "陸鳴川", "ye": "葉疏桐",
-	"qi": "齊振遠", "fang": "方硯清", "ke": "柯靜言", "song": "宋知微", "miao": "蘇青苗", "meng": "孟鐸",
-	"he": "何守一", "wei": "韋季安", "gu": "顧小滿", "qiao": "喬木生", "bao": "包小川", "tang": "唐秋生",
-	"cao": "曹小豆", "zheng": "鄭大壯", "hou": "侯三郎", "bu": "卜大勺", "shao": "邵長庚", "gan": "甘伯禾",
-}
-## 弟子名冊：[名字, 位階, 職司]（主角照身分排進去）
-const ROSTER := [
-	["wen", "掌門", "鳴泉劍派第七代掌門"], ["han", "長老", "傳功長老，在練功房指點弟子"], ["yan", "長老", "執法長老，坐鎮後山，看守思過崖"],
-	["su", "長老", "藥堂長老，常下山行醫"], ["lu", "真傳弟子", "大弟子，主持晨課與入門考驗"], ["ye", "真傳弟子", "二弟子，下山歷練，久未回山"],
-	["qi", "內門弟子", "教習，在練功房教基本功"], ["fang", "內門弟子", "知客，在山門內迎客"], ["ke", "內門弟子", "值殿，掌管門規與月例"],
-	["song", "內門弟子", "管書"], ["miao", "內門弟子", "管藥，蘇長老的姪女"], ["meng", "內門弟子", "管武器房"],
-	["he", "正式弟子", "守山門"], ["wei", "正式弟子", "採買，常下山到臨江城"],
-	["gu", "記名弟子", "上個月入門"], ["qiao", "記名弟子", "守山門"], ["bao", "記名弟子", "練劍"], ["tang", "記名弟子", "練劍"],
-	["cao", "記名弟子", "掃殿前"], ["zheng", "記名弟子", ""], ["hou", "記名弟子", ""],
-	["bu", "雜役", "伙房師傅，管廚房與菜圃"], ["shao", "雜役", "守山人，在後山守了四十年"], ["gan", "雜役", "管後山東坡的茶園、山田與藥圃"],
-]
+## 鳴泉的人：姓名、性別、年紀、武功、位階、職司都在人物表 data/persons/mingquan.json（scripts/person.gd）
+## MQ 是 id → 名字（台詞用）
+static var MQ: Dictionary = _names()
+
+
+static func _names() -> Dictionary:
+	var out := {}
+	for id in Person.ids():
+		if Person.defs()[id].get("_file", "") == "mingquan.json":
+			out[id] = Person.full_name(id)
+	return out
+
+
+## 弟子名冊（還在世的鳴泉門人，照人物表的順序）：[id, 位階, 職司]（主角照身分排進去）
+static func roster() -> Array:
+	var out := []
+	for id in MQ:
+		if Person.sect(id) == SECT and Person.alive(id):
+			out.append([id, MqOrder.rank_now(id), MqOrder.role_now(id)])
+	return out
 
 ## 晨課：卯時到巳時；練功房、木樁的數值
 const MORNING_EXP := 30
@@ -324,7 +326,7 @@ static func _issue_uniform(ctx: Ctx, r: int) -> void:
 
 # ── 大殿：值殿弟子柯靜言（門規、月例、弟子名冊、離開師門） ───
 
-## 名冊上這個人現在的位階：自己過日子的同門照他們練出來的身分（life_mingquan 的 G.life.mq）
+## 名冊上這個人現在的位階（人物狀態裡的門派位階，見 MqOrder.rank_now）
 static func _roster_rank(m: Array) -> String:
 	return MqOrder.rank_now(m[0])
 
@@ -334,7 +336,9 @@ static func _roster_note(m: Array) -> String:
 	var role: String = MqOrder.role_now(m[0])
 	var notes := [role] if role != "" else []
 	notes.append("%d 歲" % MqOrder.age_now(m[0]))
-	if LifeMq.GROW.has(m[0]):
+	if Person.frail(m[0]):
+		notes.append("年老體衰")
+	if LifeMq.MEMBERS.has(m[0]):
 		if LifeMq.away(m[0]):
 			notes.append(LifeMq.mem(m[0]).away.why)
 		var place: int = LifeMq.state().ranking.find(m[0])
@@ -350,8 +354,8 @@ static func _read_roster(ctx: Ctx) -> void:
 	var mine: String = ("掌門" if MqOrder.leader() else ("長老" if MqOrder.my_post().begins_with("elder") else Sect.rank_name())) if member() else ""
 	for g in groups:
 		var rows := []
-		for m in ROSTER:
-			if _roster_rank(m) == g:
+		for m in roster():
+			if m[1] == g:
 				rows.append("%s%s" % [MQ[m[0]], _roster_note(m)])
 		if g == mine:
 			var my_role: String = "鳴泉劍派第八代掌門" if MqOrder.leader() else (MqOrder.post_def(MqOrder.my_post())[1] if MqOrder.my_post() != "" else "")
@@ -883,17 +887,20 @@ static func yard_stake(ctx: Ctx) -> void:
 
 ## 找同門過招：從記名、正式弟子裡挑一位（身分不高過你一級），點到為止
 const DRILL_STAMINA := 10
-const DRILL_PEERS := [["xiaoman", "trial_xiaoman", 0], ["bao", "drill_bao", 0], ["tang", "drill_tang", 0], ["zheng", "drill_zheng", 0], ["hou", "drill_hou", 0], ["qiao", "drill_qiao", 0], ["he", "drill_he", 1], ["wei", "drill_wei", 1]]
+const DRILL_PEERS := ["gu", "bao", "tang", "zheng", "hou", "qiao", "he", "wei"]
 
 
 static func _drill(ctx: Ctx) -> void:
-	var pool := DRILL_PEERS.filter(func(p): return int(p[2]) <= rank() + 1)
-	var p: Array = pool[randi() % pool.size()]
-	var name: String = MQ.get(p[0], MQ.gu) if p[0] != "xiaoman" else MQ.gu
+	var pool := DRILL_PEERS.filter(func(id): return Person.rank(id) <= rank() + 1 and Person.alive(id) and not LifeMq.away(id))
+	if pool.is_empty():
+		await ctx.say("這會兒沒有同門在練功房。")
+		return
+	var pid: String = pool[randi() % pool.size()]
+	var name: String = MQ[pid]
 	if not await Train.exert(ctx, DRILL_STAMINA, "已經累得喘不過氣，這時候過招只會挨打。"):
 		return
 	await ctx.say("%s正好在一旁練劍，看見你走過來，收了劍勢。" % name)
-	var o := await ctx.battle(p[1])
+	var o := await ctx.battle("person:" + pid)
 	ctx.pass_time(2)
 	var who := _by(name)
 	if o == "win":
@@ -902,7 +909,7 @@ static func _drill(ctx: Ctx) -> void:
 		await ctx.say(who.call("承讓了。你的劍再穩一點就好。"))
 	else:
 		await ctx.say("你收劍認輸，%s笑著點了點頭。" % name)
-	if p[0] == "xiaoman":
+	if pid == "gu":
 		_aff("xiaoman", 2 if o == "win" else 1)
 
 
@@ -1367,14 +1374,10 @@ static func coachman(ctx: Ctx) -> void:
 
 # ── 比武小會、講武、守夜 ─────────────────────────────────
 
-## 比武的對手：記名、正式弟子的切磋遭遇戰
-const DUEL := {"gu": "trial_xiaoman", "bao": "drill_bao", "tang": "drill_tang", "cao": "drill_cao", "zheng": "drill_zheng", "hou": "drill_hou", "qiao": "drill_qiao", "he": "drill_he", "wei": "drill_wei"}
-
-
-## 同門照實力由強到弱
+## 同門照實力由強到弱（實力由各人的五維與武功算，見 MqOrder.power_of）
 static func _ranked() -> Array:
-	var r: Array = LifeMq.FIGHTERS.filter(func(id): return not LifeMq.away(id))
-	r.sort_custom(func(a, b): return float(LifeMq.mem(a).power) > float(LifeMq.mem(b).power))
+	var r: Array = LifeMq.FIGHTERS.filter(func(id): return not LifeMq.away(id) and Person.alive(id))
+	r.sort_custom(func(a, b): return MqOrder.power_of(a) > MqOrder.power_of(b))
 	return r
 
 
@@ -1403,8 +1406,7 @@ static func _tournament(ctx: Ctx) -> void:
 	var wins := 0
 	for id in foes:
 		await ctx.say("第 %d 場：%s上場。" % [wins + 1, MQ[id]])
-		Fight.power_mult = LifeMq.power_mult(id)
-		if await ctx.battle(DUEL[id]) != "win":
+		if await ctx.battle("person:" + id) != "win":
 			break
 		wins += 1
 	ctx.pass_time(4)
@@ -1479,7 +1481,7 @@ static func night_drum(ctx: Ctx) -> void:
 # ── 跟自己過日子的同門一起做事（GridScene 跟他們說話時問：life_mingquan.options） ──
 
 static func _life_name(id: String) -> String:
-	return Life.npc_def(Life.group("mingquan"), id).get("name", id)
+	return Person.full_name(id)
 
 
 static func _life_aff(id: String, n: int) -> void:
@@ -1504,16 +1506,15 @@ static func sit_with(ctx: Ctx) -> void:
 	_life_aff(id, 2)
 
 
-## 對練一場：對方的強弱照他自己練出來的實力（G.life.mq），打完他也長進一點
+## 對練一場：對方用他本人的五維與武功（人物表），打完他也長進一點
 static func spar_with(ctx: Ctx) -> void:
 	var id: String = ctx.extra.npc
-	if not DUEL.has(id):
+	if not LifeMq.FIGHTERS.has(id):
 		return
 	if not await Train.exert(ctx, DRILL_STAMINA, "已經累得喘不過氣，這時候過招只會挨打。"):
 		return
-	Fight.power_mult = LifeMq.power_mult(id)
-	var o := await ctx.battle(DUEL[id])
+	var o := await ctx.battle("person:" + id)
 	ctx.pass_time(2)
 	await ctx.say(_by(_life_name(id)).call("好功夫！再來我可不讓你了。" if o == "win" else ("承讓了！你也進步了不少。" if o == "lose" else "下回再分高下。")))
 	_life_aff(id, 2)
-	LifeMq.mem(id).power = float(LifeMq.mem(id).power) + 0.3
+	Person.train(id, LifeMq.SPAR_EXP)

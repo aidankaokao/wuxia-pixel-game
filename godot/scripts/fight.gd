@@ -37,7 +37,12 @@ static func enemy_data() -> Dictionary:
 	return _enemy_data
 
 
+## 遭遇戰；"person:人物id" 是跟人物表裡的人切磋（用他本人的數值，見 Person.unit），點到為止
 static func encounter(id: String) -> Dictionary:
+	if id.begins_with("person:"):
+		var pid := id.trim_prefix("person:")
+		return {"enemies": [id], "background": "mountain", "intro": "%s抱拳道：「請賜教！」" % Person.full_name(pid),
+			"canFlee": true, "silver": 0, "growth": 0.5, "points": 1, "spar": true}
 	return enemy_data().encounters.get(id, {})
 
 
@@ -126,6 +131,12 @@ static func enemy_units(enc: Dictionary) -> Array:
 	var out := []
 	for i in enc.enemies.size():
 		var k: String = enc.enemies[i]
+		if k.begins_with("person:"):
+			var pu := Person.unit(k.trim_prefix("person:"))
+			pu.id = "e%d" % i
+			pu.kind = k
+			out.append(pu)
+			continue
 		var d: Dictionary = enemy_data().enemies[k]
 		seen[k] = seen.get(k, 0) + 1
 		out.append({
@@ -347,6 +358,8 @@ func _hit(actor: Dictionary, target: Dictionary, power: float, inner: bool) -> D
 
 ## 敵人的行動：頭目會蓄勢後使出殺招；一般敵人七成用主要招式，其餘隨機用其他招式（內力不夠的不用）
 func enemy_command(u: Dictionary, target: Dictionary) -> Dictionary:
+	if u.ai == "person":
+		return person_command(u, target)
 	if u.ai == "boss":
 		if u.charging:
 			u.charging = false
@@ -360,6 +373,35 @@ func enemy_command(u: Dictionary, target: Dictionary) -> Dictionary:
 	var pick: String = ok[0]
 	if ok.size() > 1 and randf() < 0.3:
 		pick = ok[1 + randi() % (ok.size() - 1)]
+	return {"type": "move", "move": pick, "target": target.id}
+
+
+## 人物表裡的人（用主角那套招式）：內力不夠先調息；兩成機會運勁（身上還沒有那個狀態）；其餘挑內力夠的招式裡最重的，偶爾換一招
+func person_command(u: Dictionary, target: Dictionary) -> Dictionary:
+	var hits := []
+	var buffs := []
+	var restore := ""
+	for id in u.moves:
+		var m := mv(id)
+		if m.qi > u.qi:
+			continue
+		match m.kind:
+			"restore":
+				restore = id
+			"buff":
+				if not m.get("self", []).all(func(e): return u.effects.any(func(h): return h.kind == e.kind)):
+					buffs.append(id)
+			_:
+				hits.append(id)
+	var costly: bool = u.moves.any(func(id): return mv(id).qi > 0 and mv(id).kind in ["outer", "inner"])
+	if restore != "" and costly and u.qi < u.max_qi * 0.2:
+		return {"type": "move", "move": restore}
+	if buffs.size() > 0 and randf() < 0.2:
+		return {"type": "move", "move": buffs.pick_random()}
+	if hits.is_empty():
+		return {"type": "move", "move": "attack", "target": target.id}
+	hits.sort_custom(func(a, b): return mv(a).power * mv(a).get("hits", 1) > mv(b).power * mv(b).get("hits", 1))
+	var pick: String = hits[0] if hits.size() == 1 or randf() < 0.7 else hits[1 + randi() % (hits.size() - 1)]
 	return {"type": "move", "move": pick, "target": target.id}
 
 
@@ -438,7 +480,7 @@ func settle(c: Dictionary, enc: Dictionary, result: String) -> Array:
 		lines.append("獲得武學點數 %d。" % enc.points)
 	var drops := {}
 	for k in enc.enemies:
-		for d in enemy_data().enemies[k].get("drops", []):
+		for d in enemy_data().enemies.get(k, {}).get("drops", []):
 			if randf() < d.chance:
 				drops[d.item] = drops.get(d.item, 0) + 1
 	for id in drops:

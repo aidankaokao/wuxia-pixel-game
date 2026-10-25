@@ -195,7 +195,7 @@ static func _news(text: String) -> void:
 ## 名冊上的人（不含你）照位階每週領多少；久未回山的不算
 static func weekly_pay() -> float:
 	var sum := 0.0
-	for m in _mq().ROSTER:
+	for m in _mq().roster():
 		if String(m[2]).contains("久未回山"):
 			continue
 		sum += float(PAY.get(_mq()._roster_rank(m), 0))
@@ -203,12 +203,12 @@ static func weekly_pay() -> float:
 
 
 static func heads() -> int:
-	return _mq().ROSTER.size() + EXTRA_PUPILS + (1 if Sect.member("mingquan") else 0)
+	return _mq().roster().size() + EXTRA_PUPILS + (1 if Sect.member("mingquan") else 0)
 
 
 ## 能接委託、出去行醫的人（正式弟子以上、長老）
 static func capable() -> int:
-	return _mq().ROSTER.filter(func(m): return not _mq()._roster_rank(m) in ["記名弟子", "雜役", "掌門"]).size()
+	return _mq().roster().filter(func(m): return not _mq()._roster_rank(m) in ["記名弟子", "雜役", "掌門"]).size()
 
 
 ## 茶莊賣掉幾斤（最多賣到架上沒有）；回傳 [斤, 兩]

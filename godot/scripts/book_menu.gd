@@ -427,7 +427,11 @@ func _hero_left(v: VBoxContainer) -> void:
 	nv.add_theme_constant_override("separation", 2)
 	top.add_child(nv)
 	nv.add_child(_lab(c.name, 30))
-	nv.add_child(_lab("%d 歲　名聲 %d" % [c.age, c.fame], 15, SOFT))
+	nv.add_child(_lab("%s　%d 歲　名聲 %d" % [Person.gender("hero"), Person.age("hero"), c.fame], 15, SOFT))
+	# 壽命（Person.lifespan）：平均壽命加上各項增減，寫成一行小字
+	var ls := Person.lifespan("hero")
+	var parts: Array = ls.parts.slice(1).map(func(x): return "%s%+.0f" % [x[0], x[1]])
+	nv.add_child(_lab("壽數約 %d 歲%s" % [roundi(ls.total), ("（%s）" % "、".join(parts)) if parts.size() > 0 else ""], 12, FAINT))
 	if not c.titles.is_empty():
 		nv.add_child(_lab("、".join(c.titles), 14, GOLD))
 	v.add_child(_gap(8))

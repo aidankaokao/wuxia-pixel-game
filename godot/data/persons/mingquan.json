@@ -1,0 +1,671 @@
+{
+ "_note": "鳴泉劍派的人（PLAN.md 4.40）。faction.rank：0 記名弟子、1 正式弟子、2 內門弟子、3 真傳弟子、4 長老、5 太上長老、6 掌門、-1 雜役（mq_order.gd 的 RANK_ORDER）；role 是名冊上的職司。talent 是練功快慢（每天半夜自己練，見 life_mingquan.gd）。顧小滿的人物 id 是 gu，交談的檔案在 people.json 的 xiaoman（talk）。",
+ "wen": {
+  "surname": "聞",
+  "given": "松年",
+  "gender": "男",
+  "born": -67,
+  "life_roll": 6,
+  "look": "sect_master",
+  "traits": [
+   "清心寡欲"
+  ],
+  "job": "掌門",
+  "base": {
+   "strength": 16,
+   "agility": 15,
+   "constitution": 17,
+   "energy": 18,
+   "insight": 17
+  },
+  "skills": {
+   "diequan": 11,
+   "hantan": 9,
+   "mingquan": 8,
+   "chengquan": 8,
+   "tashi": 8
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 6
+  },
+  "role": "鳴泉劍派第七代掌門"
+ },
+ "han": {
+  "surname": "韓",
+  "given": "靖秋",
+  "gender": "男",
+  "born": -51,
+  "life_roll": 2,
+  "look": "sect_elder",
+  "job": "長老",
+  "base": {
+   "strength": 17,
+   "agility": 16,
+   "constitution": 15,
+   "energy": 14,
+   "insight": 16
+  },
+  "skills": {
+   "diequan": 9,
+   "mingquan": 8,
+   "chengquan": 7,
+   "tashi": 7
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 4
+  },
+  "master": "wen",
+  "role": "傳功長老，在練功房指點弟子"
+ },
+ "yan": {
+  "surname": "嚴",
+  "given": "守拙",
+  "gender": "男",
+  "born": -70,
+  "life_roll": 8,
+  "look": "sect_judge",
+  "traits": [
+   "嚴厲"
+  ],
+  "job": "長老",
+  "base": {
+   "strength": 18,
+   "agility": 12,
+   "constitution": 19,
+   "energy": 15,
+   "insight": 12
+  },
+  "skills": {
+   "duanliu": 9,
+   "mingquan": 7,
+   "chengquan": 8,
+   "breathing": 5
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 4
+  },
+  "role": "執法長老，坐鎮後山，看守思過崖"
+ },
+ "su": {
+  "surname": "蘇",
+  "given": "芷蘅",
+  "gender": "女",
+  "born": -44,
+  "life_roll": 3,
+  "look": "sect_healer",
+  "job": "長老",
+  "base": {
+   "strength": 11,
+   "agility": 14,
+   "constitution": 13,
+   "energy": 17,
+   "insight": 18
+  },
+  "skills": {
+   "hantan": 7,
+   "chengquan": 7,
+   "mingquan": 6,
+   "tashi": 5
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 4
+  },
+  "role": "藥堂長老，常下山行醫"
+ },
+ "lu": {
+  "surname": "陸",
+  "given": "鳴川",
+  "gender": "男",
+  "born": -26,
+  "life_roll": 1,
+  "look": "sect_senior",
+  "talent": 0.4,
+  "base": {
+   "strength": 15,
+   "agility": 14,
+   "constitution": 14,
+   "energy": 12,
+   "insight": 13
+  },
+  "skills": {
+   "mingquan": 7,
+   "chengquan": 5,
+   "tashi": 4,
+   "diequan": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 3
+  },
+  "master": "wen",
+  "role": "大弟子，主持晨課與入門考驗"
+ },
+ "ye": {
+  "surname": "葉",
+  "given": "疏桐",
+  "gender": "女",
+  "born": -23,
+  "life_roll": 4,
+  "look": "disciple_girl",
+  "base": {
+   "strength": 12,
+   "agility": 17,
+   "constitution": 12,
+   "energy": 13,
+   "insight": 16
+  },
+  "skills": {
+   "mingquan": 8,
+   "chengquan": 5,
+   "tashi": 6,
+   "diequan": 3
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 3
+  },
+  "master": "wen",
+  "role": "二弟子，下山歷練，久未回山"
+ },
+ "qi": {
+  "surname": "齊",
+  "given": "振遠",
+  "gender": "男",
+  "born": -30,
+  "look": "disciple",
+  "job": "教習",
+  "base": {
+   "strength": 15,
+   "agility": 13,
+   "constitution": 14,
+   "energy": 10,
+   "insight": 11
+  },
+  "skills": {
+   "mingquan": 6,
+   "chengquan": 4,
+   "tashi": 3,
+   "basic-fist": 4
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 2
+  },
+  "master": "han",
+  "role": "教習，在練功房教基本功"
+ },
+ "fang": {
+  "surname": "方",
+  "given": "硯清",
+  "gender": "男",
+  "born": -25,
+  "look": "disciple",
+  "base": {
+   "strength": 12,
+   "agility": 13,
+   "constitution": 12,
+   "energy": 11,
+   "insight": 14
+  },
+  "skills": {
+   "mingquan": 5,
+   "chengquan": 4,
+   "tashi": 3
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 2
+  },
+  "role": "知客，在山門內迎客"
+ },
+ "ke": {
+  "surname": "柯",
+  "given": "靜言",
+  "gender": "男",
+  "born": -28,
+  "look": "disciple",
+  "base": {
+   "strength": 13,
+   "agility": 13,
+   "constitution": 13,
+   "energy": 12,
+   "insight": 13
+  },
+  "skills": {
+   "mingquan": 6,
+   "chengquan": 4,
+   "tashi": 3
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 2
+  },
+  "role": "值殿，掌管門規與月例"
+ },
+ "song": {
+  "surname": "宋",
+  "given": "知微",
+  "gender": "男",
+  "born": -24,
+  "look": "scholar",
+  "base": {
+   "strength": 10,
+   "agility": 12,
+   "constitution": 11,
+   "energy": 12,
+   "insight": 17
+  },
+  "skills": {
+   "mingquan": 5,
+   "chengquan": 4,
+   "tashi": 2
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 2
+  },
+  "role": "管書"
+ },
+ "miao": {
+  "surname": "蘇",
+  "given": "青苗",
+  "gender": "女",
+  "born": -20,
+  "look": "lady",
+  "base": {
+   "strength": 10,
+   "agility": 14,
+   "constitution": 11,
+   "energy": 13,
+   "insight": 15
+  },
+  "skills": {
+   "mingquan": 5,
+   "chengquan": 5,
+   "tashi": 2
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 2
+  },
+  "master": "su",
+  "role": "管藥，蘇長老的姪女"
+ },
+ "meng": {
+  "surname": "孟",
+  "given": "鐸",
+  "gender": "男",
+  "born": -29,
+  "look": "disciple",
+  "traits": [
+   "好酒"
+  ],
+  "base": {
+   "strength": 16,
+   "agility": 12,
+   "constitution": 15,
+   "energy": 10,
+   "insight": 10
+  },
+  "skills": {
+   "mingquan": 6,
+   "chengquan": 4,
+   "tashi": 3,
+   "basic-fist": 5
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 2
+  },
+  "role": "管武器房"
+ },
+ "he": {
+  "surname": "何",
+  "given": "守一",
+  "gender": "男",
+  "born": -23,
+  "look": "disciple",
+  "talent": 0.75,
+  "base": {
+   "strength": 12,
+   "agility": 12,
+   "constitution": 12,
+   "energy": 9,
+   "insight": 10
+  },
+  "skills": {
+   "mingquan": 4,
+   "chengquan": 2,
+   "tashi": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 1
+  },
+  "role": "守山門"
+ },
+ "wei": {
+  "surname": "韋",
+  "given": "季安",
+  "gender": "男",
+  "born": -22,
+  "look": "disciple",
+  "talent": 0.6,
+  "base": {
+   "strength": 11,
+   "agility": 11,
+   "constitution": 11,
+   "energy": 9,
+   "insight": 11
+  },
+  "skills": {
+   "mingquan": 3,
+   "chengquan": 2,
+   "tashi": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 1
+  },
+  "role": "採買，常下山到臨江城"
+ },
+ "gu": {
+  "surname": "顧",
+  "given": "小滿",
+  "gender": "女",
+  "born": -15,
+  "look": "disciple_girl",
+  "talent": 1.5,
+  "talk": "xiaoman",
+  "base": {
+   "strength": 10,
+   "agility": 13,
+   "constitution": 10,
+   "energy": 8,
+   "insight": 13
+  },
+  "skills": {
+   "mingquan": 2,
+   "basic-fist": 1,
+   "breathing": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 0
+  },
+  "role": "上個月入門"
+ },
+ "qiao": {
+  "surname": "喬",
+  "given": "木生",
+  "gender": "男",
+  "born": -17,
+  "look": "disciple",
+  "talent": 1.0,
+  "base": {
+   "strength": 10,
+   "agility": 10,
+   "constitution": 11,
+   "energy": 7,
+   "insight": 10
+  },
+  "skills": {
+   "mingquan": 1,
+   "basic-fist": 1,
+   "breathing": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 0
+  },
+  "role": "守山門"
+ },
+ "bao": {
+  "surname": "包",
+  "given": "小川",
+  "gender": "男",
+  "born": -16,
+  "look": "disciple",
+  "talent": 1.25,
+  "base": {
+   "strength": 11,
+   "agility": 12,
+   "constitution": 10,
+   "energy": 7,
+   "insight": 9
+  },
+  "skills": {
+   "mingquan": 1,
+   "basic-fist": 2,
+   "breathing": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 0
+  },
+  "role": "練劍"
+ },
+ "tang": {
+  "surname": "唐",
+  "given": "秋生",
+  "gender": "男",
+  "born": -16,
+  "look": "disciple",
+  "talent": 1.4,
+  "base": {
+   "strength": 10,
+   "agility": 11,
+   "constitution": 10,
+   "energy": 9,
+   "insight": 13
+  },
+  "skills": {
+   "mingquan": 2,
+   "basic-fist": 1,
+   "breathing": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 0
+  },
+  "role": "練劍"
+ },
+ "cao": {
+  "surname": "曹",
+  "given": "小豆",
+  "gender": "男",
+  "born": -14,
+  "look": "disciple",
+  "talent": 0.75,
+  "base": {
+   "strength": 8,
+   "agility": 10,
+   "constitution": 9,
+   "energy": 6,
+   "insight": 9
+  },
+  "skills": {
+   "mingquan": 1,
+   "basic-fist": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 0
+  },
+  "role": "掃殿前"
+ },
+ "zheng": {
+  "surname": "鄭",
+  "given": "大壯",
+  "gender": "男",
+  "born": -19,
+  "look": "farmer",
+  "talent": 1.1,
+  "base": {
+   "strength": 13,
+   "agility": 8,
+   "constitution": 13,
+   "energy": 6,
+   "insight": 7
+  },
+  "skills": {
+   "mingquan": 1,
+   "basic-fist": 2,
+   "breathing": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 0
+  },
+  "role": ""
+ },
+ "hou": {
+  "surname": "侯",
+  "given": "三郎",
+  "gender": "男",
+  "born": -18,
+  "look": "farmer",
+  "talent": 0.9,
+  "base": {
+   "strength": 10,
+   "agility": 10,
+   "constitution": 10,
+   "energy": 7,
+   "insight": 9
+  },
+  "skills": {
+   "mingquan": 1,
+   "basic-fist": 1,
+   "breathing": 1
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": 0
+  },
+  "role": ""
+ },
+ "bu": {
+  "surname": "卜",
+  "given": "大勺",
+  "gender": "男",
+  "born": -51,
+  "life_roll": 2,
+  "look": "smith",
+  "traits": [
+   "好酒"
+  ],
+  "job": "廚子",
+  "base": {
+   "strength": 14,
+   "agility": 9,
+   "constitution": 15,
+   "energy": 7,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 3,
+   "breathing": 2
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": -1
+  },
+  "role": "伙房師傅，管廚房與菜圃"
+ },
+ "shao": {
+  "surname": "邵",
+  "given": "長庚",
+  "gender": "男",
+  "born": -73,
+  "life_roll": 8,
+  "look": "storyteller",
+  "traits": [
+   "清心寡欲"
+  ],
+  "job": "守山人",
+  "base": {
+   "strength": 12,
+   "agility": 12,
+   "constitution": 17,
+   "energy": 14,
+   "insight": 15
+  },
+  "skills": {
+   "chengquan": 7,
+   "breathing": 5,
+   "mingquan": 6
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": -1
+  },
+  "role": "守山人，在後山守了四十年"
+ },
+ "gan": {
+  "surname": "甘",
+  "given": "伯禾",
+  "gender": "男",
+  "born": -60,
+  "life_roll": 4,
+  "look": "farmer",
+  "job": "農",
+  "base": {
+   "strength": 13,
+   "agility": 10,
+   "constitution": 15,
+   "energy": 8,
+   "insight": 10
+  },
+  "skills": {
+   "basic-fist": 2,
+   "breathing": 3
+  },
+  "faction": {
+   "sect": "mingquan",
+   "rank": -1
+  },
+  "role": "管後山東坡的茶園、山田與藥圃"
+ },
+ "fan": {
+  "surname": "樊",
+  "given": "守林",
+  "gender": "男",
+  "born": -41,
+  "look": "carpenter",
+  "job": "木匠",
+  "base": {
+   "strength": 15,
+   "agility": 10,
+   "constitution": 14,
+   "energy": 7,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 3
+  },
+  "role": "南嶺伐木場的工頭"
+ },
+ "wu": {
+  "surname": "鄔",
+  "given": "石生",
+  "gender": "男",
+  "born": -37,
+  "look": "smith",
+  "job": "礦工",
+  "base": {
+   "strength": 16,
+   "agility": 9,
+   "constitution": 15,
+   "energy": 7,
+   "insight": 8
+  },
+  "skills": {
+   "basic-fist": 3
+  },
+  "role": "南嶺採石場的工頭"
+ }
+}

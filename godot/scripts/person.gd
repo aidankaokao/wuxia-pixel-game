@@ -18,6 +18,8 @@ const TRAIT_LIFE := {"好酒": -3, "暴躁": -2, "清心寡欲": 2}
 ## 裝備中的內功每一重（乘品階倍數）延壽幾年、最多幾年
 const INNER_LIFE := 0.4
 const INNER_LIFE_MAX := 15.0
+## 根骨對壽命最多增減幾年
+const CON_LIFE_MAX := 8.0
 ## 離壽命幾年內算「體衰」
 const FRAIL_YEARS := 2
 
@@ -219,6 +221,63 @@ static func unit(id: String, side := "enemy") -> Dictionary:
 	return u
 
 
+## NPC 練功：經驗加在最落後的那門武功（重數÷上限最低的），滿了就升一重（照主角的 exp_to_next），到了上限就換別門。
+## 回傳升了重的武功 id（沒升是空字串）。武功與經驗寫進狀態（skills、skill_exp）
+static func train(id: String, amount: float) -> String:
+	if id == "hero" or amount <= 0.0:
+		return ""
+	var p := of(id)
+	var lv: Dictionary = {}
+	for s in p.skills:
+		lv[s.id] = int(s.level)
+	var best := ""
+	var best_r := 99.0
+	for sid in lv:
+		var cap := int(Hero.data().tiers[Hero.skill_def(sid).tier].cap)
+		var r := float(lv[sid]) / cap
+		if lv[sid] < cap and r < best_r:
+			best_r = r
+			best = sid
+	if best == "":
+		return ""
+	var ex: Dictionary = state(id).get("skill_exp", {}).duplicate()
+	ex[best] = float(ex.get(best, 0.0)) + amount
+	var up := ""
+	if ex[best] >= Hero.exp_to_next(lv[best]):
+		ex[best] -= Hero.exp_to_next(lv[best])
+		lv[best] += 1
+		up = best
+	put(id, "skills", lv)
+	put(id, "skill_exp", ex)
+	return up
+
+
+## 還有沒練到上限的武功
+static func can_train(id: String) -> bool:
+	for s in of(id).skills:
+		if int(s.level) < int(Hero.data().tiers[Hero.skill_def(s.id).tier].cap):
+			return true
+	return false
+
+
+## NPC 學會一門新武功（已經會了就不動）
+static func learn(id: String, skill_id: String, level := 1) -> void:
+	if id == "hero":
+		return
+	var lv: Dictionary = {}
+	for s in of(id).skills:
+		lv[s.id] = int(s.level)
+	if lv.has(skill_id):
+		return
+	lv[skill_id] = level
+	put(id, "skills", lv)
+
+
+## 天分（人物表的 talent，預設 1）：練功的快慢
+static func talent(id: String) -> float:
+	return float(of(id).get("talent", 1.0))
+
+
 ## 實力（一個數字，給選舉、名次、事件比大小）：攻防血速的綜合
 static func power(id: String) -> float:
 	var u := unit(id)
@@ -305,9 +364,17 @@ static func relations() -> Array:
 	return _rels + G.persons.get("rel", [])
 
 
-## 某人某種關係的對象（例如 rel("lu", "師徒") 是他的師父或徒弟）；方向有意義的種類，a 是長輩／師父
+## 某人某種關係的對象（例如 rel("lu", "師徒") 是他的師父或徒弟）；方向有意義的種類，a 是長輩／師父。
+## 師徒也讀人物的 master 欄位
 static func rel(id: String, kind: String) -> Array:
 	var out := []
+	if kind == "師徒":
+		var m: String = of(id).get("master", "")
+		if m != "":
+			out.append(m)
+		for o in ids():
+			if of(o).get("master", "") == id:
+				out.append(o)
 	for r in relations():
 		if r[2] != kind:
 			continue
@@ -334,7 +401,7 @@ static func lifespan(id: String) -> Dictionary:
 	if int(p.get("life_roll", 0)) != 0:
 		parts.append(["天生", float(p.life_roll)])
 	var a := Hero.attrs(p)
-	var con := (float(a.constitution) - 12.0) * 0.5
+	var con := clampf((float(a.constitution) - 12.0) * 0.5, -CON_LIFE_MAX, CON_LIFE_MAX)
 	if absf(con) >= 0.5:
 		parts.append(["根骨", snappedf(con, 0.5)])
 	var inner := minf(INNER_LIFE_MAX, Hero.equipped_level(p, "inner") * INNER_LIFE)

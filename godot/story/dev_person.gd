@@ -19,6 +19,58 @@ static func demo(_ctx: Ctx) -> void:
 	print("PERSON 主角條件 gender == '男'：", Story.cond("gender == '男'"))
 
 
+## 對照：同門用人物本人的數值（person:id）跟舊的固定遭遇戰（照舊的實力倍數）比，主角三種底子各打 300 場
+static func duel_sim(_ctx: Ctx) -> void:
+	var keep := {"bag": G.bag.duplicate(), "silver": G.silver}
+	var old := {"gu": ["trial_xiaoman", 0.85], "bao": ["drill_bao", 0.79], "tang": ["drill_tang", 0.82], "cao": ["drill_cao", 0.67], "he": ["drill_he", 1.0], "wei": ["drill_wei", 0.95]}
+	var setups := [["剛出村", {}], ["拜入一個月（鳴泉3、吐納2）", {"mingquan": 3, "breathing": 2}], ["正式弟子（鳴泉5、澄泉3、吐納3）", {"mingquan": 5, "chengquan": 3, "breathing": 3}]]
+	for st in setups:
+		var line: String = st[0] + "："
+		for id in old:
+			var wn := [0.0, 0.0]
+			for k in 10:
+				var c := Sim.fresh(false)
+				for sk in st[1]:
+					Hero.learn(c, sk, st[1][sk])
+					Hero.find_skill(c, sk).level = st[1][sk]
+				Fight.power_mult = old[id][1]
+				wn[0] += Sim.rate(c, old[id][0], {"jinchuang": 0}, 30).win / 10.0
+				Fight.power_mult = 1.0
+				wn[1] += Sim.rate(c, "person:" + id, {"jinchuang": 0}, 30).win / 10.0
+			line += "　%s 舊%d%%／新%d%%" % [Person.full_name(id), roundi(wn[0] * 100), roundi(wn[1] * 100)]
+		print("DUEL ", line)
+	G.bag = keep.bag
+	G.silver = keep.silver
+
+
+## 跑幾年的半夜（全部的 NEW_DAY_SCRIPTS）：鳴泉的名冊、職位、門派消息、過世的人（run:dev_person/years）
+static func years(_ctx: Ctx) -> void:
+	var mo: GDScript = load("res://story/mq_order.gd")
+	for y in 4:
+		for i in 360:
+			G.day += 1
+			for cb in G._new_day:
+				cb.call()
+		var rows: Array = load("res://story/mingquan.gd").roster().map(func(m): return "%s%s%d歲%.0f" % [Person.full_name(m[0]), m[1], Person.age(m[0]), mo.power_of(m[0])])
+		print("YEARS 第 %d 年底：掌門 %s；職位 %s" % [y + 1, Person.full_name(mo.leader_key()), mo.POSTS.map(func(p): return "%s=%s" % [p[1], Person.full_name(mo.holder_of(p[0])) if mo.holder_of(p[0]) != "" else "空"])])
+		print("YEARS 　", "、".join(rows))
+	for n in load("res://story/life_mingquan.gd").state().news.slice(-12):
+		print("YEARS NEWS ", n.day, " ", n.text)
+	print("YEARS 過世：", G.persons.get("obits", []))
+
+
+## 舊存檔的鳴泉狀態搬進人物狀態（G.life.mq 的 members.rank／power／master 與 ranks）
+static func migrate(_ctx: Ctx) -> void:
+	var lm: GDScript = load("res://story/life_mingquan.gd")
+	var mo: GDScript = load("res://story/mq_order.gd")
+	G.persons = {}
+	G.life.mq = {"members": {"gu": {"power": 70.0, "rank": 2, "master": "hero"}, "bao": {"power": 30.0, "rank": 0, "away": {"until": G.day + 3, "why": "回鄉探親"}}},
+		"news": [], "ranking": [], "ranks": {"lu": {"rank": "掌門", "role": "鳴泉劍派第八代掌門"}, "wen": {"rank": "太上長老", "role": "卸任的掌門，在後山清修"}}}
+	lm.state()
+	print("MIGRATE 顧小滿 ", mo.rank_now("gu"), " 師父 ", Person.of("gu").get("master", ""), "；包小川 ", mo.rank_now("bao"), " 下山 ", lm.away("bao"), "；陸鳴川 ", mo.rank_now("lu"), " ", mo.role_now("lu"), "；聞松年 ", mo.rank_now("wen"), "；掌門是 ", mo.leader_key(), "；舊欄位 ", G.life.mq.members, " ranks ", G.life.mq.has("ranks"))
+	print("MIGRATE 名冊 ", load("res://story/mingquan.gd").roster().map(func(m): return "%s%s" % [Person.full_name(m[0]), m[1]]))
+
+
 ## 過世、存讀檔、女子稱呼（用開發的存檔欄位，跑完刪掉）
 static func life(_ctx: Ctx) -> void:
 	Person.new_day()
