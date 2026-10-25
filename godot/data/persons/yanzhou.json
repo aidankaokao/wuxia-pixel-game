@@ -1,0 +1,184 @@
+{
+ "_note": "煙州府城的人（PLAN.md 4.41 樣板城；之後手工做府城時沿用）。",
+ "yz_guan": {
+  "surname": "管",
+  "given": "延年",
+  "gender": "男",
+  "born": -51,
+  "look": "servant",
+  "home": "yzfu",
+  "role": "府前客棧的掌櫃",
+  "talk": ""
+ },
+ "yz_xi": {
+  "surname": "席",
+  "given": "萬春",
+  "gender": "男",
+  "born": -47,
+  "look": "farmer",
+  "home": "yzfu",
+  "role": "醉煙樓的東家兼大廚",
+  "talk": ""
+ },
+ "yz_yin": {
+  "surname": "尹",
+  "given": "仲和",
+  "gender": "男",
+  "born": -60,
+  "life_roll": 7,
+  "look": "storyteller",
+  "traits": [
+   "清心寡欲"
+  ],
+  "home": "yzfu",
+  "role": "濟和堂的老大夫",
+  "talk": ""
+ },
+ "yz_lu": {
+  "surname": "盧",
+  "given": "福生",
+  "gender": "男",
+  "born": -43,
+  "look": "peddler",
+  "home": "yzfu",
+  "role": "萬全雜貨的掌櫃",
+  "talk": ""
+ },
+ "yz_xiong": {
+  "surname": "熊",
+  "given": "鐵山",
+  "gender": "男",
+  "born": -44,
+  "look": "smith",
+  "job": "鐵匠",
+  "home": "yzfu",
+  "role": "百煉鐵鋪的鐵匠",
+  "talk": ""
+ },
+ "yz_bai": {
+  "surname": "柏",
+  "given": "錦雲",
+  "gender": "女",
+  "born": -38,
+  "look": "lady",
+  "home": "yzfu",
+  "role": "雲錦布莊的老闆娘",
+  "talk": ""
+ },
+ "yz_yu": {
+  "surname": "郁",
+  "given": "清和",
+  "gender": "男",
+  "born": -49,
+  "look": "scholar",
+  "home": "yzfu",
+  "role": "聽雨茶樓的茶博士",
+  "talk": ""
+ },
+ "yz_bao": {
+  "surname": "包",
+  "given": "順風",
+  "gender": "男",
+  "born": -40,
+  "look": "boatman",
+  "home": "yzfu",
+  "role": "通衢車馬行的掌櫃",
+  "talk": ""
+ },
+ "yz_chai": {
+  "surname": "柴",
+  "given": "守中",
+  "gender": "男",
+  "born": -54,
+  "look": "scholar",
+  "job": "書生",
+  "faction": {
+   "sect": "yz_yamen",
+   "rank": 2
+  },
+  "home": "yzfu",
+  "role": "煙州州衙的錢穀師爺",
+  "talk": ""
+ },
+ "yz_zhen": {
+  "surname": "甄",
+  "given": "有信",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 5,
+  "look": "elder",
+  "home": "yzfu",
+  "role": "恆裕當鋪的朝奉",
+  "talk": ""
+ },
+ "yz_cui": {
+  "surname": "崔",
+  "given": "得利",
+  "gender": "男",
+  "born": -46,
+  "look": "storyteller",
+  "faction": {
+   "sect": "qingfu",
+   "rank": 2
+  },
+  "home": "yzfu",
+  "role": "青蚨錢莊的掌櫃，青蚨會的人",
+  "talk": ""
+ },
+ "yz_wen": {
+  "surname": "聞",
+  "given": "知遠",
+  "gender": "男",
+  "born": -62,
+  "life_roll": 8,
+  "look": "elder",
+  "job": "書生",
+  "traits": [
+   "清心寡欲"
+  ],
+  "home": "yzfu",
+  "role": "墨香書肆的老東家",
+  "talk": ""
+ },
+ "yz_hua": {
+  "surname": "花",
+  "given": "月容",
+  "gender": "女",
+  "born": -41,
+  "look": "lady",
+  "home": "yzfu",
+  "role": "錦雲戲樓的班主",
+  "talk": ""
+ },
+ "yz_zhuo": {
+  "surname": "卓",
+  "given": "有方",
+  "gender": "男",
+  "born": -49,
+  "look": "carpenter",
+  "home": "yzfu",
+  "role": "巧匠木作的師傅，替人蓋屋、打家具",
+  "talk": ""
+ },
+ "yz_fang": {
+  "surname": "方",
+  "given": "硯秋",
+  "gender": "男",
+  "born": -21,
+  "look": "scholar",
+  "job": "書生",
+  "home": "yzfu",
+  "role": "在府城寄讀的書生",
+  "talk": ""
+ },
+ "yz_ding": {
+  "surname": "丁",
+  "name": "丁大嬸",
+  "gender": "女",
+  "born": -45,
+  "look": "aunt",
+  "home": "yzfu",
+  "role": "府城的街坊，什麼消息都知道一點",
+  "talk": ""
+ }
+}

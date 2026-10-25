@@ -56,10 +56,11 @@ static func openable() -> Array:
 	return m.owned.keys().filter(func(id): return Biz.prop_def(id).kind == "shop" and m.owned[id].use != "shop" and not m.selling.has(id))
 
 
-static func open_shop(ctx: Ctx) -> void:
-	var say := func(t: String) -> Dictionary: return {"speaker": "苗守正", "text": t}
-	var ids := openable()
-	var i := await ctx.ask(say.call("要在哪間鋪面開店？"), ids.map(func(id): return Biz.prop_def(id).name) + ["算了"])
+## only：只在這幾間開（樣板城鎮的空地鋪面，在木牌前登記）；who：誰替你登記
+static func open_shop(ctx: Ctx, only: Array = [], who := "苗守正") -> void:
+	var say := func(t: String) -> Dictionary: return {"speaker": who, "text": t}
+	var ids := openable() if only.is_empty() else only
+	var i := 0 if ids.size() == 1 and not only.is_empty() else await ctx.ask(say.call("要在哪間鋪面開店？"), ids.map(func(id): return Biz.prop_def(id).name) + ["算了"])
 	if i >= ids.size():
 		return
 	var id: String = ids[i]
@@ -87,7 +88,7 @@ static func fill_room(d: Dictionary, pid: String) -> void:
 	var s := Biz.shop(pid)
 	var t: Dictionary = Biz.SHOP_TYPES[s.type]
 	d.name = s.name
-	d.subtitle = "臨江城・%s・%s" % [t.name, Biz.level_def(s).name]
+	d.subtitle = "%s・%s・%s" % [Biz.town_name(Biz.shop_town(pid)), t.name, Biz.level_def(s).name]
 	d.theme = "plain" if s.type == "restaurant" else "scholar"
 	var goods: int = s.stock.size()
 	d.props[0] = {"sprite": "counter", "x": 1, "y": 1, "w": 3, "lines": [], "label": "東家的櫃台", "script": "shop/counter"}

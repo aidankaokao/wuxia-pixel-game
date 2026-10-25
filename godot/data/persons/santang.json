@@ -1,0 +1,111 @@
+{
+ "_note": "三塘鎮的人（PLAN.md 4.41 樣板鎮）。",
+ "st_huo": {
+  "surname": "霍",
+  "given": "長安",
+  "gender": "男",
+  "born": -49,
+  "look": "servant",
+  "home": "santang",
+  "role": "三塘客棧的掌櫃",
+  "talk": ""
+ },
+ "st_tang": {
+  "surname": "湯",
+  "given": "桂枝",
+  "gender": "女",
+  "born": -43,
+  "look": "aunt",
+  "home": "santang",
+  "role": "塘邊飯館的老闆娘",
+  "talk": ""
+ },
+ "st_ou": {
+  "surname": "歐",
+  "given": "守仁",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 7,
+  "look": "storyteller",
+  "home": "santang",
+  "role": "保和藥鋪的老郎中",
+  "talk": ""
+ },
+ "st_mi": {
+  "surname": "米",
+  "given": "有糧",
+  "gender": "男",
+  "born": -46,
+  "look": "peddler",
+  "home": "santang",
+  "role": "米市雜貨的掌櫃",
+  "talk": ""
+ },
+ "st_wu": {
+  "surname": "鄔",
+  "given": "大力",
+  "gender": "男",
+  "born": -41,
+  "look": "smith",
+  "job": "鐵匠",
+  "home": "santang",
+  "role": "三塘鐵鋪的鐵匠",
+  "talk": ""
+ },
+ "st_li": {
+  "surname": "黎",
+  "given": "巧娘",
+  "gender": "女",
+  "born": -37,
+  "look": "lady",
+  "home": "santang",
+  "role": "鎮上布莊的老闆娘",
+  "talk": ""
+ },
+ "st_shu": {
+  "surname": "舒",
+  "given": "半閒",
+  "gender": "男",
+  "born": -61,
+  "life_roll": 8,
+  "look": "elder",
+  "traits": [
+   "清心寡欲"
+  ],
+  "home": "santang",
+  "role": "船頭茶館的老掌櫃",
+  "talk": ""
+ },
+ "st_di": {
+  "surname": "狄",
+  "given": "長風",
+  "gender": "男",
+  "born": -38,
+  "look": "boatman",
+  "home": "santang",
+  "role": "三塘車馬行的掌櫃",
+  "talk": ""
+ },
+ "st_fang": {
+  "surname": "方",
+  "given": "正林",
+  "gender": "男",
+  "born": -50,
+  "look": "carpenter",
+  "home": "santang",
+  "role": "方家木作的師傅",
+  "talk": ""
+ },
+ "st_chuan": {
+  "surname": "湯",
+  "name": "老船頭",
+  "gender": "男",
+  "born": -54,
+  "life_roll": 6,
+  "look": "fisher",
+  "job": "船家",
+  "home": "santang",
+  "role": "在府河上撐了一輩子船",
+  "talk": ""
+ }
+}

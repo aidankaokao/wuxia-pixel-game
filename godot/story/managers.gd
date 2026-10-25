@@ -43,7 +43,7 @@ static func _handle(s: Dictionary, id: String, m: Dictionary) -> void:
 				Biz.add_morale(s, e.staff, -5)
 				Biz.note(s, "%s把偷懶的%s訓了一頓" % [who, e.staff])
 		"ruffian":
-			var here: Array = Biz.TOWN_GUARDS.get(Biz.shop_town(id), [])
+			var here: Array = Biz.town_guards(Biz.shop_town(id))
 			if p.ruffian == "pay":
 				s.till = float(s.till) - 20
 				Biz.note(s, "%s照方針給了蔡三二十兩保護費" % who)

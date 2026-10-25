@@ -28,9 +28,9 @@ const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tav
 ## 做好的室外地圖（出入口通到這些就換過去）
 const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "mq_farm", "mq_ridge", "dabutou"]
 ## 依狀態產生的室內（自宅 home:空地id、房產 prop:物件id），由這些劇情檔的 room_data 給地圖資料
-const GEN_ROOMS := {"home:": "res://story/estate.gd", "prop:": "res://story/property.gd"}
+const GEN_ROOMS := {"home:": "res://story/estate.gd", "prop:": "res://story/property.gd", "town:": "res://scripts/town_gen.gd"}
 ## 載入室外地圖資料時，依狀態補上東西的劇情檔（patch_map：自宅的空地與房子、名下房產的門與店名）
-const MAP_PATCHES := ["res://story/estate.gd", "res://story/property.gd"]
+const MAP_PATCHES := ["res://story/estate.gd", "res://story/town.gd", "res://story/property.gd"]
 ## 地圖四周往外延伸幾格（地圖資料可以用 ring 指定：主角會走到很靠邊的地圖要寬一點，免得看到外面）
 var M := 16
 
@@ -43,6 +43,11 @@ static func is_room(id: String) -> bool:
 		if id.begins_with(k):
 			return true
 	return false
+
+
+## 這個 id 是不是室外地圖（做好的，或用樣板蓋的城鎮村，見 town_gen.gd）
+static func is_outdoor(id: String) -> bool:
+	return id in OUTDOOR or TownGen.has(id)
 
 var map_id := "qingzhu"
 var data: Dictionary
@@ -63,8 +68,10 @@ func open(id: String) -> void:
 
 
 func _ready() -> void:
-	var f := FileAccess.open("res://data/%s.json" % map_id, FileAccess.READ)
-	data = JSON.parse_string(f.get_as_text())
+	if TownGen.has(map_id):
+		data = TownGen.build(map_id).duplicate(true)
+	else:
+		data = JSON.parse_string(FileAccess.get_file_as_string("res://data/%s.json" % map_id))
 	for p in MAP_PATCHES:
 		load(p).patch_map(map_id, data)
 	M = int(data.get("ring", 16))
@@ -850,7 +857,7 @@ func _building(b: Dictionary) -> void:
 	doors[dt] = b
 	props.append({"node": null, "def": {"sprite": "door", "label": "進去", "lines": [], "door": dt}, "at": Vector2(dt.x + 0.5, dt.y + 0.5)})
 	var enter = b.get("enter")
-	if enter != null and (is_room(enter.to) or enter.to in OUTDOOR):
+	if enter != null and (is_room(enter.to) or is_outdoor(enter.to)):
 		_door_marker(dt, b.get("face", "s"))
 	# 做好精細版的房子（fine_house.gd）
 	if FineHouse.STYLE.has(b.style):
@@ -1027,7 +1034,7 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.box(Vector3(w, 0.3, 0.45), Color("a8a296"), Vector3(0, 2.7, 0)))
 			g.add_child(Mk.box(Vector3(w + 0.6, 0.35, 0.7), Color("3e6656") if p.sprite == "paifang_sect" else Color("3f4a5e"), Vector3(0, 3.15, 0)))
 			g.add_child(Mk.box(Vector3(2.2, 0.55, 0.08), Color("2a1f18"), Vector3(0, 2.25, 0.25)))
-			var pl := Mk.label("鳴泉" if p.sprite == "paifang_sect" else "臨江", 48, Color("f0c860"), Color(0, 0, 0, 0))
+			var pl := Mk.label(p.get("plaque", "") if p.get("plaque", "") != "" else ("鳴泉" if p.sprite == "paifang_sect" else "臨江"), 48, Color("f0c860"), Color(0, 0, 0, 0))
 			pl.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 			pl.position = Vector3(0, 2.25, 0.3)
 			g.add_child(pl)
@@ -1400,7 +1407,7 @@ func _on_tile(g: Vector2i) -> void:
 				continue
 			if e.has("world"):
 				_leave(e, t)
-			elif e.has("to") and e.to in OUTDOOR:
+			elif e.has("to") and is_outdoor(e.to):
 				main.hop(e.to, e.spawn)
 			else:
 				var back := Vector3(clampf(t[0], 1, W - 2) - t[0], 0, clampf(t[1], 1, H - 2) - t[1]).normalized() * 0.6
@@ -1415,7 +1422,7 @@ func _interact(t: Dictionary) -> void:
 		return
 	var b: Dictionary = doors[t.p.def.door]
 	var enter = b.get("enter")
-	if enter != null and (is_room(enter.to) or enter.to in OUTDOOR):
+	if enter != null and (is_room(enter.to) or is_outdoor(enter.to)):
 		main.hop(enter.to, enter.spawn)
 	elif (b.get("door", []) as Array).size() > 0:
 		await ui.say(b.door)

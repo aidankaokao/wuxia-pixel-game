@@ -1,0 +1,142 @@
+{
+ "_note": "桑林城的人（PLAN.md 4.41 樣板城；千絲坊之後手工做）。",
+ "sl_ran": {
+  "surname": "冉",
+  "given": "春生",
+  "gender": "男",
+  "born": -43,
+  "look": "servant",
+  "home": "sanglin",
+  "role": "桑園客棧的掌櫃",
+  "talk": ""
+ },
+ "sl_xiang": {
+  "surname": "項",
+  "given": "有餘",
+  "gender": "男",
+  "born": -51,
+  "look": "farmer",
+  "home": "sanglin",
+  "role": "蠶月樓的大廚",
+  "talk": ""
+ },
+ "sl_lian": {
+  "surname": "廉",
+  "given": "素心",
+  "gender": "女",
+  "born": -48,
+  "look": "sect_healer",
+  "home": "sanglin",
+  "role": "杏林堂的女大夫",
+  "talk": ""
+ },
+ "sl_bao": {
+  "surname": "鮑",
+  "given": "來財",
+  "gender": "男",
+  "born": -40,
+  "look": "peddler",
+  "home": "sanglin",
+  "role": "桑市雜貨的掌櫃",
+  "talk": ""
+ },
+ "sl_ao": {
+  "surname": "敖",
+  "given": "鐵牛",
+  "gender": "男",
+  "born": -37,
+  "look": "smith",
+  "job": "鐵匠",
+  "home": "sanglin",
+  "role": "桑林鐵鋪的鐵匠",
+  "talk": ""
+ },
+ "sl_yao": {
+  "surname": "姚",
+  "given": "素錦",
+  "gender": "女",
+  "born": -39,
+  "look": "lady",
+  "home": "sanglin",
+  "role": "織雲坊的坊主，城裡最大的布莊",
+  "talk": ""
+ },
+ "sl_xue": {
+  "surname": "薛",
+  "given": "清泉",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 5,
+  "look": "elder",
+  "home": "sanglin",
+  "role": "春蠶茶館的老掌櫃",
+  "talk": ""
+ },
+ "sl_shao": {
+  "surname": "邵",
+  "given": "遠行",
+  "gender": "男",
+  "born": -44,
+  "look": "boatman",
+  "home": "sanglin",
+  "role": "東嶺車馬行的掌櫃",
+  "talk": ""
+ },
+ "sl_zhai": {
+  "surname": "翟",
+  "given": "守禮",
+  "gender": "男",
+  "born": -53,
+  "look": "scholar",
+  "job": "書生",
+  "faction": {
+   "sect": "sl_yamen",
+   "rank": 2
+  },
+  "home": "sanglin",
+  "role": "桑林縣衙的師爺",
+  "talk": ""
+ },
+ "sl_xiangs": {
+  "surname": "向",
+  "given": "守成",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 7,
+  "look": "elder",
+  "home": "sanglin",
+  "role": "裕豐當鋪的朝奉",
+  "talk": ""
+ },
+ "sl_que": {
+  "surname": "闕",
+  "given": "木森",
+  "gender": "男",
+  "born": -45,
+  "look": "carpenter",
+  "home": "sanglin",
+  "role": "闕家木作的師傅",
+  "talk": ""
+ },
+ "sl_cansao": {
+  "surname": "桑",
+  "name": "蠶花嫂",
+  "gender": "女",
+  "born": -34,
+  "look": "aunt",
+  "job": "農",
+  "home": "sanglin",
+  "role": "城外養蠶的人家，進城賣繭",
+  "talk": ""
+ },
+ "sl_xiaoxian": {
+  "surname": "桑",
+  "given": "小絃",
+  "gender": "女",
+  "born": -15,
+  "look": "girl",
+  "home": "sanglin",
+  "role": "在織造局做工的小姑娘",
+  "talk": ""
+ }
+}

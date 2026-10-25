@@ -1,0 +1,143 @@
+{
+ "_note": "潮信城的人（PLAN.md 4.41 樣板城）。",
+ "cx_cen": {
+  "surname": "岑",
+  "given": "浪生",
+  "gender": "男",
+  "born": -45,
+  "look": "servant",
+  "home": "chaoxin",
+  "role": "望海客棧的掌櫃",
+  "talk": ""
+ },
+ "cx_gong": {
+  "surname": "龔",
+  "given": "永福",
+  "gender": "男",
+  "born": -49,
+  "look": "farmer",
+  "home": "chaoxin",
+  "role": "潮鮮樓的大廚",
+  "talk": ""
+ },
+ "cx_ge": {
+  "surname": "葛",
+  "given": "青蒿",
+  "gender": "女",
+  "born": -53,
+  "look": "sect_healer",
+  "home": "chaoxin",
+  "role": "海寧堂的女大夫",
+  "talk": ""
+ },
+ "cx_yu": {
+  "surname": "余",
+  "given": "順德",
+  "gender": "男",
+  "born": -42,
+  "look": "peddler",
+  "home": "chaoxin",
+  "role": "通海雜貨的掌櫃",
+  "talk": ""
+ },
+ "cx_ke": {
+  "surname": "柯",
+  "given": "定海",
+  "gender": "男",
+  "born": -46,
+  "look": "smith",
+  "job": "鐵匠",
+  "home": "chaoxin",
+  "role": "錨記鐵鋪的鐵匠，船錨、刀槍都打",
+  "talk": ""
+ },
+ "cx_luo": {
+  "surname": "羅",
+  "given": "綺娘",
+  "gender": "女",
+  "born": -35,
+  "look": "lady",
+  "home": "chaoxin",
+  "role": "海棠布莊的老闆娘",
+  "talk": ""
+ },
+ "cx_yan": {
+  "surname": "晏",
+  "given": "伯潮",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 7,
+  "look": "elder",
+  "home": "chaoxin",
+  "role": "聽潮茶館的老掌櫃",
+  "talk": ""
+ },
+ "cx_you": {
+  "surname": "尤",
+  "given": "長行",
+  "gender": "男",
+  "born": -39,
+  "look": "boatman",
+  "home": "chaoxin",
+  "role": "海塘驛的驛丞",
+  "talk": ""
+ },
+ "cx_le": {
+  "surname": "樂",
+  "given": "明遠",
+  "gender": "男",
+  "born": -51,
+  "look": "scholar",
+  "job": "書生",
+  "faction": {
+   "sect": "cx_yamen",
+   "rank": 2
+  },
+  "home": "chaoxin",
+  "role": "潮信縣衙的師爺",
+  "talk": ""
+ },
+ "cx_mo": {
+  "surname": "莫",
+  "given": "長青",
+  "gender": "男",
+  "born": -56,
+  "life_roll": 5,
+  "look": "elder",
+  "home": "chaoxin",
+  "role": "寶源當鋪的朝奉",
+  "talk": ""
+ },
+ "cx_xie": {
+  "surname": "解",
+  "given": "長松",
+  "gender": "男",
+  "born": -48,
+  "look": "carpenter",
+  "home": "chaoxin",
+  "role": "船木作的師傅，造船也蓋屋",
+  "talk": ""
+ },
+ "cx_hai": {
+  "surname": "石",
+  "name": "海螺嫂",
+  "gender": "女",
+  "born": -37,
+  "look": "aunt",
+  "job": "漁",
+  "home": "chaoxin",
+  "role": "在魚市補網的漁婦",
+  "talk": ""
+ },
+ "cx_shuan": {
+  "surname": "杭",
+  "name": "阿栓",
+  "gender": "男",
+  "born": -23,
+  "look": "farmer",
+  "job": "鹽丁",
+  "home": "chaoxin",
+  "role": "從白灘來城裡挑鹽的鹽丁",
+  "talk": ""
+ }
+}

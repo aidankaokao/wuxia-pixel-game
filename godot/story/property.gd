@@ -372,6 +372,9 @@ static func tasks() -> Array:
 
 ## 房子在室外地圖上的那棟建築
 static func _building(p: Dictionary) -> Dictionary:
+	# 樣板城鎮空地上蓋的鋪面
+	if p.get("lot", false):
+		return TownGen.shop_building(TownGen.lot_def(p.id))
 	var f := FileAccess.open("res://data/%s.json" % p.map, FileAccess.READ)
 	var d: Dictionary = JSON.parse_string(f.get_as_text())
 	for b in d.buildings:
@@ -418,7 +421,8 @@ static func room_data(id: String) -> Dictionary:
 	var mine := not o.is_empty()
 	var s := Biz.shop(pid)
 	if p.kind == "shop":
-		var d := {"id": id, "name": p.name, "subtitle": "臨江城・你的鋪面" if mine else "臨江城・看房", "theme": "plain",
+		var town := Biz.town_name(Biz.town_of_map(p.map))
+		var d := {"id": id, "name": p.name, "subtitle": town + ("・你的鋪面" if mine else "・看房"), "theme": "plain",
 			"tiles": _room(11, 8, 5), "spawn": spawn_in(p), "exits": [{"tiles": [[5, 7]], "to": out.to, "spawn": out.spawn}], "npcs": [],
 			"props": [_prop("counter", 1, 1, 3, "空蕩蕩的櫃台，擦乾淨了就能做生意。" if mine else "前一家留下的櫃台，漆掉了一半。"),
 				_prop("jars", 6, 1, 2, "前一家留下的幾個空罈子。"), _prop("jars", 8, 1, 2, "空罈子，角落結了蜘蛛網。"), _prop("f_table_plain_1", 2, 4, 2, "給客人坐的方桌。")]}

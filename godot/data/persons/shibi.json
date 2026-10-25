@@ -1,0 +1,44 @@
+{
+ "_note": "石壁村的人（PLAN.md 4.41 樣板村）。",
+ "sb_yue": {
+  "surname": "岳",
+  "given": "鎮山",
+  "gender": "男",
+  "born": -56,
+  "life_roll": 6,
+  "look": "elder",
+  "home": "shibi",
+  "role": "石壁村的村長，老獵戶",
+  "talk": ""
+ },
+ "sb_lin": {
+  "surname": "藺",
+  "given": "春花",
+  "gender": "女",
+  "born": -45,
+  "look": "aunt",
+  "home": "shibi",
+  "role": "山貨舖的老闆娘",
+  "talk": ""
+ },
+ "sb_gong": {
+  "surname": "鞏",
+  "given": "長青",
+  "gender": "男",
+  "born": -47,
+  "look": "carpenter",
+  "home": "shibi",
+  "role": "藺春花的丈夫，村裡的木匠",
+  "talk": ""
+ },
+ "sb_xiaoshan": {
+  "surname": "岳",
+  "given": "小山",
+  "gender": "男",
+  "born": -16,
+  "look": "farmer",
+  "home": "shibi",
+  "role": "村長的孫子，上山採藥",
+  "talk": ""
+ }
+}

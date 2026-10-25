@@ -52,14 +52,15 @@ static func prop_def(id: String) -> Dictionary:
 	for p in PROPERTIES:
 		if p.id == id:
 			return p
-	return {}
+	# 樣板城鎮裡自己買地蓋的鋪面（town_gen.gd）
+	return TownGen.lot_prop(id)
 
 
 static func prop_at(map: String, x: int, y: int) -> Dictionary:
 	for p in PROPERTIES:
 		if p.map == map and int(p.bx) == x and int(p.by) == y:
 			return p
-	return {}
+	return TownGen.lot_prop_at(map, x, y)
 
 
 static func market() -> Dictionary:
@@ -614,14 +615,23 @@ static func town_of_map(map: String) -> String:
 		for m in t.maps:
 			if map == m or ((m.contains("_") or m.contains(":")) and map.begins_with(m)):
 				return t.id
-	return ""
+	return TownGen.town_of(map)
 
 
 static func town_name(id: String) -> String:
 	for t in TOWNS:
 		if t.id == id:
 			return t.name
+	if TownGen.has(id):
+		return TownGen.cfg(id).name
 	return id
+
+
+## 這座城請得到哪幾種保鏢（樣板城鎮照 towns.json 的 guards）
+static func town_guards(town: String) -> Array:
+	if TOWN_GUARDS.has(town):
+		return TOWN_GUARDS[town]
+	return TownGen.cfg(town).get("guards", []) if TownGen.has(town) else []
 
 
 ## 進到某個城的地圖就記下去過（main.go 呼叫）

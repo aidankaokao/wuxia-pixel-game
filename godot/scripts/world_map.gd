@@ -843,7 +843,10 @@ func _interact(t: Dictionary) -> void:
 		return
 	var from := _from_dir(n)
 	var sp = n.enterFrom.get(from, n.enter) if from != "" else n.enter
-	if sp != null and sp.map in Village.OUTDOOR:
+	# 用樣板蓋的城鎮村（town_gen.gd）：從哪條路來就從哪邊的城門進去
+	if TownGen.towns().has(n.id):
+		sp = TownGen.entry(n.id, from)
+	if sp != null and Village.is_outdoor(sp.map):
 		var c := await ui.ask({"text": "%s：%s\n要進去嗎？" % [n.name, n.desc]}, ["進去", "不了"])
 		if c == 0:
 			await main.travel(sp.map, {"x": sp.x, "y": sp.y, "facing": sp.facing})

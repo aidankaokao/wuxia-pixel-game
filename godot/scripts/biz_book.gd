@@ -548,7 +548,7 @@ func _supply_rows() -> Array:
 
 func _guard_rows() -> Array:
 	var s := Biz.shop(shop_id)
-	var here: Array = Biz.TOWN_GUARDS.get(Biz.shop_town(shop_id), [])
+	var here: Array = Biz.town_guards(Biz.shop_town(shop_id))
 	var out := []
 	for gid in Biz.GUARD_ORDER:
 		var g := Biz.guard_def(gid)

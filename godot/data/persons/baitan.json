@@ -1,0 +1,48 @@
+{
+ "_note": "白灘的人（PLAN.md 4.41 樣板村；白沙幫之後手工做）。",
+ "bt_hang": {
+  "surname": "杭",
+  "given": "大海",
+  "gender": "男",
+  "born": -54,
+  "life_roll": 7,
+  "look": "fisher",
+  "job": "鹽丁",
+  "home": "baitan",
+  "role": "白灘的灘頭，鹽丁們都聽他的",
+  "talk": ""
+ },
+ "bt_zhuang": {
+  "surname": "莊",
+  "given": "阿貝",
+  "gender": "女",
+  "born": -32,
+  "look": "aunt",
+  "home": "baitan",
+  "role": "白灘小舖的老闆娘",
+  "talk": ""
+ },
+ "bt_pu": {
+  "surname": "濮",
+  "given": "長舟",
+  "gender": "男",
+  "born": -51,
+  "life_roll": 4,
+  "look": "carpenter",
+  "job": "船家",
+  "home": "baitan",
+  "role": "修船的木匠，也替人蓋屋",
+  "talk": ""
+ },
+ "bt_shitou": {
+  "surname": "杭",
+  "given": "石頭",
+  "gender": "男",
+  "born": -18,
+  "look": "farmer",
+  "job": "鹽丁",
+  "home": "baitan",
+  "role": "灘頭的姪子，曬鹽的年輕鹽丁",
+  "talk": ""
+ }
+}

@@ -77,8 +77,12 @@ static func estates() -> Dictionary:
 	return G.life.estates
 
 
+## 替你營造的木匠（青竹村是杜大樑；樣板城鎮的木作見 story/town.gd）
+static var _builder := "杜大樑"
+
+
 static func _say(t: String) -> Dictionary:
-	return {"speaker": "杜大樑", "text": t}
+	return {"speaker": _builder, "text": t}
 
 
 static func plots(map_id: String) -> Array:
@@ -93,7 +97,17 @@ static func plot_def(id: String) -> Dictionary:
 	for p in plots("qingzhu"):
 		if p.id == id:
 			return p
-	return {}
+	# 樣板城鎮裡買下來蓋自宅的空地（town_gen.gd）
+	return TownGen.lot_def(id)
+
+
+## 擴建完重新蓋一次室外，房子換個樣子（人在那張地圖上才需要）
+static func _rebuild(ctx: Ctx, e: Dictionary) -> void:
+	var map: String = plot_def(e.plot).get("map", "qingzhu")
+	if map == "qingzhu":
+		ctx.warp("qingzhu", ctx.scene.where_at())
+	elif ctx.scene is Village and (ctx.scene as Village).map_id == map:
+		ctx.warp(map, ctx.scene.where_at())
 
 
 static func level(e: Dictionary, fid: String) -> int:
@@ -191,7 +205,7 @@ static func room_data(id: String) -> Dictionary:
 	var sp := _spawn(e)
 	var b := _building_of(p, e)
 	return {"id": id, "name": TIERS[int(e.tier) - 1].name, "subtitle": "%s・自宅" % p.name, "theme": e.style, "tiles": tiles, "spawn": sp, "props": props, "npcs": [],
-		"exits": [{"tiles": [[sp.x, sp.y + 1]], "to": "qingzhu", "spawn": {"x": int(b.x) + int(b.st.door), "y": int(b.y) + int(b.st.h), "facing": "down"}}]}
+		"exits": [{"tiles": [[sp.x, sp.y + 1]], "to": p.get("map", "qingzhu"), "spawn": {"x": int(b.x) + int(b.st.door), "y": int(b.y) + int(b.st.h), "facing": "down"}}]}
 
 
 # ── 空地的木牌 ──────────────────────────────────────────
@@ -218,8 +232,13 @@ static func plot_sign(ctx: Ctx) -> void:
 
 # ── 杜木匠 ──────────────────────────────────────────────
 
-static func carpenter(ctx: Ctx) -> void:
+## who：哪位木匠（樣板城鎮的木作也接這裡，名下的自宅不論在哪都能修）
+static func carpenter(ctx: Ctx, who := "杜大樑") -> void:
+	_builder = who
 	var list: Array = estates().values()
+	if list.is_empty() and who != "杜大樑":
+		await ctx.say(_say("蓋屋、打家具都找我。城裡插著木牌的空地，買下來我就替你把屋子搭起來。"))
+		return
 	if list.is_empty():
 		await ctx.say([_say("我是村裡的木匠杜大樑，蓋屋、打家具都找我。"), _say("村東有兩塊、村西南有一塊空地，地上插著木牌。買下來，我就幫你把屋子搭起來。")])
 		if ctx.flag("home_deed") == 1:
@@ -249,7 +268,7 @@ static func carpenter(ctx: Ctx) -> void:
 		if c >= opts.size():
 			# 擴建了：村裡的房子換個樣子
 			if int(e.tier) != first_tier:
-				ctx.warp("qingzhu", ctx.scene.where_at())
+				_rebuild(ctx, e)
 			return
 		var k: String = opts[c][1]
 		if k == "grow":
@@ -257,7 +276,7 @@ static func carpenter(ctx: Ctx) -> void:
 				await ctx.say(_say("這得 %d 兩，你身上不夠。" % TIERS[tier].cost))
 				continue
 			e.tier = tier + 1
-			await ctx.say([_say("好嘞！"), "杜大樑帶著徒弟忙了好幾天，拆了舊牆、打了新樑——", "房子擴建成「%s」了！" % TIERS[tier].name])
+			await ctx.say([_say("好嘞！"), "%s帶著徒弟忙了好幾天，拆了舊牆、打了新樑——" % _builder, "房子擴建成「%s」了！" % TIERS[tier].name])
 		elif k.begins_with("up:"):
 			var fid := k.substr(3)
 			var cost: int = FURNITURE[fid].costs[level(e, fid) - 1]
@@ -265,7 +284,7 @@ static func carpenter(ctx: Ctx) -> void:
 				await ctx.say(_say("這得 %d 兩，你身上不夠。" % cost))
 				continue
 			e.furniture[fid] = level(e, fid) + 1
-			await ctx.say("杜大樑叮叮咚咚敲了半天，%s煥然一新。（%s %d 級）" % [FURNITURE[fid].name, FURNITURE[fid].name, level(e, fid)])
+			await ctx.say("%s叮叮咚咚敲了半天，%s煥然一新。（%s %d 級）" % [_builder, FURNITURE[fid].name, FURNITURE[fid].name, level(e, fid)])
 		elif k == "style":
 			var styles := ["plain", "scholar", "martial"]
 			var s := await ctx.ask(_say("要換成哪一種擺法？"), styles.map(func(x): return "%s：%s" % [STYLE_NAME[x], STYLE_DESC[x]]) + ["算了"])

@@ -289,7 +289,7 @@ func go(id: String, at := {}) -> void:
 		scene = wm
 		rig.size = 16.0
 		rig.size_max = 40.0
-	elif id == "village" or id in Village.OUTDOOR:
+	elif id == "village" or Village.is_outdoor(id):
 		var v := Village.new()
 		v.setup(ui, rig, self, at)
 		v.open("qingzhu" if id == "village" else id)

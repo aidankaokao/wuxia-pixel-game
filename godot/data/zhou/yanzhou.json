@@ -438,7 +438,7 @@
    "x": 822,
    "y": 526,
    "desc": "煙州的州府，北嶺以北平原上最大的城。府河從城西流過，漕幫總舵就在府河碼頭；城裡有州衙、青蚨會的錢莊、煙山書院，夜市燈火通宵。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null,
@@ -491,7 +491,7 @@
    "x": 792,
    "y": 532,
    "desc": "府城往白鷺的官道上的運河市鎮，三口大塘連著府河。鎮上米市、船行最熱鬧，旬休那天趕集。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null
@@ -503,7 +503,7 @@
    "x": 767,
    "y": 566,
    "desc": "煙湖東岸的村子，家家戶戶採菱、養鴨，秋天湖上一片菱角船。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null
@@ -602,7 +602,7 @@
    "x": 864,
    "y": 558,
    "desc": "北嶺南坡的茶村，山坡上一層層的茶壟。清明前採的霧芽茶最好，臨江城的茶莊都來這裡收茶。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null
@@ -614,7 +614,7 @@
    "x": 884,
    "y": 553,
    "desc": "煙州東邊的海港縣城。城東的碼頭停滿海船，往東、往南有海路到鯨港和霞城；鹽課司、海商會館、潮神廟都在城裡，鹽幫的人也不少。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null
@@ -664,7 +664,7 @@
    "x": 885,
    "y": 580,
    "desc": "潮信與大埠頭之間的海邊鹽村，灘上一畦畦的鹽田，曬鹽的鹽丁從早忙到晚。這一帶是白沙幫的地盤。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null
@@ -726,7 +726,7 @@
    "x": 768,
    "y": 618,
    "desc": "大江南岸的縣城，四周一望無際的桑園。官營的織造局、繡坊、染坊都在城裡，煙州的絲綢大半出自這裡。往南出東嶺口就是嶺海。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null
@@ -763,7 +763,7 @@
    "x": 818,
    "y": 620,
    "desc": "雲嶺山腳下的山村，屋子靠著一面大石壁蓋。村裡多是獵戶和藥農，山裡的霧大，進山要有人帶路。",
-   "locked": true,
+   "locked": false,
    "enter": null,
    "enterFrom": {},
    "rest": null

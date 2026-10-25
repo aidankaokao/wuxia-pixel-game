@@ -1,0 +1,45 @@
+{
+ "_note": "菱塘村的人（PLAN.md 4.41 樣板村）。",
+ "lt_bian": {
+  "surname": "卞",
+  "given": "守田",
+  "gender": "男",
+  "born": -55,
+  "life_roll": 5,
+  "look": "elder",
+  "job": "農",
+  "home": "lingtang",
+  "role": "菱塘村的村長",
+  "talk": ""
+ },
+ "lt_ning": {
+  "surname": "甯",
+  "given": "秋菱",
+  "gender": "女",
+  "born": -40,
+  "look": "aunt",
+  "home": "lingtang",
+  "role": "菱塘小舖的老闆娘",
+  "talk": ""
+ },
+ "lt_hou": {
+  "surname": "侯",
+  "given": "長木",
+  "gender": "男",
+  "born": -44,
+  "look": "carpenter",
+  "home": "lingtang",
+  "role": "村裡的木匠",
+  "talk": ""
+ },
+ "lt_xiaoling": {
+  "surname": "卞",
+  "given": "小菱",
+  "gender": "女",
+  "born": -13,
+  "look": "girl",
+  "home": "lingtang",
+  "role": "村長的女兒，划菱角船的好手",
+  "talk": ""
+ }
+}

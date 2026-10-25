@@ -1,0 +1,45 @@
+{
+ "_note": "霧芽村的人（PLAN.md 4.41 樣板村）。",
+ "wy_mao": {
+  "surname": "茅",
+  "given": "春山",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 6,
+  "look": "elder",
+  "job": "農",
+  "home": "wuya",
+  "role": "霧芽村的村長，種了一輩子茶",
+  "talk": ""
+ },
+ "wy_tan": {
+  "surname": "談",
+  "given": "雪芽",
+  "gender": "女",
+  "born": -36,
+  "look": "aunt",
+  "home": "wuya",
+  "role": "霧芽茶舖的老闆娘",
+  "talk": ""
+ },
+ "wy_maogen": {
+  "surname": "茅",
+  "given": "長根",
+  "gender": "男",
+  "born": -33,
+  "look": "carpenter",
+  "home": "wuya",
+  "role": "村長的兒子，村裡的木匠",
+  "talk": ""
+ },
+ "wy_xiaoya": {
+  "surname": "談",
+  "given": "小芽",
+  "gender": "女",
+  "born": -11,
+  "look": "child",
+  "home": "wuya",
+  "role": "跟著娘採茶的小丫頭",
+  "talk": ""
+ }
+}
