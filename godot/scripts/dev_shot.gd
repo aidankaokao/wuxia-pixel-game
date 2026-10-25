@@ -109,6 +109,11 @@ func _run() -> void:
 				G.time_changed.emit()
 				if _main().scene is GridScene:
 					_main().scene.refresh()
+			"bmode":
+				# bmode:wait／live／round 設定戰鬥模式（下一場起）
+				if not G.life.has("settings"):
+					G.life.settings = {}
+				G.life.settings.battle = arg
 			"seed":
 				# seed:1 固定存檔的亂數種子（到處翻找藏東西的地方跟著它）
 				G.life.seed = int(arg)
@@ -145,6 +150,19 @@ func _run() -> void:
 				# sim 或 sim:300 跑戰鬥平衡模擬（印在主控台，見 scripts/sim.gd）
 				if arg == "boss":
 					Sim.boss()
+				elif arg.begins_with("atb"):
+					# sim:atb 頭目與石岳：回合制、半即時各跑一次對照；sim:atb,基礎值,速度係數 只跑半即時（調公式用）
+					var ap := arg.split(",")
+					if ap.size() > 2:
+						Sim.atb_base = float(ap[1])
+						Sim.atb_per = float(ap[2])
+					else:
+						print("--- 回合制 ---")
+						Sim.boss()
+					Sim.atb = true
+					print("--- 半即時（%s + 速度×%s）---" % [Sim.atb_base, Sim.atb_per])
+					Sim.boss()
+					Sim.atb = false
 				elif arg.begins_with("one"):
 					var t0 := Time.get_ticks_msec()
 					var c := Sim.fresh(false)

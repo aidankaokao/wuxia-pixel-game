@@ -93,6 +93,9 @@ func _ready() -> void:
 	outdoor = true
 	triggers = data.get("triggers", [])
 	_people()
+	# 室外可以騎馬（V 上馬、下馬）
+	rides = true
+	mount_up()
 	refresh()
 
 
@@ -241,8 +244,9 @@ func _ground() -> void:
 	_hv = hv
 	_vw = vw
 	# 網格：頂點共用，顏色在頂點上算、在三角形裡漸變（邊界用很窄的漸變，看起來是圓順的線，不會鋸齒）
-	var grass_a := Color("7cb262")
-	var grass_b := Color("8cc070")
+	# 草地照季節換色（scripts/season.gd：夏深綠、秋枯黃、冬覆雪）
+	var grass_a := Season.tint(Color("7cb262"), "ground")
+	var grass_b := Season.tint(Color("8cc070"), "ground")
 	var verts := PackedVector3Array()
 	var cols := PackedColorArray()
 	verts.resize(vw * vh)
@@ -274,7 +278,7 @@ func _ground() -> void:
 	mi.material_override = Mk.vmat()
 	add_child(mi)
 	# 外圍再遠的地方：一大片深綠色的地，鏡頭拉很遠也不會看到空的
-	var far := Mk.box(Vector3(EW + 400, 0.1, EH + 400), Color("4a7a40"), Vector3(ox + W / 2.0, -0.6, oz + H / 2.0))
+	var far := Mk.box(Vector3(EW + 400, 0.1, EH + 400), Season.tint(Color("4a7a40"), "ground"),Vector3(ox + W / 2.0, -0.6, oz + H / 2.0))
 	add_child(far)
 	# 水面
 	var wplane := MeshInstance3D.new()
@@ -460,6 +464,10 @@ func _walls() -> void:
 			add_child(mi)
 
 
+## 山坡上的青苔、草皮（照季節換色）
+var _moss := Season.tint(Color("587540"), "ground")
+
+
 ## 一個頂點的地表顏色：草地（大片深淺）→ 田地（方正）→ 廣場、小路 → 山石 → 水底，依序疊上去
 func _ground_color(u: float, v: float, h: float, path: Array, plaza: Array, ga: Color, gb: Color) -> Color:
 	var w := 0.5 + 0.25 * sin(u * 0.45 + v * 0.2) + 0.25 * sin(v * 0.6 - u * 0.15)
@@ -476,7 +484,7 @@ func _ground_color(u: float, v: float, h: float, path: Array, plaza: Array, ga: 
 	var rock := Color("7a7466").lerp(Color("9a9484"), minf(1.0, h / 3.0)) * (0.92 + Mk.h01(int(u * 4), int(v * 4), 7) * 0.12)
 	# 山坡上一塊塊的青苔、草皮（低處多、高處少），石色不會整片發白
 	var moss := smoothstep(0.0, 0.5, sin(u * 1.1 + v * 0.7) * 0.5 + sin(v * 1.6 - u * 0.4) * 0.5) * (1.0 - smoothstep(2.5, 4.5, h))
-	rock = rock.lerp(Color("587540"), moss * 0.85)
+	rock = rock.lerp(_moss, moss * 0.85)
 	col = col.lerp(rock, smoothstep(0.08, 0.3, h))
 	# 水底：岸邊偏沙色，越深越藍
 	var bed := Color("8a8a6a").lerp(Color("3a5f86"), clampf((-h - 0.1) / 0.3, 0.0, 1.0))
@@ -625,6 +633,7 @@ func _mountain_plants() -> void:
 	var rock := Mk.Batch.new(rock_m)
 	var greens := [Color("2f6a3a"), Color("3a7a40"), Color("285a34"), Color("44803e")]
 	var rocks := [Color("7a7466"), Color("8a8474"), Color("6a6658"), Color("948e7e")]
+	var winter := Season.snow_cap()
 	for y in range(-M, H + M):
 		for x in range(-M, W + M):
 			# 山上、以及山腳旁邊一格的草地
@@ -650,13 +659,15 @@ func _mountain_plants() -> void:
 					var s := 0.6 + r * 0.7
 					var g: Color = greens[(x + y + k) % 4] * (0.9 + r * 0.2)
 					g.a = 1
+					g = Season.tint(g, "evergreen")
 					trunk.add(p + Vector3(0, 0.25 * s, 0), Vector3.ONE * s, yaw)
 					pine_a.add(p, Vector3.ONE * s, yaw, g)
 					pine_b.add(p, Vector3.ONE * s, yaw, g)
-					if s > 0.9:
-						pine_c.add(p, Vector3.ONE * s, yaw, g)
+					# 冬天：松樹的尖頂積雪
+					if s > 0.9 or winter:
+						pine_c.add(p, Vector3.ONE * s, yaw, Season.SNOW if winter else g)
 				elif roll < 0.62:
-					var g2: Color = greens[(x * 3 + k) % 4].lerp(Color("6a8a3a"), r * 0.5)
+					var g2: Color = Season.tint(greens[(x * 3 + k) % 4].lerp(Color("6a8a3a"), r * 0.5), "tree")
 					bush.add(p + Vector3(0, 0.1, 0), Vector3(1, 0.8, 1) * (0.6 + r * 0.6), yaw, g2)
 				elif roll < 0.8 + alt * 0.1:
 					# 石頭：半埋在坡裡，扁的、尖的都有
@@ -665,7 +676,7 @@ func _mountain_plants() -> void:
 				else:
 					for t in 3:
 						var q := p + Vector3((Mk.h01(x, y, 140 + k * 3 + t) - 0.5) * 0.3, 0, (Mk.h01(x, y, 160 + k * 3 + t) - 0.5) * 0.3)
-						tuft.add(q, Vector3.ONE * (0.8 + r * 0.5), 0, Color("7a9a48").lerp(Color("a8a058"), alt))
+						tuft.add(q, Vector3.ONE * (0.8 + r * 0.5), 0, Season.tint(Color("7a9a48").lerp(Color("a8a058"), alt), "ground"))
 	for b in [trunk, pine_a, pine_b, pine_c, bush, tuft, rock]:
 		var mi: MultiMeshInstance3D = b.build()
 		if mi:
@@ -699,8 +710,17 @@ func _plants() -> void:
 	ico.radial_segments = 6
 	ico.rings = 3
 	var round_tree := Mk.Batch.new(ico)
-	var cane := Mk.Batch.new(cyl.call(0.035, 0.04, 1.0, 5, 0.5), Color("7aa648"))
-	var leaf := Mk.Batch.new(cyl.call(0.0, 0.22, 0.4, 5, 0.0), Color("5a8a32"))
+	# 冬天樹梢的積雪：闊葉樹頂上一團、松樹尖上一小頂
+	var cap_m := SphereMesh.new()
+	cap_m.radius = 0.36
+	cap_m.height = 0.34
+	cap_m.radial_segments = 6
+	cap_m.rings = 2
+	var cap_round := Mk.Batch.new(cap_m, Season.SNOW)
+	var cap_pine := Mk.Batch.new(cyl.call(0.0, 0.2, 0.32, 7, 1.42), Season.SNOW)
+	var winter := Season.snow_cap()
+	var cane := Mk.Batch.new(cyl.call(0.035, 0.04, 1.0, 5, 0.5), Season.tint(Color("7aa648"), "evergreen"))
+	var leaf := Mk.Batch.new(cyl.call(0.0, 0.22, 0.4, 5, 0.0), Season.tint(Color("5a8a32"), "evergreen"))
 	var rock_m := SphereMesh.new()
 	rock_m.radius = 0.34
 	rock_m.height = 0.5
@@ -713,13 +733,13 @@ func _plants() -> void:
 	fl.radial_segments = 5
 	fl.rings = 3
 	var flower := Mk.Batch.new(fl)
-	var sprout := Mk.Batch.new(cyl.call(0.0, 0.04, 0.2, 4, 0.1), Color("86c255"))
+	var sprout := Mk.Batch.new(cyl.call(0.0, 0.04, 0.2, 4, 0.1), Season.tint(Color("86c255"), "ground"))
 	var bm := SphereMesh.new()
 	bm.radius = 0.3
 	bm.height = 0.6
 	bm.radial_segments = 7
 	bm.rings = 4
-	var bush := Mk.Batch.new(bm, Color("3f7a34"))
+	var bush := Mk.Batch.new(bm, Season.tint(Color("3f7a34"), "evergreen"))
 	var post_m := BoxMesh.new()
 	post_m.size = Vector3(0.1, 0.5, 0.1)
 	var post := Mk.Batch.new(post_m, Color("9a6a3a"))
@@ -742,10 +762,15 @@ func _plants() -> void:
 					if y < 8 or tile(x, y - 1) == "^" or r < 0.25:
 						var g := Color("2f6a3a") * (0.85 + r * 0.3)
 						g.a = 1
+						g = Season.tint(g, "evergreen")
 						pine_a.add(p, Vector3.ONE * s, r * 6, g)
 						pine_b.add(p, Vector3.ONE * s, r * 6, g)
+						if winter:
+							cap_pine.add(p, Vector3.ONE * s, r * 6)
 					else:
-						round_tree.add(p + Vector3(0, 0.95 * s, 0), Vector3.ONE * s, r * 6, Color("4f9a48").lerp(Color("6aae4a"), r))
+						round_tree.add(p + Vector3(0, 0.95 * s, 0), Vector3.ONE * s, r * 6, Season.tint(Color("4f9a48").lerp(Color("6aae4a"), r), "tree"))
+						if winter:
+							cap_round.add(p + Vector3(0, 1.3 * s, 0), Vector3.ONE * s, r * 6)
 				"Y":
 					for i in 4:
 						var q := p + Vector3((Mk.h01(x, y, i) - 0.5) * 0.6, 0, (Mk.h01(x, y, i + 9) - 0.5) * 0.6)
@@ -756,8 +781,12 @@ func _plants() -> void:
 					rock.add(p + Vector3(0, 0.12, 0), Vector3(1, 0.7, 1), r * 6)
 				"*":
 					for i in 5:
-						flower.add(p + Vector3(Mk.h01(x, y, i) - 0.5, 0.08, Mk.h01(x, y, i + 5) - 0.5), Vector3.ONE, 0, flowers[(i + x) % 4])
+						if Season.flower_ok(i, flowers[(i + x) % 4]):
+							flower.add(p + Vector3(Mk.h01(x, y, i) - 0.5, 0.08, Mk.h01(x, y, i + 5) - 0.5), Vector3.ONE, 0, flowers[(i + x) % 4])
 				"n":
+					# 冬天田裡收完了，只剩土
+					if winter:
+						continue
 					for i in 3:
 						for j in 3:
 							sprout.add(p + Vector3(i * 0.3 - 0.3, 0, j * 0.3 - 0.3), Vector3.ONE * (0.8 + Mk.h01(x + i, y + j) * 0.5))
@@ -770,7 +799,7 @@ func _plants() -> void:
 						rail_x.add(p + Vector3(0.5, 0.35, 0))
 					if tile(x, y + 1) == "f":
 						rail_z.add(p + Vector3(0, 0.35, 0.5))
-	for b in [trunk, pine_a, pine_b, round_tree, cane, leaf, rock, flower, sprout, bush, post, rail_x, rail_z]:
+	for b in [trunk, pine_a, pine_b, round_tree, cap_round, cap_pine, cane, leaf, rock, flower, sprout, bush, post, rail_x, rail_z]:
 		var mi: MultiMeshInstance3D = b.build()
 		if mi:
 			add_child(mi)

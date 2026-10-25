@@ -1,7 +1,7 @@
 ## 州圖上的歇腳點與渡口（照網頁版 story/waystation.ts、story/ferry.ts、story/stable.ts）：
 ## - 驛站、茶亭、渡口茶棚（州圖據點帶 rest）：住店、吃點東西、打聽消息；有驛馬的驛站可以買馬、賣馬。
 ## - 渡船（州圖上渡口那段河上的小船，world_map 擺的）：白天 FERRY_DAY 兩、夜裡 FERRY_NIGHT 兩，過河一刻，送到對岸。
-## - 坐騎（data/life.json 的 mounts）：G.hero.mount 是馬的 id；有馬在州圖上就騎著走，腳程照馬的 speed（輕功另外算，見 world_map 的 travel_mult）。
+## - 坐騎（data/life.json 的 mounts）：G.hero.mount 是馬的 id、G.hero.riding 騎著還是牽著（V 切換，見 GridScene.toggle_ride）；州圖與室外地圖騎著走，腳程照馬的 speed（輕功另外算，見 world_map 的 travel_mult），室內照樣步行。
 ## 用到的旗標：ferry_rides 坐過幾次渡船
 
 const FERRY_DAY := 2
@@ -96,15 +96,17 @@ static func horse_trade(ctx: Ctx, keeper: String, ids: Array) -> void:
 			await ctx.say(k.call("銀兩不夠啊，再攢攢吧。"))
 			return
 		G.hero.mount = m.id
+		G.hero.riding = true
 		if ctx.scene.has_method("mount_up"):
 			ctx.scene.mount_up()
-		await ctx.say([k.call("好好待牠。"), "你牽過%s，翻身上馬。\n（在州圖上騎馬趕路，腳程快 %d%%）" % [m.name, roundi((float(m.speed) - 1.0) * 100)]])
+		await ctx.say([k.call("好好待牠。"), "你牽過%s，翻身上馬。\n（州圖與室外騎著走，腳程快 %d%%；V 上馬、下馬，進屋自動下馬）" % [m.name, roundi((float(m.speed) - 1.0) * 100)]])
 	elif not own.is_empty() and i == list.size():
 		var price := int(own.price) / 2
 		if await ctx.ask("把%s賣掉？%s出 %d 兩。" % [own.name, keeper, price], ["賣掉", "算了"]) != 0:
 			return
 		G.silver += price
 		G.hero.erase("mount")
+		G.hero.erase("riding")
 		if ctx.scene.has_method("mount_up"):
 			ctx.scene.mount_up()
 		await ctx.say([k.call("放心，我會替你好好照顧牠。"), "（銀兩 +%d）" % price])

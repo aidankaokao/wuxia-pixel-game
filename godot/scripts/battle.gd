@@ -8,6 +8,11 @@ extends Node3D
 ## - 主角的回合：下方的指令選單（↑↓ 選、空白鍵確定、X 返回）；「移動」後用方向鍵或滑鼠選藍格；選了招式再選紅格上的目標。
 ##   Q 切換自動戰鬥（穩健）。氣血、內力在打中的那一刻才扣（數字跟著動畫走）。
 ## 打完發出 finished(結果, 戰鬥規則)，由 main 結算、送回原本的地圖。
+## 戰鬥模式（G.life.settings.battle，戰鬥中按 M 換，下一場起生效）：
+## - round 回合制：每回合照速度排一次。
+## - wait 半即時・等待、live 半即時・即時（照網頁版 ATBController）：每人一條行動條，每秒累積 60 + 速度×0.18，滿 100 出手、出手後歸零；
+##   開場隨機起步（快的人起步也快）；有人出手（動畫）時行動條停。主角滿了就打開指令選單：等待模式時間停住，
+##   即時模式敵人照樣累積、照樣出手（出手後選單重新整理）。右上角列出每個人的行動條。
 
 signal finished(result: String, fight: Fight)
 signal _input_ev(ev: Dictionary)
@@ -49,6 +54,47 @@ var _log: Label
 var _menu: PanelContainer
 var _menu_box: VBoxContainer
 var _cursor: MeshInstance3D
+
+# ── 半即時制 ────────────────────────────────────────────
+const MODES := ["round", "wait", "live"]
+const MODE_NAME := {"round": "回合制", "wait": "半即時・等待", "live": "半即時・即時"}
+const ATB_BASE := 60.0
+## 速度係數：網頁版是 0.8，Godot 的速度數值比較大，照模擬調成 0.18（兩種模式的勝率才接近）
+const ATB_PER_SPD := 0.18
+const ATB_FULL := 100.0
+## 這一場的模式（開戰時讀設定）
+var bmode := "round"
+## 單位 id → 行動條（0–100）
+var gauge := {}
+## 有人在出手（播動畫）：行動條停、別人不能出手
+var _acting := false
+## 主角選指令時走路（即時模式下也不能跟別人的動畫疊在一起）
+var _hero_walking := false
+## 主角的行動條滿了、正在選指令
+var _hero_wait := false
+## 主角選好的指令（還沒選是 null）
+var _hero_cmd = null
+## 右上角的行動條：[{u, bar: ColorRect, name: Label}]
+var _atb_rows: Array = []
+
+
+## 現在設定的戰鬥模式
+static func mode() -> String:
+	return G.life.get("settings", {}).get("battle", "round")
+
+
+## M：換下一種模式（下一場起生效）
+static func cycle_mode() -> String:
+	if not G.life.has("settings"):
+		G.life.settings = {}
+	var m: String = MODES[(MODES.find(mode()) + 1) % MODES.size()]
+	G.life.settings.battle = m
+	return m
+
+
+## 行動條每秒累積多少
+func atb_rate(u: Dictionary) -> float:
+	return ATB_BASE + fight.stat(u, "spd") * ATB_PER_SPD
 
 
 func setup(u: Ui, r: CamRig, m: Node, encounter: String, f := "") -> void:
@@ -125,6 +171,10 @@ func _ready() -> void:
 		if u.side == "enemy":
 			fi += 1
 		_add(u, at)
+	bmode = mode()
+	# 半即時：開場時每個人的行動條隨機起步，快的人起步也快一點
+	for u in fight.units:
+		gauge[u.id] = randf() * 30.0 + fight.stat(u, "spd")
 	rig.target = focus
 	_hud()
 	_run()
@@ -370,35 +420,112 @@ func _targets(a: Dictionary, move_id: String) -> Array:
 func _run() -> void:
 	await get_tree().create_timer(0.4).timeout
 	await _say(enc.get("intro", "打起來了！"))
+	if bmode != "round":
+		await _say("（%s：行動條滿了才能出手）" % MODE_NAME[bmode])
 	while not _ended:
-		var order: Array = fight.alive().map(func(u): return {"u": u, "k": fight.stat(u, "spd") * (0.85 + randf() * 0.3)})
-		order.sort_custom(func(x, y): return x.k > y.k)
-		for o in order:
-			var u: Dictionary = o.u
-			if u.hp <= 0 or _ended:
-				continue
-			var b := _body(u)
-			var st := fight.start_turn(u)
-			_label(b)
-			await _play(st.events)
-			if st.skip:
-				continue
-			var cmd: Dictionary
-			if u.side == "hero":
-				cmd = await _hero_turn(b)
-			else:
-				cmd = await _enemy_turn(b)
-			if cmd.is_empty():
-				continue
-			var events := fight.act(u, cmd)
-			await _play(events)
-			for e in events:
-				if e.type == "flee" and e.success:
-					_end("flee")
-			var r := fight.outcome()
-			if r != "":
-				_end(r)
-				break
+		if bmode == "round":
+			await _round()
+		else:
+			await _atb_tick()
+
+
+## 回合制：照速度（帶一點隨機）排一次，一人出手一次
+func _round() -> void:
+	var order: Array = fight.alive().map(func(u): return {"u": u, "k": fight.stat(u, "spd") * (0.85 + randf() * 0.3)})
+	order.sort_custom(func(x, y): return x.k > y.k)
+	for o in order:
+		if o.u.hp <= 0 or _ended:
+			continue
+		await _turn(o.u)
+
+
+## 一個人的一次出手：狀態結算（被震懾就跳過）、選指令（主角）或照規則（敵人）、出手
+func _turn(u: Dictionary) -> void:
+	var b := _body(u)
+	var st := fight.start_turn(u)
+	_label(b)
+	await _play(st.events)
+	if st.skip:
+		return
+	var cmd: Dictionary
+	if u.side == "hero":
+		cmd = await _hero_turn(b)
+	else:
+		cmd = await _enemy_turn(b)
+	await _act(u, cmd)
+
+
+## 照指令出手、演出來，看打完了沒
+func _act(u: Dictionary, cmd: Dictionary) -> void:
+	if cmd.is_empty() or _ended:
+		return
+	var events := fight.act(u, cmd)
+	await _play(events)
+	for e in events:
+		if e.type == "flee" and e.success:
+			_end("flee")
+	var r := fight.outcome()
+	if r != "":
+		_end(r)
+
+
+## 半即時：每一格畫面累積行動條；滿了的敵人出手，主角滿了打開選單（不擋住時間，選好了在下一個空檔出手）
+func _atb_tick() -> void:
+	await get_tree().process_frame
+	if _ended:
+		return
+	var hb := _body_id("hero")
+	var hero: Dictionary = hb.u
+	if _acting or _hero_walking:
+		return
+	# 主角選好了：輪到他出手
+	if _hero_cmd != null:
+		var cmd: Dictionary = _hero_cmd
+		_hero_cmd = null
+		_acting = true
+		await _act(hero, cmd)
+		gauge[hero.id] = 0.0
+		_hero_wait = false
+		_acting = false
+		return
+	# 滿了的敵人先出手
+	for u in fight.alive("enemy"):
+		if float(gauge.get(u.id, 0.0)) >= ATB_FULL:
+			_acting = true
+			await _turn(u)
+			gauge[u.id] = 0.0
+			_acting = false
+			# 主角正在選：敵人動過了，選單重新整理（走得到的格、打得到的人可能變了）
+			if _hero_wait and not _ended:
+				_input_ev.emit({"refresh": true, "key": ""})
+			return
+	# 主角滿了：狀態結算（被震懾就跳過），打開選單
+	if hero.hp > 0 and float(gauge.get(hero.id, 0.0)) >= ATB_FULL and not _hero_wait:
+		_hero_wait = true
+		var st := fight.start_turn(hero)
+		_label(hb)
+		await _play(st.events)
+		if st.skip:
+			gauge[hero.id] = 0.0
+			_hero_wait = false
+			return
+		_hero_choose(hb)
+		return
+	# 等待模式：主角選指令時時間停住
+	if _hero_wait and bmode == "wait":
+		return
+	var dt := get_process_delta_time() * (2.0 if auto else 1.0)
+	for u in fight.alive():
+		if u.side == "hero" and _hero_wait:
+			continue
+		gauge[u.id] = minf(ATB_FULL, float(gauge.get(u.id, 0.0)) + atb_rate(u) * dt)
+
+
+## 主角選指令（半即時：不擋住 _atb_tick；選好了放在 _hero_cmd）
+func _hero_choose(b: Dictionary) -> void:
+	var cmd: Dictionary = await _hero_turn(b)
+	if not _ended:
+		_hero_cmd = cmd
 
 
 func _end(result: String) -> void:
@@ -455,8 +582,14 @@ func _hero_turn(b: Dictionary) -> Dictionary:
 			"walk":
 				var cell: Vector2i = pick.cell
 				if cell != Vector2i(b.c, b.r):
-					await _walk(b, reach[cell])
+					# 即時模式下敵人可能剛走進這一格：重新算一次走得到的格子
+					var now_reach := _reach(b)
+					if not now_reach.has(cell):
+						continue
+					await _hero_walk(b, now_reach[cell])
 				moved = true
+			"refresh":
+				continue
 			"auto":
 				auto = true
 			"defend":
@@ -483,12 +616,21 @@ func _hero_turn(b: Dictionary) -> Dictionary:
 	return {}
 
 
+## 主角選指令時走路：半即時下要等別人的動畫演完，走的時候別人也不能出手
+func _hero_walk(b: Dictionary, path: Array) -> void:
+	while _acting:
+		await get_tree().process_frame
+	_hero_walking = true
+	await _walk(b, path)
+	_hero_walking = false
+
+
 ## 自動戰鬥：打不到人就先往最近的敵人走，再照規則層挑招
 func _auto_turn(b: Dictionary, moved: bool) -> Dictionary:
 	var foes: Array = bodies.filter(func(o): return o.u.side == "enemy" and o.u.hp > 0)
 	foes.sort_custom(func(x, y): return _dist(Vector2i(b.c, b.r), Vector2i(x.c, x.r)) < _dist(Vector2i(b.c, b.r), Vector2i(y.c, y.r)))
 	if not moved and _targets(b, "attack").is_empty() and not foes.is_empty():
-		await _walk(b, _approach(b, foes[0]))
+		await _hero_walk(b, _approach(b, foes[0]))
 	var cmd := fight.auto_command(b.u, true, func(id): return not _targets(b, id).is_empty())
 	if cmd.type == "move" and Fight.mv(cmd.move).kind not in ["restore", "buff"]:
 		var ts := _targets(b, cmd.move)
@@ -540,6 +682,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		elif k == "Q":
 			auto = not auto
 			ui.toast("自動戰鬥：%s" % ("開" if auto else "關"))
+		elif k == "M":
+			ui.toast("戰鬥模式改成「%s」（下一場起）" % MODE_NAME[cycle_mode()])
 		get_viewport().set_input_as_handled()
 		_input_ev.emit({"key": k})
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
@@ -561,6 +705,9 @@ func _choose(items: Array, head: String, reach: Dictionary) -> Dictionary:
 		var ev: Dictionary = await _input_ev
 		if auto:
 			return {"do": "auto"}
+		# 即時模式：有敵人出手了，選單重新整理
+		if ev.has("refresh"):
+			return {"do": "refresh"}
 		if ev.has("click"):
 			if reach.has(ev.click):
 				return {"do": "walk", "cell": ev.click}
@@ -575,6 +722,8 @@ func _choose(items: Array, head: String, reach: Dictionary) -> Dictionary:
 			"ok":
 				if items[cur].do == "walk_pick":
 					var cell = await _pick_cell(reach)
+					if auto:
+						return {"do": "auto"}
 					if cell != null:
 						return {"do": "walk", "cell": cell}
 				else:
@@ -590,6 +739,11 @@ func _pick_cell(reach: Dictionary):
 	while true:
 		_show_cursor(cur, Color("ffffff"))
 		var ev: Dictionary = await _input_ev
+		# 選到一半按 Q 開了自動戰鬥：交給自動
+		if auto:
+			_hide_cursor()
+			_menu.visible = true
+			return null
 		if ev.has("click"):
 			if reach.has(ev.click):
 				_hide_cursor()
@@ -639,6 +793,9 @@ func _pick_target(ts: Array, what: String) -> Dictionary:
 		_show_cursor(Vector2i(ts[cur].c, ts[cur].r), Color("ffe080"))
 		_log_line("「%s」打誰？（←→ 換、空白鍵確定、X 返回）　%s" % [what, ts[cur].u.name], true)
 		var ev: Dictionary = await _input_ev
+		if auto:
+			_done_pick()
+			return {}
 		if ev.has("click"):
 			for t in ts:
 				if Vector2i(t.c, t.r) == ev.click:
@@ -665,6 +822,9 @@ func _confirm_area(ts: Array, what: String) -> bool:
 	_log_line("「%s」會打到紅格上的 %d 個人。空白鍵出招、X 返回" % [what, ts.size()], true)
 	while true:
 		var ev: Dictionary = await _input_ev
+		if auto:
+			_done_pick()
+			return false
 		if ev.has("key") and ev.key in ["ok", "back"]:
 			_done_pick()
 			return ev.key == "ok"
@@ -871,6 +1031,41 @@ func _hud() -> void:
 	_menu_box = VBoxContainer.new()
 	_menu_box.add_theme_constant_override("separation", 3)
 	_menu.add_child(_menu_box)
+	# 半即時：右上角每個人一條行動條
+	if bmode != "round":
+		var ap := ui._panel(false)
+		ap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		ap.position = Vector2(-300, 16)
+		ap.custom_minimum_size = Vector2(280, 0)
+		layer.add_child(ap)
+		var av := VBoxContainer.new()
+		av.add_theme_constant_override("separation", 4)
+		ap.add_child(av)
+		var head := Label.new()
+		head.text = "行動條・%s" % MODE_NAME[bmode]
+		head.add_theme_font_size_override("font_size", 14)
+		head.add_theme_color_override("font_color", Ui.GOLD)
+		av.add_child(head)
+		for u in fight.units:
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 8)
+			var nm := Label.new()
+			nm.text = u.name
+			nm.custom_minimum_size = Vector2(90, 0)
+			nm.add_theme_font_size_override("font_size", 14)
+			nm.add_theme_color_override("font_color", Color("f4ead6"))
+			row.add_child(nm)
+			var back := ColorRect.new()
+			back.color = Color(1, 1, 1, 0.12)
+			back.custom_minimum_size = Vector2(150, 10)
+			back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			var bar := ColorRect.new()
+			bar.color = Color("5aa8e8") if u.side == "hero" else Color("e86a4a")
+			bar.size = Vector2(0, 10)
+			back.add_child(bar)
+			row.add_child(back)
+			av.add_child(row)
+			_atb_rows.append({"u": u, "bar": bar, "name": nm})
 
 
 var _lines: Array[String] = []
@@ -939,6 +1134,14 @@ func _cell_at(screen: Vector2) -> Vector2i:
 
 
 func _process(dt: float) -> void:
+	# 行動條：滿了變亮，倒下的變暗
+	for row in _atb_rows:
+		var u: Dictionary = row.u
+		var fill := clampf(float(gauge.get(u.id, 0.0)) / ATB_FULL, 0.0, 1.0)
+		row.bar.size = Vector2(150.0 * fill, 10)
+		var base_col := Color("5aa8e8") if u.side == "hero" else Color("e86a4a")
+		row.bar.color = base_col.lightened(0.35) if fill >= 1.0 else base_col
+		row.name.modulate.a = 0.35 if u.hp <= 0 else 1.0
 	for fl in floaters.duplicate():
 		fl.t += dt
 		fl.o.position.y += dt * 0.8
@@ -948,4 +1151,4 @@ func _process(dt: float) -> void:
 
 
 func info_text() -> String:
-	return "%s・%s%s" % [NAME[field], "自動戰鬥中（Q 關掉）" if auto else "Q 自動戰鬥", "　水過不去，走橋或淺灘（多 1 步）" if field == "river" else ""]
+	return "%s・%s・%s%s\nM 換戰鬥模式（下一場起：%s）" % [NAME[field], MODE_NAME[bmode], "自動戰鬥中（Q 關掉）" if auto else "Q 自動戰鬥", "　水過不去，走橋或淺灘（多 1 步）" if field == "river" else "", MODE_NAME[mode()]]

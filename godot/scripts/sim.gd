@@ -4,7 +4,14 @@ class_name Sim
 ## 模擬會動到 G（結算寫回行囊、銀兩），跑之前先存起來、跑完還原。
 
 
-## 打一場：回傳 {result, rounds, hp}（hp 是打完剩幾成氣血）
+## 半即時制（行動條，照 HexBattle 的 ATB 公式）來排出手順序；false 是回合制。dev_shot 的 sim:atb 兩種都跑
+static var atb := false
+## 行動條的公式（調校用，預設照 HexBattle）
+static var atb_base := HexBattle.ATB_BASE
+static var atb_per := HexBattle.ATB_PER_SPD
+
+
+## 打一場：回傳 {result, rounds, hp}（hp 是打完剩幾成氣血；半即時的 rounds 是主角出手幾次）
 static func one(c: Dictionary, enc_id: String, items: Dictionary) -> Dictionary:
 	var enc := Fight.encounter(enc_id)
 	var f := Fight.new()
@@ -12,6 +19,8 @@ static func one(c: Dictionary, enc_id: String, items: Dictionary) -> Dictionary:
 	f.no_items = enc.get("noItems", false)
 	f.items = items.duplicate()
 	f.units = [Fight.hero_unit(c)] + Fight.enemy_units(enc)
+	if atb:
+		return _one_atb(f)
 	var rounds := 0
 	while rounds < 150:
 		rounds += 1
@@ -21,23 +30,56 @@ static func one(c: Dictionary, enc_id: String, items: Dictionary) -> Dictionary:
 			var u: Dictionary = o.u
 			if u.hp <= 0:
 				continue
-			if f.start_turn(u).skip:
-				continue
-			var cmd: Dictionary
-			if u.side == "hero":
-				cmd = f.auto_command(u, true, func(_id): return true)
-				if cmd.type == "move" and Fight.mv(cmd.move).target == "enemy":
-					var foes := f.alive("enemy")
-					foes.sort_custom(func(a, b): return a.hp < b.hp)
-					cmd.target = foes[0].id
-			else:
-				cmd = f.enemy_command(u, f.unit("hero"))
-			f.act(u, cmd)
-			var r := f.outcome()
+			var r := _step(f, u)
 			if r != "":
 				var h := f.unit("hero")
 				return {"result": r, "rounds": rounds, "hp": float(h.hp) / h.max_hp, "fight": f}
 	return {"result": "lose", "rounds": rounds, "hp": 0.0, "fight": f}
+
+
+## 一個人出手一次（主角穩健自動、打血最少的），回傳結果（還沒打完是空字串）
+static func _step(f: Fight, u: Dictionary) -> String:
+	if f.start_turn(u).skip:
+		return ""
+	var cmd: Dictionary
+	if u.side == "hero":
+		cmd = f.auto_command(u, true, func(_id): return true)
+		if cmd.type == "move" and Fight.mv(cmd.move).target == "enemy":
+			var foes := f.alive("enemy")
+			foes.sort_custom(func(a, b): return a.hp < b.hp)
+			cmd.target = foes[0].id
+	else:
+		cmd = f.enemy_command(u, f.unit("hero"))
+	f.act(u, cmd)
+	return f.outcome()
+
+
+## 半即時：每次找最快滿的那個人，大家的行動條一起往前推到那一刻，他出手、歸零
+static func _one_atb(f: Fight) -> Dictionary:
+	var g := {}
+	for u in f.units:
+		g[u.id] = randf() * 30.0 + f.stat(u, "spd")
+	var turns := 0
+	for k in 1000:
+		var next: Dictionary = {}
+		var wait := INF
+		for u in f.alive():
+			var rate: float = atb_base + f.stat(u, "spd") * atb_per
+			var t := maxf(0.0, HexBattle.ATB_FULL - float(g[u.id])) / rate
+			# 同時滿：敵人先（照 HexBattle 的順序）
+			if t < wait or (t == wait and u.side == "enemy"):
+				wait = t
+				next = u
+		for u in f.alive():
+			g[u.id] = float(g[u.id]) + (atb_base + f.stat(u, "spd") * atb_per) * wait
+		g[next.id] = 0.0
+		if next.side == "hero":
+			turns += 1
+		var r := _step(f, next)
+		if r != "":
+			var h := f.unit("hero")
+			return {"result": r, "rounds": turns, "hp": float(h.hp) / h.max_hp, "fight": f}
+	return {"result": "lose", "rounds": turns, "hp": 0.0, "fight": f}
 
 
 ## 同一個角色打 n 場（每場都補滿、帶同樣的藥）：勝率、平均回合、贏的時候平均剩幾成氣血

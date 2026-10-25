@@ -136,9 +136,75 @@ func _on_tile(_g: Vector2i) -> void:
 	pass
 
 
-## 走在這裡的速度倍數（大地圖：路快、山慢）；子類別覆寫
+## 走在這裡的速度倍數（大地圖：路快、山慢）；子類別覆寫。室外騎著馬照坐騎的 speed
 func _speed_at(_p: Vector3) -> float:
-	return 1.0
+	return horse_mult()
+
+
+# ── 坐騎 ────────────────────────────────────────────────
+## 室外（村子、州圖）可以騎馬；室內照樣步行。G.hero.mount 是馬的 id，G.hero.riding 是騎著還是牽著（沒寫當作騎著）；V 上馬、下馬
+
+## 這張圖能不能騎馬（Village、WorldMap 設成 true）
+var rides := false
+var _horse: Node3D
+const HORSE_COLOR := {"old_bay": ["b08a4a", "6a4a2a"], "jujube": ["8a3a24", "3a2218"], "qingcong": ["c8ccc8", "6a6e72"]}
+
+
+func riding() -> bool:
+	return rides and G.hero.get("mount", "") != "" and G.hero.get("riding", true)
+
+
+## 騎著馬的腳程倍數（沒騎是 1）
+func horse_mult() -> float:
+	if not riding():
+		return 1.0
+	return float(load("res://story/stay.gd").mount_def(G.hero.mount).get("speed", 1.0))
+
+
+## 騎著就在主角底下畫一匹馬（照馬的毛色），人抬高坐在馬背上；買賣馬、上下馬後再叫一次
+func mount_up() -> void:
+	if _horse:
+		_horse.queue_free()
+		_horse = null
+	if not hero:
+		return
+	hero.ride = 0.0
+	if not riding():
+		return
+	var c: Array = HORSE_COLOR.get(G.hero.mount, HORSE_COLOR.old_bay)
+	var coat := Color(c[0])
+	var dark := Color(c[1])
+	_horse = Node3D.new()
+	hero.add_child(_horse)
+	_horse.add_child(Mk.box(Vector3(0.42, 0.42, 1.0), coat, Vector3(0, 0.62, 0)))
+	for lx in [-0.15, 0.15]:
+		for lz in [-0.38, 0.38]:
+			_horse.add_child(Mk.box(Vector3(0.11, 0.48, 0.11), coat.darkened(0.1), Vector3(lx, 0.24, lz)))
+			_horse.add_child(Mk.box(Vector3(0.12, 0.08, 0.12), dark, Vector3(lx, 0.04, lz)))
+	var neck := Mk.box(Vector3(0.24, 0.5, 0.26), coat, Vector3(0, 0.95, 0.5))
+	neck.rotation.x = 0.5
+	_horse.add_child(neck)
+	_horse.add_child(Mk.box(Vector3(0.22, 0.24, 0.42), coat, Vector3(0, 1.15, 0.7)))
+	_horse.add_child(Mk.box(Vector3(0.06, 0.4, 0.3), dark, Vector3(0, 1.1, 0.42)))
+	var tail := Mk.box(Vector3(0.08, 0.45, 0.08), dark, Vector3(0, 0.6, -0.55))
+	tail.rotation.x = -0.4
+	_horse.add_child(tail)
+	_horse.add_child(Mk.box(Vector3(0.46, 0.06, 0.4), Color("8a2e26"), Vector3(0, 0.86, -0.05)))
+	# 人坐在馬背上
+	hero.ride = 0.72
+
+
+## V：上馬、下馬（有馬、在室外才行）
+func toggle_ride() -> void:
+	var m: Dictionary = load("res://story/stay.gd").mount_def(G.hero.get("mount", ""))
+	if m.is_empty():
+		return
+	if not rides:
+		ui.notify("屋裡騎不了馬，%s拴在外頭。" % m.name)
+		return
+	G.hero.riding = not G.hero.get("riding", true)
+	mount_up()
+	ui.notify("騎上了%s。" % m.name if G.hero.riding else "從%s背上下來，牽著走。" % m.name)
 
 
 ## 這裡的地面高度（大地圖有起伏）；子類別覆寫
@@ -326,6 +392,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		if not t.is_empty():
 			get_viewport().set_input_as_handled()
 			_interact(t)
+	elif e.keycode == KEY_V and G.hero.get("mount", "") != "":
+		get_viewport().set_input_as_handled()
+		toggle_ride()
 	elif Social.KEYS.has(e.keycode):
 		# 面對有人物檔案的人：F 切磋、G 贈禮、R 請教、T 交易、H 雅趣（還不能做的就照常交給別的按鍵）
 		var t := _target()

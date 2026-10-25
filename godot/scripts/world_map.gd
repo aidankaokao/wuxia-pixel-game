@@ -91,6 +91,7 @@ func _ready() -> void:
 		add_child(lb)
 	_clouds()
 	_place()
+	rides = true
 	mount_up()
 	print("州圖 %s：產生 %d ms，蓋模型 %d ms" % [data.title, t1 - t0, Time.get_ticks_msec() - t1])
 
@@ -209,7 +210,7 @@ func _far() -> void:
 			var b := Vector3(x0 + float(i1) / FS, 0.1, y0 + float(j) / FS)
 			var c := Vector3(x0 + float(i1) / FS, 0.1, y0 + float(j + 1) / FS)
 			var d := Vector3(x0 + float(i) / FS, 0.1, y0 + float(j + 1) / FS)
-			var col := Color("6f8c58").lerp(HAZE, 0.3 + Mk.h01(j / 12, i / 12, 2) * 0.08)
+			var col := Season.tint(Color("6f8c58"), "ground").lerp(HAZE, 0.3 + Mk.h01(j / 12, i / 12, 2) * 0.08)
 			for v in [a, b, c, a, c, d]:
 				verts.append(v)
 				cols.append(col)
@@ -242,6 +243,8 @@ func _color(u: float, v: float, h: float, r: float) -> Color:
 	var col: Color = (c.call(x0, y0) as Color).lerp(c.call(x0 + 1, y0), tx).lerp((c.call(x0, y0 + 1) as Color).lerp(c.call(x0 + 1, y0 + 1), tx), ty)
 	# 大片的深淺
 	col = col * (0.95 + 0.08 * sin(u * 0.7 + v * 0.3) + 0.04 * sin(v * 1.3 - u * 0.5))
+	# 季節（scripts/season.gd）：夏深綠、秋枯黃、冬覆雪
+	col = Season.tint(col, "ground")
 	# 路
 	col = col.lerp(Color("c9a46a"), smoothstep(0.38, 0.55, r))
 	# 雪頂、水底
@@ -408,51 +411,10 @@ func ferry_across(banks: Array) -> void:
 	_last_tile = to
 
 
-## 有坐騎就騎著走：主角底下一匹馬（照馬的毛色），人抬高坐在馬背上；買了馬、賣了馬再叫一次
-var _horse: Node3D
-const HORSE_COLOR := {"old_bay": ["b08a4a", "6a4a2a"], "jujube": ["8a3a24", "3a2218"], "qingcong": ["c8ccc8", "6a6e72"]}
-
-
-func mount_up() -> void:
-	if _horse:
-		_horse.queue_free()
-		_horse = null
-		hero.ride = 0.0
-	var id: String = G.hero.get("mount", "")
-	if id == "" or not hero:
-		return
-	var c: Array = HORSE_COLOR.get(id, HORSE_COLOR.old_bay)
-	var coat := Color(c[0])
-	var dark := Color(c[1])
-	_horse = Node3D.new()
-	hero.add_child(_horse)
-	_horse.add_child(Mk.box(Vector3(0.42, 0.42, 1.0), coat, Vector3(0, 0.62, 0)))
-	for lx in [-0.15, 0.15]:
-		for lz in [-0.38, 0.38]:
-			_horse.add_child(Mk.box(Vector3(0.11, 0.48, 0.11), coat.darkened(0.1), Vector3(lx, 0.24, lz)))
-			_horse.add_child(Mk.box(Vector3(0.12, 0.08, 0.12), dark, Vector3(lx, 0.04, lz)))
-	var neck := Mk.box(Vector3(0.24, 0.5, 0.26), coat, Vector3(0, 0.95, 0.5))
-	neck.rotation.x = 0.5
-	_horse.add_child(neck)
-	_horse.add_child(Mk.box(Vector3(0.22, 0.24, 0.42), coat, Vector3(0, 1.15, 0.7)))
-	_horse.add_child(Mk.box(Vector3(0.06, 0.4, 0.3), dark, Vector3(0, 1.1, 0.42)))
-	var tail := Mk.box(Vector3(0.08, 0.45, 0.08), dark, Vector3(0, 0.6, -0.55))
-	tail.rotation.x = -0.4
-	_horse.add_child(tail)
-	_horse.add_child(Mk.box(Vector3(0.46, 0.06, 0.4), Color("8a2e26"), Vector3(0, 0.86, -0.05)))
-	# 人坐在馬背上
-	hero.ride = 0.72
-
-
-## 腳程倍數：騎馬照坐騎的 speed，裝備中的輕功每重快 3%（最多五成），兩者相乘
+## 腳程倍數：騎著馬照坐騎的 speed（牽著走不算，見 GridScene.horse_mult），裝備中的輕功每重快 3%（最多五成），兩者相乘
 func travel_mult() -> float:
-	var m: Dictionary = {}
-	for d in Crafts.data().get("mounts", []):
-		if d.id == G.hero.get("mount", ""):
-			m = d
-	var mount := float(m.get("speed", 1.0))
 	var light := minf(LIGHT_SPEED_MAX, 1.0 + Hero.equipped_level(G.hero, "light") * LIGHT_SPEED)
-	return mount * light
+	return horse_mult() * light
 
 
 ## 天氣讓路難走：雨天多一成時間、雪天多兩成
@@ -516,12 +478,12 @@ func _decor() -> void:
 					trunk.add(p + Vector3(0, 0.1 * s, 0), Vector3.ONE * s)
 					var g := Color("2f6a3a").lerp(Color("4a8a40"), r) * (0.9 + r * 0.2)
 					g.a = 1
-					pine.add(p + Vector3(0, 0.45 * s, 0), Vector3.ONE * s, r * 6, g)
+					pine.add(p + Vector3(0, 0.45 * s, 0), Vector3.ONE * s, r * 6, Season.tint(g, "evergreen"))
 				elif t == "p":
 					trunk.add(p + Vector3(0, 0.1, 0), Vector3.ONE)
-					round_t.add(p + Vector3(0, 0.38, 0), Vector3.ONE * s, r * 6, Color("5aa24c").lerp(Color("7ab858"), r))
+					round_t.add(p + Vector3(0, 0.38, 0), Vector3.ONE * s, r * 6, Season.tint(Color("5aa24c").lerp(Color("7ab858"), r), "tree"))
 				else:
-					rock.add(p + Vector3(0, 0.05, 0), Vector3(1.2, 0.8, 1) * s, r * 6, Color("8a8676").lerp(Color("9a9484"), r) if t == "m" else Color("7a9a48").lerp(Color("8aa858"), r))
+					rock.add(p + Vector3(0, 0.05, 0), Vector3(1.2, 0.8, 1) * s, r * 6, Color("8a8676").lerp(Color("9a9484"), r) if t == "m" else Season.tint(Color("7a9a48").lerp(Color("8aa858"), r), "tree"))
 	for b in [trunk, pine, round_t, rock]:
 		var mi: MultiMeshInstance3D = b.build()
 		if mi:
@@ -821,5 +783,5 @@ func info_text() -> String:
 	var pace := travel_mult()
 	var extra := ""
 	if not m.is_empty() or pace > 1.0:
-		extra = "・%s腳程 ×%.2f" % [("騎%s、" % m.name) if not m.is_empty() else "", pace]
+		extra = "・%s腳程 ×%.2f" % [(("騎%s、" if riding() else "牽著%s（V 上馬）、") % m.name) if not m.is_empty() else "", pace]
 	return "%s\n%s%s%s%s" % [data.name, where, on_road, TERRAIN_NAME.get(T(g.x, g.y), ""), extra]

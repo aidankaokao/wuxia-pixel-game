@@ -453,7 +453,7 @@ func _hero_left(v: VBoxContainer) -> void:
 			worn.append("%s %s" % [Hero.GEAR_SLOT[slot], Ui.item_def(gid).name])
 	var horse := Stay.mount_def(c.get("mount", ""))
 	if not horse.is_empty():
-		worn.append("坐騎 %s" % horse.name)
+		worn.append("坐騎 %s（%s）" % [horse.name, "騎著" if c.get("riding", true) else "牽著，V 上馬"])
 	var wl := _lab("身上：" + ("、".join(worn) if worn.size() > 0 else "粗布衣裳，空著手"), 14, SOFT)
 	wl.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 	wl.custom_minimum_size = Vector2(PW - 90, 0)
