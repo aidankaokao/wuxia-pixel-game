@@ -2417,5 +2417,18 @@
   "icon": "salve",
   "bound": true,
   "desc": "鳴泉藥房配好的一包金創藥，要送到臨江城的回春堂。"
+ },
+ "huangyu": {
+  "name": "大黃魚",
+  "category": "食材",
+  "icon": "fish",
+  "desc": "潮信外海的大黃魚，金黃色的肚皮，漲潮時最常上鉤。",
+  "price": 18
+ },
+ "cx_ledger": {
+  "name": "私鹽帳冊",
+  "category": "雜物",
+  "icon": "book",
+  "desc": "鹽課司書辦葉茂才私賣充公鹽的帳冊，一筆一筆記著賣給青蚨會的鹽與銀兩。"
  }
 }

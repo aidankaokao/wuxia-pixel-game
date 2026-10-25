@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth()]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth(), cx_salt()]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -120,6 +120,24 @@ static func yz_berth() -> Dictionary:
 		"desc": "府河碼頭東段的泊位，漕幫的船停了三十年。青蚨會拿出州衙的執照說泊位歸他們。漕幫總舵主褚萬川覺得執照有鬼，託你去州衙打聽。",
 		"steps": [["答應褚萬川去州衙打聽", true], ["問州衙的師爺柴守中", b >= 2], ["稟告知州韋明德", b >= 3], ["打退青蚨會來尋仇的打手（碼頭上）", b >= 6], ["回漕幫總舵覆命", b == 7]],
 		"reward": "銀兩 80、名聲、漕幫的交情（碼頭扛貨工錢多兩成）"}
+
+
+## 一船私鹽（story/chaoxin.gd）：替鹽課司查私鹽的來路
+static func cx_salt() -> Dictionary:
+	var s := _f("cx_salt")
+	if s == 0:
+		return {}
+	var base := {"id": "cx_salt", "title": "一船私鹽", "giver": "饒德厚", "place": "潮信城・鹽課司、白沙幫分堂、鹽倉", "reward": "看你怎麼了結"}
+	if s == 8:
+		base.merge({"done": true, "desc": "你替白沙幫押了一車鹽出南門，打退了巡鹽兵丁。鹽課司那邊，你什麼也沒說。", "steps": [["答應鹽大使去查", true], ["替白沙幫押鹽車出南門", true]]})
+		return base
+	if s == 9:
+		base.merge({"done": true, "desc": "你把白沙幫分堂報給了鹽課司，領了賞銀。分堂被封了，白沙幫的人從此恨你。", "steps": [["答應鹽大使去查", true], ["舉發白沙幫分堂", true]]})
+		return base
+	base.merge({"done": s == 4,
+		"desc": "潮信鹽課司的鹽大使饒德厚抓了一年私鹽，私鹽卻越抓越多。他託你查私鹽的來路。白沙幫分堂主盛四海說，私鹽是從鹽課司自己的鹽倉流出去的。",
+		"steps": [["答應鹽大使去查", true], ["到城南的白沙幫分堂探口風", s >= 2], ["戌時以後到港邊的鹽倉後頭看看", s >= 3], ["把帳冊交給鹽大使饒德厚", s == 4]]})
+	return base
 
 
 ## 鳴泉的下山委託（演武廣場的任務榜）

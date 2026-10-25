@@ -18,14 +18,17 @@ const CASES := [
 	["長風武館辛長風（長風拳6、吐納4）", ["spar_xinc"], {"changfeng": 6, "breathing": 4}, 0],
 	["漕幫戴鐵肩（鳴泉3、吐納2）", ["berth_dai"], {"mingquan": 3, "breathing": 2}, 0],
 	["青蚨會烏大烏二（鳴泉4、吐納2，帶藥）", ["berth_thugs"], {"mingquan": 4, "breathing": 2}, 3],
+	# 潮信城（4.43）
+	["鹽倉閻有方（鳴泉4、吐納2，帶藥）", ["salt_yan"], {"mingquan": 4, "breathing": 2}, 3],
+	["巡鹽兵丁兩人（鳴泉3、吐納2）", ["salt_patrol"], {"mingquan": 3, "breathing": 2}, 0],
 ]
 ## 只校準這幾組（run:dev_calib/tune_new）
-const NEW := ["長風武館辛嵐（長風拳2、吐納2）", "長風武館辛長風（長風拳6、吐納4）", "漕幫戴鐵肩（鳴泉3、吐納2）", "青蚨會烏大烏二（鳴泉4、吐納2，帶藥）"]
+const NEW := ["巡鹽兵丁兩人（鳴泉3、吐納2）"]
 ## 改之前（固定的遭遇戰）量到的勝率，tune 的目標；改之前就是九成五以上的只要求不要掉到九成五以下
 const TARGET := {"試劍顧小滿（剛出村）": 0.80, "切磋柳青禾（剛出村）": 0.97, "切磋石岳（看過石碑）": 0.78, "正式考核連戰齊振遠、孟鐸（鳴泉4、吐納2）": 0.27,
 	"內門試劍何守一（鳴泉6、澄泉3、吐納3）": 0.97, "真傳試煉韓靖秋（鳴泉8、澄泉5、踏石3、吐納4）": 0.26, "寨主戰（初始）": 0.40,
 	"店裡的地痞（鳴泉3）": 0.97, "路上的甘十一（鳴泉3）": 0.97,
-	"長風武館辛嵐（長風拳2、吐納2）": 0.6, "長風武館辛長風（長風拳6、吐納4）": 0.35, "漕幫戴鐵肩（鳴泉3、吐納2）": 0.7, "青蚨會烏大烏二（鳴泉4、吐納2，帶藥）": 0.6}
+	"長風武館辛嵐（長風拳2、吐納2）": 0.6, "長風武館辛長風（長風拳6、吐納4）": 0.35, "漕幫戴鐵肩（鳴泉3、吐納2）": 0.7, "青蚨會烏大烏二（鳴泉4、吐納2，帶藥）": 0.6, "鹽倉閻有方（鳴泉4、吐納2，帶藥）": 0.6, "巡鹽兵丁兩人（鳴泉3、吐納2）": 0.7}
 
 
 ## 主角：擲一個新角色，學會這些武功、練到這一重，重數到了的招式都悟出來（看過石碑的另外有竹影劍）
@@ -68,9 +71,16 @@ static func rate(case: Array, n := 300) -> float:
 static var c_cache := {}
 
 
-static func rates(_ctx: Ctx) -> void:
+## run:dev_calib/rates_new 只量 NEW 那幾組（沒名字的敵人沒有 scale，只能改數值後再量）
+static func rates_new(ctx: Ctx) -> void:
+	await rates(ctx, NEW)
+
+
+static func rates(_ctx: Ctx, only: Array = []) -> void:
 	var keep := {"bag": G.bag.duplicate(), "silver": G.silver}
 	for cs in CASES:
+		if only.size() > 0 and not cs[0] in only:
+			continue
 		print("CALIB %s：%d%%" % [cs[0], roundi(rate(cs) * 100)])
 	G.bag = keep.bag
 	G.silver = keep.silver

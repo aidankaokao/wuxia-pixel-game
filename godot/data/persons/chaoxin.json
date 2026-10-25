@@ -139,5 +139,151 @@
   "home": "chaoxin",
   "role": "從白灘來城裡挑鹽的鹽丁",
   "talk": ""
+ },
+ "cx_shi": {
+  "surname": "施",
+  "given": "廷之",
+  "gender": "男",
+  "born": -53,
+  "life_roll": 5,
+  "look": "sect_judge",
+  "job": "書生",
+  "faction": {
+   "sect": "cx_yamen",
+   "rank": 3
+  },
+  "role": "潮信知縣，最頭痛的是鹽課司跟鹽幫的事",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_rao": {
+  "surname": "饒",
+  "given": "德厚",
+  "gender": "男",
+  "born": -49,
+  "look": "guard",
+  "job": "書生",
+  "faction": {
+   "sect": "cx_salt",
+   "rank": 3
+  },
+  "role": "潮信鹽課司的鹽大使，一心要抓私鹽",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_ye": {
+  "surname": "葉",
+  "given": "茂才",
+  "gender": "男",
+  "born": -37,
+  "look": "scholar",
+  "faction": {
+   "sect": "cx_salt",
+   "rank": 1
+  },
+  "role": "鹽課司的書辦，管充公私鹽的帳",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_yanyf": {
+  "surname": "閻",
+  "given": "有方",
+  "gender": "男",
+  "born": -41,
+  "look": "bandit",
+  "base": {
+   "strength": 15,
+   "agility": 14,
+   "constitution": 15,
+   "energy": 9,
+   "insight": 11
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 3
+  },
+  "faction": {
+   "sect": "qingfu",
+   "rank": 1
+  },
+  "role": "青蚨會在潮信的管事，專收來路不明的貨",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_sheng": {
+  "surname": "盛",
+  "given": "四海",
+  "gender": "男",
+  "born": -44,
+  "look": "boatman",
+  "job": "鹽丁",
+  "base": {
+   "strength": 16,
+   "agility": 13,
+   "constitution": 16,
+   "energy": 10,
+   "insight": 12
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 4
+  },
+  "faction": {
+   "sect": "baisha",
+   "rank": 2
+  },
+  "role": "白沙幫潮信分堂的堂主，鹽丁出身，講義氣",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_lu": {
+  "surname": "魯",
+  "given": "小石",
+  "gender": "男",
+  "born": -21,
+  "look": "farmer",
+  "job": "鹽丁",
+  "faction": {
+   "sect": "baisha",
+   "rank": 0
+  },
+  "role": "白沙幫的年輕幫眾，替分堂跑腿",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_cao": {
+  "surname": "曹",
+  "given": "萬帆",
+  "gender": "男",
+  "born": -51,
+  "look": "storyteller",
+  "role": "海商會館潮信分館的館主，跑過鯨港、霞城的海路",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_wen": {
+  "surname": "溫",
+  "given": "守潮",
+  "gender": "男",
+  "born": -65,
+  "life_roll": 8,
+  "look": "elder",
+  "traits": [
+   "清心寡欲"
+  ],
+  "role": "潮神廟的老廟祝，看了一輩子的潮水",
+  "home": "chaoxin",
+  "talk": ""
+ },
+ "cx_wang": {
+  "surname": "汪",
+  "given": "大浪",
+  "gender": "男",
+  "born": -45,
+  "look": "fisher",
+  "job": "漁",
+  "role": "魚市的漁老大，天不亮就出海",
+  "home": "chaoxin",
+  "talk": ""
  }
 }

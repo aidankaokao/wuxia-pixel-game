@@ -635,6 +635,43 @@
     "isle": 1
    },
    "desc": "一身金鱗的鯉魚，漁家說見了金鯉，整年都順。"
+  },
+  {
+   "id": "sea_fish",
+   "name": "海魚",
+   "price": 6,
+   "level": 0,
+   "fight": 1,
+   "spots": {
+    "sea": 6
+   },
+   "desc": "碼頭邊最常釣到的海魚，鹹鮮肥美。"
+  },
+  {
+   "id": "shrimp",
+   "name": "鮮蝦",
+   "price": 5,
+   "level": 0,
+   "fight": 0,
+   "spots": {
+    "sea": 3
+   },
+   "desc": "礁石縫裡的海蝦，一甩竿就上來好幾隻。"
+  },
+  {
+   "id": "huangyu",
+   "name": "大黃魚",
+   "price": 18,
+   "level": 2,
+   "fight": 2,
+   "likes": [
+    "dawn",
+    "summer"
+   ],
+   "spots": {
+    "sea": 2
+   },
+   "desc": "潮信外海的大黃魚，力氣大，咬鉤就往深處鑽。"
   }
  ],
  "mounts": [

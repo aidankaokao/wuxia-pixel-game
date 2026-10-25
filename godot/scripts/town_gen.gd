@@ -42,6 +42,8 @@ const KINDS := {
 	"gamble": {"name": "賭坊", "style": "teahouse", "w": 6, "h": 4, "flag": "賭", "roof": "green", "lanterns": true, "theme": "plain"},
 	"academy": {"name": "書院", "style": "hall", "w": 7, "h": 5, "roof": "grey", "plaque": true, "theme": "scholar"},
 	"wuguan": {"name": "武館", "style": "hall", "w": 7, "h": 5, "flag": "武", "roof": "hall", "plaque": true, "red": true, "theme": "martial"},
+	"salt": {"name": "鹽課司", "style": "hall", "w": 7, "h": 5, "roof": "yamen", "lanterns": true, "plaque": true, "red": true, "theme": "scholar"},
+	"temple": {"name": "廟", "style": "temple", "w": 6, "h": 4, "roof": "green", "plaque": true, "theme": "scholar"},
 	"escort": {"name": "鏢局", "style": "hall", "w": 7, "h": 5, "flag": "鏢", "roof": "hall", "lanterns": true, "plaque": true, "red": true, "theme": "scholar"},
 }
 const HOUSE_TEXT := ["門關著，裡頭傳出孩子背書的聲音。", "門口曬著一排衣裳，屋裡沒人應門。", "門上的春聯褪了色，主人家大概出門了。",
@@ -247,11 +249,13 @@ const ROOM_PROPS := {
 	"gamble": [["f_table_plain_1", 1, 4, 2, "賭桌上的骰盅還在晃。"], ["f_table_plain_1", 7, 4, 2, "一群人圍著押大小。"], ["jars", 1, 1, 2, "酒罈。"], ["chest", 9, 1, 1, "裝籌碼的木箱。"]],
 	"academy": [["f_shelf_scholar_3", 1, 1, 2, "書院的藏書，經史子集都有。"], ["f_shelf_scholar_3", 8, 1, 2, "歷代山長的手稿。"], ["f_table_scholar_1", 1, 4, 2, "學子們讀書的書案。"], ["f_table_scholar_1", 7, 5, 2, "書案上擺著棋盤。"]],
 	"wuguan": [["f_dummy_martial_3", 1, 1, 1, "鐵木樁，樁身被打得發亮。"], ["f_dummy_martial_2", 9, 1, 1, "木人樁。"], ["f_deco_martial_1", 1, 4, 1, "兵器架。"], ["f_deco_martial_1", 9, 4, 1, "兵器架。"]],
+	"salt": [["f_shelf_scholar_3", 1, 1, 2, "一格格的鹽引存根。"], ["chest", 8, 1, 1, "貼著封條的充公鹽包。"], ["chest", 9, 1, 1, "鹽包。"], ["chair", 8, 4, 1, "鹽大使的太師椅。"]],
+	"temple": [["altar", 4, 1, 3, "供桌上擺著潮神的木像，海浪紋的衣袍，手裡捧著一枚海螺。"], ["cushion", 3, 4, 1, "蒲團。"], ["cushion", 7, 4, 1, "蒲團。"], ["f_deco_scholar_1", 1, 1, 1, "牆上掛著歷年大潮的潮水刻度。"]],
 	"escort": [["f_deco_martial_1", 1, 1, 1, "兵器架上插著金背大刀。"], ["chest", 8, 1, 1, "待押的鏢箱，貼著封條。"], ["chest", 9, 1, 1, "鏢箱。"], ["f_table_plain_1", 1, 5, 2, "桌上攤著鏢路圖。"]],
 }
 const COUNTER := {"inn": "櫃台", "restaurant": "點菜", "teahouse": "喝茶", "clinic": "看診／買藥", "goods": "買東西", "smith": "打兵器", "cloth": "看衣裳",
 	"stable": "看馬", "yamen": "辦事", "pawn": "典當", "bank": "存取銀兩", "books": "買書", "opera": "看戲", "builder": "營造", "chief": "說話",
-	"guild": "說話", "hq": "說話", "gamble": "押大小", "academy": "請教", "wuguan": "學武", "escort": "接鏢"}
+	"guild": "說話", "hq": "說話", "gamble": "押大小", "academy": "請教", "wuguan": "學武", "escort": "接鏢", "salt": "辦事", "temple": "上香"}
 
 
 static func room_data(id: String) -> Dictionary:
@@ -266,7 +270,7 @@ static func room_data(id: String) -> Dictionary:
 	var dir: Vector2i = Village.FACE_DIR[b.get("face", "s")]
 	var out_spawn := {"x": dt.x + dir.x, "y": dt.y + dir.y, "facing": {"s": "down", "n": "up", "e": "right", "w": "left"}[b.get("face", "s")]}
 	var props := [{"sprite": "counter", "x": 4, "y": 1, "w": 3, "lines": [], "label": COUNTER[sh[0]], "script": "town/shop"}]
-	if sh[0] == "wuguan":
+	if sh[0] in ["wuguan", "temple"]:
 		props = []
 	for p in ROOM_PROPS.get(sh[0], []):
 		props.append({"sprite": p[0], "x": p[1], "y": p[2], "w": p[3], "lines": [{"text": p[4]}], "label": ""})
@@ -280,7 +284,8 @@ static func room_data(id: String) -> Dictionary:
 	var extra: Array = sh[4] if sh.size() > 4 else []
 	for j in extra.size():
 		var xp: String = extra[j]
-		if Person.alive(xp):
+		# 劇情裡被押走、離開的人（旗標 gone_<人物 id>）不再站在店裡
+		if Person.alive(xp) and int(G.flags.get("gone_" + xp, 0)) == 0:
 			npcs.append({"id": xp, "name": Person.full_name(xp), "sprite": Person.field(xp, "look", "servant"), "x": spots[j].x, "y": spots[j].y, "facing": "down",
 				"all_day": true, "work": false, "night": false, "wander": 0, "person": "", "script": "town/extra", "when": "", "talks": []})
 	return {"id": id, "name": sh[1], "subtitle": "%s・%s" % [cfg(map).name, k.name], "theme": k.theme, "tiles": _room(11, 8, 5),

@@ -1,14 +1,34 @@
 {
  "_note": "用樣板蓋出來的城、鎮、村（PLAN.md 4.41；地圖由 scripts/town_gen.gd 產生，州圖據點 id 當 key）。tier：fu 府城、county 縣城、town 鎮、village 村；map 是地圖 id；flavor 是地方特色（river 河、coast 海、canal 運河、lake 湖、mulberry 桑園、tea 茶山、hill 山）；shops 依序是 [店種, 店名, 人物 id]（店種見 TownGen.KINDS）；street 在街上走動的人；rumors 客棧、茶館打聽到的消息；notices 告示欄上的告示；guards 開店時請得到哪幾種保鏢（Biz.GUARDS）。城門照州圖的路自動開。",
  "yanzhou": {
-  "tier": "fu", "map": "yzfu", "name": "煙州府城", "subtitle": "州府・府河之畔", "plaque": "煙州", "seed": 17, "flavor": "river",
+  "tier": "fu",
+  "map": "yzfu",
+  "name": "煙州府城",
+  "subtitle": "州府・府河之畔",
+  "plaque": "煙州",
+  "seed": 17,
+  "flavor": "river",
   "shops": [
-   ["yamen", "煙州州衙", "yz_chai", "yanzhou/yamen", ["yz_wei", "yz_ling"]], ["inn", "府前客棧", "yz_guan"], ["restaurant", "醉煙樓", "yz_xi"], ["teahouse", "聽雨茶樓", "yz_yu"],
-   ["bank", "青蚨錢莊", "yz_cui", "yanzhou/bank"], ["pawn", "恆裕當鋪", "yz_zhen"], ["clinic", "濟和堂", "yz_yin"], ["goods", "萬全雜貨", "yz_lu"],
-   ["smith", "百煉鐵鋪", "yz_xiong"], ["cloth", "雲錦布莊", "yz_bai"], ["books", "墨香書肆", "yz_wen"], ["opera", "錦雲戲樓", "yz_hua"],
-   ["stable", "通衢車馬行", "yz_bao"], ["builder", "巧匠木作", "yz_zhuo"],
-   ["guild", "漕幫總舵", "yz_chu", "yanzhou/guild"], ["hq", "青蚨會館", "yz_xiao", "yanzhou/hq"], ["gamble", "青蚨坊", "yz_rui", "yanzhou/gamble"],
-   ["academy", "煙山書院", "yz_yan", "yanzhou/academy", ["yz_mu"]], ["wuguan", "長風武館", "yz_xinc", "yanzhou/wuguan"], ["escort", "金刀鏢局府城分號", "yz_jinh", "yanzhou/escort"]
+   ["yamen", "煙州州衙", "yz_chai", "yanzhou/yamen", ["yz_wei", "yz_ling"]],
+   ["inn", "府前客棧", "yz_guan"],
+   ["restaurant", "醉煙樓", "yz_xi"],
+   ["teahouse", "聽雨茶樓", "yz_yu"],
+   ["bank", "青蚨錢莊", "yz_cui", "yanzhou/bank"],
+   ["pawn", "恆裕當鋪", "yz_zhen"],
+   ["clinic", "濟和堂", "yz_yin"],
+   ["goods", "萬全雜貨", "yz_lu"],
+   ["smith", "百煉鐵鋪", "yz_xiong"],
+   ["cloth", "雲錦布莊", "yz_bai"],
+   ["books", "墨香書肆", "yz_wen"],
+   ["opera", "錦雲戲樓", "yz_hua"],
+   ["stable", "通衢車馬行", "yz_bao"],
+   ["builder", "巧匠木作", "yz_zhuo"],
+   ["guild", "漕幫總舵", "yz_chu", "yanzhou/guild"],
+   ["hq", "青蚨會館", "yz_xiao", "yanzhou/hq"],
+   ["gamble", "青蚨坊", "yz_rui", "yanzhou/gamble"],
+   ["academy", "煙山書院", "yz_yan", "yanzhou/academy", ["yz_mu"]],
+   ["wuguan", "長風武館", "yz_xinc", "yanzhou/wuguan"],
+   ["escort", "金刀鏢局府城分號", "yz_jinh", "yanzhou/escort"]
   ],
   "street": ["yz_fang", "yz_ding", "yz_dai", "yz_xinlan", "yz_duan", "yz_fu", "yz_lan", "yz_banxian"],
   "rumors": [
@@ -28,32 +48,68 @@
   "guards": ["yamen", "gang", "escort", "wuguan"]
  },
  "chaoxin": {
-  "tier": "county", "map": "chaoxin", "name": "潮信城", "subtitle": "海港縣城・鹽課司", "plaque": "潮信", "seed": 23, "flavor": "coast",
+  "tier": "county",
+  "map": "chaoxin",
+  "name": "潮信城",
+  "subtitle": "海港縣城・鹽課司",
+  "plaque": "潮信",
+  "seed": 23,
+  "flavor": "coast",
   "shops": [
-   ["yamen", "潮信縣衙", "cx_le"], ["inn", "望海客棧", "cx_cen"], ["restaurant", "潮鮮樓", "cx_gong"], ["teahouse", "聽潮茶館", "cx_yan"],
-   ["clinic", "海寧堂", "cx_ge"], ["goods", "通海雜貨", "cx_yu"], ["smith", "錨記鐵鋪", "cx_ke"], ["cloth", "海棠布莊", "cx_luo"],
-   ["pawn", "寶源當鋪", "cx_mo"], ["stable", "海塘驛", "cx_you"], ["builder", "船木作", "cx_xie"]
+   ["yamen", "潮信縣衙", "cx_le", "chaoxin/yamen", ["cx_shi"]],
+   ["inn", "望海客棧", "cx_cen"],
+   ["restaurant", "潮鮮樓", "cx_gong"],
+   ["teahouse", "聽潮茶館", "cx_yan"],
+   ["clinic", "海寧堂", "cx_ge"],
+   ["goods", "通海雜貨", "cx_yu"],
+   ["smith", "錨記鐵鋪", "cx_ke"],
+   ["cloth", "海棠布莊", "cx_luo"],
+   ["pawn", "寶源當鋪", "cx_mo"],
+   ["stable", "海塘驛", "cx_you"],
+   ["builder", "船木作", "cx_xie", "chaoxin/shipyard"],
+   ["salt", "潮信鹽課司", "cx_rao", "chaoxin/salt", ["cx_ye"]],
+   ["hq", "海商會館潮信分館", "cx_cao", "chaoxin/trader"],
+   ["guild", "白沙幫分堂", "cx_sheng", "chaoxin/baisha", ["cx_lu"]],
+   ["temple", "潮神廟", "cx_wen", "chaoxin/temple"]
   ],
-  "street": ["cx_hai", "cx_shuan"],
+  "street": ["cx_hai", "cx_shuan", "cx_wang", "cx_ye", "cx_yanyf"],
   "rumors": [
    "鹽課司的官爺天天在城門口查私鹽，可白灘那邊的鹽，十擔有三擔不是官鹽。",
    "回瀾崖上的刀客，漲潮的時候在崖下練刀，浪頭打上來都不退一步。",
    "外海的孤嶼上住著一個怪人，颱風天也不回岸上。",
    "聽潮洞只有退潮的時候進得去，聽說裡頭有古人刻的字。",
-   "前些日子東海有黑帆的船出沒，海商會館的船都不敢單獨出海。"
+   "前些日子東海有黑帆的船出沒，海商會館的船都不敢單獨出海。",
+   "鹽課司的書辦葉茂才，薪俸沒幾兩，家裡卻新蓋了三進的宅子。",
+   "八月十八大潮，回瀾崖下的浪頭有三丈高，城裡的人都上海塘看潮。"
   ],
   "notices": [
    {"title": "縣衙告示・官地出售", "text": ["城中官地三塊，地上插有木牌，有意者自行查看、當場議價。"], "by": "潮信縣衙"},
-   {"title": "鹽課司告示", "text": ["私鹽一律充公，販私鹽者杖八十。舉發者賞銀五兩。"], "by": "潮信鹽課司"}
+   {"title": "鹽課司告示・嚴禁私鹽", "text": ["私鹽一律充公，販私鹽者杖八十。", "凡舉發私鹽來路、查實者，賞銀不等，至鹽課司面見鹽大使。"], "by": "潮信鹽課司"},
+   {"title": "魚市", "text": ["每日卯時到午時，碼頭魚市開市。漁獲當場買賣，也收零散漁獲。"], "by": "潮信魚行"},
+   {"title": "海路暫停", "text": ["近日東海有黑帆船出沒，往鯨港、霞城的海船暫停開航，開航日期另行公告。"], "by": "海商會館潮信分館"}
   ],
   "guards": ["yamen", "gang"]
  },
  "sanglin": {
-  "tier": "county", "map": "sanglin", "name": "桑林城", "subtitle": "絲鄉縣城・織造局", "plaque": "桑林", "seed": 31, "flavor": "mulberry",
+  "tier": "county",
+  "map": "sanglin",
+  "name": "桑林城",
+  "subtitle": "絲鄉縣城・織造局",
+  "plaque": "桑林",
+  "seed": 31,
+  "flavor": "mulberry",
   "shops": [
-   ["yamen", "桑林縣衙", "sl_zhai"], ["inn", "桑園客棧", "sl_ran"], ["cloth", "織雲坊", "sl_yao"], ["restaurant", "蠶月樓", "sl_xiang"],
-   ["teahouse", "春蠶茶館", "sl_xue"], ["clinic", "杏林堂", "sl_lian"], ["goods", "桑市雜貨", "sl_bao"], ["smith", "桑林鐵鋪", "sl_ao"],
-   ["pawn", "裕豐當鋪", "sl_xiangs"], ["stable", "東嶺車馬行", "sl_shao"], ["builder", "闕家木作", "sl_que"]
+   ["yamen", "桑林縣衙", "sl_zhai"],
+   ["inn", "桑園客棧", "sl_ran"],
+   ["cloth", "織雲坊", "sl_yao"],
+   ["restaurant", "蠶月樓", "sl_xiang"],
+   ["teahouse", "春蠶茶館", "sl_xue"],
+   ["clinic", "杏林堂", "sl_lian"],
+   ["goods", "桑市雜貨", "sl_bao"],
+   ["smith", "桑林鐵鋪", "sl_ao"],
+   ["pawn", "裕豐當鋪", "sl_xiangs"],
+   ["stable", "東嶺車馬行", "sl_shao"],
+   ["builder", "闕家木作", "sl_que"]
   ],
   "street": ["sl_cansao", "sl_xiaoxian"],
   "rumors": [
@@ -70,10 +126,22 @@
   "guards": ["yamen"]
  },
  "santang": {
-  "tier": "town", "map": "santang", "name": "三塘鎮", "subtitle": "府河邊的運河市鎮", "plaque": "三塘", "seed": 41, "flavor": "canal",
+  "tier": "town",
+  "map": "santang",
+  "name": "三塘鎮",
+  "subtitle": "府河邊的運河市鎮",
+  "plaque": "三塘",
+  "seed": 41,
+  "flavor": "canal",
   "shops": [
-   ["inn", "三塘客棧", "st_huo"], ["restaurant", "塘邊飯館", "st_tang"], ["teahouse", "船頭茶館", "st_shu"], ["goods", "米市雜貨", "st_mi"],
-   ["clinic", "保和藥鋪", "st_ou"], ["smith", "三塘鐵鋪", "st_wu"], ["cloth", "鎮上布莊", "st_li"], ["stable", "三塘車馬行", "st_di"],
+   ["inn", "三塘客棧", "st_huo"],
+   ["restaurant", "塘邊飯館", "st_tang"],
+   ["teahouse", "船頭茶館", "st_shu"],
+   ["goods", "米市雜貨", "st_mi"],
+   ["clinic", "保和藥鋪", "st_ou"],
+   ["smith", "三塘鐵鋪", "st_wu"],
+   ["cloth", "鎮上布莊", "st_li"],
+   ["stable", "三塘車馬行", "st_di"],
    ["builder", "方家木作", "st_fang"]
   ],
   "street": ["st_chuan"],
@@ -89,35 +157,87 @@
   "guards": ["gang"]
  },
  "lingtang": {
-  "tier": "village", "map": "lingtang", "name": "菱塘村", "subtitle": "煙湖東岸・菱角船", "seed": 53, "flavor": "lake",
-  "shops": [["chief", "卞家", "lt_bian"], ["goods", "菱塘小舖", "lt_ning"], ["builder", "侯家木匠", "lt_hou"]],
+  "tier": "village",
+  "map": "lingtang",
+  "name": "菱塘村",
+  "subtitle": "煙湖東岸・菱角船",
+  "seed": 53,
+  "flavor": "lake",
+  "shops": [
+   ["chief", "卞家", "lt_bian"],
+   ["goods", "菱塘小舖", "lt_ning"],
+   ["builder", "侯家木匠", "lt_hou"]
+  ],
   "street": ["lt_xiaoling"],
-  "rumors": ["秋天湖上一片菱角船，小菱划得比大人還快。"],
-  "notices": [{"title": "村裡的空地", "text": ["村東有塊空地，想蓋房子的，找卞村長。"], "by": "卞守田"}],
+  "rumors": [
+   "秋天湖上一片菱角船，小菱划得比大人還快。"
+  ],
+  "notices": [
+   {"title": "村裡的空地", "text": ["村東有塊空地，想蓋房子的，找卞村長。"], "by": "卞守田"}
+  ],
   "guards": []
  },
  "wuya": {
-  "tier": "village", "map": "wuya", "name": "霧芽村", "subtitle": "北嶺南坡的茶村", "seed": 59, "flavor": "tea",
-  "shops": [["chief", "茅家", "wy_mao"], ["goods", "霧芽茶舖", "wy_tan"], ["builder", "茅家木匠", "wy_maogen"]],
+  "tier": "village",
+  "map": "wuya",
+  "name": "霧芽村",
+  "subtitle": "北嶺南坡的茶村",
+  "seed": 59,
+  "flavor": "tea",
+  "shops": [
+   ["chief", "茅家", "wy_mao"],
+   ["goods", "霧芽茶舖", "wy_tan"],
+   ["builder", "茅家木匠", "wy_maogen"]
+  ],
   "street": ["wy_xiaoya"],
-  "rumors": ["清明前的頭春茶最香，臨江城的泉霧茶莊每年都派人來收。"],
-  "notices": [{"title": "村裡的空地", "text": ["坡下有塊空地，想蓋房子的，找茅村長。"], "by": "茅春山"}],
+  "rumors": [
+   "清明前的頭春茶最香，臨江城的泉霧茶莊每年都派人來收。"
+  ],
+  "notices": [
+   {"title": "村裡的空地", "text": ["坡下有塊空地，想蓋房子的，找茅村長。"], "by": "茅春山"}
+  ],
   "guards": []
  },
  "baitan": {
-  "tier": "village", "map": "baitan", "name": "白灘", "subtitle": "海邊的鹽村", "seed": 61, "flavor": "coast",
-  "shops": [["chief", "杭家", "bt_hang"], ["goods", "白灘小舖", "bt_zhuang"], ["builder", "濮家船塢", "bt_pu"]],
+  "tier": "village",
+  "map": "baitan",
+  "name": "白灘",
+  "subtitle": "海邊的鹽村",
+  "seed": 61,
+  "flavor": "coast",
+  "shops": [
+   ["chief", "杭家", "bt_hang"],
+   ["goods", "白灘小舖", "bt_zhuang"],
+   ["builder", "濮家船塢", "bt_pu"]
+  ],
   "street": ["bt_shitou"],
-  "rumors": ["鹽丁苦啊，曬一個夏天的鹽，換不到一石米。"],
-  "notices": [{"title": "灘上的空地", "text": ["灘後有塊空地，要蓋屋的，找杭灘頭。"], "by": "杭大海"}],
+  "rumors": [
+   "鹽丁苦啊，曬一個夏天的鹽，換不到一石米。"
+  ],
+  "notices": [
+   {"title": "灘上的空地", "text": ["灘後有塊空地，要蓋屋的，找杭灘頭。"], "by": "杭大海"}
+  ],
   "guards": []
  },
  "shibi": {
-  "tier": "village", "map": "shibi", "name": "石壁村", "subtitle": "雲嶺山村", "seed": 67, "flavor": "hill",
-  "shops": [["chief", "岳家", "sb_yue"], ["goods", "山貨舖", "sb_lin"], ["builder", "鞏家木匠", "sb_gong"]],
+  "tier": "village",
+  "map": "shibi",
+  "name": "石壁村",
+  "subtitle": "雲嶺山村",
+  "seed": 67,
+  "flavor": "hill",
+  "shops": [
+   ["chief", "岳家", "sb_yue"],
+   ["goods", "山貨舖", "sb_lin"],
+   ["builder", "鞏家木匠", "sb_gong"]
+  ],
   "street": ["sb_xiaoshan"],
-  "rumors": ["霧鴉寨的人每個月來收一次山稅，交不出來就搶雞搶米。"],
-  "notices": [{"title": "村裡的空地", "text": ["村口有塊空地，要蓋屋的，找岳村長。"], "by": "岳鎮山"}],
+  "rumors": [
+   "霧鴉寨的人每個月來收一次山稅，交不出來就搶雞搶米。"
+  ],
+  "notices": [
+   {"title": "村裡的空地", "text": ["村口有塊空地，要蓋屋的，找岳村長。"], "by": "岳鎮山"}
+  ],
   "guards": []
  }
 }

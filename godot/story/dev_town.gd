@@ -4,12 +4,19 @@
 
 ## run:dev_town/parse 載入樣板與府城的劇情檔（檢查有沒有語法錯誤），印出今日事與任務
 static func parse(_ctx: Ctx) -> void:
-	for p in ["res://story/town.gd", "res://story/yanzhou.gd"]:
+	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd"]:
 		print("TOWN 載入 %s：%s" % [p, "好" if load(p) != null else "失敗"])
 	G.flags["yz_berth"] = 2
 	G.life.loan = {"owe": 120, "due": G.day + 2, "day": G.day}
 	print("TOWN 任務 %s" % str(Quests.yz_berth().steps))
 	print("TOWN 今日事 %s" % str(load("res://story/yanzhou.gd").tasks()))
+	var CX := load("res://story/chaoxin.gd")
+	for t in [0, 20, 40, 60, 80]:
+		print("TOWN 潮水 第 %d 刻：%s" % [t, CX.tide_state(-1, t)])
+	print("TOWN %s" % CX.tide_text())
+	G.flags["cx_salt"] = 2
+	print("TOWN 私鹽 %s" % str(Quests.cx_salt().steps))
+	G.flags.erase("cx_salt")
 	G.flags.erase("yz_berth")
 	G.life.erase("loan")
 

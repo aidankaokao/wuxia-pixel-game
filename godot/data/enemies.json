@@ -147,6 +147,20 @@
      "chance": 1
     }
    ]
+  },
+  "salt_soldier": {
+   "name": "巡鹽兵丁",
+   "sprite": "guard",
+   "hp": 180,
+   "atk": 34,
+   "def": 9,
+   "spd": 11,
+   "eva": 0.05,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -537,6 +551,28 @@
    "silver": 12,
    "points": 3,
    "scale": 0.77
+  },
+  "salt_yan": {
+   "enemies": [
+    "person:cx_yanyf"
+   ],
+   "background": "mountain",
+   "intro": "閻有方把帳冊往懷裡一塞，冷笑道：「看見了不該看的，就別想走出這鹽倉。」",
+   "canFlee": true,
+   "silver": 15,
+   "points": 3,
+   "scale": 1.18
+  },
+  "salt_patrol": {
+   "enemies": [
+    "salt_soldier",
+    "salt_soldier"
+   ],
+   "background": "mountain",
+   "intro": "火把一亮，兩個巡鹽兵丁攔住了鹽車：「站住！車上裝的什麼？」",
+   "canFlee": true,
+   "silver": 0,
+   "points": 3
   }
  }
 }
