@@ -1,5 +1,5 @@
 {
- "_note": "石壁村的人（PLAN.md 4.41 樣板村）。",
+ "_note": "石壁村的人（PLAN.md 4.41 樣板村、4.46 手工地圖）。",
  "sb_yue": {
   "surname": "岳",
   "given": "鎮山",
@@ -8,7 +8,7 @@
   "life_roll": 6,
   "look": "elder",
   "home": "shibi",
-  "role": "石壁村的村長，老獵戶",
+  "role": "石壁村的村長，老獵戶，年輕時一個人打死過一頭熊",
   "talk": ""
  },
  "sb_lin": {
@@ -39,6 +39,38 @@
   "look": "farmer",
   "home": "shibi",
   "role": "村長的孫子，上山採藥",
+  "talk": ""
+ },
+ "sb_feng": {
+  "surname": "封",
+  "name": "封老七",
+  "gender": "男",
+  "born": -43,
+  "look": "hunter",
+  "job": "獵戶",
+  "base": {
+   "strength": 15,
+   "agility": 13,
+   "constitution": 14,
+   "energy": 8,
+   "insight": 10
+  },
+  "skills": {
+   "basic-fist": 3
+  },
+  "home": "shibi",
+  "role": "村裡最好的獵戶，弓不離身",
+  "talk": ""
+ },
+ "sb_cen": {
+  "surname": "岑",
+  "name": "岑姑",
+  "gender": "女",
+  "born": -37,
+  "look": "aunt",
+  "job": "藥農",
+  "home": "shibi",
+  "role": "村裡的藥農，常在雲嶺上採藥，認得山裡每一條小路",
   "talk": ""
  }
 }

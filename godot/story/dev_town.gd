@@ -4,7 +4,7 @@
 
 ## run:dev_town/parse 載入樣板與府城的劇情檔（檢查有沒有語法錯誤），印出今日事與任務
 static func parse(_ctx: Ctx) -> void:
-	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd", "res://story/sanglin.gd", "res://story/qiansi.gd"]:
+	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd", "res://story/sanglin.gd", "res://story/qiansi.gd", "res://story/yunling.gd", "res://story/shibi.gd", "res://story/wuyazhai.gd"]:
 		print("TOWN 載入 %s：%s" % [p, "好" if load(p) != null else "失敗"])
 	G.flags["yz_berth"] = 2
 	G.life.loan = {"owe": 120, "due": G.day + 2, "day": G.day}
@@ -80,6 +80,58 @@ static func data(_ctx: Ctx) -> void:
 			errs.append("%s 補上的房子不對" % c.name)
 		Biz.shops().erase(ls[1].id if ls.size() > 1 else "")
 	print("TOWN 資料問題：%s" % ("沒有" if errs.is_empty() else "；".join(errs)))
+
+
+## run:dev_town/wild 檢查手工的野外地圖：出口、有腳本的擺設、人都走得到（旁邊有一格從出生點走得到）
+const WILD := ["yunling", "wuyazhai", "canglan"]
+
+
+static func wild(_ctx: Ctx) -> void:
+	for map in WILD:
+		var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/%s.json" % map))
+		var W: int = (d.tiles[0] as String).length()
+		var H: int = d.tiles.size()
+		var blocked := {}
+		for y in H:
+			for x in W:
+				if "^~fTYoWHXR".contains((d.tiles[y] as String)[x]):
+					blocked[Vector2i(x, y)] = true
+		for b in d.buildings:
+			var fp := Village.footprint(b)
+			for yy in range(int(b.y), int(b.y) + fp.y):
+				for xx in range(int(b.x), int(b.x) + fp.x):
+					blocked[Vector2i(xx, yy)] = true
+		for p in d.props:
+			if not p.get("passable", false):
+				for i in int(p.w):
+					blocked[Vector2i(int(p.x) + i, int(p.y))] = true
+		var seen := {Vector2i(d.spawn.x, d.spawn.y): true}
+		var q := [Vector2i(d.spawn.x, d.spawn.y)]
+		while q.size() > 0:
+			var p: Vector2i = q.pop_back()
+			for dv in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var n: Vector2i = p + dv
+				if n.x < 0 or n.y < 0 or n.x >= W or n.y >= H or seen.has(n) or blocked.has(n):
+					continue
+				seen[n] = true
+				q.append(n)
+		var near := func(x: int, y: int, w: int) -> bool:
+			for i in w:
+				for dv in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(0, 0)]:
+					if seen.has(Vector2i(x + i, y) + dv):
+						return true
+			return false
+		var errs := []
+		for e in d.exits:
+			if not e.tiles.any(func(t): return seen.has(Vector2i(t[0], t[1]))):
+				errs.append("出口往 %s 走不到" % e.get("worldFrom", e.get("to", "?")))
+		for p in d.props:
+			if p.get("script", "") != "" and not near.call(int(p.x), int(p.y), int(p.w)):
+				errs.append("擺設 %s (%d,%d) 走不到" % [p.script, p.x, p.y])
+		for n in d.npcs:
+			if not near.call(int(n.x), int(n.y), 1):
+				errs.append("%s (%d,%d) 走不到" % [n.name, n.x, n.y])
+		print("TOWN 野外 %s：%s" % [map, "沒有問題" if errs.is_empty() else "；".join(errs)])
 
 
 static func check(_ctx: Ctx) -> void:

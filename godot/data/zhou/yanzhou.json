@@ -425,10 +425,34 @@
    "kind": "wild",
    "x": 836,
    "y": 624,
-   "desc": "大江南岸連綿的群山，雲霧終年不散。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "desc": "大江南岸連綿的群山，雲霧終年不散。山道半路有座半山亭，往西到石壁村，往東南進雲門瀑。",
+   "locked": false,
+   "enter": {
+    "map": "yunling",
+    "x": 9,
+    "y": 1,
+    "facing": "down"
+   },
+   "enterFrom": {
+    "jiangnandu": {
+     "map": "yunling",
+     "x": 9,
+     "y": 1,
+     "facing": "down"
+    },
+    "shibi": {
+     "map": "yunling",
+     "x": 1,
+     "y": 30,
+     "facing": "right"
+    },
+    "yunmen": {
+     "map": "yunling",
+     "x": 38,
+     "y": 44,
+     "facing": "up"
+    }
+   },
    "rest": null
   },
   {
@@ -751,9 +775,27 @@
    "x": 786,
    "y": 629,
    "desc": "雲嶺西段山頭上的山寨，居高臨下看得到往東嶺口的官道。寨裡的人劫商隊、向石壁村收山稅，聽說斷崖寨的餘黨也投奔了這裡。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "locked": false,
+   "enter": {
+    "map": "wuyazhai",
+    "x": 38,
+    "y": 39,
+    "facing": "left"
+   },
+   "enterFrom": {
+    "shibi": {
+     "map": "wuyazhai",
+     "x": 38,
+     "y": 39,
+     "facing": "left"
+    },
+    "duanji": {
+     "map": "wuyazhai",
+     "x": 1,
+     "y": 40,
+     "facing": "right"
+    }
+   },
    "rest": null
   },
   {

@@ -203,6 +203,54 @@
     "e_heavy"
    ],
    "ai": "grunt"
+  },
+  "wolf": {
+   "name": "山狼",
+   "sprite": "dog",
+   "hp": 135,
+   "atk": 28,
+   "def": 5,
+   "spd": 14,
+   "eva": 0.1,
+   "moves": [
+    "e_bite",
+    "e_pounce"
+   ],
+   "ai": "grunt",
+   "drops": [
+    {
+     "item": "dog_pelt",
+     "chance": 0.5
+    }
+   ]
+  },
+  "wy_grunt": {
+   "name": "霧鴉寨嘍囉",
+   "sprite": "bandit",
+   "hp": 170,
+   "atk": 30,
+   "def": 8,
+   "spd": 11,
+   "eva": 0.06,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "wy_sentry": {
+   "name": "霧鴉寨哨兵",
+   "sprite": "bandit",
+   "hp": 185,
+   "atk": 33,
+   "def": 8,
+   "spd": 12,
+   "eva": 0.06,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -766,6 +814,74 @@
    "silver": 20,
    "points": 4,
    "scale": 0.89
+  },
+  "wolf": {
+   "enemies": [
+    "wolf"
+   ],
+   "background": "mountain",
+   "intro": "一頭山狼從霧裡竄了出來，眼睛綠幽幽的！",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.4,
+   "points": 1
+  },
+  "wolves": {
+   "enemies": [
+    "wolf",
+    "wolf"
+   ],
+   "background": "mountain",
+   "intro": "霧裡響起一聲狼嚎，兩頭山狼一前一後圍了上來！",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.5,
+   "points": 2
+  },
+  "wy_collectors": {
+   "enemies": [
+    "wy_grunt",
+    "wy_grunt"
+   ],
+   "background": "mountain",
+   "intro": "兩個收山稅的嘍囉把扁擔一扔，抽出了刀。",
+   "canFlee": true,
+   "silver": 8,
+   "points": 3
+  },
+  "wy_sentries": {
+   "enemies": [
+    "wy_sentry",
+    "wy_sentry"
+   ],
+   "background": "mountain",
+   "intro": "寨門口的哨兵一聲呼哨：「有人闖寨！」",
+   "canFlee": true,
+   "silver": 10,
+   "points": 3
+  },
+  "wy_qi": {
+   "enemies": [
+    "person:qisandao",
+    "wy_grunt"
+   ],
+   "background": "camp",
+   "intro": "祁三刀把大刀往地上一頓：「好小子，追到這兒來了！」",
+   "canFlee": true,
+   "silver": 20,
+   "points": 5,
+   "scale": 1.03
+  },
+  "wy_nie": {
+   "enemies": [
+    "person:wy_nie"
+   ],
+   "background": "camp",
+   "intro": "聶寒鴉慢慢站起來，把披風一甩：「霧鴉寨立寨十年，還沒人走到這張椅子前面。」",
+   "canFlee": true,
+   "silver": 60,
+   "points": 8,
+   "scale": 1.09
   }
  }
 }

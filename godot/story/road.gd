@@ -8,7 +8,9 @@
 const CHANCE := 0.18
 const MAX_PER_DAY := 2
 ## 路險不險（劫道的毛賊）：照路名，沒寫的是 0.05
-const DANGER := {"沿江大道": 0.15, "北嶺官道": 0.15, "南嶺古道": 0.12, "蒼嵐山道": 0.12, "雲水官道": 0.06, "湖畔小路": 0.04}
+const DANGER := {"沿江大道": 0.15, "北嶺官道": 0.15, "南嶺古道": 0.12, "蒼嵐山道": 0.12, "雲水官道": 0.06, "湖畔小路": 0.04, "雲嶺山路": 0.15, "鴉嶺小路": 0.25}
+## 霧鴉寨平了以後（wy_cleared），這幾條路的險度只剩三成
+const WUYA_ROADS := ["雲嶺山路", "鴉嶺小路", "東嶺官道"]
 
 ## [id, 權重, 冷卻天數]
 const EVENTS := [
@@ -62,7 +64,10 @@ static func maybe(ctx: Ctx) -> void:
 static func view(road: String, near: Array) -> Dictionary:
 	var s := G.shichen_of()
 	var period := "dawn" if s == 3 else ("dusk" if s == 9 else ("day" if s >= 4 and s <= 8 else "night"))
-	return {"road": road, "near": near, "period": period, "weather": G.weather, "season": SEASONS[G.season_of()], "danger": float(DANGER.get(road, 0.05))}
+	var danger := float(DANGER.get(road, 0.05))
+	if road in WUYA_ROADS and int(G.flags.get("wy_cleared", 0)) > 0:
+		danger *= 0.3
+	return {"road": road, "near": near, "period": period, "weather": G.weather, "season": SEASONS[G.season_of()], "danger": danger}
 
 
 static func _ok(id: String, v: Dictionary) -> bool:

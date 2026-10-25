@@ -1,0 +1,36 @@
+{
+ "_note": "霧鴉寨的人（PLAN.md 4.46）：雲嶺西段的山寨。祁三刀在蒼嵐山敗了以後投奔這裡（人物在 canglan.json）。",
+ "wy_nie": {
+  "surname": "聶",
+  "given": "寒鴉",
+  "gender": "男",
+  "born": -45,
+  "look": "boss",
+  "job": "山賊",
+  "traits": [
+   "陰沉"
+  ],
+  "tags": [
+   "匪"
+  ],
+  "ai": "boss",
+  "base": {
+   "strength": 17,
+   "agility": 14,
+   "constitution": 16,
+   "energy": 10,
+   "insight": 12
+  },
+  "skills": {
+   "changfeng": 6,
+   "breathing": 4
+  },
+  "faction": {
+   "sect": "wuyazhai",
+   "rank": 2
+  },
+  "home": "wuyazhai",
+  "role": "霧鴉寨寨主。早年是東嶺口的逃兵，帶著幾個兄弟上了山",
+  "talk": ""
+ }
+}

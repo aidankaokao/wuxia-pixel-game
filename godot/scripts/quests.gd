@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth(), cx_salt(), sl_tribute()]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth(), cx_salt(), sl_tribute(), sb_tax()]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -149,6 +149,19 @@ static func sl_tribute() -> Dictionary:
 		"desc": "桑林織造局的小姑娘桑小絃說，管工廖貴剋扣繡娘織工的工錢，病了也不准歇，夜裡還從後門偷運貢緞出去。",
 		"steps": [["答應小絃，去問督造柏文淵", true], ["督造要憑據", s >= 2], ["戌時以後到織造局東牆的後門看看", s >= 3], ["把廖貴的私帳交給督造", s == 4]],
 		"reward": "銀兩 50、名聲 5"}
+
+
+## 山稅（story/shibi.gd、story/wuyazhai.gd）：霧鴉寨向石壁村收山稅
+static func sb_tax() -> Dictionary:
+	var s := _f("sb_tax")
+	if s == 0:
+		return {}
+	var steps := [["答應村長岳鎮山", true], ["打跑村口收稅的嘍囉", s >= 2], ["上鴉嶺，平了霧鴉寨", s >= 4 or _f("wy_cleared") > 0], ["回石壁村向村長覆命", s == 5]]
+	if _f("bandit_boss") > 0:
+		steps.insert(3, ["寨裡的祁三刀", _f("wy_qi") > 0])
+	return {"id": "sb_tax", "title": "山稅", "giver": "岳鎮山", "place": "雲嶺・石壁村、霧鴉寨", "done": s == 5,
+		"desc": "雲嶺西段鴉嶺上的霧鴉寨，每旬下山向石壁村收「山稅」，交不出來就砸鍋搶人。村長岳鎮山託你想想辦法。",
+		"steps": steps, "reward": "銀兩 60、名聲，山貨舖八折"}
 
 
 ## 鳴泉的下山委託（演武廣場的任務榜）

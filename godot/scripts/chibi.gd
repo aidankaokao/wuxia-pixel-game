@@ -37,6 +37,8 @@ const LOOKS := {
 	# 千絲坊的繡娘、坊主
 	"embroiderer": {"robe": "c8a8c4", "trim": "f8f0f8", "sash": "8a3a6a", "hair": "2a2228", "style": "long", "girl": true},
 	"embroid_master": {"robe": "5a3a5a", "trim": "e8d8e8", "sash": "c9a46a", "hair": "a8a4a0", "style": "bun", "girl": true},
+	# 山裡的獵戶
+	"hunter": {"robe": "6a5a3a", "trim": "c8b890", "sash": "8a3a2a", "hair": "2a2228", "style": "band", "arms": true},
 	"dog": {"animal": "dog"},
 	"boar": {"animal": "boar"},
 }

@@ -26,7 +26,7 @@ const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tav
 	"mq_hall", "mq_dorm", "mq_room_a", "mq_room_b", "mq_cell_1", "mq_cell_2", "mq_train", "mq_lib", "mq_armory", "mq_med", "mq_kitchen",
 	"bp_inn", "bp_trader", "bp_ship", "bp_shrine"]
 ## 做好的室外地圖（出入口通到這些就換過去）
-const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "mq_farm", "mq_ridge", "dabutou"]
+const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "mq_farm", "mq_ridge", "dabutou", "yunling", "wuyazhai"]
 ## 依狀態產生的室內（自宅 home:空地id、房產 prop:物件id），由這些劇情檔的 room_data 給地圖資料
 const GEN_ROOMS := {"home:": "res://story/estate.gd", "prop:": "res://story/property.gd", "town:": "res://scripts/town_gen.gd"}
 ## 載入室外地圖資料時，依狀態補上東西的劇情檔（patch_map：自宅的空地與房子、名下房產的門與店名）
