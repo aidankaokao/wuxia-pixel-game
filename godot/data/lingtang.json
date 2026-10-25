@@ -1,0 +1,592 @@
+{
+ "id": "lingtang",
+ "name": "菱塘村",
+ "subtitle": "煙湖東岸・菱角船",
+ "tiles": [
+  "~~~~~~~~~~.........T::...............*..",
+  "~~~~~~~~~~..........::....T..*..........",
+  "~~~~~~~~~~~.........::.*ffffffffffff....",
+  "~~~~~~~~~~~.........::..fnnnnnnnnnnf....",
+  "~~~~~~~~~~~.........::...nnnnnnnnnnf....",
+  "~~~~~~~~~~~...*.....::..fnnnnnnnnnnf....",
+  "~~~~~~~~~~~..*..T...::..ffffffffffff.T..",
+  "~~~~~~~~~~~.........::..T...............",
+  "~~~~~~~~~~~.T.......::..................",
+  "~~~~~~~~~~..........::.*............*...",
+  "~~~~~~~~~~..........::.......T.......*..",
+  "~~~~~~~~~..T........::..................",
+  "~~~~~~~~~..T........::......T...........",
+  "~~~~~~~~~..T........::................T.",
+  "~~~~~~~~~..........T::..................",
+  "~~~######:::::::::::::::::::::::::::..*.",
+  "~~~######:::::::::::::::::::::::::::.T..",
+  "~~~~~~~~~.TT........::......*...........",
+  "~~~~~~~~~~..........::......*...........",
+  "~~~~~~~~~~..........::..................",
+  "~~~~~~~~~~~.........::..................",
+  "~~~~~~~~~~~T........::...............T..",
+  "~~~~~~~~~~~.........::............T.T...",
+  "~~~~~~~~~~~T........::.................*",
+  "~~~~~~~~~~~T.ff.fff.::..*........T.....T",
+  "~~~~~~~~~~~..f....f.::..ffffffffffff....",
+  "~~~~~~~~~~~..f....f*::..fnnnnnnnnnnf....",
+  "~~~~~~~~~~~.Tf....f.::...nnnnnnnnnnf.*..",
+  "~~~~~~~~~~...ffffff.::*.fnnnnnnnnnnf....",
+  "~~~~~~~~~~..........::..ffffffffffff.*..",
+  "~~~~~~~~~.....T....T::......T.....*.....",
+  "~~~~~~~~~...........::...T....*.**......"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 20,
+  "y": 1,
+  "facing": "down"
+ },
+ "gate_spawn": {
+  "n": {
+   "map": "lingtang",
+   "x": 20,
+   "y": 1,
+   "facing": "down"
+  },
+  "s": {
+   "map": "lingtang",
+   "x": 20,
+   "y": 30,
+   "facing": "up"
+  }
+ },
+ "buildings": [
+  {
+   "style": "hall",
+   "x": 12,
+   "y": 9,
+   "face": "s",
+   "name": "卞家",
+   "sign": "卞家",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "plaque": true
+   },
+   "enter": {
+    "to": "town:lingtang:0",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house2",
+   "x": 13,
+   "y": 18,
+   "face": "n",
+   "name": "菱塘小舖",
+   "sign": "菱塘小舖",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:lingtang:1",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "雜"
+  },
+  {
+   "style": "house2",
+   "x": 23,
+   "y": 10,
+   "face": "s",
+   "name": "侯家木匠",
+   "sign": "侯家木匠",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:lingtang:2",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "木"
+  },
+  {
+   "style": "home1",
+   "x": 31,
+   "y": 9,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門口掛著一串串風乾的菱角。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860"
+   }
+  },
+  {
+   "style": "home2",
+   "x": 23,
+   "y": 18,
+   "face": "n",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門關著，屋簷下兩隻鴨子在打盹。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860"
+   }
+  }
+ ],
+ "props": [
+  {
+   "id": "",
+   "sprite": "ducks",
+   "x": 15,
+   "y": 26,
+   "w": 2,
+   "lines": [
+    {
+     "text": "棚裡一窩剛孵出來的小鴨，黃絨絨的，擠成一團。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "log_pile",
+   "x": 29,
+   "y": 12,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一堆楊木料，侯木匠說要做菱角船。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "boat",
+   "x": 4,
+   "y": 14,
+   "w": 3,
+   "lines": [],
+   "label": "菱角船",
+   "script": "lingtang/boat",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "boat",
+   "x": 4,
+   "y": 17,
+   "w": 3,
+   "lines": [
+    {
+     "text": "一條舊菱角船，船底補過好幾回。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "ducks",
+   "x": 7,
+   "y": 22,
+   "w": 3,
+   "lines": [
+    {
+     "text": "柴老鴨的鴨群在湖上划水，頭鴨脖子上繫著一根紅布條。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "caltrop",
+   "x": 2,
+   "y": 4,
+   "w": 2,
+   "lines": [
+    {
+     "text": "湖面上一片片菱葉，葉子底下藏著菱角。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "caltrop",
+   "x": 5,
+   "y": 8,
+   "w": 2,
+   "lines": [
+    {
+     "text": "湖面上一片片菱葉，葉子底下藏著菱角。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "caltrop",
+   "x": 1,
+   "y": 11,
+   "w": 2,
+   "lines": [
+    {
+     "text": "湖面上一片片菱葉，葉子底下藏著菱角。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "caltrop",
+   "x": 2,
+   "y": 21,
+   "w": 2,
+   "lines": [
+    {
+     "text": "湖面上一片片菱葉，葉子底下藏著菱角。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "caltrop",
+   "x": 5,
+   "y": 26,
+   "w": 2,
+   "lines": [
+    {
+     "text": "湖面上一片片菱葉，葉子底下藏著菱角。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "caltrop",
+   "x": 1,
+   "y": 29,
+   "w": 2,
+   "lines": [
+    {
+     "text": "湖面上一片片菱葉，葉子底下藏著菱角。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lotus",
+   "x": 3,
+   "y": 1,
+   "w": 2,
+   "lines": [
+    {
+     "text": "幾片荷葉，是從南邊荷堤那兒漂過來的。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lotus",
+   "x": 6,
+   "y": 30,
+   "w": 2,
+   "lines": [
+    {
+     "text": "幾片荷葉，是從南邊荷堤那兒漂過來的。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "reeds",
+   "x": 10,
+   "y": 3,
+   "w": 1,
+   "lines": [
+    {
+     "text": "湖邊的蘆葦，風一吹沙沙響。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "reeds",
+   "x": 8,
+   "y": 12,
+   "w": 1,
+   "lines": [
+    {
+     "text": "湖邊的蘆葦，風一吹沙沙響。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "reeds",
+   "x": 10,
+   "y": 20,
+   "w": 1,
+   "lines": [
+    {
+     "text": "湖邊的蘆葦，風一吹沙沙響。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "reeds",
+   "x": 8,
+   "y": 30,
+   "w": 1,
+   "lines": [
+    {
+     "text": "湖邊的蘆葦，風一吹沙沙響。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 7,
+   "y": 17,
+   "w": 1,
+   "lines": [],
+   "label": "釣魚",
+   "script": "lingtang/fish",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 10,
+   "y": 6,
+   "w": 1,
+   "lines": [],
+   "label": "釣魚",
+   "script": "lingtang/fish",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 22,
+   "y": 14,
+   "w": 1,
+   "lines": [
+    {
+     "text": "村裡的井。井水有點腥，村裡人說是湖水滲進來的。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "bulletin",
+   "x": 19,
+   "y": 12,
+   "w": 1,
+   "lines": [],
+   "label": "看告示",
+   "script": "town/board",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 22,
+   "y": 1,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「菱塘村」\n北：湖堤小路（往三塘鎮）　南：十里荷堤"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     20,
+     0
+    ],
+    [
+     21,
+     0
+    ]
+   ],
+   "world": "lingtang",
+   "worldFrom": "santang"
+  },
+  {
+   "tiles": [
+    [
+     20,
+     31
+    ],
+    [
+     21,
+     31
+    ]
+   ],
+   "world": "lingtang",
+   "worldFrom": "hedi"
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [
+  {
+   "id": "lt_xiaoling",
+   "name": "卞小菱",
+   "sprite": "",
+   "x": 7,
+   "y": 15,
+   "facing": "up",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "lingtang/xiaoling",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "lt_chai",
+   "name": "柴老鴨",
+   "sprite": "",
+   "x": 15,
+   "y": 23,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "lingtang/chai",
+   "when": "",
+   "talks": []
+  }
+ ],
+ "ring": 18,
+ "lots": [
+  {
+   "id": "lingtang_lot1",
+   "name": "村東空地",
+   "x": 29,
+   "y": 17
+  }
+ ]
+}

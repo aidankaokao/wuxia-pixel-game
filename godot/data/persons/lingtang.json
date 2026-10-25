@@ -1,5 +1,5 @@
 {
- "_note": "菱塘村的人（PLAN.md 4.41 樣板村）。",
+ "_note": "菱塘村的人（PLAN.md 4.41 樣板村、4.48 手工地圖）。",
  "lt_bian": {
   "surname": "卞",
   "given": "守田",
@@ -9,7 +9,7 @@
   "look": "elder",
   "job": "農",
   "home": "lingtang",
-  "role": "菱塘村的村長",
+  "role": "菱塘村的村長，種稻也採菱，一年挑兩回米到三塘鎮去賣",
   "talk": ""
  },
  "lt_ning": {
@@ -40,6 +40,18 @@
   "look": "girl",
   "home": "lingtang",
   "role": "村長的女兒，划菱角船的好手",
+  "talk": ""
+ },
+ "lt_chai": {
+  "surname": "柴",
+  "name": "柴老鴨",
+  "gender": "男",
+  "born": -51,
+  "life_roll": 6,
+  "look": "farmer",
+  "job": "鴨倌",
+  "home": "lingtang",
+  "role": "村裡養鴨的，一根竹竿趕得動三百隻鴨子",
   "talk": ""
  }
 }

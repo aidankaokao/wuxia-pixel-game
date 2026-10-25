@@ -4,7 +4,7 @@
 
 ## run:dev_town/parse 載入樣板與府城的劇情檔（檢查有沒有語法錯誤），印出今日事與任務
 static func parse(_ctx: Ctx) -> void:
-	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd", "res://story/sanglin.gd", "res://story/qiansi.gd", "res://story/yunling.gd", "res://story/shibi.gd", "res://story/wuyazhai.gd", "res://story/scenic.gd", "res://story/stay.gd"]:
+	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd", "res://story/sanglin.gd", "res://story/qiansi.gd", "res://story/yunling.gd", "res://story/shibi.gd", "res://story/wuyazhai.gd", "res://story/scenic.gd", "res://story/stay.gd", "res://story/santang.gd", "res://story/lingtang.gd", "res://story/wuya.gd"]:
 		print("TOWN 載入 %s：%s" % [p, "好" if load(p) != null else "失敗"])
 	G.flags["yz_berth"] = 2
 	G.life.loan = {"owe": 120, "due": G.day + 2, "day": G.day}
@@ -84,10 +84,12 @@ static func data(_ctx: Ctx) -> void:
 
 ## run:dev_town/wild 檢查手工的野外地圖：出口、有腳本的擺設、人都走得到（旁邊有一格從出生點走得到）
 const WILD := ["yunling", "wuyazhai", "canglan", "yunmen", "duanji", "tingtao", "fuyu", "wangyan", "duanbei", "hedi"]
+## 手工的鎮與村也照樣查有腳本的擺設與人（門口、空地另由 check 查）
+const HAND := ["shibi", "santang", "lingtang", "wuya"]
 
 
 static func wild(_ctx: Ctx) -> void:
-	for map in WILD:
+	for map in WILD + HAND:
 		var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/%s.json" % map))
 		var W: int = (d.tiles[0] as String).length()
 		var H: int = d.tiles.size()

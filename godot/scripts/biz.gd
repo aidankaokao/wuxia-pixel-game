@@ -660,7 +660,11 @@ const SUPPLIERS := [
 		"desc": "出海打回來的海魚、鮮蝦、海帶，產地價最便宜。路遠，遇上風浪就斷貨。"},
 	{"id": "bp_trader", "town": "dabutou", "name": "海商會館", "contact": "駱千帆", "where": "大埠頭・海商會館", "ratio": 0.76, "freight": 1.5, "reliable": 0.9, "storm": 0.75,
 		"desc": "南來北往的海商帶來的糖、乾貨、香料與雜貨，量大價低，從大埠頭一路運過來。"},
+	{"id": "wy_tea", "town": "wuya", "name": "霧芽茶舖", "contact": "談雪芽", "where": "霧芽村・霧芽茶舖", "ratio": 0.7, "freight": 1.0, "reliable": 0.93, "storm": 0.85,
+		"desc": "北嶺南坡自家炒的茶：霧芽春茶、雲霧、清茶（明前茶不外賣）。產地價便宜，山路下雨就難走。"},
 ]
+## 霧芽茶舖供的茶
+const TEAS := ["wuya_tea", "yunwu", "tea"]
 ## 合約：期限、簽約費、折扣
 const TERMS := [
 	{"id": "month", "name": "一個月", "days": 30, "fee": 20, "disc": 0.0},
@@ -724,6 +728,8 @@ static func sup_goods(sup: String, id: String) -> bool:
 			return id in lake
 		"bp_pang":
 			return id in SEA
+		"wy_tea":
+			return id in TEAS
 		"bp_trader":
 			return (d.category == "雜物" or (food and p >= 3)) and not fish and p <= 40 and not d.has("manual") and not id.begins_with("stone_") and not id in SEA and not id in lake
 	return false

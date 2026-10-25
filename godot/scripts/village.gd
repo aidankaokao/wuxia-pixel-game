@@ -1373,6 +1373,46 @@ func _prop(p: Dictionary) -> void:
 			for i in int(w * 3):
 				var fx := -w / 2.0 + 0.3 + i * (w - 0.6) / maxf(1, w * 3 - 1)
 				g.add_child(Mk.box(Vector3(0.1, 0.8, 0.03), hues[i % hues.size()], Vector3(fx, 1.12, 0)))
+		"sacks":
+			# 米袋：兩層麻袋堆在一起
+			for i in int(w * 2):
+				var sx := -w / 2.0 + 0.25 + i * 0.5
+				g.add_child(Mk.box(Vector3(0.42, 0.3, 0.55), Color("c8b48a").darkened(0.06 * (i % 2)), Vector3(sx, 0.15, 0)))
+				if i % 2 == 0 and i + 1 < int(w * 2):
+					g.add_child(Mk.box(Vector3(0.42, 0.28, 0.5), Color("d8c49a"), Vector3(sx + 0.25, 0.44, 0.02)))
+		"ducks":
+			# 鴨子：白身子、橘嘴，一隻隻浮在水上（陸上的也照樣畫，矮一點）
+			var on_water := tile(p.x, p.y) == "~"
+			for i in int(w * 2):
+				var q := Vector3(-w / 2.0 + 0.25 + i * (w - 0.5) / maxf(1, w * 2 - 1), -0.12 if on_water else 0.0, (Mk.h01(i, p.x) - 0.5) * 0.6)
+				g.add_child(Mk.ball(0.16, Color("f4f0e6"), q + Vector3(0, 0.12, 0), 8))
+				g.add_child(Mk.ball(0.09, Color("f4f0e6") if i % 3 else Color("3a6a4a"), q + Vector3(0.12, 0.26, 0), 7))
+				g.add_child(Mk.box(Vector3(0.1, 0.04, 0.06), Color("e08a2a"), q + Vector3(0.22, 0.25, 0)))
+		"caltrop":
+			# 菱葉：一叢叢菱形的小葉子平鋪在水面
+			for i in w * 3:
+				var q := Vector3(-w / 2.0 + 0.3 + i * (w - 0.6) / maxf(1, w * 3 - 1), -0.16, (Mk.h01(i, p.y * 3) - 0.5) * 0.7)
+				var lf := Mk.cyl(0.18, 0.18, 0.02, Season.tint(Color("3e6a32"), "tree"), q, 4)
+				lf.rotation.y = Mk.h01(i, p.x) * PI
+				g.add_child(lf)
+		"tea_row":
+			# 茶壟：一行修剪得圓圓的矮茶樹
+			for i in w * 2:
+				var q := Vector3(-w / 2.0 + 0.25 + i * 0.5, 0, (Mk.h01(i, p.y) - 0.5) * 0.1)
+				var tone := Season.tint(Color("2f6a36").lerp(Color("4a8a3e"), Mk.h01(p.x + i, p.y)), "evergreen")
+				var b := Mk.ball(0.34, tone, q + Vector3(0, 0.3, 0), 8)
+				b.scale = Vector3(1, 0.8, 1.15)
+				g.add_child(b)
+				if G.season_of() == 0:
+					g.add_child(Mk.ball(0.12, Color("8ac860"), q + Vector3(0, 0.58, 0), 6))
+		"tea_stove":
+			# 炒茶灶：磚砌的灶台、一口斜放的大鐵鍋
+			g.add_child(Mk.box(Vector3(0.9, 0.7, 0.7), Color("9a6a52"), Vector3(0, 0.35, 0)))
+			g.add_child(Mk.box(Vector3(0.3, 0.22, 0.05), Color("2a1a14"), Vector3(0, 0.22, 0.36)))
+			var wok := Mk.cyl(0.36, 0.12, 0.14, Color("3a3a40"), Vector3(0, 0.74, 0), 12)
+			wok.rotation.x = -0.35
+			g.add_child(wok)
+			g.add_child(Mk.ball(0.12, Season.tint(Color("5a8a3a"), "evergreen"), Vector3(0, 0.78, 0), 6))
 		"chest", "chest_open":
 			var wood := Color("7a4a26")
 			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.45), wood, Vector3(0, 0.2, 0)))

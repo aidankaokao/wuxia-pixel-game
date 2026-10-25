@@ -1,0 +1,598 @@
+{
+ "id": "wuya",
+ "name": "霧芽村",
+ "subtitle": "北嶺南坡的茶村",
+ "tiles": [
+  "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+  "^^................................~.^^^^",
+  "^^................................~.^^^^",
+  "^^................................~.^^^^",
+  "^^................::::::::::......~T^^^^",
+  "^^................::..............~.^^^^",
+  "^^................::..............~.^^^^",
+  "^^................::..............~.^^^^",
+  "^^................::..............~T^^^^",
+  "^^................::..............~.^^^^",
+  "^^................::..............~.^^^^",
+  "^^................::..............~.^^^^",
+  "^^................::..............~.^^^^",
+  "^^................::..............~.^^^^",
+  "^^..........T.....::..............~...*.",
+  "^^................::..T......*.T..~.....",
+  ".*................::T.T...T.....T.~....*",
+  "..................::...T..........~.....",
+  ".T..............T.::..............~...T.",
+  "..................::..............~.....",
+  "..................::..............~.*...",
+  "...T..............::..............~.....",
+  "..T:::::::::::::::::::::::::::::::#:::::",
+  "...:::::::::::::::::::::::::::::::#:::::",
+  "..........TT......::T.............~.....",
+  "..................::..............~.....",
+  ".........T........::..............~.T...",
+  "..................::..............~....T",
+  ".*.......*........::..............~.....",
+  "..ffff.fff........::.fffff.fffff..~....T",
+  "..fnnnnnnf........::.fnnnnnnnnnfT.~.T...",
+  "..fnnnnnnf..*....T::.fnnnnnnnnnf*.~.....",
+  "..ffffffff........::.fffffffffff..~.....",
+  ".......*..........::..............~....."
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 18,
+  "y": 32,
+  "facing": "up"
+ },
+ "gate_spawn": {
+  "s": {
+   "map": "wuya",
+   "x": 18,
+   "y": 32,
+   "facing": "up"
+  },
+  "e": {
+   "map": "wuya",
+   "x": 38,
+   "y": 22,
+   "facing": "left"
+  }
+ },
+ "buildings": [
+  {
+   "style": "home1",
+   "x": 25,
+   "y": 1,
+   "face": "s",
+   "name": "老茶寮",
+   "door": [
+    {
+     "text": "茶寮的門板歪了一半，裡頭黑漆漆的。"
+    }
+   ],
+   "st": {
+    "w": 4,
+    "h": 3,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860"
+   }
+  },
+  {
+   "style": "hall",
+   "x": 4,
+   "y": 17,
+   "face": "s",
+   "name": "茅家",
+   "sign": "茅家",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "plaque": true
+   },
+   "enter": {
+    "to": "town:wuya:0",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house2",
+   "x": 11,
+   "y": 18,
+   "face": "s",
+   "name": "霧芽茶舖",
+   "sign": "霧芽茶舖",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:wuya:1",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "雜"
+  },
+  {
+   "style": "home1",
+   "x": 21,
+   "y": 18,
+   "face": "s",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門口的竹簍裡還有半簍沒挑完的茶青。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860"
+   }
+  },
+  {
+   "style": "house2",
+   "x": 27,
+   "y": 18,
+   "face": "s",
+   "name": "茅家木匠",
+   "sign": "茅家木匠",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:wuya:2",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "木"
+  },
+  {
+   "style": "home2",
+   "x": 4,
+   "y": 24,
+   "face": "n",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門關著，窗台上擺著一排晒乾的茶餅。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "home2",
+   "x": 21,
+   "y": 24,
+   "face": "n",
+   "name": "民居",
+   "door": [
+    {
+     "text": "院子裡一個老婆婆在揀茶梗。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860"
+   }
+  },
+  {
+   "style": "house",
+   "x": 27,
+   "y": 24,
+   "face": "n",
+   "name": "談家",
+   "door": [
+    {
+     "text": "談家嫂子的家。門口一雙小小的草鞋，是小芽的。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  }
+ ],
+ "props": [
+  {
+   "id": "",
+   "sprite": "woodpile",
+   "x": 29,
+   "y": 3,
+   "w": 1,
+   "lines": [],
+   "label": "茶寮",
+   "script": "wuya/hut",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 3,
+   "y": 3,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 10,
+   "y": 3,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 3,
+   "y": 6,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 10,
+   "y": 6,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 21,
+   "y": 6,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 27,
+   "y": 6,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 3,
+   "y": 9,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 10,
+   "y": 9,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 21,
+   "y": 9,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 27,
+   "y": 9,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 3,
+   "y": 12,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 10,
+   "y": 12,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 21,
+   "y": 12,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_row",
+   "x": 27,
+   "y": 12,
+   "w": 5,
+   "lines": [],
+   "label": "採茶",
+   "script": "wuya/pick",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "tea_stove",
+   "x": 16,
+   "y": 20,
+   "w": 1,
+   "lines": [],
+   "label": "炒茶",
+   "script": "wuya/stove",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "drying_rack",
+   "x": 11,
+   "y": 16,
+   "w": 2,
+   "lines": [
+    {
+     "text": "竹匾上攤著剛採的茶青，要先晾掉一點水氣才好下鍋。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "log_pile",
+   "x": 32,
+   "y": 20,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一堆杉木料，茅長根說要給茶舖蓋個新的焙茶間。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 20,
+   "y": 21,
+   "w": 1,
+   "lines": [
+    {
+     "text": "山泉引下來的井，水甜得很，談家嫂子說泡茶非用這井水不可。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "bulletin",
+   "x": 17,
+   "y": 24,
+   "w": 1,
+   "lines": [],
+   "label": "看告示",
+   "script": "town/board",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sign",
+   "x": 37,
+   "y": 21,
+   "w": 1,
+   "lines": [
+    {
+     "text": "「霧芽村」\n東：海塘大道（往潮信城）　南：海塘大道（往臨江城）"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 34,
+   "y": 27,
+   "w": 1,
+   "lines": [],
+   "label": "山溪",
+   "script": "wuya/stream",
+   "when": "",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     18,
+     33
+    ],
+    [
+     19,
+     33
+    ]
+   ],
+   "world": "wuya",
+   "worldFrom": "linjiang"
+  },
+  {
+   "tiles": [
+    [
+     39,
+     22
+    ],
+    [
+     39,
+     23
+    ]
+   ],
+   "world": "wuya",
+   "worldFrom": "chaoxin"
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [
+  {
+   "id": "wy_xiaoya",
+   "name": "談小芽",
+   "sprite": "",
+   "x": 9,
+   "y": 7,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "wuya/xiaoya",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "wy_jian",
+   "name": "簡知微",
+   "sprite": "",
+   "x": 30,
+   "y": 4,
+   "facing": "left",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "wuya/jian",
+   "when": "(wy_jian == 1 or (wy_jian == 2 and wy_jian_day == today)) and (shichen >= 10 or shichen <= 1)",
+   "talks": []
+  }
+ ],
+ "ring": 18,
+ "lots": [
+  {
+   "id": "wuya_lot1",
+   "name": "坡下空地",
+   "x": 10,
+   "y": 25
+  }
+ ]
+}

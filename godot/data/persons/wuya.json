@@ -1,5 +1,5 @@
 {
- "_note": "霧芽村的人（PLAN.md 4.41 樣板村）。",
+ "_note": "霧芽村的人（PLAN.md 4.41 樣板村、4.48 手工地圖）。",
  "wy_mao": {
   "surname": "茅",
   "given": "春山",
@@ -40,6 +40,20 @@
   "look": "child",
   "home": "wuya",
   "role": "跟著娘採茶的小丫頭",
+  "talk": ""
+ },
+ "wy_jian": {
+  "surname": "簡",
+  "given": "知微",
+  "gender": "男",
+  "born": -34,
+  "look": "scholar",
+  "job": "書辦",
+  "traits": [
+   "謹慎"
+  ],
+  "home": "yanzhou",
+  "role": "煙州州衙管印信底冊的書辦，不知為什麼躲在霧芽村的茶山上",
   "talk": ""
  }
 }

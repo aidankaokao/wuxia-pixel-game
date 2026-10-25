@@ -1,5 +1,5 @@
 {
- "_note": "三塘鎮的人（PLAN.md 4.41 樣板鎮）。",
+ "_note": "三塘鎮的人（PLAN.md 4.41 樣板鎮、4.48 手工地圖）。",
  "st_huo": {
   "surname": "霍",
   "given": "長安",
@@ -106,6 +106,84 @@
   "job": "船家",
   "home": "santang",
   "role": "在府河上撐了一輩子船",
+  "talk": ""
+ },
+ "st_gou": {
+  "surname": "苟",
+  "given": "四喜",
+  "name": "苟四",
+  "gender": "男",
+  "born": -38,
+  "look": "bandit",
+  "job": "斛手",
+  "traits": [
+   "貪財"
+  ],
+  "base": {
+   "strength": 14,
+   "agility": 12,
+   "constitution": 13,
+   "energy": 9,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 4,
+   "breathing": 2
+  },
+  "faction": {
+   "sect": "qingfu",
+   "rank": 0
+  },
+  "home": "santang",
+  "role": "米市的斛手，替府城青蚨會的米行量米",
+  "talk": ""
+ },
+ "st_zou": {
+  "surname": "鄒",
+  "given": "秉正",
+  "gender": "男",
+  "born": -54,
+  "life_roll": 7,
+  "look": "scholar",
+  "job": "里正",
+  "home": "santang",
+  "role": "三塘鎮的里正，管著鎮上的戶籍與米市的官斗",
+  "talk": ""
+ },
+ "st_gan": {
+  "surname": "甘",
+  "name": "甘老糖",
+  "gender": "男",
+  "born": -58,
+  "life_roll": 7,
+  "look": "peddler",
+  "home": "santang",
+  "role": "趕集日擺攤吹糖人的老頭",
+  "talk": ""
+ },
+ "st_bao": {
+  "surname": "鮑",
+  "given": "大錘",
+  "gender": "男",
+  "born": -36,
+  "look": "escort",
+  "job": "賣藝",
+  "traits": [
+   "豪爽"
+  ],
+  "base": {
+   "strength": 17,
+   "agility": 11,
+   "constitution": 17,
+   "energy": 9,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 3
+  },
+  "home": "santang",
+  "role": "跑碼頭賣藝的漢子，胸口碎大石是他的拿手好戲",
   "talk": ""
  }
 }

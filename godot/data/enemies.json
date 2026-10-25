@@ -251,6 +251,20 @@
     "e_rush"
    ],
    "ai": "grunt"
+  },
+  "rice_thug": {
+   "name": "米行打手",
+   "sprite": "bandit",
+   "hp": 150,
+   "atk": 28,
+   "def": 7,
+   "spd": 11,
+   "eva": 0.06,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -882,6 +896,31 @@
    "silver": 60,
    "points": 8,
    "scale": 1.09
+  },
+  "st_gou": {
+   "enemies": [
+    "person:st_gou",
+    "rice_thug"
+   ],
+   "background": "mountain",
+   "intro": "苟四把斗往地上一摔：「量什麼量！給我打出去！」米行裡衝出一個打手。",
+   "canFlee": true,
+   "silver": 12,
+   "points": 4,
+   "scale": 1.12
+  },
+  "spar_st_bao": {
+   "enemies": [
+    "person:st_bao"
+   ],
+   "background": "mountain",
+   "intro": "鮑大錘把上衣一脫，拍了拍胸口：「來來來，讓鄉親們看看你的本事！」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.6,
+   "points": 1,
+   "spar": true,
+   "scale": 0.56
   }
  }
 }

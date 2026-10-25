@@ -2726,5 +2726,66 @@
    "atk": 9,
    "weapon": "刀"
   }
+ },
+ "duck_egg": {
+  "name": "鴨蛋",
+  "category": "食材",
+  "icon": "egg",
+  "desc": "菱塘村湖邊放養的鴨子下的蛋，蛋黃紅得流油。",
+  "price": 3
+ },
+ "tangren": {
+  "name": "糖人",
+  "category": "藥品",
+  "icon": "sweet",
+  "desc": "甘老糖吹的糖人，一隻小猴子，舔一口甜到心裡。回復體力 8。",
+  "stamina": 8,
+  "price": 1
+ },
+ "tea_leaf": {
+  "name": "茶青",
+  "category": "雜物",
+  "icon": "greens",
+  "desc": "霧芽村茶山上剛採的嫩芽，要趁新鮮炒成茶。茶舖收。",
+  "price": 2
+ },
+ "tea_leaf_mq": {
+  "name": "明前茶青",
+  "category": "雜物",
+  "icon": "greens",
+  "desc": "清明前採的頭春嫩芽，一芽一葉，金貴得很。",
+  "price": 6
+ },
+ "wuya_tea": {
+  "name": "霧芽春茶",
+  "category": "藥品",
+  "icon": "tea",
+  "desc": "霧芽村的春茶，湯色清亮，喝了神清氣爽。回復內力 45、體力 5。",
+  "qi": 45,
+  "stamina": 5,
+  "price": 18
+ },
+ "wuya_mingqian": {
+  "name": "霧芽明前",
+  "category": "藥品",
+  "icon": "tea",
+  "desc": "清明前的頭春霧芽，泉霧茶莊每年搶著收。回復內力 70、體力 15。",
+  "qi": 70,
+  "stamina": 15,
+  "price": 45
+ },
+ "st_guandou": {
+  "name": "官斗",
+  "category": "雜物",
+  "icon": "jar",
+  "desc": "三塘鎮里正借你的官斗，斗沿烙著州衙的印，一斗不多一斗不少。",
+  "price": 0
+ },
+ "wy_note": {
+  "name": "簡知微的字條",
+  "category": "雜物",
+  "icon": "book",
+  "desc": "茶寮裡留下的一張字條：「印在人在，印失人亡。大恩不言謝，他日府城再會。——簡」",
+  "price": 0
  }
 }

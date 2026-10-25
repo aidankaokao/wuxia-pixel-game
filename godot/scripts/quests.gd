@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth(), cx_salt(), sl_tribute(), sb_tax()]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth(), cx_salt(), sl_tribute(), sb_tax(), lt_dou(), wy_jian()]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -162,6 +162,32 @@ static func sb_tax() -> Dictionary:
 	return {"id": "sb_tax", "title": "山稅", "giver": "岳鎮山", "place": "雲嶺・石壁村、霧鴉寨", "done": s == 5,
 		"desc": "雲嶺西段鴉嶺上的霧鴉寨，每旬下山向石壁村收「山稅」，交不出來就砸鍋搶人。村長岳鎮山託你想想辦法。",
 		"steps": steps, "reward": "銀兩 60、名聲，山貨舖八折"}
+
+
+## 大斗小斗（story/lingtang.gd、story/santang.gd）：三塘鎮米市的黑心斗
+static func lt_dou() -> Dictionary:
+	var s := _f("lt_dou")
+	if s == 0:
+		return {}
+	return {"id": "lt_dou", "title": "大斗小斗", "giver": "卞守田", "place": "菱塘村・三塘鎮", "done": s == 5,
+		"desc": "菱塘村的米挑到三塘鎮米市去賣，在家量好的一石，到了米市總少兩三斗。村長卞守田託你去米市看看。",
+		"steps": [["答應村長卞守田", true], ["在三塘鎮米市看斛手苟四量米", s >= 2], ["向里正鄒秉正借官斗", s >= 3], ["當眾比斗，揭穿苟四", s >= 4], ["回菱塘村向村長覆命", s == 5]],
+		"reward": "銀兩 30、鴨蛋、名聲"}
+
+
+## 茶山上的生人（story/wuya.gd）：霧芽村老茶寮裡躲著的書生
+static func wy_jian() -> Dictionary:
+	var s := _f("wy_jian")
+	if s == 0:
+		return {}
+	var steps := [["聽說山頂的老茶寮夜裡有火光", true], ["夜裡上茶寮看看", s >= 2 or _f("gone_wy_jian") > 0]]
+	if s == 4:
+		steps.append(["報給村長，北嶺關的兵把他帶走了", true])
+	else:
+		steps += [["給受傷的書生一帖金創藥", s >= 2], ["他走了以後，回茶寮看看", s >= 3]]
+	return {"id": "wy_jian", "title": "茶山上的生人", "giver": "談小芽", "place": "霧芽村", "done": s >= 3,
+		"desc": "霧芽村山頂的老茶寮，這幾天夜裡都有火光，小芽放在那兒的茶果子也不見了。",
+		"steps": steps, "reward": "看你怎麼做"}
 
 
 ## 鳴泉的下山委託（演武廣場的任務榜）
