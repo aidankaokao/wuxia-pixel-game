@@ -58,104 +58,6 @@
     }
    ]
   },
-  "qinghe": {
-   "name": "柳青禾",
-   "sprite": "girl",
-   "hp": 80,
-   "atk": 13,
-   "def": 2,
-   "spd": 15,
-   "eva": 0.12,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "shiyue": {
-   "name": "石岳",
-   "sprite": "smith",
-   "hp": 340,
-   "atk": 38,
-   "def": 7,
-   "spd": 8,
-   "eva": 0.02,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "xiaoman": {
-   "name": "顧小滿",
-   "sprite": "disciple_girl",
-   "hp": 180,
-   "atk": 28,
-   "def": 4,
-   "spd": 16,
-   "eva": 0.1,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "lumingchuan": {
-   "name": "陸鳴川",
-   "sprite": "sect_senior",
-   "hp": 650,
-   "atk": 50,
-   "def": 10,
-   "spd": 20,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "qizhenyuan": {
-   "name": "齊振遠",
-   "sprite": "disciple",
-   "hp": 320,
-   "atk": 38,
-   "def": 7,
-   "spd": 17,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mengduo": {
-   "name": "孟鐸",
-   "sprite": "disciple",
-   "hp": 380,
-   "atk": 42,
-   "def": 9,
-   "spd": 13,
-   "eva": 0.04,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "hanjingqiu": {
-   "name": "韓靖秋",
-   "sprite": "sect_elder",
-   "hp": 1150,
-   "atk": 74,
-   "def": 15,
-   "spd": 23,
-   "eva": 0.12,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
   "masked": {
    "name": "蒙面人",
    "sprite": "masked",
@@ -245,188 +147,6 @@
      "chance": 1
     }
    ]
-  },
-  "wanderer": {
-   "name": "甘十一",
-   "sprite": "swordsman",
-   "hp": 170,
-   "atk": 24,
-   "def": 5,
-   "spd": 15,
-   "eva": 0.1,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "ruffian": {
-   "name": "地痞",
-   "sprite": "beggar",
-   "hp": 75,
-   "atk": 16,
-   "def": 3,
-   "spd": 11,
-   "eva": 0.05,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "ruffian_lead": {
-   "name": "過江龍蔡三",
-   "sprite": "bandit",
-   "hp": 170,
-   "atk": 22,
-   "def": 5,
-   "spd": 12,
-   "eva": 0.06,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "boss": {
-   "name": "祁三刀",
-   "sprite": "boss",
-   "hp": 340,
-   "atk": 26,
-   "def": 6,
-   "spd": 12,
-   "eva": 0.06,
-   "moves": [
-    "e_slash",
-    "e_heavy"
-   ],
-   "ai": "boss"
-  },
-  "mq_bao": {
-   "name": "包小川",
-   "sprite": "disciple",
-   "hp": 150,
-   "atk": 24,
-   "def": 3,
-   "spd": 15,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_tang": {
-   "name": "唐秋生",
-   "sprite": "disciple",
-   "hp": 170,
-   "atk": 26,
-   "def": 4,
-   "spd": 16,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_zheng": {
-   "name": "鄭大壯",
-   "sprite": "farmer",
-   "hp": 210,
-   "atk": 22,
-   "def": 6,
-   "spd": 12,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_hou": {
-   "name": "侯三郎",
-   "sprite": "farmer",
-   "hp": 140,
-   "atk": 20,
-   "def": 3,
-   "spd": 14,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_qiao": {
-   "name": "喬木生",
-   "sprite": "disciple",
-   "hp": 160,
-   "atk": 22,
-   "def": 4,
-   "spd": 14,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_he": {
-   "name": "何守一",
-   "sprite": "disciple",
-   "hp": 280,
-   "atk": 34,
-   "def": 6,
-   "spd": 16,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_wei": {
-   "name": "韋季安",
-   "sprite": "disciple",
-   "hp": 250,
-   "atk": 30,
-   "def": 5,
-   "spd": 17,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_he_exam": {
-   "name": "何守一",
-   "sprite": "disciple",
-   "hp": 340,
-   "atk": 38,
-   "def": 7,
-   "spd": 17,
-   "eva": 0.08,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
-  },
-  "mq_cao": {
-   "name": "曹小豆",
-   "sprite": "disciple",
-   "hp": 110,
-   "atk": 16,
-   "def": 2,
-   "spd": 13,
-   "eva": 0.1,
-   "moves": [
-    "e_slash",
-    "e_rush"
-   ],
-   "ai": "grunt"
   }
  },
  "encounters": {
@@ -477,7 +197,7 @@
   },
   "spar_qinghe": {
    "enemies": [
-    "qinghe"
+    "person:qinghe"
    ],
    "background": "mountain",
    "intro": "柳青禾抱拳一禮：「請賜教！」",
@@ -485,11 +205,12 @@
    "silver": 0,
    "growth": 0.6,
    "points": 1,
-   "spar": true
+   "spar": true,
+   "scale": 0.9
   },
   "spar_shiyue": {
    "enemies": [
-    "shiyue"
+    "person:shi"
    ],
    "background": "mountain",
    "intro": "石岳捲起袖子：「來，讓我看看你的斤兩。」",
@@ -497,11 +218,12 @@
    "silver": 0,
    "growth": 0.8,
    "points": 2,
-   "spar": true
+   "spar": true,
+   "scale": 0.74
   },
   "trial_xiaoman": {
    "enemies": [
-    "xiaoman"
+    "person:gu"
    ],
    "background": "mountain",
    "intro": "顧小滿抽出木劍，抱拳道：「鳴泉記名弟子顧小滿，請賜教！」",
@@ -509,11 +231,13 @@
    "silver": 0,
    "growth": 0.6,
    "points": 2,
-   "spar": true
+   "spar": true,
+   "cap": 129,
+   "scale": 0.65
   },
   "spar_xiaoman": {
    "enemies": [
-    "xiaoman"
+    "person:gu"
    ],
    "background": "mountain",
    "intro": "顧小滿揚起木劍：「這次我可不會手下留情！」",
@@ -521,11 +245,13 @@
    "silver": 0,
    "growth": 0.6,
    "points": 1,
-   "spar": true
+   "spar": true,
+   "cap": 129,
+   "scale": 0.65
   },
   "spar_lu": {
    "enemies": [
-    "lumingchuan"
+    "person:lu"
    ],
    "background": "mountain",
    "intro": "陸鳴川長劍斜指地面：「師弟，出招吧。」",
@@ -533,7 +259,9 @@
    "silver": 0,
    "growth": 0.8,
    "points": 2,
-   "spar": true
+   "spar": true,
+   "cap": 262,
+   "scale": 0.8
   },
   "mq_path_dogs": {
    "enemies": [
@@ -550,7 +278,7 @@
   },
   "exam_qi": {
    "enemies": [
-    "qizhenyuan"
+    "person:qi"
    ],
    "background": "mountain",
    "intro": "齊振遠抱劍一禮：「考核不講情面，也不許用藥。師弟小心了。」",
@@ -559,11 +287,13 @@
    "growth": 0.8,
    "points": 3,
    "spar": true,
-   "noItems": true
+   "noItems": true,
+   "cap": 240,
+   "scale": 0.45
   },
   "exam_meng": {
    "enemies": [
-    "mengduo"
+    "person:meng"
    ],
    "background": "mountain",
    "intro": "孟鐸活動了一下手腕：「連戰兩場，就看你撐不撐得住。」",
@@ -572,11 +302,13 @@
    "growth": 0.8,
    "points": 3,
    "spar": true,
-   "noItems": true
+   "noItems": true,
+   "cap": 245,
+   "scale": 0.45
   },
   "trial_han": {
    "enemies": [
-    "hanjingqiu"
+    "person:han"
    ],
    "background": "mountain",
    "intro": "韓靖秋在試劍石前拔劍：「拿出你全部的本事。」",
@@ -585,7 +317,9 @@
    "growth": 1,
    "points": 5,
    "spar": true,
-   "noItems": true
+   "noItems": true,
+   "cap": 384,
+   "scale": 0.62
   },
   "trial_night1": {
    "enemies": [
@@ -643,7 +377,7 @@
   },
   "spar_wanderer": {
    "enemies": [
-    "wanderer"
+    "person:ganshiyi"
    ],
    "background": "mountain",
    "intro": "甘十一拔出破劍，劍尖往下一沉：「請！」",
@@ -651,7 +385,8 @@
    "silver": 0,
    "growth": 0.8,
    "points": 2,
-   "spar": true
+   "spar": true,
+   "scale": 0.7
   },
   "escort_near": {
    "enemies": [
@@ -715,19 +450,20 @@
   },
   "shop_ruffians": {
    "enemies": [
-    "ruffian_lead",
-    "ruffian"
+    "person:caisan",
+    "person:laisi"
    ],
    "background": "mountain",
    "intro": "蔡三把茶碗往地上一摔：「敬酒不吃吃罰酒！兄弟們，砸了它！」",
    "canFlee": true,
    "silver": 5,
    "points": 2,
-   "spar": true
+   "spar": true,
+   "scale": 0.68
   },
   "camp": {
    "enemies": [
-    "boss",
+    "person:qisandao",
     "grunt",
     "grunt"
    ],
@@ -736,95 +472,12 @@
    "canFlee": false,
    "silver": 25,
    "points": 10,
-   "boss": true
-  },
-  "drill_bao": {
-   "enemies": [
-    "mq_bao"
-   ],
-   "background": "mountain",
-   "intro": "包小川收了劍勢，抱拳道：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
-  },
-  "drill_tang": {
-   "enemies": [
-    "mq_tang"
-   ],
-   "background": "mountain",
-   "intro": "唐秋生收了劍勢，抱拳道：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
-  },
-  "drill_zheng": {
-   "enemies": [
-    "mq_zheng"
-   ],
-   "background": "mountain",
-   "intro": "鄭大壯收了劍勢，抱拳道：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
-  },
-  "drill_hou": {
-   "enemies": [
-    "mq_hou"
-   ],
-   "background": "mountain",
-   "intro": "侯三郎收了劍勢，抱拳道：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
-  },
-  "drill_qiao": {
-   "enemies": [
-    "mq_qiao"
-   ],
-   "background": "mountain",
-   "intro": "喬木生收了劍勢，抱拳道：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
-  },
-  "drill_he": {
-   "enemies": [
-    "mq_he"
-   ],
-   "background": "mountain",
-   "intro": "何守一收了劍勢，抱拳道：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
-  },
-  "drill_wei": {
-   "enemies": [
-    "mq_wei"
-   ],
-   "background": "mountain",
-   "intro": "韋季安收了劍勢，抱拳道：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
+   "boss": true,
+   "scale": 0.7
   },
   "exam_he": {
    "enemies": [
-    "mq_he_exam"
+    "person:he"
    ],
    "background": "mountain",
    "intro": "何守一抱劍一禮：「內門試劍，得罪了。」",
@@ -832,19 +485,8 @@
    "silver": 0,
    "growth": 0.8,
    "points": 3,
-   "spar": true
-  },
-  "drill_cao": {
-   "enemies": [
-    "mq_cao"
-   ],
-   "background": "mountain",
-   "intro": "曹小豆把掃帚往旁邊一扔，抄起木劍：「師兄弟，請！」",
-   "canFlee": true,
-   "silver": 0,
-   "growth": 0.5,
-   "points": 1,
-   "spar": true
+   "spar": true,
+   "cap": 171
   }
  }
 }

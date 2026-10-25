@@ -269,7 +269,8 @@ static func unit(id: String, side := "enemy") -> Dictionary:
 	u.name = p.name
 	u.side = side
 	u.sprite = p.get("look", "villager")
-	u.ai = p.get("ai", "steady")
+	# 出招：預設照 Fight.person_command；頭目（例如祁三刀）寫 ai: boss，會蓄勢再出殺招
+	u.ai = p.get("ai", "person")
 	return u
 
 

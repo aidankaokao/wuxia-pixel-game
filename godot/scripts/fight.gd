@@ -132,9 +132,17 @@ static func enemy_units(enc: Dictionary) -> Array:
 	for i in enc.enemies.size():
 		var k: String = enc.enemies[i]
 		if k.begins_with("person:"):
-			var pu := Person.unit(k.trim_prefix("person:"))
+			var pid := k.trim_prefix("person:")
+			var pu := Person.unit(pid)
 			pu.id = "e%d" % i
 			pu.kind = k
+			# 強弱：遭遇戰的 scale（切磋、考核時手下留情）；cap 是實力的上限（考官、試劍的人自己長進了，考題也不會跟著變難）
+			var f: float = float(enc.get("scale", 1.0)) * power_mult
+			if enc.has("cap"):
+				f *= minf(1.0, float(enc.cap) / Person.power(pid))
+			for key in ["max_hp", "atk", "ipow", "def"]:
+				pu[key] = roundi(float(pu[key]) * f)
+			pu.hp = pu.max_hp
 			out.append(pu)
 			continue
 		var d: Dictionary = enemy_data().enemies[k]

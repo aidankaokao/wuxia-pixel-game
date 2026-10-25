@@ -211,7 +211,8 @@ static func grave(ctx: Ctx) -> void:
 
 # ── 端午：演武台比劍 ────────────────────────────────────
 
-const DUEL := [["曹小豆", "drill_cao"], ["唐秋生", "drill_tang"], ["顧小滿", "spar_xiaoman"]]
+## 端午比劍的三位同門（用他們本人的數值，見 Person.unit）
+const DUEL := ["cao", "tang", "gu"]
 
 
 ## 陸鳴川：端午比劍（處理了回傳 true）
@@ -226,8 +227,10 @@ static func lu(ctx: Ctx) -> bool:
 	mark("duanwu")
 	var wins := 0
 	for foe in DUEL:
-		await ctx.say("第 %d 場：%s上場。" % [wins + 1, foe[0]])
-		if await ctx.battle(foe[1]) != "win":
+		if not Person.alive(foe):
+			continue
+		await ctx.say("第 %d 場：%s上場。" % [wins + 1, Person.full_name(foe)])
+		if await ctx.battle("person:" + foe) != "win":
 			break
 		wins += 1
 	ctx.pass_time(4)

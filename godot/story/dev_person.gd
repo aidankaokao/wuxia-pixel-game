@@ -19,25 +19,17 @@ static func demo(_ctx: Ctx) -> void:
 	print("PERSON 主角條件 gender == '男'：", Story.cond("gender == '男'"))
 
 
-## 對照：同門用人物本人的數值（person:id）跟舊的固定遭遇戰（照舊的實力倍數）比，主角三種底子各打 300 場
+## 同門對練的勝率：主角三種底子打記名、正式弟子（person:id），各 300 場
 static func duel_sim(_ctx: Ctx) -> void:
 	var keep := {"bag": G.bag.duplicate(), "silver": G.silver}
-	var old := {"gu": ["trial_xiaoman", 0.85], "bao": ["drill_bao", 0.79], "tang": ["drill_tang", 0.82], "cao": ["drill_cao", 0.67], "he": ["drill_he", 1.0], "wei": ["drill_wei", 0.95]}
 	var setups := [["剛出村", {}], ["拜入一個月（鳴泉3、吐納2）", {"mingquan": 3, "breathing": 2}], ["正式弟子（鳴泉5、澄泉3、吐納3）", {"mingquan": 5, "chengquan": 3, "breathing": 3}]]
 	for st in setups:
 		var line: String = st[0] + "："
-		for id in old:
-			var wn := [0.0, 0.0]
+		for id in ["gu", "bao", "tang", "cao", "he", "wei"]:
+			var w := 0.0
 			for k in 10:
-				var c := Sim.fresh(false)
-				for sk in st[1]:
-					Hero.learn(c, sk, st[1][sk])
-					Hero.find_skill(c, sk).level = st[1][sk]
-				Fight.power_mult = old[id][1]
-				wn[0] += Sim.rate(c, old[id][0], {"jinchuang": 0}, 30).win / 10.0
-				Fight.power_mult = 1.0
-				wn[1] += Sim.rate(c, "person:" + id, {"jinchuang": 0}, 30).win / 10.0
-			line += "　%s 舊%d%%／新%d%%" % [Person.full_name(id), roundi(wn[0] * 100), roundi(wn[1] * 100)]
+				w += Sim.rate(load("res://story/dev_calib.gd")._hero(st[1]), "person:" + id, {"jinchuang": 0}, 30).win / 10.0
+			line += "　%s %d%%" % [Person.full_name(id), roundi(w * 100)]
 		print("DUEL ", line)
 	G.bag = keep.bag
 	G.silver = keep.silver

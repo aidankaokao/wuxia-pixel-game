@@ -1,0 +1,30 @@
+{
+ "_note": "四處走動、沒有固定住處的人（PLAN.md 4.40）。",
+ "ganshiyi": {
+  "surname": "甘",
+  "name": "甘十一",
+  "gender": "男",
+  "born": -32,
+  "look": "swordsman",
+  "job": "劍客",
+  "traits": [
+   "豪爽"
+  ],
+  "tags": [
+   "俠"
+  ],
+  "base": {
+   "strength": 13,
+   "agility": 15,
+   "constitution": 13,
+   "energy": 10,
+   "insight": 12
+  },
+  "skills": {
+   "zhuying": 3,
+   "basic-fist": 3,
+   "breathing": 2
+  },
+  "role": "揹著破劍四海為家的遊俠，路上碰到會找人過招"
+ }
+}

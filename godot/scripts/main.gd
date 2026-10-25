@@ -222,7 +222,7 @@ func _dev_battle() -> void:
 		var enc := Fight.encounter(id)
 		var who := []
 		for k in enc.enemies:
-			who.append(Fight.enemy_data().enemies[k].name)
+			who.append(Person.full_name(k.trim_prefix("person:")) if k.begins_with("person:") else Fight.enemy_data().enemies[k].name)
 		names.append("%s%s" % ["、".join(who), "（切磋）" if enc.get("spar", false) else ""])
 	var i := await ui.ask({"text": "開戰測試：跟誰打？"}, names + ["算了"])
 	if i >= DEV_FIGHTS.size():

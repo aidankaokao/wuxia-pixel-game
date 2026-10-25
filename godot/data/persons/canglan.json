@@ -1,0 +1,67 @@
+{
+ "_note": "蒼嵐山一帶的人（PLAN.md 4.40）：斷崖寨寨主、青衫客。",
+ "qisandao": {
+  "surname": "祁",
+  "name": "祁三刀",
+  "gender": "男",
+  "born": -37,
+  "look": "boss",
+  "job": "山賊",
+  "traits": [
+   "暴躁"
+  ],
+  "tags": [
+   "匪"
+  ],
+  "ai": "boss",
+  "base": {
+   "strength": 16,
+   "agility": 11,
+   "constitution": 15,
+   "energy": 8,
+   "insight": 8
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 2
+  },
+  "faction": {
+   "sect": "duanya",
+   "rank": 1
+  },
+  "npc_ids": [],
+  "home": "canglan",
+  "role": "斷崖寨寨主，三年前在臨江城外劫了沈家的鏢；殺招之前總要先舉刀蓄勢"
+ },
+ "shen": {
+  "surname": "沈",
+  "given": "孤舟",
+  "name": "青衫客",
+  "gender": "男",
+  "born": -29,
+  "look": "swordsman",
+  "job": "劍客",
+  "traits": [
+   "寡言"
+  ],
+  "tags": [
+   "俠"
+  ],
+  "base": {
+   "strength": 15,
+   "agility": 17,
+   "constitution": 14,
+   "energy": 14,
+   "insight": 16
+  },
+  "skills": {
+   "zhuying": 8,
+   "qingzhu": 6,
+   "breathing": 5
+  },
+  "npc_ids": [
+   "stranger"
+  ],
+  "role": "不肯說名字的青衫劍客；其實是沈家鏢局的後人沈孤舟，在追查祁三刀"
+ }
+}

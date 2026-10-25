@@ -821,5 +821,55 @@
   },
   "home": "linjiang",
   "role": "元宵擺燈謎攤的老秀才"
+ },
+ "caisan": {
+  "surname": "蔡",
+  "name": "蔡三",
+  "alias": "過江龍",
+  "gender": "男",
+  "born": -33,
+  "look": "bandit",
+  "job": "地痞",
+  "traits": [
+   "貪財"
+  ],
+  "tags": [
+   "匪"
+  ],
+  "base": {
+   "strength": 13,
+   "agility": 11,
+   "constitution": 13,
+   "energy": 7,
+   "insight": 8
+  },
+  "skills": {
+   "basic-fist": 3
+  },
+  "home": "linjiang",
+  "role": "城南的地痞「過江龍」，挨家收保護費"
+ },
+ "laisi": {
+  "surname": "賴",
+  "name": "賴四",
+  "gender": "男",
+  "born": -25,
+  "look": "beggar",
+  "job": "地痞",
+  "tags": [
+   "匪"
+  ],
+  "base": {
+   "strength": 11,
+   "agility": 11,
+   "constitution": 11,
+   "energy": 6,
+   "insight": 7
+  },
+  "skills": {
+   "basic-fist": 1
+  },
+  "home": "linjiang",
+  "role": "蔡三的跟班"
  }
 }
