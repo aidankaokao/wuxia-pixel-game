@@ -1,0 +1,49 @@
+{
+ "_note": "煙州名勝的人（PLAN.md 4.47）：浮玉寺的老僧、斷戟原守冢的老兵、斷碑觀的老道、十里荷堤划船的姑娘。",
+ "fy_mo": {
+  "surname": "默",
+  "name": "默庵",
+  "gender": "男",
+  "born": -67,
+  "life_roll": 8,
+  "look": "monk",
+  "job": "僧",
+  "home": "fuyu",
+  "role": "浮玉寺的老住持，一個人守著江心的古寺",
+  "talk": ""
+ },
+ "dj_luan": {
+  "surname": "欒",
+  "name": "欒老卒",
+  "gender": "男",
+  "born": -62,
+  "life_roll": 7,
+  "look": "elder",
+  "job": "兵",
+  "home": "duanji",
+  "role": "東嶺口退下來的老兵，在斷戟原守著將軍冢",
+  "talk": ""
+ },
+ "db_xuan": {
+  "surname": "玄",
+  "name": "玄樸道人",
+  "gender": "男",
+  "born": -64,
+  "life_roll": 8,
+  "look": "elder",
+  "job": "道士",
+  "home": "duanbei",
+  "role": "斷碑觀最後一個道士，一個人守著塌了半邊的道觀",
+  "talk": ""
+ },
+ "hd_ye": {
+  "surname": "葉",
+  "given": "采菱",
+  "gender": "女",
+  "born": -16,
+  "look": "girl",
+  "home": "hedi",
+  "role": "菱塘村的姑娘，夏天在十里荷堤划船載客",
+  "talk": ""
+ }
+}

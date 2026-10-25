@@ -6,6 +6,8 @@
 
 const FERRY_DAY := 2
 const FERRY_NIGHT := 5
+## 江南渡搭船去浮玉洲
+const FUYU_PRICE := 5
 
 const Train := preload("res://story/train.gd")
 const Bridge := preload("res://story/bridge.gd")
@@ -29,8 +31,14 @@ static func inn(ctx: Ctx) -> void:
 		opts.append("修橋的事")
 	if n.id == "ferry" and Bridge.built():
 		opts.append("看捐建碑")
+	# 江南渡：搭船去江心的浮玉洲（名勝，story/scenic.gd）
+	if n.id == "jiangnandu":
+		opts.append("搭船去浮玉洲（%d 兩）" % FUYU_PRICE)
 	opts.append("繼續趕路")
 	var c := await ctx.ask(k.call("%s，歇歇腳吧。" % n.name), opts)
+	if String(opts[c]).begins_with("搭船去浮玉洲"):
+		await _to_fuyu(ctx, n)
+		return
 	match opts[c]:
 		"吃點東西":
 			await ctx.ui.shop(n.name, r.menu, 0.5, 0.2 if n.id == "ferry" and ctx.flag("bridge_party") else 0.0)
@@ -50,6 +58,17 @@ static func inn(ctx: Ctx) -> void:
 					return
 				await ctx.say(k.call(r.get("bed", "屋子簡陋，被褥倒是乾淨的。")))
 				await Train.rest(ctx, "要睡到天亮，還是歇幾個時辰？")
+
+
+## 江南渡的船家送你去江心的浮玉洲（回程走洲上棧橋盡頭的出口，回到江南渡）
+static func _to_fuyu(ctx: Ctx, n: Dictionary) -> void:
+	var boatman: String = n.get("ferry", {}).get("boatman", "船家")
+	if not ctx.pay(FUYU_PRICE):
+		await ctx.say({"speaker": boatman, "text": "去浮玉洲要繞過江心的漩渦，%d 兩，少一文都不去。" % FUYU_PRICE})
+		return
+	ctx.pass_time(2)
+	await ctx.say(["你上了%s的小船。船往下游斜斜地划，江心的水打著旋，%s一篙一篙點得很小心。" % [boatman, boatman], "（花了兩刻）"])
+	ctx.scene.main.call_deferred("travel", "fuyu", {"x": 1, "y": 12, "facing": "right"})
 
 
 ## 渡船：ctx.extra = {node 渡口, banks: [這頭的岸, 對岸]（州圖格）}；從主角站的那一頭送到另一頭

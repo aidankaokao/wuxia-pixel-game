@@ -26,7 +26,8 @@ const ROOMS := ["qz_liu", "qz_tea", "qz_smithy", "qz_wang", "qz_temple", "by_tav
 	"mq_hall", "mq_dorm", "mq_room_a", "mq_room_b", "mq_cell_1", "mq_cell_2", "mq_train", "mq_lib", "mq_armory", "mq_med", "mq_kitchen",
 	"bp_inn", "bp_trader", "bp_ship", "bp_shrine"]
 ## 做好的室外地圖（出入口通到這些就換過去）
-const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "mq_farm", "mq_ridge", "dabutou", "yunling", "wuyazhai"]
+const OUTDOOR := ["qingzhu", "qz_north", "canglan", "biyi", "by_isle", "linjiang", "lj_yamen", "mingquan", "mq_sect", "mq_back", "mq_farm", "mq_ridge", "dabutou", "yunling", "wuyazhai",
+	"yunmen", "duanji", "tingtao", "fuyu", "wangyan", "duanbei", "hedi"]
 ## 依狀態產生的室內（自宅 home:空地id、房產 prop:物件id），由這些劇情檔的 room_data 給地圖資料
 const GEN_ROOMS := {"home:": "res://story/estate.gd", "prop:": "res://story/property.gd", "town:": "res://scripts/town_gen.gd"}
 ## 載入室外地圖資料時，依狀態補上東西的劇情檔（patch_map：自宅的空地與房子、名下房產的門與店名）
@@ -1327,6 +1328,15 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.cyl(0.06, 0.07, 0.5, Color("8a6a42"), Vector3(0, 0.25, 0), 6))
 			g.add_child(Mk.cone(0.07, 0.1, Color("8a6a42"), Vector3(0, 0.55, 0), 6))
 			g.add_child(Mk.cyl(0.075, 0.075, 0.05, Color("c8302a"), Vector3(0, 0.42, 0), 6))
+		"waterfall":
+			# 瀑布：從崖頂垂下的一道水簾（幾條深淺不一的水帶），底下一圈白浪
+			for i in int(w * 3):
+				var fx := -w / 2.0 + 0.2 + i * (w - 0.4) / maxf(1, w * 3 - 1)
+				var tone := Color("cfe6f6") if i % 2 else Color("a8d0ee")
+				g.add_child(Mk.box(Vector3(0.32, 5.0, 0.2), tone, Vector3(fx, 2.5, 0.1 + (i % 3) * 0.04)))
+			var foam := Mk.cyl(w * 0.55, w * 0.65, 0.18, Color("f4faff"), Vector3(0, 0.08, 0.7), 14)
+			foam.scale = Vector3(1, 1, 0.6)
+			g.add_child(foam)
 		"yard_gate":
 			# 院牆上的小門：兩扇關著的木門，上面一道瓦簷（開了就整個不見，見 when）
 			g.add_child(Mk.box(Vector3(w, 1.9, 0.18), Color("6a3a22"), Vector3(0, 0.95, 0)))

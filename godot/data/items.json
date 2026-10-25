@@ -2680,5 +2680,51 @@
   "icon": "book",
   "desc": "織造局管工廖貴的私帳，一筆筆記著哪天、賣了幾匹貢緞給誰。",
   "price": 0
+ },
+ "manual_chuiyun": {
+  "name": "垂雲劍痕拓本",
+  "category": "秘笈",
+  "icon": "scroll",
+  "manual": "chuiyun",
+  "desc": "從雲門瀑後石室拓下的劍痕。持有時可突破「垂雲劍」的等級上限。",
+  "verse": "雲垂四野，瀑落千尋"
+ },
+ "manual_tingtao": {
+  "name": "聽濤洞口訣抄本",
+  "category": "秘笈",
+  "icon": "scroll",
+  "manual": "tingtao",
+  "desc": "照著聽濤洞壁抄下的吐納口訣。持有時可突破「聽濤訣」的等級上限。",
+  "verse": "潮來則吸，潮去則吐"
+ },
+ "manual_woyun": {
+  "name": "臥碑掌譜拓本",
+  "category": "秘笈",
+  "icon": "scroll",
+  "manual": "woyun",
+  "desc": "從臥碑崖拓下的摩崖掌譜。持有時可突破「臥雲掌」的等級上限。",
+  "verse": "醉臥碑前，掌推雲月"
+ },
+ "rusty_blade": {
+  "name": "殘刀",
+  "category": "雜物",
+  "icon": "blade",
+  "desc": "斷戟原土裡翻出來的半截古刀，鏽得厲害。鐵匠鋪、當鋪收。",
+  "price": 12
+ },
+ "dj_saber": {
+  "name": "古將軍刀",
+  "category": "服飾",
+  "icon": "blade",
+  "bound": false,
+  "desc": "斷戟原將軍冢旁挖出來的一把長刀，刀身的鏽磨掉以後，寒光逼人。刀柄上刻著一個「破」字。（上品・刀，攻擊 +9；用刀法才發揮得了全力）",
+  "gear": {
+   "kind": "weapon",
+   "grade": 3,
+   "def": 0,
+   "eva": 0,
+   "atk": 9,
+   "weapon": "刀"
+  }
  }
 }

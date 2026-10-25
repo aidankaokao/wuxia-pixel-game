@@ -4,7 +4,7 @@
 
 ## run:dev_town/parse 載入樣板與府城的劇情檔（檢查有沒有語法錯誤），印出今日事與任務
 static func parse(_ctx: Ctx) -> void:
-	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd", "res://story/sanglin.gd", "res://story/qiansi.gd", "res://story/yunling.gd", "res://story/shibi.gd", "res://story/wuyazhai.gd"]:
+	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd", "res://story/sanglin.gd", "res://story/qiansi.gd", "res://story/yunling.gd", "res://story/shibi.gd", "res://story/wuyazhai.gd", "res://story/scenic.gd", "res://story/stay.gd"]:
 		print("TOWN 載入 %s：%s" % [p, "好" if load(p) != null else "失敗"])
 	G.flags["yz_berth"] = 2
 	G.life.loan = {"owe": 120, "due": G.day + 2, "day": G.day}
@@ -83,7 +83,7 @@ static func data(_ctx: Ctx) -> void:
 
 
 ## run:dev_town/wild 檢查手工的野外地圖：出口、有腳本的擺設、人都走得到（旁邊有一格從出生點走得到）
-const WILD := ["yunling", "wuyazhai", "canglan"]
+const WILD := ["yunling", "wuyazhai", "canglan", "yunmen", "duanji", "tingtao", "fuyu", "wangyan", "duanbei", "hedi"]
 
 
 static func wild(_ctx: Ctx) -> void:
@@ -107,6 +107,10 @@ static func wild(_ctx: Ctx) -> void:
 					blocked[Vector2i(int(p.x) + i, int(p.y))] = true
 		var seen := {Vector2i(d.spawn.x, d.spawn.y): true}
 		var q := [Vector2i(d.spawn.x, d.spawn.y)]
+		# 只能靠劇情傳送進去的另一塊（areas，例如聽濤洞的洞裡）
+		for a in d.get("areas", []):
+			seen[Vector2i(a[0], a[1])] = true
+			q.append(Vector2i(a[0], a[1]))
 		while q.size() > 0:
 			var p: Vector2i = q.pop_back()
 			for dv in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:

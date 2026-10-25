@@ -539,9 +539,27 @@
    "x": 770,
    "y": 577,
    "desc": "煙湖東岸一條長堤，堤邊種滿荷花。夏天荷花開時，府城的文人雅士都來這裡賞荷、作畫。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "locked": false,
+   "enter": {
+    "map": "hedi",
+    "x": 14,
+    "y": 1,
+    "facing": "down"
+   },
+   "enterFrom": {
+    "lingtang": {
+     "map": "hedi",
+     "x": 14,
+     "y": 1,
+     "facing": "down"
+    },
+    "luting": {
+     "map": "hedi",
+     "x": 14,
+     "y": 38,
+     "facing": "up"
+    }
+   },
    "rest": null,
    "look": "dike"
   },
@@ -600,9 +618,27 @@
    "x": 829,
    "y": 543,
    "desc": "北嶺山脊上的一座小亭，往北看得到整座煙州府城。晴天的早晨，城裡的炊煙和山間的雲海連成一片。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "locked": false,
+   "enter": {
+    "map": "wangyan",
+    "x": 30,
+    "y": 18,
+    "facing": "left"
+   },
+   "enterFrom": {
+    "beilingguan": {
+     "map": "wangyan",
+     "x": 30,
+     "y": 18,
+     "facing": "left"
+    },
+    "duanbei": {
+     "map": "wangyan",
+     "x": 1,
+     "y": 8,
+     "facing": "right"
+    }
+   },
    "rest": null,
    "look": "pavilion"
   },
@@ -613,9 +649,21 @@
    "x": 812,
    "y": 545,
    "desc": "北嶺西段山坳裡一座荒廢的道觀，觀後的山崖上刻滿字，崖下的石碑卻斷成好幾截。觀裡還算完整，修一修就能住人。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "locked": false,
+   "enter": {
+    "map": "duanbei",
+    "x": 32,
+    "y": 20,
+    "facing": "left"
+   },
+   "enterFrom": {
+    "wangyan": {
+     "map": "duanbei",
+     "x": 32,
+     "y": 20,
+     "facing": "left"
+    }
+   },
    "rest": null,
    "look": "ruin"
   },
@@ -662,9 +710,27 @@
    "x": 892,
    "y": 565,
    "desc": "潮信南邊海崖下的海蝕洞，只有退潮時才走得進去，洞裡的濤聲像是有人在說話。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "locked": false,
+   "enter": {
+    "map": "tingtao",
+    "x": 18,
+    "y": 1,
+    "facing": "down"
+   },
+   "enterFrom": {
+    "chaoxin": {
+     "map": "tingtao",
+     "x": 18,
+     "y": 1,
+     "facing": "down"
+    },
+    "baitan": {
+     "map": "tingtao",
+     "x": 18,
+     "y": 32,
+     "facing": "up"
+    }
+   },
    "rest": null,
    "look": "cave"
   },
@@ -699,9 +765,14 @@
    "kind": "scenic",
    "x": 858,
    "y": 609,
-   "desc": "大江江心的一座小洲，洲上有座古寺，遠看像一塊浮在江上的玉。要坐船才到得了。",
-   "locked": true,
-   "enter": null,
+   "desc": "大江江心的小洲，洲上一座古寺。沒有路，要在江南渡的茶棚找船家搭船才到得了。",
+   "locked": false,
+   "enter": {
+    "map": "fuyu",
+    "x": 1,
+    "y": 12,
+    "facing": "right"
+   },
    "enterFrom": {},
    "rest": null,
    "look": "temple"
@@ -762,9 +833,33 @@
    "x": 771,
    "y": 632,
    "desc": "東嶺口前的一片荒原，據說是前朝大戰的古戰場，地下還埋著殘破的兵器。夜裡起霧時，有人聽過金鼓聲。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "locked": false,
+   "enter": {
+    "map": "duanji",
+    "x": 18,
+    "y": 1,
+    "facing": "down"
+   },
+   "enterFrom": {
+    "sanglin": {
+     "map": "duanji",
+     "x": 18,
+     "y": 1,
+     "facing": "down"
+    },
+    "donglingkou": {
+     "map": "duanji",
+     "x": 18,
+     "y": 28,
+     "facing": "up"
+    },
+    "wuyazhai": {
+     "map": "duanji",
+     "x": 34,
+     "y": 14,
+     "facing": "left"
+    }
+   },
    "rest": null,
    "look": "field"
   },
@@ -817,9 +912,27 @@
    "x": 834,
    "y": 626,
    "desc": "雲嶺深處的瀑布，水從兩座山峰之間落下，像一扇雲做的門。瀑布下有一塊平平的大石，適合練功、打坐。",
-   "locked": true,
-   "enter": null,
-   "enterFrom": {},
+   "locked": false,
+   "enter": {
+    "map": "yunmen",
+    "x": 1,
+    "y": 20,
+    "facing": "right"
+   },
+   "enterFrom": {
+    "yunling": {
+     "map": "yunmen",
+     "x": 1,
+     "y": 20,
+     "facing": "right"
+    },
+    "kongcui": {
+     "map": "yunmen",
+     "x": 30,
+     "y": 18,
+     "facing": "left"
+    }
+   },
    "rest": null,
    "look": "fall"
   },

@@ -673,6 +673,136 @@
      }
     }
    ]
+  },
+  "chuiyun": {
+   "id": "chuiyun",
+   "name": "垂雲劍",
+   "kind": "劍法",
+   "tier": "中品",
+   "desc": "雲門瀑後石室壁上的劍痕。不知是誰在瀑布後頭住了半輩子，看水從雲裡垂下來，把劍也練成了垂落的雲。",
+   "equip": {
+    "agility": 0.6,
+    "strength": 0.5,
+    "insight": 0.2
+   },
+   "grow": {
+    "agility": 0.3,
+    "strength": 0.3,
+    "insight": 0.2
+   },
+   "vital": {
+    "hp": 2,
+    "stamina": 1
+   },
+   "moves": [
+    {
+     "id": "cy_siye",
+     "level": 0
+    },
+    {
+     "id": "cy_feipu",
+     "level": 2,
+     "bonus": {
+      "strength": 1
+     }
+    },
+    {
+     "id": "cy_yuanxiao",
+     "level": 4,
+     "bonus": {
+      "agility": 1
+     }
+    },
+    {
+     "id": "cy_dongkai",
+     "level": 6,
+     "bonus": {
+      "agility": 0.5,
+      "insight": 0.5
+     }
+    }
+   ]
+  },
+  "tingtao": {
+   "id": "tingtao",
+   "name": "聽濤訣",
+   "kind": "內功",
+   "tier": "中品",
+   "desc": "聽濤洞壁上刻的吐納口訣。潮來時吸、潮去時吐，一呼一吸跟著海。據說刻字的人就是回瀾刀門的祖師。",
+   "equip": {
+    "energy": 1,
+    "constitution": 0.3
+   },
+   "grow": {
+    "energy": 0.4,
+    "constitution": 0.2,
+    "insight": 0.1
+   },
+   "vital": {
+    "qi": 4
+   },
+   "moves": [
+    {
+     "id": "tt_ruding",
+     "level": 0
+    },
+    {
+     "id": "tt_huixiang",
+     "level": 3,
+     "bonus": {
+      "energy": 1
+     }
+    }
+   ]
+  },
+  "woyun": {
+   "id": "woyun",
+   "name": "臥雲掌",
+   "kind": "拳掌",
+   "tier": "中品",
+   "desc": "斷碑觀臥碑崖上的摩崖石刻。觀裡的道士說，前朝有位觀主醉臥碑下，夢裡跟雲過了一夜的招，醒來刻下了這套掌法。",
+   "equip": {
+    "strength": 0.7,
+    "constitution": 0.3,
+    "insight": 0.2
+   },
+   "grow": {
+    "strength": 0.3,
+    "constitution": 0.3,
+    "insight": 0.2
+   },
+   "vital": {
+    "hp": 3,
+    "stamina": 1
+   },
+   "moves": [
+    {
+     "id": "wy_tuiyue",
+     "level": 0
+    },
+    {
+     "id": "wy_duanbei",
+     "level": 2,
+     "bonus": {
+      "strength": 1
+     }
+    },
+    {
+     "id": "wy_juanshu",
+     "level": 4,
+     "bonus": {
+      "constitution": 1
+     }
+    },
+    {
+     "id": "wy_guiyun",
+     "level": 6,
+     "bonus": {
+      "strength": 0.5,
+      "insight": 0.5
+     }
+    }
+   ]
   }
  },
  "moves": {
@@ -1591,6 +1721,157 @@
      "kind": "speed",
      "value": 0.2,
      "turns": 2
+    }
+   ]
+  },
+  "cy_siye": {
+   "id": "cy_siye",
+   "name": "雲垂四野",
+   "desc": "劍勢像雲一樣從高處垂落，籠住對手。",
+   "qi": 8,
+   "power": 1.6,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "chuiyun",
+   "fx": "slash"
+  },
+  "cy_feipu": {
+   "id": "cy_feipu",
+   "name": "飛瀑倒懸",
+   "desc": "縱身而起，一劍如瀑布當頭澆下。威力沉重，有機會劈出破綻（防禦 −30%，持續 2 次出手）。",
+   "qi": 15,
+   "power": 2.0,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "chuiyun",
+   "fx": "heavy",
+   "foe": [
+    {
+     "kind": "armorBreak",
+     "value": 0.3,
+     "turns": 2,
+     "chance": 0.35
+    }
+   ]
+  },
+  "cy_yuanxiao": {
+   "id": "cy_yuanxiao",
+   "name": "猿嘯穿林",
+   "desc": "身形如猿，在對手身邊穿來穿去，連刺三劍。",
+   "qi": 14,
+   "power": 0.62,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "chuiyun",
+   "fx": "wind",
+   "hits": 3
+  },
+  "cy_dongkai": {
+   "id": "cy_dongkai",
+   "name": "雲門洞開",
+   "desc": "劍光像兩扇雲門一開一合，掃過所有敵人。",
+   "qi": 20,
+   "power": 1.0,
+   "kind": "outer",
+   "target": "allEnemies",
+   "skillId": "chuiyun",
+   "fx": "slash"
+  },
+  "tt_ruding": {
+   "id": "tt_ruding",
+   "name": "濤聲入定",
+   "desc": "心隨潮聲起落，回復內力與些許氣血。",
+   "qi": 0,
+   "power": 1.3,
+   "kind": "restore",
+   "target": "self",
+   "skillId": "tingtao",
+   "fx": "qi"
+  },
+  "tt_huixiang": {
+   "id": "tt_huixiang",
+   "name": "聽濤回響",
+   "desc": "把聽了一夜的潮聲化成內勁送出去。內功招式，有機會使對手力竭（攻擊 −20%，持續 2 次出手）。",
+   "qi": 12,
+   "power": 1.7,
+   "kind": "inner",
+   "target": "enemy",
+   "skillId": "tingtao",
+   "fx": "qi",
+   "foe": [
+    {
+     "kind": "weaken",
+     "value": 0.2,
+     "turns": 2,
+     "chance": 0.35
+    }
+   ]
+  },
+  "wy_tuiyue": {
+   "id": "wy_tuiyue",
+   "name": "臥雲推月",
+   "desc": "一掌緩緩推出，看著輕，勁力卻綿綿不絕。",
+   "qi": 7,
+   "power": 1.6,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "woyun",
+   "fx": "punch"
+  },
+  "wy_duanbei": {
+   "id": "wy_duanbei",
+   "name": "斷碑一擊",
+   "desc": "沉腰一掌，像要把石碑劈成兩截。威力沉重，有機會震懾對手（無法出手 1 次）。",
+   "qi": 16,
+   "power": 2.1,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "woyun",
+   "fx": "heavy",
+   "foe": [
+    {
+     "kind": "stun",
+     "value": 1,
+     "turns": 1,
+     "chance": 0.2
+    }
+   ]
+  },
+  "wy_juanshu": {
+   "id": "wy_juanshu",
+   "name": "雲捲雲舒",
+   "desc": "一收一放兩掌，收的時候護住自己（格擋 +25%，持續 2 次出手）。",
+   "qi": 13,
+   "power": 0.95,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "woyun",
+   "fx": "punch",
+   "hits": 2,
+   "self": [
+    {
+     "kind": "block",
+     "value": 0.25,
+     "turns": 2
+    }
+   ]
+  },
+  "wy_guiyun": {
+   "id": "wy_guiyun",
+   "name": "萬壑歸雲",
+   "desc": "掌風像山谷裡的雲一起湧過來，推向所有敵人，有機會震懾（無法出手 1 次）。",
+   "qi": 20,
+   "power": 1.05,
+   "kind": "outer",
+   "target": "allEnemies",
+   "skillId": "woyun",
+   "fx": "punch",
+   "foe": [
+    {
+     "kind": "stun",
+     "value": 1,
+     "turns": 1,
+     "chance": 0.15
     }
    ]
   }

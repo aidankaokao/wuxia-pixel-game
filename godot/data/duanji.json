@@ -1,0 +1,291 @@
+{
+ "id": "duanji",
+ "name": "斷戟原",
+ "subtitle": "古戰場・將軍冢",
+ "tiles": [
+  "...............o..::................",
+  "..................::T......T........",
+  "oT................::.......o..T.....",
+  "o...........*.T...::....T.....o*o...",
+  ".*.o..............::...T............",
+  "............o.....::................",
+  "...........*o.....::.*......T.....oo",
+  "...o..............::................",
+  "....T.............::T..o..T.......o.",
+  "...T.T............::o.............o.",
+  "..................::................",
+  "......o...........::..*...T....*..To",
+  "....o..........*..::................",
+  ".................T::.......o........",
+  "...o..............::::::::::::::::::",
+  "............T.T.o.::::::::::::::::::",
+  "...*.*............::................",
+  "..o........o......::*..T...........o",
+  ".................o::................",
+  "o.................::...*............",
+  "....o......o......::..........o.....",
+  "T.*...o....T....T.::..o....o......o.",
+  "..o...............::.T..*...........",
+  "....T...*.........::T.o..........T..",
+  "...*....oo........::...............T",
+  "...o...o.*........::........T....o..",
+  "..........o......T::......o....*...o",
+  "T.................::...........*....",
+  "..................::................",
+  "..................::................"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 18,
+  "y": 1,
+  "facing": "down"
+ },
+ "buildings": [],
+ "props": [
+  {
+   "id": "",
+   "sprite": "stele",
+   "x": 10,
+   "y": 10,
+   "w": 1,
+   "lines": [],
+   "label": "將軍冢",
+   "script": "scenic/duanji_tomb",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_pile",
+   "x": 9,
+   "y": 11,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一座無名的土丘，前面插著一截斷戟。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_pile",
+   "x": 11,
+   "y": 11,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一座無名的土丘，前面插著一截斷戟。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_pile",
+   "x": 8,
+   "y": 9,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一座無名的土丘，前面插著一截斷戟。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_pile",
+   "x": 12,
+   "y": 9,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一座無名的土丘，前面插著一截斷戟。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 5,
+   "y": 4,
+   "w": 1,
+   "lines": [],
+   "label": "翻找",
+   "script": "scenic/duanji_scavenge",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 26,
+   "y": 6,
+   "w": 1,
+   "lines": [],
+   "label": "翻找",
+   "script": "scenic/duanji_scavenge",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 29,
+   "y": 22,
+   "w": 1,
+   "lines": [],
+   "label": "翻找",
+   "script": "scenic/duanji_scavenge",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 8,
+   "y": 21,
+   "w": 1,
+   "lines": [],
+   "label": "翻找",
+   "script": "scenic/duanji_scavenge",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 24,
+   "y": 25,
+   "w": 1,
+   "lines": [],
+   "label": "翻找",
+   "script": "scenic/duanji_scavenge",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "sword_grave",
+   "x": 13,
+   "y": 26,
+   "w": 1,
+   "lines": [],
+   "label": "翻找",
+   "script": "scenic/duanji_scavenge",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "flag",
+   "x": 23,
+   "y": 9,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一面爛得只剩半幅的戰旗，旗桿插在土裡，上面的字已經看不出來了。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "flag",
+   "x": 6,
+   "y": 17,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一面破旗，旗面上隱約是一個「破」字。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     18,
+     0
+    ],
+    [
+     19,
+     0
+    ]
+   ],
+   "world": "duanji",
+   "worldFrom": "sanglin"
+  },
+  {
+   "tiles": [
+    [
+     18,
+     29
+    ],
+    [
+     19,
+     29
+    ]
+   ],
+   "world": "duanji",
+   "worldFrom": "donglingkou"
+  },
+  {
+   "tiles": [
+    [
+     35,
+     14
+    ],
+    [
+     35,
+     15
+    ]
+   ],
+   "world": "duanji",
+   "worldFrom": "wuyazhai"
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [
+  {
+   "id": "dj_luan",
+   "name": "欒老卒",
+   "sprite": "",
+   "x": 12,
+   "y": 13,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "scenic/duanji_luan",
+   "when": "",
+   "talks": []
+  }
+ ],
+ "ring": 16
+}
