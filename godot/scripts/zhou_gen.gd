@@ -197,7 +197,7 @@ static func build(zid: String) -> Dictionary:
 			var mid: Vector2 = inside[inside.size() * 2 / 5]
 			labels.append({"text": rv.name, "x": int(mid.x) - rx, "y": int(mid.y) - ry, "kind": "water"})
 	for lk in lakes:
-		if _in(lk.c[0], lk.c[1], rx, ry, W, H):
+		if lk.name != "" and _in(lk.c[0], lk.c[1], rx, ry, W, H):
 			labels.append({"text": lk.name, "x": int(lk.c[0]) - rx, "y": int(lk.c[1]) - ry, "kind": "water"})
 	for rg in ranges:
 		var m: Array = rg.pts[rg.pts.size() / 2]
@@ -266,7 +266,7 @@ static func build(zid: String) -> Dictionary:
 		n.x = int(n.x) - rx
 		n.y = int(n.y) - ry
 		# 據點腳下一定是平地（城大一點；渡口只清自己那一格，不把河截斷）
-		var rad := 0 if n.kind == "ferry" else (2 if n.kind in ["city", "pass"] else 1)
+		var rad := 0 if n.kind == "ferry" else (2 if n.kind in ["city", "pass", "town"] else 1)
 		var clear := ["S", "s", "l", "r", "m", "P", "h", "f"] if rad == 2 else ["S", "s", "l", "r", "m", "P"]
 		for dj in range(-rad, rad + 1):
 			for di in range(-rad, rad + 1):

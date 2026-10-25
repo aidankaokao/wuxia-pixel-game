@@ -5,7 +5,9 @@ extends GridScene
 ## - 主角在地圖上自由走（不必沿著路）：路上最快，平原照常，林地、丘陵慢，山地最慢；水和高峰過不去（路過河的地方有橋，渡口那段要坐船）。
 ## - 腳程：騎馬、輕功好都走得快（travel_mult），雨雪天路難走（weather_mult）；沿路走一段會擲一次路上的小事（story/road.gd）。
 ## - 官道走到州圖邊上的出口，就換到隔壁的州（墨暈轉場）；隔壁還沒切好的說一聲。
-## - 據點是一小群模型：村莊幾間房、城有城牆與城門樓、門派的大殿、港口的碼頭與船、渡口、驛站的幌子；還沒開放的是「？」。
+## - 據點是一小群模型（kind）：村莊 village 幾間房、城 city 有城牆與城門樓、鎮 town 一條街與牌坊、門派 sect 的大殿、港口 port 的碼頭與船、渡口 ferry、驛站 inn 的幌子、
+##   關隘 pass、山寨 lair 的木柵與望樓、名勝 scenic（look：pavilion 亭、cave 海蝕洞、temple 古寺、field 古戰場、dike 荷堤、fall 瀑布）、
+##   將來能自立門派的地點 site（look：valley、reed、isle、ruin）；還沒開放的名字淡一點。
 ## - 走到據點旁邊按空白鍵：做好的地方（青竹村）就進去——從哪條路的方向來，就從那一側進村；驛站、茶亭、渡口茶棚打開歇腳選單（story/stay.gd）；其他的說一聲。
 ## - 天上幾朵雲慢慢飄過，影子落在地上。
 
@@ -115,7 +117,7 @@ func _ground() -> void:
 			if t in ["h", "m", "P"]:
 				h += Mk.h01(x, y, 3) * (0.3 if t == "h" else 0.8)
 			# 路和據點墊高一點，不會泡在水裡
-			if road.has(Vector2i(x, y)) and h < 0.1:
+			if road.has(Vector2i(x, y)) and h < 0.1 and not ferry_water.has(Vector2i(x, y)):
 				h = 0.1
 			# 外圍最外面幾格慢慢壓平，接上更遠處平平的遠景
 			var out := maxi(maxi(-x, x - W + 1), maxi(-y, y - H + 1))
@@ -125,6 +127,18 @@ func _ground() -> void:
 			rr.append(1.0 if road.has(Vector2i(x, y)) else 0.0)
 		hc.append(row)
 		road_m.append(rr)
+	# 山裡的據點：腳下那 3×3 墊成四周 5×5 的平均高度（一塊平台），不會陷在坑裡被山擋住
+	for nd in data.nodes:
+		if not nd.kind in ["scenic", "site", "village", "lair", "sect", "wild"]:
+			continue
+		var sum := 0.0
+		for dy in range(-2, 3):
+			for dx in range(-2, 3):
+				sum += float(hc[clampi(nd.y + dy + M, 0, EH - 1)][clampi(nd.x + dx + M, 0, EW - 1)])
+		var lv := maxf(0.12, sum / 25.0)
+		for dy in range(-1, 2):
+			for dx in range(-1, 2):
+				hc[clampi(nd.y + dy + M, 0, EH - 1)][clampi(nd.x + dx + M, 0, EW - 1)] = lv
 	var hb := _blur(hc)
 	var rb := _blur(road_m)
 	var n := SUB
@@ -450,10 +464,16 @@ func _decor() -> void:
 	rock_m.radial_segments = 5
 	rock_m.rings = 2
 	var rock := Mk.Batch.new(rock_m)
+	# 據點四周不長樹，模型才不會被擋住
+	var bare := {}
+	for n in data.nodes:
+		for dy in range(-1, 2):
+			for dx in range(-1, 2):
+				bare[Vector2i(n.x + dx, n.y + dy)] = true
 	for y in range(-M, H + M):
 		for x in range(-M, W + M):
 			var t := T(x, y)
-			if road.has(Vector2i(x, y)):
+			if road.has(Vector2i(x, y)) or bare.has(Vector2i(x, y)):
 				continue
 			var count := 0
 			match t:
@@ -576,6 +596,34 @@ func _settlement(n: Dictionary) -> void:
 				g.add_child(Mk.box(Vector3(0.5, 0.25, 0.3), Color("8a2e26"), Vector3(0, 0.72, 0)))
 				g.add_child(Mk.roof(0.75, 0.5, 0.22, Color("3f4a5e"), Vector3(0, 0.95, 0)))
 				label_h = 1.5
+			"town":
+				# 鎮：沒有城牆，一條街兩排房子、街口一座牌坊
+				for i in 6:
+					var side := 1 if i % 2 else -1
+					_house(g, Vector3(-0.8 + (i / 2) * 0.8, 0, side * 0.45), Color("3f4a5e") if i % 3 else Color("6a4a3a"), PI / 2.0 if side < 0 else -PI / 2.0, 0.9)
+				for px in [-0.25, 0.25]:
+					g.add_child(Mk.box(Vector3(0.06, 0.55, 0.06), Color("8a2e26"), Vector3(1.35, 0.27, px)))
+				g.add_child(Mk.box(Vector3(0.08, 0.1, 0.7), Color("3f4a5e"), Vector3(1.35, 0.58, 0)))
+				label_h = 1.3
+			"lair":
+				# 山寨：一圈木柵、望樓、寨旗
+				for i in 10:
+					var a := TAU * i / 10.0
+					g.add_child(Mk.box(Vector3(0.1, 0.45, 0.1), Color("6a4428"), Vector3(cos(a) * 0.9, 0.22, sin(a) * 0.9)))
+				_house(g, Vector3(-0.2, 0, -0.1), Color("5a3e26"), 0.0, 1.0)
+				for px in [-0.12, 0.12]:
+					for pz in [-0.12, 0.12]:
+						g.add_child(Mk.box(Vector3(0.05, 0.9, 0.05), Color("5a3a22"), Vector3(0.45 + px, 0.45, 0.35 + pz)))
+				g.add_child(Mk.box(Vector3(0.36, 0.06, 0.36), Color("6a4428"), Vector3(0.45, 0.9, 0.35)))
+				g.add_child(Mk.roof(0.42, 0.42, 0.16, Color("4a3424"), Vector3(0.45, 1.02, 0.35)))
+				g.add_child(Mk.box(Vector3(0.03, 1.1, 0.03), Color("5a3a22"), Vector3(-0.6, 0.55, 0.3)))
+				g.add_child(Mk.box(Vector3(0.3, 0.2, 0.02), Color("2a2a2a"), Vector3(-0.45, 0.95, 0.3)))
+				label_h = 1.4
+			"scenic":
+				_scenic(g, n.get("look", "pavilion"))
+				label_h = 1.2
+			"site":
+				_site(g, n.get("look", "valley"))
 	for c in g.get_children():
 		c.position *= sc
 		c.scale *= sc
@@ -584,6 +632,75 @@ func _settlement(n: Dictionary) -> void:
 	g.add_child(lb)
 	var label := "歇腳" if kind == "inn" else ("查看" if n.locked else "進去")
 	props.append({"node": g, "def": {"sprite": "node", "label": label, "lines": [], "node": n.id}, "at": Vector2(n.x + 0.5, n.y + 0.5)})
+
+
+## 名勝：亭子、海蝕洞、江心古寺、古戰場、荷堤、瀑布
+func _scenic(g: Node3D, look: String) -> void:
+	match look:
+		"cave":
+			for i in 3:
+				g.add_child(Mk.ball(0.45 - i * 0.08, Color("7a7468"), Vector3(-0.3 + i * 0.3, 0.2, -0.1), 6))
+			g.add_child(Mk.box(Vector3(0.3, 0.28, 0.1), Color("1e1a18"), Vector3(0, 0.14, 0.3)))
+		"temple":
+			g.add_child(Mk.box(Vector3(0.6, 0.35, 0.45), Color("ece2cc"), Vector3(0, 0.18, 0)))
+			g.add_child(Mk.roof(0.8, 0.62, 0.26, Color("8a5a2a"), Vector3(0, 0.48, 0)))
+			for lv in 3:
+				g.add_child(Mk.box(Vector3(0.22 - lv * 0.04, 0.2, 0.22 - lv * 0.04), Color("e8dcc4"), Vector3(0.55, 0.1 + lv * 0.25, -0.3)))
+				g.add_child(Mk.cyl(0.0, 0.2 - lv * 0.03, 0.08, Color("8a5a2a"), Vector3(0.55, 0.24 + lv * 0.25, -0.3), 4))
+		"field":
+			# 古戰場：斜插的殘戟、一塊石碑
+			for i in 5:
+				var p := Mk.box(Vector3(0.03, 0.5, 0.03), Color("5a5048"), Vector3(-0.5 + i * 0.25, 0.2, (Mk.h01(i, 3) - 0.5) * 0.6))
+				p.rotation.z = (Mk.h01(i, 7) - 0.5) * 0.9
+				g.add_child(p)
+			g.add_child(Mk.box(Vector3(0.22, 0.45, 0.08), Color("9a9484"), Vector3(0.3, 0.22, -0.3)))
+		"dike":
+			g.add_child(Mk.box(Vector3(1.4, 0.08, 0.3), Color("c9a46a"), Vector3(0, 0.04, 0)))
+			for i in 6:
+				g.add_child(Mk.cyl(0.12, 0.12, 0.02, Season.tint(Color("4a8a40"), "tree"), Vector3(-0.6 + i * 0.24, 0.02, 0.32 + (i % 2) * 0.12), 6))
+			_pavilion(g, Vector3(0.45, 0, -0.25), 0.7)
+		"fall":
+			for side in [-1, 1]:
+				g.add_child(Mk.box(Vector3(0.4, 0.9, 0.4), Color("7a7468"), Vector3(side * 0.32, 0.45, -0.2)))
+			g.add_child(Mk.box(Vector3(0.22, 0.85, 0.06), Color("dceef8"), Vector3(0, 0.42, -0.05)))
+			g.add_child(Mk.cyl(0.3, 0.3, 0.04, Color("4a86bc"), Vector3(0, 0.02, 0.2), 8))
+		_:
+			_pavilion(g, Vector3.ZERO, 1.0)
+
+
+func _pavilion(g: Node3D, at: Vector3, s: float) -> void:
+	for px in [-0.22, 0.22]:
+		for pz in [-0.22, 0.22]:
+			g.add_child(Mk.box(Vector3(0.05, 0.5, 0.05) * s, Color("8a2e26"), at + Vector3(px, 0.25, pz) * s))
+	g.add_child(Mk.box(Vector3(0.56, 0.05, 0.56) * s, Color("b8b2a4"), at + Vector3(0, 0.02, 0) * s))
+	g.add_child(Mk.cyl(0.0, 0.45, 0.3, Color("3e6656"), at + Vector3(0, 0.62, 0) * s, 6))
+
+
+## 將來可以自立門派的地點：一塊空地插著木牌（廢觀是殘牆與斷碑）
+func _site(g: Node3D, look: String) -> void:
+	if look == "ruin":
+		g.add_child(Mk.box(Vector3(0.7, 0.3, 0.1), Color("a8a090"), Vector3(0, 0.15, -0.3)))
+		g.add_child(Mk.box(Vector3(0.1, 0.22, 0.5), Color("a8a090"), Vector3(-0.35, 0.11, 0)))
+		g.add_child(Mk.box(Vector3(0.6, 0.35, 0.4), Color("d8cfbc"), Vector3(0.1, 0.18, -0.05)))
+		g.add_child(Mk.roof(0.75, 0.55, 0.2, Color("5a5a52"), Vector3(0.1, 0.45, -0.05)))
+		var st := Mk.box(Vector3(0.14, 0.25, 0.06), Color("9a9484"), Vector3(0.45, 0.12, 0.35))
+		st.rotation.z = 0.4
+		g.add_child(st)
+		return
+	if look == "reed":
+		for i in 9:
+			g.add_child(Mk.box(Vector3(0.03, 0.4, 0.03), Season.tint(Color("8aa858"), "tree"), Vector3((Mk.h01(i, 1) - 0.5) * 1.2, 0.2, (Mk.h01(i, 2) - 0.5) * 0.9)))
+	elif look == "isle" or look == "valley":
+		for i in 2:
+			var p := Vector3(-0.4 + i * 0.8, 0, -0.3)
+			g.add_child(Mk.box(Vector3(0.05, 0.2, 0.05), Color("5a3e26"), p + Vector3(0, 0.1, 0)))
+			g.add_child(Mk.cyl(0.0, 0.22, 0.5, Season.tint(Color("2f6a3a"), "evergreen"), p + Vector3(0, 0.45, 0), 6))
+	# 四根木樁圍一塊地、一塊木牌
+	for px in [-0.3, 0.3]:
+		for pz in [-0.25, 0.25]:
+			g.add_child(Mk.box(Vector3(0.04, 0.2, 0.04), Color("8a6a44"), Vector3(px, 0.1, pz + 0.15)))
+	g.add_child(Mk.box(Vector3(0.04, 0.4, 0.04), Color("6a4428"), Vector3(0, 0.2, 0.5)))
+	g.add_child(Mk.box(Vector3(0.28, 0.16, 0.03), Color("c8a878"), Vector3(0, 0.36, 0.52)))
 
 
 func _pier(g: Node3D, at: Vector3, length: float) -> void:

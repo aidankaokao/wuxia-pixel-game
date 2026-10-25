@@ -44,6 +44,17 @@
     6,
     3.5
    ]
+  },
+  {
+   "name": "",
+   "c": [
+    858,
+    609
+   ],
+   "r": [
+    5,
+    3
+   ]
   }
  ],
  "ranges": [
@@ -63,8 +74,8 @@
      545
     ],
     [
-     880,
-     549
+     868,
+     547
     ]
    ],
    "w": 12
@@ -419,6 +430,369 @@
    "enter": null,
    "enterFrom": {},
    "rest": null
+  },
+  {
+   "id": "yanzhou",
+   "name": "煙州府城",
+   "kind": "city",
+   "x": 822,
+   "y": 526,
+   "desc": "煙州的州府，北嶺以北平原上最大的城。府河從城西流過，漕幫總舵就在府河碼頭；城裡有州衙、青蚨會的錢莊、煙山書院，夜市燈火通宵。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "rank": "府"
+  },
+  {
+   "id": "baishuiyi",
+   "name": "白水驛",
+   "kind": "inn",
+   "x": 808,
+   "y": 508,
+   "desc": "府城往北的官道上最後一座驛站，再往北就是白水渡，過了白水便是中州。",
+   "locked": false,
+   "enter": null,
+   "enterFrom": {},
+   "rest": {
+    "keeper": "單守義",
+    "price": 5,
+    "menu": [
+     "baifan",
+     "yangchun",
+     "doufutang",
+     "hongdou",
+     "tea",
+     "rouzao"
+    ],
+    "horses": [
+     "jujube",
+     "qingcong"
+    ],
+    "bed": "北邊來的客商多，房裡有股羊皮襖的味道，將就著睡吧。",
+    "talk": [
+     [
+      "往北渡過白水，一路平原，騎馬十來天就到京城了。",
+      "白水渡的船只在白天開，晚上到了只能在渡口乾等。"
+     ],
+     [
+      "府城的漕幫最近跟青蚨會鬧得不痛快，說是為了府河碼頭的泊位。"
+     ],
+     [
+      "北邊來的人說中州今年麥子收得好，糧價跌了，漕幫的船都快裝不完了。"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "santang",
+   "name": "三塘鎮",
+   "kind": "town",
+   "x": 792,
+   "y": 532,
+   "desc": "府城往白鷺的官道上的運河市鎮，三口大塘連著府河。鎮上米市、船行最熱鬧，旬休那天趕集。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "lingtang",
+   "name": "菱塘村",
+   "kind": "village",
+   "x": 767,
+   "y": 566,
+   "desc": "煙湖東岸的村子，家家戶戶採菱、養鴨，秋天湖上一片菱角船。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "hedi",
+   "name": "十里荷堤",
+   "kind": "scenic",
+   "x": 770,
+   "y": 577,
+   "desc": "煙湖東岸一條長堤，堤邊種滿荷花。夏天荷花開時，府城的文人雅士都來這裡賞荷、作畫。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "dike"
+  },
+  {
+   "id": "luting",
+   "name": "蘆汀",
+   "kind": "site",
+   "x": 760,
+   "y": 588,
+   "desc": "煙湖東岸伸進湖裡的一片蘆葦洲，地勢平坦，離三塘鎮不遠。洲上空無一人，只有幾隻白鷺。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "reed"
+  },
+  {
+   "id": "beilingguan",
+   "name": "北嶺關",
+   "kind": "pass",
+   "x": 838,
+   "y": 548,
+   "desc": "北嶺官道翻過山脊的關口，巡檢司的兵丁在這裡盤查往來的人。關前有一座兵棧兼茶棚。",
+   "locked": false,
+   "enter": null,
+   "enterFrom": {},
+   "rest": {
+    "keeper": "蔣大碗",
+    "price": 4,
+    "menu": [
+     "baifan",
+     "yangchun",
+     "doufutang",
+     "hongdou",
+     "tea",
+     "jitang"
+    ],
+    "bed": "兵棧後頭的大通鋪，半夜換崗的兵丁會吵醒你。",
+    "talk": [
+     [
+      "最近巡檢大人盤查得緊，說是府城走失了一個要犯，畫像就貼在關門上。"
+     ],
+     [
+      "往西有條小路通到望煙亭，天晴的早上從那兒看府城，一城炊煙跟雲海連成一片。"
+     ],
+     [
+      "再往西的山裡有座荒廢的道觀，叫斷碑觀，裡頭的石碑全斷了，也不知道是誰砸的。"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "wangyan",
+   "name": "望煙亭",
+   "kind": "scenic",
+   "x": 829,
+   "y": 543,
+   "desc": "北嶺山脊上的一座小亭，往北看得到整座煙州府城。晴天的早晨，城裡的炊煙和山間的雲海連成一片。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "pavilion"
+  },
+  {
+   "id": "duanbei",
+   "name": "斷碑觀",
+   "kind": "site",
+   "x": 812,
+   "y": 545,
+   "desc": "北嶺西段山坳裡一座荒廢的道觀，觀後的山崖上刻滿字，崖下的石碑卻斷成好幾截。觀裡還算完整，修一修就能住人。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "ruin"
+  },
+  {
+   "id": "wuya",
+   "name": "霧芽村",
+   "kind": "village",
+   "x": 864,
+   "y": 558,
+   "desc": "北嶺南坡的茶村，山坡上一層層的茶壟。清明前採的霧芽茶最好，臨江城的茶莊都來這裡收茶。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "chaoxin",
+   "name": "潮信城",
+   "kind": "city",
+   "x": 884,
+   "y": 553,
+   "desc": "煙州東邊的海港縣城。城東的碼頭停滿海船，往東、往南有海路到鯨港和霞城；鹽課司、海商會館、潮神廟都在城裡，鹽幫的人也不少。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "huilan",
+   "name": "回瀾崖",
+   "kind": "sect",
+   "x": 883,
+   "y": 531,
+   "desc": "潮信北邊的海崖，崖上是回瀾刀門。漲潮時浪頭打上崖壁，門裡的弟子就在崖下的礁石上練刀。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "tingtao",
+   "name": "聽濤洞",
+   "kind": "scenic",
+   "x": 892,
+   "y": 565,
+   "desc": "潮信南邊海崖下的海蝕洞，只有退潮時才走得進去，洞裡的濤聲像是有人在說話。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "cave"
+  },
+  {
+   "id": "guyu",
+   "name": "孤嶼",
+   "kind": "site",
+   "x": 897,
+   "y": 538,
+   "desc": "潮信外海的一座小島，島上有清泉、有幾棵老松，沒有人住。要坐船才到得了，颱風季節連船都不敢靠近。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "isle"
+  },
+  {
+   "id": "baitan",
+   "name": "白灘",
+   "kind": "village",
+   "x": 885,
+   "y": 580,
+   "desc": "潮信與大埠頭之間的海邊鹽村，灘上一畦畦的鹽田，曬鹽的鹽丁從早忙到晚。這一帶是白沙幫的地盤。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "fuyu",
+   "name": "浮玉洲",
+   "kind": "scenic",
+   "x": 858,
+   "y": 609,
+   "desc": "大江江心的一座小洲，洲上有座古寺，遠看像一塊浮在江上的玉。要坐船才到得了。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "temple"
+  },
+  {
+   "id": "jiangnandu",
+   "name": "江南渡",
+   "kind": "ferry",
+   "x": 812,
+   "y": 603,
+   "desc": "南嶺古道在這裡被大江截斷，渡船往返南北兩岸。南岸往西是桑林城，往東南進雲嶺。",
+   "locked": false,
+   "enter": null,
+   "enterFrom": {},
+   "rest": {
+    "keeper": "易三嫂",
+    "price": 3,
+    "menu": [
+     "baifan",
+     "yangchun",
+     "doufutang",
+     "hongdou",
+     "tea"
+    ],
+    "bed": "茶棚後面的小屋，晚上聽得見江水拍岸。",
+    "talk": [
+     [
+      "江面寬，風大的日子船家不肯開船，客官得在這兒多等一天。"
+     ],
+     [
+      "往西去桑林城，一路都是桑園。春天蠶忙的時候，桑林的人連飯都顧不上吃。"
+     ],
+     [
+      "往雲嶺去的路上不太平，霧鴉寨的人常在山裡收什麼「山稅」，石壁村的獵戶都怕了他們。"
+     ]
+    ]
+   },
+   "ferry": {
+    "boatman": "計老篙"
+   }
+  },
+  {
+   "id": "sanglin",
+   "name": "桑林城",
+   "kind": "city",
+   "x": 768,
+   "y": 618,
+   "desc": "大江南岸的縣城，四周一望無際的桑園。官營的織造局、繡坊、染坊都在城裡，煙州的絲綢大半出自這裡。往南出東嶺口就是嶺海。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "duanji",
+   "name": "斷戟原",
+   "kind": "scenic",
+   "x": 771,
+   "y": 632,
+   "desc": "東嶺口前的一片荒原，據說是前朝大戰的古戰場，地下還埋著殘破的兵器。夜裡起霧時，有人聽過金鼓聲。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "field"
+  },
+  {
+   "id": "wuyazhai",
+   "name": "霧鴉寨",
+   "kind": "lair",
+   "x": 786,
+   "y": 629,
+   "desc": "雲嶺西段山頭上的山寨，居高臨下看得到往東嶺口的官道。寨裡的人劫商隊、向石壁村收山稅，聽說斷崖寨的餘黨也投奔了這裡。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "shibi",
+   "name": "石壁村",
+   "kind": "village",
+   "x": 818,
+   "y": 620,
+   "desc": "雲嶺山腳下的山村，屋子靠著一面大石壁蓋。村裡多是獵戶和藥農，山裡的霧大，進山要有人帶路。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null
+  },
+  {
+   "id": "yunmen",
+   "name": "雲門瀑",
+   "kind": "scenic",
+   "x": 834,
+   "y": 626,
+   "desc": "雲嶺深處的瀑布，水從兩座山峰之間落下，像一扇雲做的門。瀑布下有一塊平平的大石，適合練功、打坐。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "fall"
+  },
+  {
+   "id": "kongcui",
+   "name": "空翠谷",
+   "kind": "site",
+   "x": 845,
+   "y": 625,
+   "desc": "雲嶺最深處的山谷，四面青山圍著，只有一條小路進出。谷裡有溪、有平地，終年雲霧，外人很難找到。",
+   "locked": true,
+   "enter": null,
+   "enterFrom": {},
+   "rest": null,
+   "look": "valley"
   }
  ],
  "roads": [
@@ -463,11 +837,6 @@
    "北嶺官道"
   ],
   [
-   "beiling",
-   "yanzhou",
-   "北嶺官道"
-  ],
-  [
    "qingzhu",
    "guting",
    "南嶺古道"
@@ -481,6 +850,136 @@
    "jiangnandu",
    "yunling",
    "南嶺古道"
+  ],
+  [
+   "beiling",
+   "beilingguan",
+   "北嶺官道"
+  ],
+  [
+   "beilingguan",
+   "yanzhou",
+   "北嶺官道"
+  ],
+  [
+   "beilingguan",
+   "wangyan",
+   "北嶺山徑"
+  ],
+  [
+   "wangyan",
+   "duanbei",
+   "北嶺山徑"
+  ],
+  [
+   "yanzhou",
+   "baishuiyi",
+   "白水官道"
+  ],
+  [
+   "baishuiyi",
+   "baishuidu",
+   "白水官道"
+  ],
+  [
+   "yanzhou",
+   "santang",
+   "府河大道"
+  ],
+  [
+   "santang",
+   "bailu",
+   "府河大道"
+  ],
+  [
+   "santang",
+   "lingtang",
+   "湖堤小路"
+  ],
+  [
+   "lingtang",
+   "hedi",
+   "湖堤小路"
+  ],
+  [
+   "hedi",
+   "luting",
+   "湖堤小路"
+  ],
+  [
+   "yanzhou",
+   "chaoxin",
+   "潮信官道"
+  ],
+  [
+   "linjiang",
+   "wuya",
+   "海塘大道"
+  ],
+  [
+   "wuya",
+   "chaoxin",
+   "海塘大道"
+  ],
+  [
+   "chaoxin",
+   "huilan",
+   "海崖小路"
+  ],
+  [
+   "chaoxin",
+   "tingtao",
+   "海崖小路"
+  ],
+  [
+   "tingtao",
+   "baitan",
+   "海塘小路"
+  ],
+  [
+   "baitan",
+   "dabutou",
+   "海塘小路"
+  ],
+  [
+   "jiangnandu",
+   "sanglin",
+   "江南官道"
+  ],
+  [
+   "sanglin",
+   "duanji",
+   "東嶺官道"
+  ],
+  [
+   "duanji",
+   "donglingkou",
+   "東嶺官道"
+  ],
+  [
+   "yunling",
+   "shibi",
+   "雲嶺山路"
+  ],
+  [
+   "yunling",
+   "yunmen",
+   "雲嶺山路"
+  ],
+  [
+   "yunmen",
+   "kongcui",
+   "雲嶺山路"
+  ],
+  [
+   "shibi",
+   "wuyazhai",
+   "鴉嶺小路"
+  ],
+  [
+   "wuyazhai",
+   "duanji",
+   "鴉嶺小路"
   ]
  ],
  "skip_roads": [
@@ -491,6 +990,22 @@
   [
    "linjiang",
    "jiangnandu"
+  ],
+  [
+   "yanzhou",
+   "baishuidu"
+  ],
+  [
+   "yanzhou",
+   "bailu"
+  ],
+  [
+   "linjiang",
+   "chaoxin"
+  ],
+  [
+   "sanglin",
+   "donglingkou"
   ]
  ]
 }
