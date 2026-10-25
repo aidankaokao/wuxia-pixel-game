@@ -7,7 +7,8 @@ class_name Person
 ## - 條件運算式（Story.cond）可以讀 env(id) 的欄位：gender、age、sect、rank、post、job、fame、五維、skill_<武功>、tag_<標籤>、trait_<性格>。
 ##
 ## 人物表一筆的欄位（都可以省略，省略的照預設）：
-##   surname、given、alias、gender（男／女）、born、life_roll、origin、look、traits [..]、job、tags [..]、
+##   surname、given、name（大家怎麼叫他，例如鍾嬸、老福；有就蓋過姓加名）、alias（字號外號）、npc_ids（地圖、室內資料裡指到同一個人的別的 id）、
+##   gender（男／女）、born、life_roll、origin、look、traits [..]、job、tags [..]、
 ##   base {五維}、skills {武功: 重數}、gear {部位: 物品}、faction {sect, rank, post}、master、home、life、likes、hobby、talk
 
 const LIFESPAN := {"男": 62, "女": 66}
@@ -25,6 +26,26 @@ const FRAIL_YEARS := 2
 
 static var _defs := {}
 static var _rels := []
+## 地圖、室內資料裡別的 id 指到同一個人（人物表的 npc_ids）：npc id → 人物 id
+static var _alias := {}
+## 勢力（data/persons/factions.json）：id → {name, kind, ranks}
+static var _factions := {}
+
+
+static func faction_def(sect_id: String) -> Dictionary:
+	defs()
+	return _factions.get(sect_id, {})
+
+
+## 某人的勢力與身分，例如「漕幫舵主」；沒有是空字串
+static func faction_text(id: String) -> String:
+	var fa: Dictionary = of(id).get("faction", {})
+	var fd := faction_def(fa.get("sect", ""))
+	if fd.is_empty():
+		return ""
+	var ranks: Array = fd.get("ranks", [])
+	var r := int(fa.get("rank", 0))
+	return fd.name + (ranks[r] if r >= 0 and r < ranks.size() else "")
 
 
 # ── 人物表 ──────────────────────────────────────────────
@@ -41,6 +62,9 @@ static func defs() -> Dictionary:
 			if f == "relations.json":
 				_rels = d.get("relations", [])
 				continue
+			if f == "factions.json":
+				_factions = d
+				continue
 			for id in d:
 				if id.begins_with("_"):
 					continue
@@ -48,7 +72,22 @@ static func defs() -> Dictionary:
 				p["id"] = id
 				p["_file"] = f
 				_defs[id] = p
+				for a in p.get("npc_ids", []):
+					_alias[a] = id
 	return _defs
+
+
+## 地圖上的人（npc 的 id）是人物表裡的誰；不在人物表是空字串
+static func resolve(npc_id: String) -> String:
+	if defs().has(npc_id):
+		return npc_id
+	return _alias.get(npc_id, "")
+
+
+## 地圖上的人顯示的名字：在人物表就用人物表的，不在就用資料裡寫的
+static func name_of(npc_id: String, fallback := "") -> String:
+	var pid := resolve(npc_id)
+	return full_name(pid) if pid != "" else fallback
 
 
 static func ids() -> Array:
@@ -88,7 +127,7 @@ static func of(id: String) -> Dictionary:
 			p.faction = fa
 		else:
 			p[k] = s[k]
-	p["name"] = "%s%s" % [p.get("surname", ""), p.get("given", "")]
+	p["name"] = full_name(id)
 	p["gender"] = p.get("gender", "男")
 	p["born"] = int(p.get("born", 1 - 20))
 	p["base"] = _base(p.get("base", {}))
@@ -168,7 +207,10 @@ static func full_name(id: String) -> String:
 	if id == "hero":
 		return G.hero.get("name", "")
 	var d: Dictionary = defs().get(id, {})
-	return "%s%s" % [d.get("surname", ""), d.get("given", "")] if not d.is_empty() else id
+	if d.is_empty():
+		return id
+	# 稱呼（鍾嬸、老福這種）優先；否則姓加名
+	return d.get("name", "%s%s" % [d.get("surname", ""), d.get("given", "")])
 
 
 static func gender(id: String) -> String:
@@ -179,8 +221,18 @@ static func year() -> int:
 	return int(G.date_of().year)
 
 
+## 年齡：開局那年是 1 - born 歲，之後每過一個生日長一歲。生日（一年裡的第幾天，0–359）寫在 bday，
+## 沒寫就照 id 散開（大家不會同一天長一歲）；主角的生日在正月初一（跟著過年長一歲）
 static func age(id: String) -> int:
-	return year() - int(of(id).get("born", -19))
+	var p := of(id)
+	return 1 - int(p.get("born", -19)) + (G.day - 1 + birthday(id)) / 360
+
+
+static func birthday(id: String) -> int:
+	if id == "hero":
+		return 30
+	var d: Dictionary = defs().get(id, {})
+	return int(d.get("bday", hash(id) % 360))
 
 
 static func alive(id: String) -> bool:
@@ -307,7 +359,7 @@ static func _env_of(id: String) -> Dictionary:
 		return {}
 	var fa: Dictionary = p.get("faction", {})
 	var e := {
-		"gender": p.gender, "age": year() - int(p.born), "sect": fa.get("sect", ""), "rank": int(fa.get("rank", 0)), "post": fa.get("post", ""),
+		"gender": p.gender, "age": age(id), "sect": fa.get("sect", ""), "rank": int(fa.get("rank", 0)), "post": fa.get("post", ""),
 		"job": p.get("job", ""), "fame": int(p.get("fame", 0)), "alive": int(p.alive), "health": int(p.health),
 	}
 	var a := Hero.attrs(p)
@@ -465,7 +517,9 @@ static func natural_cause(id: String) -> String:
 			return "礦坑塌了"
 		"山賊":
 			return "被官兵剿殺"
-	return "山裡失足"
+		"獵戶", "藥農":
+			return "山裡失足"
+	return "染病過世" if age(id) >= 55 else "遭了意外"
 
 
 ## 每天半夜：年齡到了壽命的人過世（G.NEW_DAY_SCRIPTS）
@@ -500,6 +554,40 @@ static func check_all() -> void:
 		for who in [r[0], r[1]]:
 			if not exists(who):
 				errs.append("關係 %s：%s 不存在" % [r, who])
+	var warns := []
+	for id in ids():
+		var fs: String = defs()[id].get("faction", {}).get("sect", "")
+		if fs != "" and faction_def(fs).is_empty():
+			errs.append("%s：勢力 %s 不在 factions.json" % [id, fs])
+		# 開局就快到壽命的人（一開始沒幾年就過世）
+		var left: float = lifespan(id).total - age(id)
+		if left < 3:
+			warns.append("%s（%s）%d 歲，壽數約 %.1f" % [full_name(id), id, age(id), lifespan(id).total])
+	# 地圖、室內、自己過日子那群人寫的名字跟人物表不一樣的（名字以人物表為準，資料裡的只是備註）
+	var dir := DirAccess.open("res://data")
+	for f in dir.get_files():
+		if not f.ends_with(".json"):
+			continue
+		var d = JSON.parse_string(FileAccess.get_file_as_string("res://data/" + f))
+		if not d is Dictionary:
+			continue
+		for key in ["npcs", "people"]:
+			for n in d.get(key, []):
+				var pid := resolve(n.get("id", ""))
+				if pid != "" and n.get("name", "") != full_name(pid):
+					warns.append("%s 的 %s 寫「%s」，人物表是「%s」" % [f, n.id, n.get("name", ""), full_name(pid)])
+	for g in ["qingzhu", "biyi", "linjiang", "mingquan", "dabutou"]:
+		for n in Life.group(g).npcs:
+			var pid := resolve(n.id)
+			if pid != "" and n.name != full_name(pid):
+				warns.append("自己過日子的 %s：%s 寫「%s」，人物表是「%s」" % [g, n.id, n.name, full_name(pid)])
+	# 交談的人物檔案（people.json；talk 沒寫就是同一個 id，寫空字串是沒有檔案）
+	for id in ids():
+		var tid: String = defs()[id].get("talk", id)
+		if tid != "" and Social.people().has(tid) and Social.def(tid).get("name", "") != full_name(id):
+			warns.append("people.json 的 %s 寫「%s」，人物表 %s 是「%s」" % [tid, Social.def(tid).get("name", ""), id, full_name(id)])
+	for w in warns:
+		print("PERSON 注意 ", w)
 	print("PERSON 人物 %d 人、關係 %d 條；%s" % [ids().size(), relations().size(), "沒有問題" if errs.is_empty() else "問題 %d 個" % errs.size()])
 	for e in errs:
 		print("PERSON ", e)

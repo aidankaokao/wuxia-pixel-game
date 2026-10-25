@@ -918,16 +918,21 @@ func _teapot(g: Node3D, at: Vector3) -> void:
 func _people() -> void:
 	_place_hero(data.spawn)
 	for n in data.npcs:
+		# 人物表裡過世的人不在了（名字也照人物表，見下面的 name_of）
+		var pid := Person.resolve(n.id)
+		if pid != "" and not Person.alive(pid):
+			continue
 		var f := Chibi.make(LOOK_BY_ID.get(n.id, n.sprite))
 		add_child(f)
 		f.position = w3(n.x, n.y)
 		var face := _facing_vec(n.facing)
 		f.face(face)
-		var lb := Mk.label(n.name, 26, Color("fffbe8"))
+		var nm := Person.name_of(n.id, n.name)
+		var lb := Mk.label(nm, 26, Color("fffbe8"))
 		lb.position.y = 1.3
 		f.add_child(lb)
 		blocked[Vector2i(n.x, n.y)] = true
-		walkers.append({"f": f, "id": n.id, "name": n.name, "lines": n.talks, "home": Vector2(n.x + 0.5, n.y + 0.5), "goal": null, "wait": 0.0,
+		walkers.append({"f": f, "id": n.id, "name": nm, "lines": n.talks, "home": Vector2(n.x + 0.5, n.y + 0.5), "goal": null, "wait": 0.0,
 			"fixed": true, "said": 0, "talking": false, "face": face, "def": n, "hidden": false})
 	# 自己過日子的人（村裡那一群）：照作息進出這間屋子
 	life_setup(room_id)

@@ -1,0 +1,220 @@
+{
+ "_note": "青竹村的人（PLAN.md 4.40）。id 照地圖、室內、自己過日子那群人的 id；name 是大家怎麼叫他（有就蓋過姓加名）；talk 是 people.json 裡的人物檔案 id（跟人物 id 一樣就不寫）。",
+ "liu": {
+  "surname": "柳",
+  "given": "承安",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 3,
+  "look": "elder",
+  "job": "村長",
+  "traits": [
+   "穩重"
+  ],
+  "home": "qingzhu",
+  "role": "青竹村村長"
+ },
+ "qinghe": {
+  "surname": "柳",
+  "given": "青禾",
+  "gender": "女",
+  "born": -17,
+  "look": "girl",
+  "home": "qingzhu",
+  "role": "村長的女兒"
+ },
+ "fu": {
+  "surname": "福",
+  "name": "老福",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 4,
+  "look": "servant",
+  "home": "qingzhu",
+  "role": "柳家的老僕"
+ },
+ "zhong": {
+  "surname": "鍾",
+  "name": "鍾嬸",
+  "gender": "女",
+  "born": -44,
+  "look": "aunt",
+  "job": "茶寮",
+  "home": "qingzhu",
+  "role": "竹風茶寮的老闆娘"
+ },
+ "yun": {
+  "surname": "鍾",
+  "given": "小芸",
+  "gender": "女",
+  "born": -16,
+  "look": "lady",
+  "home": "qingzhu",
+  "role": "鍾嬸的女兒，在茶寮幫忙"
+ },
+ "shi": {
+  "surname": "石",
+  "given": "岳",
+  "gender": "男",
+  "born": -39,
+  "life_roll": 2,
+  "look": "smith",
+  "job": "鐵匠",
+  "traits": [
+   "寡言"
+  ],
+  "base": {
+   "strength": 18,
+   "agility": 10,
+   "constitution": 17,
+   "energy": 8,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 3
+  },
+  "home": "qingzhu",
+  "role": "石家鐵鋪的鐵匠"
+ },
+ "xiaohu": {
+  "surname": "石",
+  "given": "小虎",
+  "gender": "男",
+  "born": -12,
+  "look": "apprentice",
+  "home": "qingzhu",
+  "role": "石岳的兒子，在鐵鋪當學徒"
+ },
+ "kid": {
+  "name": "小石頭",
+  "gender": "男",
+  "born": -7,
+  "look": "child",
+  "home": "qingzhu",
+  "role": "村裡的孩子，整天到處跑"
+ },
+ "wangsao": {
+  "surname": "王",
+  "name": "王嫂",
+  "gender": "女",
+  "born": -41,
+  "look": "lady",
+  "home": "qingzhu",
+  "role": "王家的主婦"
+ },
+ "aniu": {
+  "surname": "王",
+  "name": "阿牛",
+  "gender": "男",
+  "born": -21,
+  "look": "farmer",
+  "job": "農",
+  "home": "qingzhu",
+  "role": "王嫂的兒子，種田"
+ },
+ "du": {
+  "surname": "杜",
+  "given": "大樑",
+  "gender": "男",
+  "born": -44,
+  "look": "carpenter",
+  "job": "木匠",
+  "home": "qingzhu",
+  "role": "村裡的木匠，蓋房子、做家具"
+ },
+ "tao": {
+  "surname": "陶",
+  "name": "陶四",
+  "gender": "男",
+  "born": -34,
+  "look": "peddler",
+  "job": "商販",
+  "home": "qingzhu",
+  "role": "走村串戶的貨郎"
+ },
+ "tong": {
+  "surname": "童",
+  "given": "老根",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 6,
+  "look": "fisher",
+  "job": "漁",
+  "base": {
+   "strength": 11,
+   "agility": 10,
+   "constitution": 15,
+   "energy": 8,
+   "insight": 10
+  },
+  "home": "qingzhu",
+  "role": "在雲水河邊釣魚的老漁夫"
+ },
+ "zou": {
+  "surname": "鄒",
+  "name": "鄒老實",
+  "gender": "男",
+  "born": -49,
+  "look": "farmer",
+  "job": "農",
+  "home": "qingzhu",
+  "role": "老實巴交的莊稼漢"
+ },
+ "ge": {
+  "surname": "葛",
+  "name": "葛先生",
+  "gender": "男",
+  "born": -54,
+  "look": "storyteller",
+  "job": "書生",
+  "home": "qingzhu",
+  "role": "在茶寮說書、替人寫信的先生"
+ },
+ "teaguest1": {
+  "surname": "包",
+  "name": "包老三",
+  "gender": "男",
+  "born": -39,
+  "look": "peddler",
+  "job": "商販",
+  "home": "qingzhu",
+  "role": "常來茶寮歇腳的挑夫"
+ },
+ "teaguest2": {
+  "surname": "牛",
+  "given": "二根",
+  "gender": "男",
+  "born": -29,
+  "look": "farmer",
+  "job": "農",
+  "home": "qingzhu",
+  "role": "鄰村的莊稼漢，愛上茶寮"
+ },
+ "zhiyuan": {
+  "name": "智遠",
+  "gender": "男",
+  "born": -49,
+  "look": "elder",
+  "job": "僧",
+  "traits": [
+   "清心寡欲"
+  ],
+  "tags": [
+   "僧"
+  ],
+  "base": {
+   "strength": 12,
+   "agility": 11,
+   "constitution": 14,
+   "energy": 14,
+   "insight": 15
+  },
+  "skills": {
+   "basic-fist": 4,
+   "breathing": 5
+  },
+  "home": "qingzhu",
+  "role": "竹隱寺的住持"
+ }
+}

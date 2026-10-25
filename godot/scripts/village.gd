@@ -1347,11 +1347,12 @@ func _people() -> void:
 			f.face(stall.face)
 		else:
 			f.rotation.y = Mk.h01(s.x, s.y) * TAU
-		var lb := Mk.label(n.name, 30, Color("fffbe8"))
+		var nm := Person.name_of(n.id, n.name)
+		var lb := Mk.label(nm, 30, Color("fffbe8"))
 		lb.position.y = 1.3
 		f.add_child(lb)
-		var wk := {"f": f, "id": n.id, "name": n.name, "lines": n.lines, "home": Vector2(s.x + 0.5, s.y + 0.5), "goal": null, "wait": randf() * 3.0,
-			"fixed": not stall.is_empty(), "said": 0, "talking": false, "def": {"id": n.id, "name": n.name, "script": n.get("script", "")}, "hidden": false}
+		var wk := {"f": f, "id": n.id, "name": nm, "lines": n.lines, "home": Vector2(s.x + 0.5, s.y + 0.5), "goal": null, "wait": randf() * 3.0,
+			"fixed": not stall.is_empty(), "said": 0, "talking": false, "def": {"id": n.id, "name": nm, "script": n.get("script", "")}, "hidden": false}
 		if not stall.is_empty():
 			wk.stall = stall
 			wk.face = stall.face

@@ -90,6 +90,10 @@ static func now(g: Dictionary) -> Dictionary:
 			continue
 		if absent and g.script.call("absent", n.id):
 			continue
+		# 人物表裡已經過世的人
+		var pid := Person.resolve(n.id)
+		if pid != "" and not Person.alive(pid):
+			continue
 		var awake: bool = G.time >= int(n.wake) and G.time < int(n.sleep)
 		# 活動帶 force 的（例如守夜），睡著也得起來
 		if not awake and not (ev.has(n.id) and ev[n.id].get("force", false)):

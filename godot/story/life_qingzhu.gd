@@ -62,22 +62,22 @@ static func group() -> Dictionary:
 	]
 	var none := [AWAY, 0, 0]
 	var npcs := [
-		{"id": "liu", "name": "柳承安", "sprite": "elder", "person": "liu", "home": [LIU, 5, 3, "down"], "seat": [LIU, 6, 2, "down"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 3, "chat": 2}},
-		{"id": "zhong", "name": "鍾嬸", "sprite": "aunt", "person": "zhong", "home": [TEA, 5, 3, "down"], "seat": [TEA, 5, 4, "up"], "wake": T(卯), "sleep": T(戌), "likes": {"chat": 1}},
-		{"id": "shi", "name": "石岳", "sprite": "smith", "person": "shi", "home": [SMITH, 5, 5, "up"], "seat": [SMITH, 4, 4, "down"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1}},
-		{"id": "kid", "name": "小石頭", "sprite": "child", "script": "qingzhu/kid_talk", "home": none, "seat": none, "wake": T(辰), "sleep": T(酉, 4), "likes": {"play": 5, "fish": 1}},
-		{"id": "aniu", "name": "阿牛", "sprite": "farmer", "script": "qingzhu/aniu_talk", "home": [WANG, 7, 2, "down"], "seat": [WANG, 4, 3, "right"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 1, "chat": 1}},
-		{"id": "du", "name": "杜大樑", "sprite": "carpenter", "script": "estate/carpenter", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1},
+		{"id": "liu", "name": Person.full_name("liu"), "sprite": "elder", "person": "liu", "home": [LIU, 5, 3, "down"], "seat": [LIU, 6, 2, "down"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 3, "chat": 2}},
+		{"id": "zhong", "name": Person.full_name("zhong"), "sprite": "aunt", "person": "zhong", "home": [TEA, 5, 3, "down"], "seat": [TEA, 5, 4, "up"], "wake": T(卯), "sleep": T(戌), "likes": {"chat": 1}},
+		{"id": "shi", "name": Person.full_name("shi"), "sprite": "smith", "person": "shi", "home": [SMITH, 5, 5, "up"], "seat": [SMITH, 4, 4, "down"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1}},
+		{"id": "kid", "name": Person.full_name("kid"), "sprite": "child", "script": "qingzhu/kid_talk", "home": none, "seat": none, "wake": T(辰), "sleep": T(酉, 4), "likes": {"play": 5, "fish": 1}},
+		{"id": "aniu", "name": Person.full_name("aniu"), "sprite": "farmer", "script": "qingzhu/aniu_talk", "home": [WANG, 7, 2, "down"], "seat": [WANG, 4, 3, "right"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 1, "chat": 1}},
+		{"id": "du", "name": Person.full_name("du"), "sprite": "carpenter", "script": "estate/carpenter", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1},
 			"talks": {"carve": [_by("杜大樑", ["刨子一推，木花就捲起來了。好木頭，聞著都香。"])], "default": [_by("杜大樑", ["村裡誰家的門窗壞了，都是我杜大樑來修。"]), _by("杜大樑", ["竹子做家具輕巧，可要論結實，還是得用杉木。"])]}},
-		{"id": "tao", "name": "陶四", "sprite": "peddler", "person": "tao", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 2}},
-		{"id": "tong", "name": "童老根", "sprite": "fisher", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1},
+		{"id": "tao", "name": Person.full_name("tao"), "sprite": "peddler", "person": "tao", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 2}},
+		{"id": "tong", "name": Person.full_name("tong"), "sprite": "fisher", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1},
 			"talks": {"fish": [_by("童老根", ["噓——別驚了魚。", "雲水河的魚，要心靜才釣得到。練武，其實也是同一個道理。"]), _by("童老根", ["碧漪湖那邊的秦老漢，釣魚的本事比我強。你要學，找他去。"])],
 				"default": [_by("童老根", ["人老了，除了釣魚，也沒什麼別的嗜好囉。"])]}},
-		{"id": "qinghe", "name": "柳青禾", "sprite": "girl", "person": "qinghe", "home": [LIU, 2, 2, "down"], "seat": [LIU, 3, 4, "left"], "wake": T(卯), "sleep": T(戌), "likes": {"wash": 1, "chat": 2, "tea": 1, "stroll": 1}},
-		{"id": "wangsao", "name": "王嫂", "sprite": "lady", "home": [WANG, 3, 2, "down"], "seat": [WANG, 7, 3, "left"], "wake": T(卯), "sleep": T(戌), "likes": {"chat": 1},
+		{"id": "qinghe", "name": Person.full_name("qinghe"), "sprite": "girl", "person": "qinghe", "home": [LIU, 2, 2, "down"], "seat": [LIU, 3, 4, "left"], "wake": T(卯), "sleep": T(戌), "likes": {"wash": 1, "chat": 2, "tea": 1, "stroll": 1}},
+		{"id": "wangsao", "name": Person.full_name("wangsao"), "sprite": "lady", "home": [WANG, 3, 2, "down"], "seat": [WANG, 7, 3, "left"], "wake": T(卯), "sleep": T(戌), "likes": {"chat": 1},
 			"talks": {"default": [_by("王嫂", ["噓，小聲點，娃兒好不容易才睡著。"]), _by("王嫂", ["我家那口子是阿牛，整天在田裡忙。", "他啊，心思全在莊稼上，連娃兒哭都聽不見。"]), _by("王嫂", ["北邊山上不太平，阿牛上山砍柴，我總要提心吊膽一整天。"])],
 				"wash": [_by("王嫂", ["趁娃兒睡著，趕緊把衣裳洗了。"])]}},
-		{"id": "zou", "name": "鄒老實", "sprite": "farmer", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"chat": 1, "tea": 1},
+		{"id": "zou", "name": Person.full_name("zou"), "sprite": "farmer", "home": none, "seat": none, "wake": T(卯), "sleep": T(戌), "likes": {"chat": 1, "tea": 1},
 			"talks": {"default": [_by("鄒老實", ["這幾畝地是我家的。今年雨水好，秧苗長得旺。"]), _by("鄒老實", ["往北走就上蒼嵐山了。以前山上有山賊，現在聽說太平多啦。"])]}},
 	]
 	return {"id": "qingzhu", "maps": [QZ, QN, LIU, TEA, SMITH, WANG], "outdoor": [QZ, QN], "spots": spots, "npcs": npcs}

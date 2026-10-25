@@ -50,13 +50,13 @@ static func group() -> Dictionary:
 	]
 	var none := [AWAY, 0, 0]
 	var npcs := [
-		{"id": "qin", "name": "秦老漢", "sprite": "fisher", "person": "qinlao", "home": [QIN, 3, 2, "down"], "seat": [TAV, 4, 4, "left"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1, "fish": 1}},
-		{"id": "ruan", "name": "阮大水", "sprite": "boatman", "script": "biyi/ruan_stall", "home": none, "seat": [TAV, 6, 4, "right"], "wake": T(卯), "sleep": T(戌), "likes": {"chat": 2, "tea": 2, "mend": 1}},
-		{"id": "xiaohe", "name": "喬小荷", "sprite": "girl", "home": [TAV, 6, 3, "down"], "seat": [TAV, 8, 5, "up"], "wake": T(卯), "sleep": T(戌), "likes": {"play": 4, "pick": 1, "chat": 1},
+		{"id": "qin", "name": Person.full_name("qin"), "sprite": "fisher", "person": "qinlao", "home": [QIN, 3, 2, "down"], "seat": [TAV, 4, 4, "left"], "wake": T(卯), "sleep": T(戌), "likes": {"tea": 2, "chat": 1, "fish": 1}},
+		{"id": "ruan", "name": Person.full_name("ruan"), "sprite": "boatman", "script": "biyi/ruan_stall", "home": none, "seat": [TAV, 6, 4, "right"], "wake": T(卯), "sleep": T(戌), "likes": {"chat": 2, "tea": 2, "mend": 1}},
+		{"id": "xiaohe", "name": Person.full_name("xiaohe"), "sprite": "girl", "home": [TAV, 6, 3, "down"], "seat": [TAV, 8, 5, "up"], "wake": T(卯), "sleep": T(戌), "likes": {"play": 4, "pick": 1, "chat": 1},
 			"talks": {"pick": [_by("喬小荷", ["荷塘裡的蓮藕可大了！你要不要下來挖？", "……褲腳要挽高一點喔。"])],
 				"sleep": [_by("喬小荷", ["（打了個哈欠）明天……明天我還要去荷塘……"])],
 				"default": [_by("喬小荷", ["秦爺爺說湖裡有一條白色的大鯉魚。", "我每天都在找，可是只看到白鵝。"]), _by("喬小荷", ["娘做的菱角糕最好吃了！比城裡的桂花糕還好吃！"])]}},
-		{"id": "wang7", "name": "汪七", "sprite": "farmer", "home": none, "seat": [TAV, 2, 5, "up"], "wake": T(卯), "sleep": T(戌), "likes": {"mend": 2, "chat": 2, "fish": 1},
+		{"id": "wang7", "name": Person.full_name("wang7"), "sprite": "farmer", "home": none, "seat": [TAV, 2, 5, "up"], "wake": T(卯), "sleep": T(戌), "likes": {"mend": 2, "chat": 2, "fish": 1},
 			"talks": {"default": [_by("汪七", ["往西走湖畔小路，一刻鐘就到青竹村。", "我每隔幾天就挑魚過去賣，鍾嬸那兒收得最多。"]), _by("汪七", ["這幾年湖裡的魚少了些。秦老爺子說，是有人在湖東頭下了密網。"])],
 				"mend": [_by("汪七", ["網破了不補，魚就從洞裡溜了。跟做人一樣。"])]}},
 	]

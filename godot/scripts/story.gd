@@ -92,6 +92,10 @@ static func _world() -> Dictionary:
 
 ## 這個人現在在不在：先看出現條件，再看作息（outdoor：這張地圖是不是室外）
 static func present(def: Dictionary, outdoor: bool) -> bool:
+	# 人物表裡已經過世的人
+	var pid := Person.resolve(def.get("id", ""))
+	if pid != "" and not Person.alive(pid):
+		return false
 	if not cond(def.get("when", "")):
 		return false
 	if def.get("encounter", "") != "":

@@ -1,0 +1,65 @@
+{
+ "_note": "碧漪湖漁村的人（PLAN.md 4.40）。",
+ "qin": {
+  "surname": "秦",
+  "name": "秦老漢",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 8,
+  "look": "fisher",
+  "job": "漁",
+  "base": {
+   "strength": 13,
+   "agility": 11,
+   "constitution": 16,
+   "energy": 8,
+   "insight": 10
+  },
+  "talk": "qinlao",
+  "home": "biyi",
+  "role": "撐船去湖心島的老漁夫"
+ },
+ "qiaosao": {
+  "surname": "喬",
+  "name": "喬嫂",
+  "gender": "女",
+  "born": -37,
+  "look": "aunt",
+  "job": "廚子",
+  "npc_ids": [
+   "byt_qiao"
+  ],
+  "talk": "qiao",
+  "home": "biyi",
+  "role": "湖鮮館的老闆娘，糖醋鯉魚遠近有名"
+ },
+ "xiaohe": {
+  "surname": "喬",
+  "given": "小荷",
+  "gender": "女",
+  "born": -13,
+  "look": "girl",
+  "home": "biyi",
+  "role": "喬嫂的女兒，常在荷塘"
+ },
+ "ruan": {
+  "surname": "阮",
+  "given": "大水",
+  "gender": "男",
+  "born": -39,
+  "look": "boatman",
+  "job": "漁",
+  "home": "biyi",
+  "role": "清早出船、白天擺魚攤"
+ },
+ "wang7": {
+  "surname": "汪",
+  "name": "汪七",
+  "gender": "男",
+  "born": -32,
+  "look": "farmer",
+  "job": "商販",
+  "home": "biyi",
+  "role": "挑魚去青竹村賣的魚販"
+ }
+}

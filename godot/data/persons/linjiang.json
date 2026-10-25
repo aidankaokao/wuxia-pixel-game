@@ -1,0 +1,825 @@
+{
+ "_note": "臨江城的人（PLAN.md 4.40）。縣衙、漕幫、金刀鏢局的人填 faction（勢力見 factions.json）。",
+ "xiao": {
+  "surname": "蕭",
+  "given": "子墨",
+  "gender": "男",
+  "born": -23,
+  "look": "scholar",
+  "job": "書生",
+  "home": "linjiang",
+  "role": "進城趕考的書生，盤纏丟了大半"
+ },
+ "hu": {
+  "surname": "胡",
+  "given": "來喜",
+  "gender": "男",
+  "born": -37,
+  "look": "farmer",
+  "job": "商販",
+  "home": "linjiang",
+  "role": "捏糖人的小販"
+ },
+ "he6": {
+  "surname": "何",
+  "name": "何六",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 6,
+  "look": "beggar",
+  "job": "丐",
+  "traits": [
+   "深藏不露"
+  ],
+  "tags": [
+   "丐"
+  ],
+  "base": {
+   "strength": 13,
+   "agility": 15,
+   "constitution": 14,
+   "energy": 13,
+   "insight": 14
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 5
+  },
+  "home": "linjiang",
+  "role": "城南的老叫化，眼光毒得很"
+ },
+ "sun": {
+  "surname": "孫",
+  "name": "孫大娘",
+  "gender": "女",
+  "born": -47,
+  "look": "lady",
+  "home": "linjiang",
+  "role": "丈夫在碼頭替漕幫記帳"
+ },
+ "yu": {
+  "surname": "余",
+  "name": "余二嫂",
+  "gender": "女",
+  "born": -35,
+  "look": "lady",
+  "home": "linjiang",
+  "role": "小叔子在鏢局當趟子手"
+ },
+ "abao": {
+  "name": "阿寶",
+  "gender": "男",
+  "born": -7,
+  "look": "child",
+  "home": "linjiang",
+  "role": "想上鳴泉山學劍的孩子"
+ },
+ "huang": {
+  "surname": "黃",
+  "given": "阿順",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 6,
+  "look": "elder",
+  "base": {
+   "strength": 10,
+   "agility": 10,
+   "constitution": 14,
+   "energy": 8,
+   "insight": 11
+  },
+  "home": "linjiang",
+  "role": "愛喝茶下棋的老街坊"
+ },
+ "hepo": {
+  "surname": "何",
+  "name": "何婆婆",
+  "gender": "女",
+  "born": -67,
+  "life_roll": 8,
+  "look": "aunt",
+  "traits": [
+   "清心寡欲"
+  ],
+  "home": "linjiang",
+  "role": "在城北住了六十年"
+ },
+ "hexs": {
+  "surname": "何",
+  "given": "小石",
+  "gender": "男",
+  "born": -8,
+  "look": "child",
+  "home": "linjiang",
+  "role": "何婆婆的孫子，想當鏢師"
+ },
+ "du3": {
+  "surname": "杜",
+  "name": "杜三嫂",
+  "gender": "女",
+  "born": -39,
+  "look": "lady",
+  "home": "linjiang",
+  "role": "城北的街坊"
+ },
+ "qu": {
+  "surname": "曲",
+  "name": "曲老爹",
+  "gender": "男",
+  "born": -63,
+  "life_roll": 8,
+  "look": "elder",
+  "traits": [
+   "清心寡欲"
+  ],
+  "base": {
+   "strength": 10,
+   "agility": 10,
+   "constitution": 16,
+   "energy": 9,
+   "insight": 14
+  },
+  "home": "linjiang",
+  "role": "愛下棋的老人家"
+ },
+ "ljy_lu": {
+  "surname": "盧",
+  "given": "秉文",
+  "gender": "男",
+  "born": -49,
+  "look": "scholar",
+  "job": "官",
+  "tags": [
+   "官"
+  ],
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 3
+  },
+  "home": "linjiang",
+  "role": "臨江縣令"
+ },
+ "ljy_miao": {
+  "surname": "苗",
+  "given": "守正",
+  "gender": "男",
+  "born": -54,
+  "look": "storyteller",
+  "job": "官",
+  "tags": [
+   "官"
+  ],
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 2
+  },
+  "home": "linjiang",
+  "role": "縣衙的師爺，管戶籍與房產"
+ },
+ "ljy_ge": {
+  "surname": "葛",
+  "given": "文顯",
+  "gender": "男",
+  "born": -29,
+  "look": "scholar",
+  "job": "官",
+  "tags": [
+   "官"
+  ],
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 1
+  },
+  "home": "linjiang",
+  "role": "縣衙的書吏"
+ },
+ "ljy_huo": {
+  "surname": "霍",
+  "given": "青山",
+  "gender": "男",
+  "born": -37,
+  "look": "guard",
+  "job": "捕快",
+  "tags": [
+   "官"
+  ],
+  "base": {
+   "strength": 16,
+   "agility": 14,
+   "constitution": 15,
+   "energy": 9,
+   "insight": 11
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 3
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 2
+  },
+  "home": "linjiang",
+  "role": "臨江縣的捕頭，管懸賞"
+ },
+ "ljy_fang": {
+  "surname": "方",
+  "given": "大成",
+  "gender": "男",
+  "born": -31,
+  "look": "guard",
+  "job": "捕快",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "衙役"
+ },
+ "ljy_tang": {
+  "surname": "湯",
+  "given": "小滿",
+  "gender": "男",
+  "born": -21,
+  "look": "guard",
+  "job": "捕快",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 2
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "衙役"
+ },
+ "ljy_gao": {
+  "surname": "高",
+  "given": "升",
+  "gender": "男",
+  "born": -27,
+  "look": "guard",
+  "job": "捕快",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "衙役，守縣衙大門"
+ },
+ "ljy_zou": {
+  "surname": "鄒",
+  "name": "鄒老七",
+  "gender": "男",
+  "born": -54,
+  "look": "guard",
+  "job": "捕快",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 1
+  },
+  "home": "linjiang",
+  "role": "縣衙大牢的牢頭"
+ },
+ "lj_lei": {
+  "surname": "雷",
+  "given": "小五",
+  "gender": "男",
+  "born": -19,
+  "look": "guard",
+  "job": "捕快",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 2
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 0
+  },
+  "npc_ids": [
+   "ljy_lei_n"
+  ],
+  "home": "linjiang",
+  "role": "衙役，白天巡街、夜裡在東廂值宿"
+ },
+ "ljn_guard": {
+  "surname": "朱",
+  "given": "八斤",
+  "gender": "男",
+  "born": -32,
+  "look": "guard",
+  "job": "兵丁",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "守北門的兵丁"
+ },
+ "lj_guard_w": {
+  "surname": "馮",
+  "given": "順",
+  "gender": "男",
+  "born": -29,
+  "look": "guard",
+  "job": "兵丁",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "守西門的兵丁"
+ },
+ "lj_guard_w2": {
+  "surname": "魏",
+  "given": "大牛",
+  "gender": "男",
+  "born": -25,
+  "look": "guard",
+  "job": "兵丁",
+  "tags": [
+   "官"
+  ],
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "lj_yamen",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "守西門的兵丁"
+ },
+ "ljn_watch": {
+  "surname": "邱",
+  "given": "更生",
+  "gender": "男",
+  "born": -49,
+  "look": "peddler",
+  "job": "更夫",
+  "home": "linjiang",
+  "role": "城北的更夫"
+ },
+ "ljg_peng": {
+  "surname": "彭",
+  "given": "大江",
+  "gender": "男",
+  "born": -44,
+  "look": "boss",
+  "job": "幫眾",
+  "traits": [
+   "暴躁"
+  ],
+  "tags": [
+   "幫"
+  ],
+  "base": {
+   "strength": 17,
+   "agility": 12,
+   "constitution": 16,
+   "energy": 10,
+   "insight": 10
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 4
+  },
+  "faction": {
+   "sect": "caobang",
+   "rank": 2
+  },
+  "home": "linjiang",
+  "role": "漕幫臨江分舵的舵主"
+ },
+ "ljg_hou": {
+  "surname": "侯",
+  "name": "侯三",
+  "gender": "男",
+  "born": -29,
+  "look": "bandit",
+  "job": "幫眾",
+  "tags": [
+   "幫"
+  ],
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "caobang",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "漕幫分舵的幫眾"
+ },
+ "lj_boatman": {
+  "surname": "閻",
+  "given": "水生",
+  "gender": "男",
+  "born": -34,
+  "look": "boatman",
+  "job": "船家",
+  "tags": [
+   "幫"
+  ],
+  "faction": {
+   "sect": "caobang",
+   "rank": 0
+  },
+  "home": "linjiang",
+  "role": "碼頭的船家，替漕幫撐船"
+ },
+ "lje_jin": {
+  "surname": "金",
+  "given": "萬山",
+  "gender": "男",
+  "born": -51,
+  "life_roll": 3,
+  "look": "sect_judge",
+  "job": "鏢師",
+  "traits": [
+   "重義"
+  ],
+  "tags": [
+   "鏢"
+  ],
+  "base": {
+   "strength": 18,
+   "agility": 14,
+   "constitution": 17,
+   "energy": 12,
+   "insight": 12
+  },
+  "skills": {
+   "basic-fist": 5,
+   "breathing": 5
+  },
+  "faction": {
+   "sect": "jindao",
+   "rank": 3
+  },
+  "home": "linjiang",
+  "role": "金刀鏢局的總鏢頭"
+ },
+ "lje_lv": {
+  "surname": "呂",
+  "given": "鐵",
+  "gender": "男",
+  "born": -34,
+  "look": "escort",
+  "job": "鏢師",
+  "tags": [
+   "鏢"
+  ],
+  "base": {
+   "strength": 15,
+   "agility": 13,
+   "constitution": 14,
+   "energy": 9,
+   "insight": 10
+  },
+  "skills": {
+   "basic-fist": 4,
+   "breathing": 2
+  },
+  "faction": {
+   "sect": "jindao",
+   "rank": 1
+  },
+  "master": "lje_jin",
+  "home": "linjiang",
+  "role": "金刀鏢局的鏢師，總鏢頭的徒弟"
+ },
+ "lj_escort": {
+  "surname": "褚",
+  "given": "大剛",
+  "gender": "男",
+  "born": -32,
+  "look": "escort",
+  "job": "鏢師",
+  "tags": [
+   "鏢"
+  ],
+  "base": {
+   "strength": 15,
+   "agility": 12,
+   "constitution": 15,
+   "energy": 8,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 4,
+   "breathing": 2
+  },
+  "faction": {
+   "sect": "jindao",
+   "rank": 1
+  },
+  "home": "linjiang",
+  "role": "金刀鏢局的鏢師"
+ },
+ "ljc_bai": {
+  "surname": "白",
+  "given": "濟仁",
+  "gender": "男",
+  "born": -55,
+  "life_roll": 4,
+  "look": "storyteller",
+  "job": "大夫",
+  "traits": [
+   "清心寡欲"
+  ],
+  "home": "linjiang",
+  "role": "回春堂的大夫"
+ },
+ "ljc_shao": {
+  "surname": "白",
+  "given": "小芍",
+  "gender": "女",
+  "born": -11,
+  "look": "child",
+  "home": "linjiang",
+  "role": "白大夫的孫女，在藥鋪幫忙"
+ },
+ "lj_jin": {
+  "surname": "魏",
+  "given": "錦娘",
+  "gender": "女",
+  "born": -37,
+  "look": "lady",
+  "job": "布莊",
+  "home": "linjiang",
+  "role": "錦繡布莊的老闆娘，織得一手好布"
+ },
+ "lji_he": {
+  "surname": "賀",
+  "given": "長年",
+  "gender": "男",
+  "born": -53,
+  "look": "elder",
+  "job": "掌櫃",
+  "home": "linjiang",
+  "role": "雲來客棧的掌櫃"
+ },
+ "lji_wang": {
+  "surname": "牛",
+  "given": "小旺",
+  "gender": "男",
+  "born": -16,
+  "look": "servant",
+  "job": "夥計",
+  "home": "linjiang",
+  "role": "雲來客棧的店小二"
+ },
+ "lji_deng": {
+  "surname": "鄧",
+  "given": "行舟",
+  "gender": "男",
+  "born": -39,
+  "look": "peddler",
+  "job": "商販",
+  "role": "住在客棧的行商"
+ },
+ "ljp_ho": {
+  "surname": "和",
+  "given": "守義",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 3,
+  "look": "elder",
+  "job": "掌櫃",
+  "home": "linjiang",
+  "role": "和記當鋪的掌櫃"
+ },
+ "ljt_liang": {
+  "surname": "梁",
+  "given": "敬亭",
+  "gender": "男",
+  "born": -44,
+  "look": "scholar",
+  "job": "掌櫃",
+  "home": "linjiang",
+  "role": "泉霧茶莊的掌櫃（鳴泉劍派的產業）"
+ },
+ "ljt_wang": {
+  "surname": "汪",
+  "given": "福來",
+  "gender": "男",
+  "born": -49,
+  "look": "servant",
+  "job": "掌櫃",
+  "traits": [
+   "好酒"
+  ],
+  "home": "linjiang",
+  "role": "望江樓的掌櫃"
+ },
+ "ljt_fei": {
+  "surname": "費",
+  "given": "一言",
+  "gender": "男",
+  "born": -57,
+  "life_roll": 4,
+  "look": "storyteller",
+  "job": "書生",
+  "home": "linjiang",
+  "role": "望江樓的說書先生"
+ },
+ "ljt_fang": {
+  "surname": "方",
+  "given": "子期",
+  "gender": "男",
+  "born": -25,
+  "look": "scholar",
+  "job": "書生",
+  "home": "linjiang",
+  "role": "常在望江樓聽書的書生"
+ },
+ "ljt_du": {
+  "surname": "杜",
+  "name": "杜九",
+  "gender": "男",
+  "born": -33,
+  "look": "swordsman",
+  "job": "劍客",
+  "traits": [
+   "好酒"
+  ],
+  "tags": [
+   "俠"
+  ],
+  "base": {
+   "strength": 15,
+   "agility": 16,
+   "constitution": 13,
+   "energy": 11,
+   "insight": 13
+  },
+  "skills": {
+   "zhuying": 5,
+   "basic-fist": 4,
+   "breathing": 3
+  },
+  "role": "在望江樓喝酒的浪人劍客"
+ },
+ "lja_ye": {
+  "surname": "葉",
+  "given": "清和",
+  "gender": "男",
+  "born": -59,
+  "life_roll": 5,
+  "look": "scholar",
+  "job": "書生",
+  "traits": [
+   "清心寡欲"
+  ],
+  "home": "linjiang",
+  "role": "臨江書院的山長"
+ },
+ "lja_lv": {
+  "surname": "呂",
+  "given": "文清",
+  "gender": "男",
+  "born": -39,
+  "look": "child",
+  "job": "書生",
+  "home": "linjiang",
+  "role": "臨江書院教書的先生"
+ },
+ "ljn_qian": {
+  "surname": "錢",
+  "name": "錢六",
+  "gender": "男",
+  "born": -41,
+  "look": "peddler",
+  "job": "牙人",
+  "traits": [
+   "貪財"
+  ],
+  "home": "linjiang",
+  "role": "城裡的牙人，替人買賣房子"
+ },
+ "ljn_lu": {
+  "surname": "魯",
+  "given": "一鑿",
+  "gender": "男",
+  "born": -47,
+  "look": "smith",
+  "job": "石匠",
+  "home": "linjiang",
+  "role": "石匠，修過不少橋"
+ },
+ "lj_ferry": {
+  "surname": "董",
+  "name": "董阿七",
+  "gender": "男",
+  "born": -49,
+  "look": "fisher",
+  "job": "船家",
+  "home": "linjiang",
+  "role": "南門外撐渡船的"
+ },
+ "lj_hong": {
+  "surname": "洪",
+  "given": "大槳",
+  "gender": "男",
+  "born": -39,
+  "look": "boatman",
+  "job": "船家",
+  "home": "linjiang",
+  "role": "端午龍舟的舵手"
+ },
+ "lj_market_food": {
+  "surname": "田",
+  "given": "有餘",
+  "gender": "男",
+  "born": -44,
+  "look": "farmer",
+  "job": "商販",
+  "role": "旬休趕集賣糧的"
+ },
+ "lj_market_silk": {
+  "surname": "沈",
+  "given": "綺羅",
+  "gender": "女",
+  "born": -29,
+  "look": "lady",
+  "job": "商販",
+  "role": "旬休趕集賣絲線的"
+ },
+ "lj_market_books": {
+  "surname": "古",
+  "given": "懷石",
+  "gender": "男",
+  "born": -54,
+  "look": "scholar",
+  "job": "商販",
+  "role": "旬休趕集賣舊書的"
+ },
+ "lj_market_goods": {
+  "surname": "雷",
+  "given": "振",
+  "gender": "男",
+  "born": -29,
+  "look": "escort",
+  "job": "商販",
+  "skills": {
+   "basic-fist": 3
+  },
+  "role": "旬休趕集賣雜貨的，以前走過鏢"
+ },
+ "lj_zhu": {
+  "surname": "祝",
+  "name": "祝老秀才",
+  "gender": "男",
+  "born": -61,
+  "life_roll": 6,
+  "look": "scholar",
+  "job": "書生",
+  "traits": [
+   "清心寡欲"
+  ],
+  "base": {
+   "strength": 9,
+   "agility": 9,
+   "constitution": 14,
+   "energy": 9,
+   "insight": 16
+  },
+  "home": "linjiang",
+  "role": "元宵擺燈謎攤的老秀才"
+ }
+}

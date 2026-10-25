@@ -87,7 +87,10 @@
    "sect": "mingquan",
    "rank": 4
   },
-  "role": "執法長老，坐鎮後山，看守思過崖"
+  "role": "執法長老，坐鎮後山，看守思過崖",
+  "npc_ids": [
+   "mqb_yan"
+  ]
  },
  "su": {
   "surname": "蘇",
@@ -114,7 +117,10 @@
    "sect": "mingquan",
    "rank": 4
   },
-  "role": "藥堂長老，常下山行醫"
+  "role": "藥堂長老，常下山行醫",
+  "npc_ids": [
+   "mqm_su"
+  ]
  },
  "lu": {
   "surname": "陸",
@@ -196,7 +202,10 @@
    "rank": 2
   },
   "master": "han",
-  "role": "教習，在練功房教基本功"
+  "role": "教習，在練功房教基本功",
+  "npc_ids": [
+   "mqt_coach"
+  ]
  },
  "fang": {
   "surname": "方",
@@ -220,7 +229,10 @@
    "sect": "mingquan",
    "rank": 2
   },
-  "role": "知客，在山門內迎客"
+  "role": "知客，在山門內迎客",
+  "npc_ids": [
+   "mqs_greeter"
+  ]
  },
  "ke": {
   "surname": "柯",
@@ -244,7 +256,10 @@
    "sect": "mingquan",
    "rank": 2
   },
-  "role": "值殿，掌管門規與月例"
+  "role": "值殿，掌管門規與月例",
+  "npc_ids": [
+   "mqh_duty"
+  ]
  },
  "song": {
   "surname": "宋",
@@ -268,7 +283,10 @@
    "sect": "mingquan",
    "rank": 2
   },
-  "role": "管書"
+  "role": "管書",
+  "npc_ids": [
+   "mql_keeper"
+  ]
  },
  "miao": {
   "surname": "蘇",
@@ -293,7 +311,10 @@
    "rank": 2
   },
   "master": "su",
-  "role": "管藥，蘇長老的姪女"
+  "role": "管藥，蘇長老的姪女",
+  "npc_ids": [
+   "mqm_herbalist"
+  ]
  },
  "meng": {
   "surname": "孟",
@@ -321,7 +342,10 @@
    "sect": "mingquan",
    "rank": 2
   },
-  "role": "管武器房"
+  "role": "管武器房",
+  "npc_ids": [
+   "mqa_keeper"
+  ]
  },
  "he": {
   "surname": "何",
@@ -422,7 +446,8 @@
    "sect": "mingquan",
    "rank": 0
   },
-  "role": "守山門"
+  "role": "守山門",
+  "talk": ""
  },
  "bao": {
   "surname": "包",
@@ -574,7 +599,10 @@
    "sect": "mingquan",
    "rank": -1
   },
-  "role": "伙房師傅，管廚房與菜圃"
+  "role": "伙房師傅，管廚房與菜圃",
+  "npc_ids": [
+   "mqk_cook"
+  ]
  },
  "shao": {
   "surname": "邵",
@@ -603,7 +631,10 @@
    "sect": "mingquan",
    "rank": -1
   },
-  "role": "守山人，在後山守了四十年"
+  "role": "守山人，在後山守了四十年",
+  "npc_ids": [
+   "mqb_elder"
+  ]
  },
  "gan": {
   "surname": "甘",

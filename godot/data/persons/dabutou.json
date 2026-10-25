@@ -1,0 +1,197 @@
+{
+ "_note": "大埠頭的人（PLAN.md 4.40）。",
+ "pang": {
+  "surname": "龐",
+  "name": "龐老大",
+  "gender": "男",
+  "born": -49,
+  "life_roll": 3,
+  "look": "fisher",
+  "job": "漁",
+  "base": {
+   "strength": 15,
+   "agility": 11,
+   "constitution": 15,
+   "energy": 8,
+   "insight": 9
+  },
+  "skills": {
+   "basic-fist": 3
+  },
+  "home": "dabutou",
+  "role": "出海打魚的老大"
+ },
+ "xiaoluo": {
+  "surname": "鍾",
+  "given": "小螺",
+  "gender": "女",
+  "born": -29,
+  "look": "lady",
+  "home": "dabutou",
+  "role": "龐老大的妻子，顧魚攤"
+ },
+ "xiaolang": {
+  "surname": "龐",
+  "given": "小浪",
+  "gender": "男",
+  "born": -9,
+  "look": "child",
+  "home": "dabutou",
+  "role": "龐老大的兒子"
+ },
+ "tan": {
+  "surname": "譚",
+  "given": "大力",
+  "gender": "男",
+  "born": -27,
+  "look": "farmer",
+  "job": "苦力",
+  "base": {
+   "strength": 16,
+   "agility": 9,
+   "constitution": 15,
+   "energy": 6,
+   "insight": 7
+  },
+  "skills": {
+   "basic-fist": 2
+  },
+  "home": "dabutou",
+  "role": "東海碼頭扛貨的苦力"
+ },
+ "yin": {
+  "surname": "殷",
+  "given": "海客",
+  "gender": "男",
+  "born": -55,
+  "life_roll": 6,
+  "look": "boatman",
+  "job": "船家",
+  "base": {
+   "strength": 12,
+   "agility": 11,
+   "constitution": 15,
+   "energy": 9,
+   "insight": 12
+  },
+  "home": "dabutou",
+  "role": "跑了一輩子船的老水手"
+ },
+ "mei": {
+  "surname": "梅",
+  "given": "小貝",
+  "gender": "女",
+  "born": -8,
+  "look": "child",
+  "home": "dabutou",
+  "role": "梅婆婆的孫女"
+ },
+ "bpsh_mei": {
+  "surname": "梅",
+  "name": "梅婆婆",
+  "gender": "女",
+  "born": -62,
+  "life_roll": 6,
+  "look": "aunt",
+  "job": "廟祝",
+  "traits": [
+   "清心寡欲"
+  ],
+  "home": "dabutou",
+  "role": "海神祠的廟祝"
+ },
+ "bpi_pan": {
+  "surname": "潘",
+  "given": "海生",
+  "gender": "男",
+  "born": -54,
+  "look": "elder",
+  "job": "掌櫃",
+  "home": "dabutou",
+  "role": "望潮客棧的掌櫃"
+ },
+ "bpi_panma": {
+  "surname": "潘",
+  "name": "潘大娘",
+  "gender": "女",
+  "born": -51,
+  "look": "aunt",
+  "job": "廚子",
+  "home": "dabutou",
+  "role": "潘掌櫃的妻子，會做一手好海鮮"
+ },
+ "bps_ling": {
+  "surname": "凌",
+  "given": "萬川",
+  "gender": "男",
+  "born": -44,
+  "look": "boatman",
+  "job": "船家",
+  "home": "dabutou",
+  "role": "大埠頭船行的東家"
+ },
+ "bpt_luo": {
+  "surname": "駱",
+  "given": "千帆",
+  "gender": "男",
+  "born": -49,
+  "look": "scholar",
+  "job": "商販",
+  "home": "dabutou",
+  "role": "海商會館的總管"
+ },
+ "bp_cao1": {
+  "surname": "樊",
+  "given": "鐵",
+  "gender": "男",
+  "born": -31,
+  "look": "bandit",
+  "job": "幫眾",
+  "tags": [
+   "幫"
+  ],
+  "base": {
+   "strength": 15,
+   "agility": 11,
+   "constitution": 14,
+   "energy": 7,
+   "insight": 8
+  },
+  "skills": {
+   "basic-fist": 4
+  },
+  "faction": {
+   "sect": "caobang",
+   "rank": 0
+  },
+  "home": "dabutou",
+  "role": "漕幫在大埠頭的打手"
+ },
+ "bp_cao2": {
+  "surname": "樊",
+  "given": "石",
+  "gender": "男",
+  "born": -28,
+  "look": "bandit",
+  "job": "幫眾",
+  "tags": [
+   "幫"
+  ],
+  "base": {
+   "strength": 14,
+   "agility": 12,
+   "constitution": 13,
+   "energy": 7,
+   "insight": 8
+  },
+  "skills": {
+   "basic-fist": 3
+  },
+  "faction": {
+   "sect": "caobang",
+   "rank": 0
+  },
+  "home": "dabutou",
+  "role": "漕幫在大埠頭的打手，樊鐵的弟弟"
+ }
+}
