@@ -75,13 +75,28 @@ static func gate_open(p: Dictionary) -> bool:
 	return not p.has("gate") or Story.cond(p.gate.open)
 
 
+## 主角是女子時，稱呼自動換成女子的說法（人物檔案的 address 也可以自己寫 gender == '女' 的分支）
+const FEMALE_ADDRESS := [["小兄弟", "小姑娘"], ["兄弟", "姑娘"], ["少俠", "女俠"], ["大俠", "女俠"], ["賢侄", "賢侄女"], ["公子", "姑娘"],
+	["師兄", "師姐"], ["師弟", "師妹"], ["小伙子", "姑娘"], ["年輕人", "姑娘"], ["小哥", "姑娘"]]
+
+
 ## 對方怎麼稱呼你
 static func address(p: Dictionary) -> String:
 	var env := {"stage": stage(p.id), "fame": int(G.hero.get("fame", 0))}
 	for r in p.get("address", []):
 		if Story.cond(r[0], env):
-			return _names(r[1])
+			return gendered(_names(r[1]))
 	return "你"
+
+
+## 照主角的性別換稱呼
+static func gendered(t: String) -> String:
+	if G.hero.get("gender", "男") != "女" or t.contains("姑娘") or t.contains("女俠"):
+		return t
+	for pair in FEMALE_ADDRESS:
+		if t.contains(pair[0]):
+			return t.replace(pair[0], pair[1])
+	return t
 
 
 static func _names(t: String) -> String:

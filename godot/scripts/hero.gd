@@ -17,6 +17,7 @@ const ROLL := {"min": 5, "max": 18, "total_min": 52, "total_max": 62}
 const DEFAULT_BASE := {"strength": 12, "agility": 13, "constitution": 11, "energy": 6, "insight": 15}
 const SURNAMES := ["蕭", "葉", "沈", "陸", "顧", "韓", "秦", "柳", "江", "白", "溫", "穆", "凌", "裴", "燕", "楚", "岳", "謝", "杜", "方", "雲", "龍", "石", "嚴", "蘇", "司馬", "歐陽", "上官", "南宮", "東方", "慕容"]
 const NAME_CHARS := "子雲風行遠朔寒舟川岳辰逸塵青嵐霜昭明峻然弈之衡鈞驍若謙澄翊非白羽鳴"
+const NAME_CHARS_F := "雲青嵐霜若澄白羽婉清芷蘅瑤琴素月寧蘭靈雪晴微茵綺霓汐芸書"
 ## 武功欄位：外功 5、內功 2、輕功 1
 const SLOT_NAME := {"outer": "外功", "inner": "內功", "light": "輕功"}
 const SLOT_LIMIT := {"outer": 5, "inner": 2, "light": 1}
@@ -67,10 +68,11 @@ static func roll_attrs() -> Dictionary:
 	return {}
 
 
-static func roll_name() -> Array:
-	var given := NAME_CHARS[randi() % NAME_CHARS.length()]
+static func roll_name(gender := "男") -> Array:
+	var chars := NAME_CHARS_F if gender == "女" else NAME_CHARS
+	var given := chars[randi() % chars.length()]
 	if randf() >= 0.3:
-		var second := NAME_CHARS[randi() % NAME_CHARS.length()]
+		var second := chars[randi() % chars.length()]
 		if second != given:
 			given += second
 	return [SURNAMES[randi() % SURNAMES.size()], given]
@@ -81,13 +83,15 @@ static func new_skill(id: String, level: int, pos) -> Dictionary:
 	return {"id": id, "level": level, "exp": 0, "pos": pos, "fails": 0, "roll": randf(), "moves": [skill_def(id).moves[0].id], "insight": 0}
 
 
-static func new_hero(surname := "", given := "無名", base := DEFAULT_BASE) -> Dictionary:
+## 新角色：gender 男／女；年齡 18（born 是出生那年，開局是第 1 年）；life_roll 天生的壽命差（見 Person.lifespan）
+static func new_hero(surname := "", given := "無名", base := DEFAULT_BASE, gender := "男") -> Dictionary:
 	var fist := new_skill("basic-fist", 1, 0)
 	fist.exp = 30
 	var breath := new_skill("breathing", 0, 0)
 	breath.exp = 40
 	var c := {
 		"surname": surname, "given": given, "name": surname + given, "fame": 0, "age": 18, "titles": [],
+		"gender": gender, "born": 1 - 18, "life_roll": randi_range(-8, 8), "health": 100, "scars": [],
 		"base": base.duplicate(), "extra": zero(), "skills": [fist, breath], "points": 0, "bag_extra": 0, "gear": {},
 		"hp": 0, "qi": 0, "stamina": 0,
 	}

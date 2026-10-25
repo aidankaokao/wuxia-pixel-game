@@ -71,8 +71,15 @@ static func cond(expr: String, extra := {}) -> bool:
 	return bool(r) if not e.has_execute_failed() else false
 
 
-## 條件裡可以讀的世界狀態
+## 條件裡可以讀的世界狀態（加上主角的人物欄位：gender、age、sect、rank、五維、skill_<武功>…，見 Person.env；
+## 檢查別人時 extra 帶那個人的 Person.env，會蓋過主角的）
 static func _env() -> Dictionary:
+	var e := Person.env("hero")
+	e.merge(_world(), true)
+	return e
+
+
+static func _world() -> Dictionary:
 	return {
 		"rain": int(G.weather == "rain"), "fog": int(G.weather == "fog"), "snow": int(G.weather == "snow"),
 		"cloudy": int(G.weather == "cloudy"), "clear": int(G.weather == "clear"),

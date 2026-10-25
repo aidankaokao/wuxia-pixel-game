@@ -45,6 +45,8 @@ var weather := "clear"
 var relations := {}
 ## 拜入的門派（scripts/sect.gd）；沒拜師是空的
 var sect := {}
+## 人物狀態（scripts/person.gd）：p 每個人跟人物表不一樣的欄位、rel 之後新增的關係、obits 過世的消息
+var persons := {}
 ## 生活的雜項狀態（存檔）：orders 手上的訂單、order_next 各下單的人隔到哪天再下單、schedule 日課表、
 ## daily 一天一次的小事記哪天做過（"event:work" 這類 → 日子）
 var life := {}
@@ -68,6 +70,7 @@ func new_game(c: Dictionary, dev := false) -> void:
 	flags = {}
 	relations = {}
 	sect = {}
+	persons = {}
 	life = {}
 	respawn_at = {}
 	day = 1
@@ -181,7 +184,7 @@ func is_xunxiu(d := -1) -> bool:
 # ── 時間流逝 ────────────────────────────────────────────
 
 ## 過了半夜要跑的劇情檔（各檔的 static func new_day，只改狀態、不問話）
-const NEW_DAY_SCRIPTS := ["res://story/mq_fund.gd", "res://story/mq_trade.gd", "res://story/mq_order.gd", "res://story/life_mingquan.gd", "res://story/shop.gd"]
+const NEW_DAY_SCRIPTS := ["res://scripts/person.gd", "res://story/mq_fund.gd", "res://story/mq_trade.gd", "res://story/mq_order.gd", "res://story/life_mingquan.gd", "res://story/shop.gd"]
 
 
 ## 過了半夜要做的事（只改狀態、不問話）
@@ -276,7 +279,7 @@ func _path(slot: String) -> String:
 func write_save(slot: String, where: Dictionary) -> bool:
 	DirAccess.make_dir_recursive_absolute("user://save")
 	var d := {"version": SAVE_VERSION, "saved_at": Time.get_unix_time_from_system(), "where": where,
-		"hero": hero, "silver": silver, "bag": bag, "flags": flags, "relations": relations, "sect": sect, "life": life, "day": day, "time": time, "weather": weather}
+		"hero": hero, "silver": silver, "bag": bag, "flags": flags, "relations": relations, "sect": sect, "persons": persons, "life": life, "day": day, "time": time, "weather": weather}
 	var f := FileAccess.open(_path(slot), FileAccess.WRITE)
 	if f == null:
 		return false
@@ -301,6 +304,12 @@ func apply_save(d: Dictionary) -> void:
 	# JSON 讀回來的數字都是小數：角色身上的計數改回整數
 	for k in ["fame", "age", "points", "bag_extra", "hp", "qi", "stamina"]:
 		hero[k] = int(hero.get(k, 0))
+	# 人物核心以前的舊檔：當成男子、照開局年齡算生年
+	hero["gender"] = hero.get("gender", "男")
+	hero["born"] = int(hero.get("born", 1 - int(hero.age)))
+	hero["life_roll"] = int(hero.get("life_roll", 0))
+	hero["health"] = int(hero.get("health", 100))
+	hero["scars"] = hero.get("scars", [])
 	for s in hero.skills:
 		for k in ["level", "exp", "fails"]:
 			s[k] = int(s[k])
@@ -316,6 +325,12 @@ func apply_save(d: Dictionary) -> void:
 	for k in ["rank", "joined", "rank_day", "contrib", "merit", "stipend_day"]:
 		if sect.has(k):
 			sect[k] = int(sect[k])
+	persons = d.get("persons", {})
+	for id in persons.get("p", {}):
+		var ps: Dictionary = persons.p[id]
+		for k in ["born", "health", "died"]:
+			if ps.has(k):
+				ps[k] = int(ps[k])
 	life = d.get("life", {})
 	respawn_at = {}
 	day = int(d.day)

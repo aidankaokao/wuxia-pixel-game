@@ -206,6 +206,9 @@ static func create(ui: Ui) -> Dictionary:
 		edits.append(e)
 	var random_l := _lab("", 18)
 	name_row.add_child(random_l)
+	var gender_l := _lab("", 20)
+	v.add_child(gender_l)
+	var gender := "男"
 	var table := GridContainer.new()
 	table.columns = 4
 	table.add_theme_constant_override("h_separation", 14)
@@ -226,12 +229,12 @@ static func create(ui: Ui) -> Dictionary:
 	var err_l := _lab("", 16, RED)
 	for l in [start_l, back_l, err_l]:
 		foot.add_child(l)
-	v.add_child(_lab("↑↓ 選擇　空白鍵 確定　在姓名欄可以直接打字（Enter 到下一欄）", 14, INK_SOFT))
+	v.add_child(_lab("↑↓ 選擇　空白鍵 確定（性別用 ←→ 或空白鍵換）　在姓名欄可以直接打字（Enter 到下一欄）", 14, INK_SOFT))
 	ui._show(root)
 	var base := Hero.roll_attrs()
 	var cur := 0
 	while true:
-		# 0 姓、1 名、2 隨機姓名、3 擲骰、4 開始、5 返回
+		# 0 姓、1 名、2 隨機姓名、3 性別、4 擲骰、5 開始、6 返回
 		ui.typing = cur <= 1
 		if cur <= 1:
 			edits[cur].grab_focus()
@@ -239,9 +242,10 @@ static func create(ui: Ui) -> Dictionary:
 			for e in edits:
 				e.release_focus()
 		_row_text(random_l, "隨機姓名", cur == 2)
-		_row_text(reroll_l, "重新擲骰", cur == 3)
-		_row_text(start_l, "踏入江湖", cur == 4)
-		_row_text(back_l, "返回", cur == 5)
+		_row_text(gender_l, "性別　%s　%s" % ["【男】" if gender == "男" else "　男　", "【女】" if gender == "女" else "　女　"], cur == 3)
+		_row_text(reroll_l, "重新擲骰", cur == 4)
+		_row_text(start_l, "踏入江湖", cur == 5)
+		_row_text(back_l, "返回", cur == 6)
 		for c in table.get_children():
 			c.queue_free()
 		var total := 0
@@ -254,23 +258,25 @@ static func create(ui: Ui) -> Dictionary:
 		total_l.text = "五維總和 %d（每項 %d–%d，總和 %d–%d）" % [total, Hero.ROLL.min, Hero.ROLL.max, Hero.ROLL.total_min, Hero.ROLL.total_max]
 		var k: String = await ui._key
 		if k == "Up" or (k == "Tab" and Input.is_key_pressed(KEY_SHIFT)):
-			cur = (cur + 5) % 6
+			cur = (cur + 6) % 7
 		elif k == "Down" or k == "Tab":
-			cur = (cur + 1) % 6
+			cur = (cur + 1) % 7
 		elif (k == "ok" or k == "Enter") and cur <= 1:
 			cur += 1
 		elif k == "back":
 			break
+		elif cur == 3 and k in ["Left", "Right", "ok"]:
+			gender = "女" if gender == "男" else "男"
 		elif k == "ok":
 			match cur:
 				2:
-					var n := Hero.roll_name()
+					var n := Hero.roll_name(gender)
 					edits[0].text = n[0]
 					edits[1].text = n[1]
 					err_l.text = ""
-				3:
-					base = Hero.roll_attrs()
 				4:
+					base = Hero.roll_attrs()
+				5:
 					var sn := edits[0].text.strip_edges()
 					var gn := edits[1].text.strip_edges()
 					if sn == "" or gn == "":
@@ -278,8 +284,8 @@ static func create(ui: Ui) -> Dictionary:
 						continue
 					ui.typing = false
 					ui._close()
-					return Hero.new_hero(sn, gn, base)
-				5:
+					return Hero.new_hero(sn, gn, base, gender)
+				6:
 					break
 	ui.typing = false
 	ui._close()

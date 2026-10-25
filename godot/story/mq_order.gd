@@ -76,7 +76,7 @@ static func age_now(k: String) -> int:
 
 
 static func hero_age() -> int:
-	return int(G.hero.get("age", 18)) + year() - 1
+	return Person.age("hero")
 
 
 ## 體力：45 歲以前 1，之後每年 -1%，60 歲時 0.85、之後每年 -2%（最低 0.3）
