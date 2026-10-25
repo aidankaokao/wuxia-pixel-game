@@ -2,11 +2,12 @@ class_name BattleFx
 ## 戰場上的招式特效（battle.gd 在出招打中的那一刻呼叫）：依招式的 fx 畫出刀光、拳風、重擊、內勁、風、落葉，
 ## 會心一擊另外閃白光、停格、鏡頭震一下。特效都是半透明、加亮（不受描邊影響），演完自己消失。
 ## fx：slash 刀劍的弧光、punch 拳掌的衝擊圈、heavy 重擊（交叉的大弧光＋地面震波）、qi 內勁（光球飛過去炸開）、
-##     wind 身法的風（幾道小弧繞著轉）、leaves 落葉（綠葉四散）。
+##     wind 身法的風（幾道小弧繞著轉）、leaves 落葉（綠葉四散）、needle 暗器（銀光飛過去、打中時一點閃光；出手的人不撲過去）。
 
 const COLORS := {
 	"slash": Color(0.85, 0.93, 1.0), "punch": Color(1.0, 0.85, 0.55), "heavy": Color(1.0, 0.45, 0.25),
 	"qi": Color(0.45, 0.8, 1.0), "wind": Color(0.75, 1.0, 0.85), "leaves": Color(0.45, 0.8, 0.35),
+	"needle": Color(0.92, 0.94, 1.0),
 }
 
 
@@ -158,6 +159,9 @@ static func hit(host: Node3D, kind: String, from: Vector3, to: Vector3, crit: bo
 		"leaves":
 			_bits(host, to, c, 12, 0.7, 0.6)
 			_ring(host, to, dir, c, 0.8, 0.3)
+		"needle":
+			_ball(host, to, c, 0.08, 0.18, 2.5)
+			_bits(host, to, c, 5, 0.3, 0.3, false)
 		_:
 			_ring(host, to, dir, c, 0.9, 0.25)
 			_ball(host, to, c, 0.12, 0.2, 2.5)
@@ -180,6 +184,21 @@ static func orb(host: Node3D, from: Vector3, to: Vector3) -> void:
 	tw.tween_property(mi, "position", to, 0.18).set_trans(Tween.TRANS_SINE)
 	tw.tween_callback(mi.queue_free)
 	await tw.finished
+
+
+## 暗器：一道細細的銀光從出手的人飛到目標（不等它，呼叫端自己等一下）
+static func needle(host: Node3D, from: Vector3, to: Vector3) -> void:
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(0.03, 0.03, 0.5)
+	mi.mesh = bm
+	var m := glow(COLORS.needle, 0.95)
+	mi.material_override = m
+	host.add_child(mi)
+	mi.look_at_from_position(from, to, Vector3.UP)
+	var tw := host.create_tween()
+	tw.tween_property(mi, "position", to, 0.18).set_trans(Tween.TRANS_LINEAR)
+	tw.tween_callback(mi.queue_free)
 
 
 ## 鏡頭震一下（重擊、會心）

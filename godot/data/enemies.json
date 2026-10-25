@@ -175,6 +175,34 @@
     "e_rush"
    ],
    "ai": "grunt"
+  },
+  "alley_thug": {
+   "name": "巷口地痞",
+   "sprite": "bandit",
+   "hp": 150,
+   "atk": 28,
+   "def": 7,
+   "spd": 11,
+   "eva": 0.06,
+   "moves": [
+    "e_slash",
+    "e_rush"
+   ],
+   "ai": "grunt"
+  },
+  "liao_thug": {
+   "name": "局裡的打手",
+   "sprite": "bandit",
+   "hp": 150,
+   "atk": 28,
+   "def": 7,
+   "spd": 10,
+   "eva": 0.05,
+   "moves": [
+    "e_slash",
+    "e_heavy"
+   ],
+   "ai": "grunt"
   }
  },
  "encounters": {
@@ -663,6 +691,81 @@
    "canFlee": true,
    "silver": 10,
    "points": 3
+  },
+  "spar_qs_miao": {
+   "enemies": [
+    "person:qs_miao"
+   ],
+   "background": "mountain",
+   "intro": "苗阿蘿退開三步，手指間夾著兩枚針：「師父說要我試試你。針很細，你看仔細了。」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.6,
+   "points": 1,
+   "spar": true,
+   "scale": 0.92
+  },
+  "exam_qs_du": {
+   "enemies": [
+    "person:qs_du"
+   ],
+   "background": "mountain",
+   "intro": "杜子衡把袖子挽起來：「我也是男的，在這兒學針，被人笑了三年。你可別讓我。」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.7,
+   "points": 2,
+   "spar": true,
+   "scale": 1.03
+  },
+  "exam_qs_yu": {
+   "enemies": [
+    "person:qs_yu"
+   ],
+   "background": "mountain",
+   "intro": "後院的燭火一盞盞點起來。喻小棠站在燭影裡，一句話也沒說。",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.8,
+   "points": 3,
+   "spar": true,
+   "scale": 1.12
+  },
+  "spar_qs_yinr": {
+   "enemies": [
+    "person:qs_yinr"
+   ],
+   "background": "mountain",
+   "intro": "尹若絲把一根絲線繞在指上：「針是死的，線是活的。來。」",
+   "canFlee": true,
+   "silver": 0,
+   "growth": 0.8,
+   "points": 2,
+   "spar": true,
+   "scale": 0.93
+  },
+  "qs_night": {
+   "enemies": [
+    "alley_thug",
+    "alley_thug"
+   ],
+   "background": "mountain",
+   "intro": "巷子裡兩個地痞堵住一個收工的繡娘，一個抓著她的竹籃不放。",
+   "canFlee": true,
+   "silver": 6,
+   "points": 3
+  },
+  "sl_liao": {
+   "enemies": [
+    "person:sl_liao",
+    "liao_thug"
+   ],
+   "background": "mountain",
+   "intro": "廖貴把一捆貢緞往車上一扔：「哪來的多事的？給我打！」",
+   "canFlee": true,
+   "silver": 20,
+   "points": 4,
+   "scale": 0.89
   }
  }
 }

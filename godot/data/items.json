@@ -2555,5 +2555,130 @@
   "icon": "pouch",
   "desc": "崖下礁石間的蚌裡採到的珍珠，圓潤有光。海商會館收得最高。",
   "price": 40
+ },
+ "qs_robe_1": {
+  "name": "千絲素綾衫",
+  "category": "服飾",
+  "icon": "robe",
+  "desc": "千絲坊繡徒的素綾衫子，看上去跟城裡的繡娘沒兩樣。（普通・上衣，防禦 +2）",
+  "gear": {
+   "kind": "top",
+   "grade": 1,
+   "def": 2,
+   "eva": 0,
+   "sect": "qiansi"
+  },
+  "bound": true
+ },
+ "qs_robe_2": {
+  "name": "千絲藕荷衫",
+  "category": "服飾",
+  "icon": "robe",
+  "desc": "千絲坊繡手的藕荷色衫子，袖口暗縫著一排針袋。（精良・上衣，防禦 +3）",
+  "gear": {
+   "kind": "top",
+   "grade": 2,
+   "def": 3,
+   "eva": 0,
+   "sect": "qiansi"
+  },
+  "bound": true
+ },
+ "qs_robe_3": {
+  "name": "千絲雲紋衫",
+  "category": "服飾",
+  "icon": "robe",
+  "desc": "千絲坊真傳弟子的衫子，衣襟上是一整片雙面繡的雲紋。（上品・上衣，防禦 +4）",
+  "gear": {
+   "kind": "top",
+   "grade": 3,
+   "def": 4,
+   "eva": 0,
+   "sect": "qiansi"
+  },
+  "bound": true
+ },
+ "qs_needle_1": {
+  "name": "繡徒針囊",
+  "category": "服飾",
+  "icon": "pouch",
+  "desc": "一只布針囊，裡頭插著三十六枚加長的繡花針。（普通・暗器，攻擊 +3；用暗器才發揮得了全力）",
+  "gear": {
+   "kind": "weapon",
+   "grade": 1,
+   "def": 0,
+   "eva": 0,
+   "sect": "qiansi",
+   "atk": 3,
+   "weapon": "暗器"
+  },
+  "bound": true
+ },
+ "qs_needle_2": {
+  "name": "千絲針囊",
+  "category": "服飾",
+  "icon": "pouch",
+  "desc": "鹿皮的針囊，針是精鋼打的，比繡花針沉一些。（精良・暗器，攻擊 +6；用暗器才發揮得了全力）",
+  "gear": {
+   "kind": "weapon",
+   "grade": 2,
+   "def": 0,
+   "eva": 0,
+   "sect": "qiansi",
+   "atk": 6,
+   "weapon": "暗器"
+  },
+  "bound": true
+ },
+ "qs_needle_3": {
+  "name": "金梭針匣",
+  "category": "服飾",
+  "icon": "pouch",
+  "desc": "巴掌大的銅匣，一按機括就彈出七枚金針。（上品・暗器，攻擊 +9；用暗器才發揮得了全力）",
+  "gear": {
+   "kind": "weapon",
+   "grade": 3,
+   "def": 0,
+   "eva": 0,
+   "sect": "qiansi",
+   "atk": 9,
+   "weapon": "暗器"
+  },
+  "bound": true
+ },
+ "qs_bracer": {
+  "name": "纏絲護腕",
+  "category": "服飾",
+  "icon": "bracer",
+  "desc": "千絲坊金針弟子的護腕，裡頭纏著幾圈冰蠶絲。（精良・手上飾品，防禦 +1　閃避 +0.5%）",
+  "gear": {
+   "kind": "hand",
+   "grade": 2,
+   "def": 1,
+   "eva": 0.005,
+   "sect": "qiansi"
+  },
+  "bound": true
+ },
+ "qs_token": {
+  "name": "千絲繡牌",
+  "category": "服飾",
+  "icon": "token",
+  "desc": "一塊巴掌大的繡牌，正面繡著一枚穿線的針。是千絲坊弟子的憑證。可以繫在頸上。（普通・頸上飾品，閃避 +1%）",
+  "gear": {
+   "kind": "neck",
+   "grade": 1,
+   "def": 0,
+   "eva": 0.01,
+   "sect": "qiansi"
+  },
+  "bound": true
+ },
+ "sl_ledger": {
+  "name": "私賣貢緞的帳",
+  "category": "雜物",
+  "icon": "book",
+  "desc": "織造局管工廖貴的私帳，一筆筆記著哪天、賣了幾匹貢緞給誰。",
+  "price": 0
  }
 }

@@ -393,6 +393,9 @@ func _clear_marks() -> void:
 ## 這一招的範圍（格數）
 func _range_of(move_id: String) -> int:
 	var m := Fight.mv(move_id)
+	# 招式自己寫了範圍（暗器打三格）
+	if m.has("range"):
+		return int(m.range)
 	if m.target == "allEnemies":
 		return 2
 	return 3 if m.kind == "inner" else 1
@@ -874,7 +877,14 @@ func _play(events: Array) -> void:
 					a.erase("aura")
 				var first: Dictionary = _body_id(e.hits[0].target) if not e.hits.is_empty() else {}
 				if not first.is_empty():
-					await _lunge(a, first)
+					# 暗器站在原地出手：針飛過去才打中
+					if kind == "needle":
+						(a.f as Chibi).face(top(first.c, first.r) - top(a.c, a.r))
+						for h in e.hits:
+							BattleFx.needle(self, a.f.position + Vector3(0, 0.8, 0), _body_id(h.target).f.position + Vector3(0, 0.75, 0))
+						await get_tree().create_timer(0.2).timeout
+					else:
+						await _lunge(a, first)
 					# 內勁：光球飛過去才打中
 					if kind == "qi":
 						await BattleFx.orb(self, a.f.position + Vector3(0, 0.8, 0), first.f.position + Vector3(0, 0.75, 0))

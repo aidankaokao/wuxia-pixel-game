@@ -1,0 +1,186 @@
+{
+ "_note": "千絲坊的人（PLAN.md 4.45）：桑林城裡表面是繡坊的小派，暗器；以女弟子為主，也收男弟子。",
+ "qs_yin": {
+  "surname": "殷",
+  "given": "素蘅",
+  "gender": "女",
+  "born": -55,
+  "look": "embroid_master",
+  "base": {
+   "strength": 11,
+   "agility": 17,
+   "constitution": 13,
+   "energy": 15,
+   "insight": 18
+  },
+  "skills": {
+   "feizhen": 8,
+   "chansi": 8,
+   "jinsuo": 6
+  },
+  "faction": {
+   "sect": "qiansi",
+   "rank": 5
+  },
+  "home": "sanglin",
+  "role": "千絲坊的坊主。四十年前從織造局逃出來的繡娘",
+  "talk": "",
+  "life_roll": 6,
+  "ai": "boss"
+ },
+ "qs_zhen": {
+  "surname": "甄",
+  "given": "明瑟",
+  "gender": "女",
+  "born": -46,
+  "look": "embroid_master",
+  "base": {
+   "strength": 11,
+   "agility": 16,
+   "constitution": 12,
+   "energy": 14,
+   "insight": 16
+  },
+  "skills": {
+   "feizhen": 7,
+   "chansi": 6,
+   "jinsuo": 4
+  },
+  "faction": {
+   "sect": "qiansi",
+   "rank": 4
+  },
+  "home": "sanglin",
+  "role": "傳針的師父，管教針法與考核",
+  "talk": "",
+  "life_roll": 4
+ },
+ "qs_zhu": {
+  "surname": "祝",
+  "given": "錦屏",
+  "gender": "女",
+  "born": -37,
+  "look": "lady",
+  "base": {
+   "strength": 10,
+   "agility": 14,
+   "constitution": 12,
+   "energy": 12,
+   "insight": 14
+  },
+  "skills": {
+   "feizhen": 5,
+   "chansi": 4
+  },
+  "faction": {
+   "sect": "qiansi",
+   "rank": 4
+  },
+  "home": "sanglin",
+  "role": "繡莊的管事，坊裡的月例、繡活、雜務都歸她",
+  "talk": ""
+ },
+ "qs_yinr": {
+  "surname": "尹",
+  "given": "若絲",
+  "gender": "女",
+  "born": -25,
+  "look": "embroiderer",
+  "base": {
+   "strength": 11,
+   "agility": 17,
+   "constitution": 12,
+   "energy": 13,
+   "insight": 15
+  },
+  "skills": {
+   "feizhen": 7,
+   "chansi": 4,
+   "jinsuo": 4
+  },
+  "faction": {
+   "sect": "qiansi",
+   "rank": 3
+  },
+  "home": "sanglin",
+  "role": "大師姊，坊主的真傳弟子",
+  "talk": "",
+  "master": "qs_yin"
+ },
+ "qs_yu": {
+  "surname": "喻",
+  "given": "小棠",
+  "gender": "女",
+  "born": -21,
+  "look": "embroiderer",
+  "base": {
+   "strength": 10,
+   "agility": 17,
+   "constitution": 11,
+   "energy": 12,
+   "insight": 14
+  },
+  "skills": {
+   "feizhen": 6,
+   "chansi": 3,
+   "jinsuo": 3
+  },
+  "faction": {
+   "sect": "qiansi",
+   "rank": 2
+  },
+  "home": "sanglin",
+  "role": "金針弟子，針快，話少",
+  "talk": ""
+ },
+ "qs_du": {
+  "surname": "杜",
+  "given": "子衡",
+  "gender": "男",
+  "born": -20,
+  "look": "scholar",
+  "base": {
+   "strength": 12,
+   "agility": 14,
+   "constitution": 12,
+   "energy": 10,
+   "insight": 13
+  },
+  "skills": {
+   "feizhen": 4,
+   "chansi": 2
+  },
+  "faction": {
+   "sect": "qiansi",
+   "rank": 1
+  },
+  "home": "sanglin",
+  "role": "繡手，坊裡第一個男弟子；原本是織造局的織工",
+  "talk": ""
+ },
+ "qs_miao": {
+  "surname": "苗",
+  "given": "阿蘿",
+  "gender": "女",
+  "born": -15,
+  "look": "embroiderer",
+  "base": {
+   "strength": 9,
+   "agility": 14,
+   "constitution": 10,
+   "energy": 9,
+   "insight": 12
+  },
+  "skills": {
+   "feizhen": 2,
+   "chansi": 1
+  },
+  "faction": {
+   "sect": "qiansi",
+   "rank": 0
+  },
+  "home": "sanglin",
+  "role": "繡徒，去年冬天才進坊",
+  "talk": ""
+ }
+}

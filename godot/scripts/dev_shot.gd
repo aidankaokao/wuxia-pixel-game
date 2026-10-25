@@ -140,6 +140,12 @@ func _run() -> void:
 				Hero.learn(G.hero, lp[0], int(lp[1]) if lp.size() > 1 else 1)
 				var ls := Hero.find_skill(G.hero, lp[0])
 				ls.level = maxi(int(ls.level), int(lp[1]) if lp.size() > 1 else 1)
+			"craft":
+				# craft:weaving,2 把某項生活技能設成第幾級
+				var cp := arg.split(",")
+				if not G.hero.has("crafts"):
+					G.hero.crafts = {}
+				G.hero.crafts[cp[0]] = {"level": int(cp[1]), "exp": 0}
 			"flag":
 				# flag:bandit_boss=1
 				var kv2 := arg.split("=")

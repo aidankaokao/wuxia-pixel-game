@@ -5,7 +5,7 @@ class_name Quests
 
 static func all() -> Array:
 	var out := []
-	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth(), cx_salt()]:
+	for q in [bandits(), xiaohu(), carp(), bridge(), bounty(), mq_join(), mq_rise(), mq_commission("mq_c_path"), mq_commission("mq_c_med"), yz_berth(), cx_salt(), sl_tribute()]:
 		if not q.is_empty():
 			out.append(q)
 	# 進行中的排前面
@@ -138,6 +138,17 @@ static func cx_salt() -> Dictionary:
 		"desc": "潮信鹽課司的鹽大使饒德厚抓了一年私鹽，私鹽卻越抓越多。他託你查私鹽的來路。白沙幫分堂主盛四海說，私鹽是從鹽課司自己的鹽倉流出去的。",
 		"steps": [["答應鹽大使去查", true], ["到城南的白沙幫分堂探口風", s >= 2], ["戌時以後到港邊的鹽倉後頭看看", s >= 3], ["把帳冊交給鹽大使饒德厚", s == 4]]})
 	return base
+
+
+## 一百匹雲錦（story/sanglin.gd）：織造局的管工剋扣工錢、偷賣貢緞
+static func sl_tribute() -> Dictionary:
+	var s := _f("sl_tribute")
+	if s == 0:
+		return {}
+	return {"id": "sl_tribute", "title": "一百匹雲錦", "giver": "桑小絃", "place": "桑林城・織造局", "done": s == 4,
+		"desc": "桑林織造局的小姑娘桑小絃說，管工廖貴剋扣繡娘織工的工錢，病了也不准歇，夜裡還從後門偷運貢緞出去。",
+		"steps": [["答應小絃，去問督造柏文淵", true], ["督造要憑據", s >= 2], ["戌時以後到織造局東牆的後門看看", s >= 3], ["把廖貴的私帳交給督造", s == 4]],
+		"reward": "銀兩 50、名聲 5"}
 
 
 ## 鳴泉的下山委託（演武廣場的任務榜）

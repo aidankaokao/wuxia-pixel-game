@@ -64,6 +64,34 @@ const DEFS := {
 		"weapons": ["刀法", "拳掌"],
 		"uniforms": [["hl_robe_1", "hl_saber_1"], ["hl_robe_2", "hl_saber_2"], ["hl_robe_2", "hl_saber_2", "hl_bracer"], ["hl_robe_3", "hl_saber_3", "hl_bracer"]],
 	},
+	# 千絲坊（story/qiansi.gd，PLAN.md 4.45）：桑林城裡表面是繡坊的小派，暗器
+	"qiansi": {
+		"name": "千絲坊", "size": "小", "recruit": "不在明處收徒：在坊裡接繡活、看出門道，坊主才會見你",
+		"join_req": "age <= 30", "join_note": "坊主拉起你的手看了看：「指節都硬了。針要從小練，年過三十，學不成了。」",
+		"ranks": [
+			{"name": "繡徒", "dorm": "繡娘房的通鋪", "perks": ["後院的飛針靶（夜裡點燭練，經驗多三成）", "繡莊的繡活算門派貢獻", "每 7 天找祝管事領月例"],
+				"stipend": {"silver": 5, "items": {"jinchuang": 1}}, "leave": [["free"]],
+				"promote": {"days": 30, "merit": 150, "skills": [["feizhen", 4]], "test": "繡手考核（條件齊了到針房找甄師父）", "test_done": "qs_exam >= 1"}},
+			{"name": "繡手", "dorm": "繡娘房", "perks": ["向甄師父學金梭步", "夜巡的差事", "交上好的織品換貢獻"],
+				"stipend": {"silver": 12, "items": {"jinchuang": 2}}, "leave": [["fine", 400]],
+				"promote": {"days": 45, "merit": 400, "skills": [["feizhen", 6], ["chansi", 3]], "test": "金梭試（條件齊了，夜裡到後院找甄師父）", "test_done": "qs_inner >= 1"}},
+			{"name": "金針", "dorm": "繡娘房", "perks": ["金針弟子的纏絲護腕", "坊主私下交辦的事"],
+				"stipend": {"silver": 18, "items": {"jinchuang": 2}}, "leave": [["fine", 700]],
+				"promote": {"days": 60, "merit": 650, "skills": [["feizhen", 8], ["chansi", 5]], "test": "真傳（之後開放）", "test_done": "false"}},
+			{"name": "真傳弟子", "dorm": "繡娘房", "perks": ["拜坊主為師"],
+				"stipend": {"silver": 25, "items": {"jinchuang": 3}}, "leave": [["trial", "千絲陣"]]},
+		],
+		"rules": [
+			["針不見人", "坊外不得當眾使針，能不出手就不出手。"],
+			["坊中事不出坊", "坊裡的人、坊裡的功夫，不得對外人說。"],
+			["針不傷無辜", "飛針只對惡人，不得以針欺壓百姓。"],
+			["同門不得私鬥", "切磋點到為止。"],
+		],
+		# 甄師父能教的本門武功：[武功, 幾級身分起, 要花的貢獻]
+		"skills": [["feizhen", 0, 0], ["chansi", 0, 30], ["jinsuo", 1, 60]],
+		"weapons": ["暗器", "拳掌"],
+		"uniforms": [["qs_robe_1", "qs_needle_1"], ["qs_robe_2", "qs_needle_2"], ["qs_robe_2", "qs_needle_2", "qs_bracer"], ["qs_robe_3", "qs_needle_3", "qs_bracer"]],
+	},
 }
 
 

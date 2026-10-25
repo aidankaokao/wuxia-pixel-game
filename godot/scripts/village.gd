@@ -1327,6 +1327,42 @@ func _prop(p: Dictionary) -> void:
 			g.add_child(Mk.cyl(0.06, 0.07, 0.5, Color("8a6a42"), Vector3(0, 0.25, 0), 6))
 			g.add_child(Mk.cone(0.07, 0.1, Color("8a6a42"), Vector3(0, 0.55, 0), 6))
 			g.add_child(Mk.cyl(0.075, 0.075, 0.05, Color("c8302a"), Vector3(0, 0.42, 0), 6))
+		"yard_gate":
+			# 院牆上的小門：兩扇關著的木門，上面一道瓦簷（開了就整個不見，見 when）
+			g.add_child(Mk.box(Vector3(w, 1.9, 0.18), Color("6a3a22"), Vector3(0, 0.95, 0)))
+			g.add_child(Mk.box(Vector3(0.04, 1.8, 0.2), Color("3a2214"), Vector3(0, 0.95, 0)))
+			for sx in [-0.12, 0.12]:
+				g.add_child(Mk.ball(0.04, Color("c9a46a"), Vector3(sx, 1.0, 0.11), 5))
+			g.add_child(Mk.box(Vector3(w + 0.3, 0.16, 0.6), Color("4a5568"), Vector3(0, 2.0, 0)))
+		"needle_target":
+			# 飛針靶：木架上一面草編的圓靶，靶心一點紅
+			for sx in [-0.3, 0.3]:
+				g.add_child(Mk.box(Vector3(0.06, 1.2, 0.06), Color("6a4428"), Vector3(sx, 0.6, 0)))
+			var tg := Mk.cyl(0.36, 0.36, 0.08, Color("c8b07a"), Vector3(0, 1.0, 0), 14)
+			tg.rotation.x = PI / 2.0
+			g.add_child(tg)
+			var ring := Mk.cyl(0.22, 0.22, 0.09, Color("e8dcc0"), Vector3(0, 1.0, 0.005), 12)
+			ring.rotation.x = PI / 2.0
+			g.add_child(ring)
+			var eye := Mk.cyl(0.08, 0.08, 0.1, Color("c8302a"), Vector3(0, 1.0, 0.01), 10)
+			eye.rotation.x = PI / 2.0
+			g.add_child(eye)
+		"dye_vat":
+			# 染缸：粗陶大缸，缸裡的染水照 color（靛藍、茜紅、槐黃）
+			var dye := Color(p.get("color", "2a4a8a"))
+			for i in w:
+				var vx := -w / 2.0 + 0.5 + i
+				g.add_child(Mk.cyl(0.38, 0.3, 0.7, Color("6a5040"), Vector3(vx, 0.35, 0), 12))
+				g.add_child(Mk.cyl(0.32, 0.32, 0.03, dye, Vector3(vx, 0.71, 0), 12))
+		"silk_rack":
+			# 晾絲架：長竿上掛著一束束剛染好的絲線，顏色輪著來
+			for sx in [-w / 2.0 + 0.15, w / 2.0 - 0.15]:
+				g.add_child(Mk.box(Vector3(0.07, 1.6, 0.07), Color("6a4428"), Vector3(sx, 0.8, 0)))
+			g.add_child(Mk.box(Vector3(w - 0.1, 0.05, 0.05), Color("8a6a42"), Vector3(0, 1.55, 0)))
+			var hues := [Color("2a4a8a"), Color("b8323a"), Color("d8b040"), Color("4a8a5a"), Color("8a4a8a")]
+			for i in int(w * 3):
+				var fx := -w / 2.0 + 0.3 + i * (w - 0.6) / maxf(1, w * 3 - 1)
+				g.add_child(Mk.box(Vector3(0.1, 0.8, 0.03), hues[i % hues.size()], Vector3(fx, 1.12, 0)))
 		"chest", "chest_open":
 			var wood := Color("7a4a26")
 			g.add_child(Mk.box(Vector3(0.7, 0.4, 0.45), wood, Vector3(0, 0.2, 0)))

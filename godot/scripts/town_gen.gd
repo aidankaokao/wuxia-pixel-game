@@ -50,6 +50,10 @@ const KINDS := {
 	"salt": {"name": "鹽課司", "style": "hall", "w": 7, "h": 5, "roof": "yamen", "lanterns": true, "plaque": true, "red": true, "theme": "scholar"},
 	"temple": {"name": "廟", "style": "temple", "w": 6, "h": 4, "roof": "green", "plaque": true, "theme": "scholar"},
 	"escort": {"name": "鏢局", "style": "hall", "w": 7, "h": 5, "flag": "鏢", "roof": "hall", "lanterns": true, "plaque": true, "red": true, "theme": "scholar"},
+	# 桑林城（4.45）
+	"bureau": {"name": "織造局", "style": "hall", "w": 7, "h": 5, "flag": "織", "roof": "yamen", "lanterns": true, "plaque": true, "red": true, "theme": "scholar"},
+	"embroid": {"name": "繡坊", "style": "house", "w": 6, "h": 4, "flag": "繡", "roof": "grey", "theme": "scholar"},
+	"dye": {"name": "染坊", "style": "house2", "w": 6, "h": 4, "flag": "染", "roof": "brown", "theme": "stone"},
 }
 const HOUSE_TEXT := ["門關著，裡頭傳出孩子背書的聲音。", "門口曬著一排衣裳，屋裡沒人應門。", "門上的春聯褪了色，主人家大概出門了。",
 	"屋裡傳來剁菜的聲音，飯菜的香味飄出來。", "門閂著。門檻上趴著一隻打盹的黃狗。", "窗台上擺著幾盆花，門關得緊緊的。"]
@@ -261,10 +265,14 @@ const ROOM_PROPS := {
 	"salt": [["f_shelf_scholar_3", 1, 1, 2, "一格格的鹽引存根。"], ["chest", 8, 1, 1, "貼著封條的充公鹽包。"], ["chest", 9, 1, 1, "鹽包。"], ["chair", 8, 4, 1, "鹽大使的太師椅。"]],
 	"temple": [["altar", 4, 1, 3, "供桌上擺著潮神的木像，海浪紋的衣袍，手裡捧著一枚海螺。"], ["cushion", 3, 4, 1, "蒲團。"], ["cushion", 7, 4, 1, "蒲團。"], ["f_deco_scholar_1", 1, 1, 1, "牆上掛著歷年大潮的潮水刻度。"]],
 	"escort": [["f_deco_martial_1", 1, 1, 1, "兵器架上插著金背大刀。"], ["chest", 8, 1, 1, "待押的鏢箱，貼著封條。"], ["chest", 9, 1, 1, "鏢箱。"], ["f_table_plain_1", 1, 5, 2, "桌上攤著鏢路圖。"]],
+	"bureau": [["cloth_rack", 1, 1, 2, "架上掛著一匹匹待驗的雲錦，每匹都蓋著局裡的朱印。"], ["loom", 8, 1, 2, "一台花樓機，比尋常織機高出一截。"], ["f_shelf_scholar_3", 1, 4, 2, "貢緞的帳冊。"], ["chair", 8, 5, 1, "督造大人的太師椅。"]],
+	"embroid": [["cloth_rack", 1, 1, 2, "架上掛著繡好的帕子、香囊、屏風面。"], ["loom", 8, 4, 2, "繡架上繃著一幅繡到一半的〈百蝶圖〉。"], ["f_table_scholar_1", 1, 4, 2, "繡娘們做活的長桌，針線笸籮一個挨一個。"], ["f_deco_scholar_1", 9, 1, 1, "牆上掛著一幅雙面繡，正面是牡丹，反面是一隻貓。"]],
+	"dye": [["vat", 1, 1, 1, "靛藍的染缸，缸沿一圈藍印子。"], ["vat", 2, 1, 1, "茜紅的染缸。"], ["vat", 8, 1, 1, "槐黃的染缸。"], ["drying_rack", 7, 5, 2, "架上晾著剛染好的絲線。"], ["chest", 1, 5, 1, "裝染料的木箱：靛青、茜草、槐花、蘇木。"]],
 }
 const COUNTER := {"inn": "櫃台", "restaurant": "點菜", "teahouse": "喝茶", "clinic": "看診／買藥", "goods": "買東西", "smith": "打兵器", "cloth": "看衣裳",
 	"stable": "看馬", "yamen": "辦事", "pawn": "典當", "bank": "存取銀兩", "books": "買書", "opera": "看戲", "builder": "營造", "chief": "說話",
-	"guild": "說話", "hq": "說話", "gamble": "押大小", "academy": "請教", "wuguan": "學武", "escort": "接鏢", "salt": "辦事", "temple": "上香", "sect_hall": "拜見", "sect_train": "請教", "sect_room": "辦事", "sect_dorm": "歇息"}
+	"guild": "說話", "hq": "說話", "gamble": "押大小", "academy": "請教", "wuguan": "學武", "escort": "接鏢", "salt": "辦事", "temple": "上香", "sect_hall": "拜見", "sect_train": "請教", "sect_room": "辦事", "sect_dorm": "歇息",
+	"bureau": "辦事", "embroid": "看繡品", "dye": "說話"}
 
 
 static func room_data(id: String) -> Dictionary:

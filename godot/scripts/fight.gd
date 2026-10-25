@@ -10,8 +10,8 @@ extends RefCounted
 
 const EFFECT_NAME := {"block": "格擋", "speed": "迅捷", "power": "勁增", "evade": "身輕", "counter": "反擊", "slow": "遲緩", "weaken": "力竭", "armorBreak": "破綻", "stun": "震懾"}
 const DEBUFFS := ["slow", "weaken", "armorBreak", "stun"]
-## 外功要拿什麼兵器：劍法拿劍、刀法拿刀、拳掌空手；拿錯（或沒拿）九成威力，空手打拳多一成
-const WEAPON_FOR := {"劍法": "劍", "刀法": "刀", "拳掌": "hand"}
+## 外功要拿什麼兵器：劍法拿劍、刀法拿刀、暗器帶針囊（兵器種類「暗器」）、拳掌空手；拿錯（或沒拿）九成威力，空手打拳多一成
+const WEAPON_FOR := {"劍法": "劍", "刀法": "刀", "暗器": "暗器", "拳掌": "hand"}
 const WEAPON_MISFIT := 0.9
 const BARE_HAND_BONUS := 1.1
 ## 頭目戰靈光一閃（直接悟出下一招）的機率

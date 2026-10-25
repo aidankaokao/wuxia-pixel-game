@@ -4,7 +4,7 @@
 
 ## run:dev_town/parse 載入樣板與府城的劇情檔（檢查有沒有語法錯誤），印出今日事與任務
 static func parse(_ctx: Ctx) -> void:
-	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd"]:
+	for p in ["res://story/town.gd", "res://story/yanzhou.gd", "res://story/chaoxin.gd", "res://story/huilan.gd", "res://story/baitan.gd", "res://story/sanglin.gd", "res://story/qiansi.gd"]:
 		print("TOWN 載入 %s：%s" % [p, "好" if load(p) != null else "失敗"])
 	G.flags["yz_berth"] = 2
 	G.life.loan = {"owe": 120, "due": G.day + 2, "day": G.day}
@@ -22,6 +22,13 @@ static func parse(_ctx: Ctx) -> void:
 
 
 ## run:dev_town/rich 身上多五千兩（測買地、蓋屋）
+## run:dev_town/moves 印出幾個新對手開戰時的招式與兵器合手倍數
+static func moves(_ctx: Ctx) -> void:
+	for pid in ["qs_miao", "qs_du", "qs_yu", "hl_lin", "sl_liao"]:
+		var u := Person.unit(pid)
+		print("TOWN 招式 %s：%s｜倍數 %s" % [Person.full_name(pid), str(u.moves), str(u.move_mult)])
+
+
 static func rich(_ctx: Ctx) -> void:
 	G.silver += 5000
 

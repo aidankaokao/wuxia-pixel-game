@@ -34,6 +34,9 @@ const LOOKS := {
 	"sect_elder": {"robe": "d8dce0", "trim": "4a5a6a", "sash": "4a5a6a", "hair": "a8a4a0", "style": "bun", "beard": true},
 	"sect_healer": {"robe": "4a7a6a", "trim": "e8f0e8", "sash": "c9a46a", "hair": "2a2228", "style": "bun", "girl": true},
 	"sect_senior": {"robe": "dce4ea", "trim": "3a6a8a", "sash": "3a6a8a", "hair": "2a2228", "style": "topknot", "sword": true},
+	# 千絲坊的繡娘、坊主
+	"embroiderer": {"robe": "c8a8c4", "trim": "f8f0f8", "sash": "8a3a6a", "hair": "2a2228", "style": "long", "girl": true},
+	"embroid_master": {"robe": "5a3a5a", "trim": "e8d8e8", "sash": "c9a46a", "hair": "a8a4a0", "style": "bun", "girl": true},
 	"dog": {"animal": "dog"},
 	"boar": {"animal": "boar"},
 }

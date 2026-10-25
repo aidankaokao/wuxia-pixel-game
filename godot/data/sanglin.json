@@ -1,0 +1,1233 @@
+{
+ "id": "sanglin",
+ "name": "桑林城",
+ "subtitle": "絲鄉縣城・織造局",
+ "tiles": [
+  "TT..TT..T..~~T....TT..*..........*..T......*..T..........T...T*...T....*.....TT.",
+  "TTT*TT.TT.T~~TT.TT.TT.TT.TT.TT.TT.TT.TTTTTTTT.TT.TT.TT.TT.TT.TT.TT.TTTTT.TT.TTTT",
+  "TT.T.**..*.~~.........TT.....T.T.T.........T...*.....*.....T......*T...TT.......",
+  ".TTHHHHHHHH~~HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHTT.TT.T",
+  "..TH:::::::~~::::::::::::::::::::::::===::::::::::::::::::::::::::::::::H.*.....",
+  ".TTH:::::::~~::::::::::::::::::::::::===::::::::::::::::::::::::::::::::HTT.TT.T",
+  "...H::....T~~......................*.===....T.TRRRRRRRRRRRRRRRRRRRRRRR::H...TT..",
+  ".TTH:......~~.......................*===......TRXXXXXXXXXXXXXXXXXXXXXR::HTT.TT.T",
+  "...H:......~~..............T.........===.......RX.......XX.......XXXXR::H......T",
+  ".TTH:......~~........................===.......RX.......XX.......XXXXR::HTT.TT.T",
+  ".*.H:......~~........*.......*.......===.......RX.......XX.......XXXXR::H.......",
+  ".TTH:......~~...*....................===.......RX.......XX.......XXXXR::HTT.TT.T",
+  ".T.H:......~~.......*..T..*...T*.....===.......RXXXXXXXXXXXXXXXXXXXXX.::H..T.T..",
+  ".TTH::.....~~.................T.....*===.......RXXXXXXXXXXXXXXXXXXXXXR::HTTTTT.T",
+  "...H::.....~~........T...............===.......RXXXXXXXXXXXXXXXXXXXXXR::HT......",
+  ".TTH::....T~~....**........T.........===.......RX.....XXXXXXXX.....XXR::HTT.TT.T",
+  "T..H::.....~~*........T...........T..===.......RX.....XXXXXXXX.....XXR::H.....T.",
+  ".TTH::.....~~T...............*.......===.T*....RX.....XXXXXXXX.....XXR::HTT.TT.T",
+  "..TH::...*.~~*..............T........===...T...RX.....XXXXXXXX.....XXR::H.......",
+  "*TTH::*....~~.....T...T........T.....===.......RXXXXXXXXXXXXXXXXXXXXXR::HTT.TT.T",
+  "...H::.....~~...........T.*..........===.......RXXXXXXX.......XXXXXXXR::H.T.T.T.",
+  ".TTH::.T...~~........................===.......RXXXXXXX.......XXXXXXXR::HTTTTT.T",
+  "..TH::...T.~~........................===.......RXXXXXXX.......XXXXXXXR::H.T.....",
+  ".TTH::.....~~........................===.......RXXXXXXX.......XXXXXXXR::HTT.TT.T",
+  ".T.H::.....~~........................===.......RRRRRRRR.......RRRRRRRR::H....T..",
+  "...H::.....~~...*....................===.....*....................T...::H.T.....",
+  "..TH=======##===========================================================::::::::",
+  ".TTH=======##===========================================================::::::::",
+  "...H=======##===========================================================::::::::",
+  "...H::.....~~.............T..........===......::............T.........::H...T*T.",
+  "...H::.....~~............T..T........===T.....::....T.................::H....T..",
+  ".TTH::..T..~~.================.......===......::....*...*T............::HTT.TT.T",
+  "..*H:......~~.================.......===......::.....T....T..*........::H.TT*.T.",
+  ".TTH:......~~T================.......===......::......................::HTTTTTTT",
+  "...H:......~~.================.....*.===......::RR......RRRRRRRRRRRRR.::H.......",
+  ".TTH:......~~.================.......===......::R..................YR.::HTTTTT.T",
+  "...H:.....T~~T================.......===......::R................~~YR*::HTT..T..",
+  ".TTH::.....~~.================.....TT===T*....::R................~~.R*::HTT.TT.T",
+  "..TH::.....~~*================.......===....T.::R..................YR.::HT......",
+  ".TTH::.....~~..T....*...........*....===......::....................R.::HTT.TT.T",
+  "...H:......~~.....*....*.......*.....===......::R...................R.::H...T...",
+  ".TTH:......~~......T..............T.T===*.......R........===........R.::HTT.TT.T",
+  "T..H:......~~........................===........R........===........R.::H..T....",
+  ".TTH:......~~........................===........R........===........R.::HTT.TT.T",
+  "T.*H:......~~........................===........R........===........R.::H...T...",
+  ".TTH::.....~~........................===........R........===........R.::HTT.TT.T",
+  ".T.H::....T~~........................===........R........===........R.::HT.*....",
+  ".TTH::.....~~.....T.....T............===........RRRRRRRRRRRRRRRRRRRRR.::HTT.TT.T",
+  "...H:::::::~~::::::::::::::::::::::::===::::::::::::::::::::::::::::::::H.......",
+  ".TTH:::::::~~::::::::::::::::::::::::===::::::::::::::::::::::::::::::::HTT.TT.T",
+  "T..HHHHHHHH~~HHHHHHHHHHHHHHHHHHHHHHHH:::HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH.......",
+  ".TT.TT.TT.T~~TT.TT.TT.TTTTT.TTTTT.TT.:::TTTTT.TT.TTTTTTTT.TT.TT.TT*TTTTTTTT.TT.T",
+  "T....T.....~~.TT....T*......T...*....:::.T.........T.T..T..T.........T...T.T....",
+  ".TT.TT.TT.T~~TTTTT.TT.TT.T...........:::.T.TT.TT.TT.TT.TT.TT.TTTTTTTTTTT.TT.TT.T",
+  "..T.....T..~~.........T..............:::.TT.*..T...T......T.T....T.......T.....T",
+  ".TTTTTTTT.T~~TT.TT.TT.TTTT...........:::.T.TTTTTTTTTTT.TT.TT.TT.TT.TT.TT.TT.TT.T",
+  "........*.T~~T..T...T................:::..........T..T.T..*......T.T......T....T",
+  ".TT.TT.TT.T~~TT.TT.TT.TT.T...........:::.T.TT.TT.TT.TT.TT.TT.TT.TT.TT.TT.TT.TT.T",
+  "...T.......~~T..........T....T.......:::.......T...T....T.T...*....T.TT...T.....",
+  ".TT.TT.TTTT~~TT.TT.TT.TT.TTTTT.TT.TT.:::TT.TT.TT.TT.TTTTT.TT.TT.TT.TT.TT.TT.TT.T",
+  ".T.......T.~~TT.....T..TT..*.........:::..TT.T.T...T...........T*T.....*.TT.....",
+  ".TT.TT.TT.T~~TTTTT.TT.TT*TT.TT.TT.TT.:::.T.TT.TT.TT.TT.TT.TT.TT.TT.TT.TT.TT.TT.T",
+  "T..........~~.........T.....TT.......:::.T.........T....T......TT........T....T.",
+  ".TT.TT.TT.T~~TT.TT.TT.TT.TT.TTTTT.TT.:::.TTTT.TT.TT.TTTTT.TT.TT.TTTTT.TT.TT.TT.T"
+ ],
+ "blocking": "^~fTYoWHXR",
+ "spawn": {
+  "x": 78,
+  "y": 27,
+  "facing": "left"
+ },
+ "gate_spawn": {
+  "e": {
+   "map": "sanglin",
+   "x": 78,
+   "y": 27,
+   "facing": "left"
+  },
+  "s": {
+   "map": "sanglin",
+   "x": 38,
+   "y": 62,
+   "facing": "up"
+  }
+ },
+ "buildings": [
+  {
+   "style": "house2",
+   "x": 5,
+   "y": 7,
+   "face": "e",
+   "name": "染坊",
+   "sign": "染坊",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:sanglin:12",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "染"
+  },
+  {
+   "style": "house",
+   "x": 14,
+   "y": 6,
+   "face": "n",
+   "name": "織雲坊",
+   "sign": "織雲坊",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:sanglin:2",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "布"
+  },
+  {
+   "style": "teahouse",
+   "x": 21,
+   "y": 6,
+   "face": "n",
+   "name": "桑園客棧",
+   "sign": "桑園客棧",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "enter": {
+    "to": "town:sanglin:1",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "客"
+  },
+  {
+   "style": "house",
+   "x": 28,
+   "y": 6,
+   "face": "n",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門關著。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   }
+  },
+  {
+   "style": "teahouse",
+   "x": 14,
+   "y": 20,
+   "face": "s",
+   "name": "蠶月樓",
+   "sign": "蠶月樓",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 5,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f",
+    "lanterns": true
+   },
+   "enter": {
+    "to": "town:sanglin:3",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "酒"
+  },
+  {
+   "style": "teahouse",
+   "x": 21,
+   "y": 21,
+   "face": "s",
+   "name": "春蠶茶館",
+   "sign": "春蠶茶館",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#3e6656",
+    "roofDark": "#284638",
+    "roofLight": "#56826f"
+   },
+   "enter": {
+    "to": "town:sanglin:4",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "茶"
+  },
+  {
+   "style": "hall",
+   "x": 40,
+   "y": 20,
+   "face": "s",
+   "name": "桑林縣衙",
+   "sign": "桑林縣衙",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "lanterns": true,
+    "plaque": true,
+    "timber": "#8a2e26"
+   },
+   "enter": {
+    "to": "town:sanglin:0",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "house2",
+   "x": 41,
+   "y": 7,
+   "face": "n",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門關著。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "house2",
+   "x": 49,
+   "y": 8,
+   "face": "s",
+   "name": "織房",
+   "door": [
+    {
+     "text": "院牆裡傳出一片織機的聲音，喀噠、喀噠，從早到晚沒停過。"
+    }
+   ],
+   "st": {
+    "w": 7,
+    "h": 4,
+    "door": 3,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "decor": true
+  },
+  {
+   "style": "house2",
+   "x": 58,
+   "y": 8,
+   "face": "s",
+   "name": "織房",
+   "door": [
+    {
+     "text": "織房的窗開著，裡頭坐滿了低頭織錦的繡娘。"
+    }
+   ],
+   "st": {
+    "w": 7,
+    "h": 4,
+    "door": 3,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "decor": true
+  },
+  {
+   "style": "house2",
+   "x": 49,
+   "y": 15,
+   "face": "s",
+   "name": "繭倉",
+   "door": [
+    {
+     "text": "繭倉的門上貼著封條。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "decor": true
+  },
+  {
+   "style": "house2",
+   "x": 62,
+   "y": 15,
+   "face": "s",
+   "name": "染絲房",
+   "door": [
+    {
+     "text": "院牆擋著，聞得到一股染料的酸味。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "decor": true
+  },
+  {
+   "style": "hall",
+   "x": 55,
+   "y": 20,
+   "face": "s",
+   "name": "桑林織造局",
+   "sign": "桑林織造局",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#34363e",
+    "roofDark": "#22232a",
+    "roofLight": "#4c4e58",
+    "lanterns": true,
+    "plaque": true,
+    "timber": "#8a2e26"
+   },
+   "enter": {
+    "to": "town:sanglin:11",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "織"
+  },
+  {
+   "style": "smithy",
+   "x": 5,
+   "y": 32,
+   "face": "e",
+   "name": "桑林鐵鋪",
+   "sign": "桑林鐵鋪",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:sanglin:7",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "鐵"
+  },
+  {
+   "style": "house",
+   "x": 5,
+   "y": 40,
+   "face": "e",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門關著。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   }
+  },
+  {
+   "style": "house",
+   "x": 30,
+   "y": 29,
+   "face": "n",
+   "name": "杏林堂",
+   "sign": "杏林堂",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:sanglin:5",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "藥"
+  },
+  {
+   "style": "house2",
+   "x": 31,
+   "y": 34,
+   "face": "w",
+   "name": "桑市雜貨",
+   "sign": "桑市雜貨",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:sanglin:6",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "雜"
+  },
+  {
+   "style": "house",
+   "x": 14,
+   "y": 41,
+   "face": "n",
+   "name": "裕豐當鋪",
+   "sign": "裕豐當鋪",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880"
+   },
+   "enter": {
+    "to": "town:sanglin:8",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "當"
+  },
+  {
+   "style": "house2",
+   "x": 20,
+   "y": 41,
+   "face": "n",
+   "name": "闕家木作",
+   "sign": "闕家木作",
+   "door": [],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:sanglin:10",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "木"
+  },
+  {
+   "style": "house2",
+   "x": 63,
+   "y": 29,
+   "face": "n",
+   "name": "東嶺車馬行",
+   "sign": "東嶺車馬行",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:sanglin:9",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "馬"
+  },
+  {
+   "style": "house2",
+   "x": 41,
+   "y": 29,
+   "face": "n",
+   "name": "民居",
+   "door": [
+    {
+     "text": "門關著。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   }
+  },
+  {
+   "style": "house",
+   "x": 50,
+   "y": 34,
+   "face": "n",
+   "name": "千絲繡莊",
+   "sign": "千絲繡莊",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:sanglin:13",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   },
+   "flag": "繡"
+  },
+  {
+   "style": "sect_hall",
+   "x": 58,
+   "y": 35,
+   "face": "s",
+   "name": "繡樓",
+   "sign": "繡樓",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#3f4a5e",
+    "roofDark": "#2a3242",
+    "roofLight": "#5a6880",
+    "plaque": true
+   },
+   "enter": {
+    "to": "town:sanglin:14",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "sect_train",
+   "x": 50,
+   "y": 41,
+   "face": "n",
+   "name": "針房",
+   "sign": "針房",
+   "door": [],
+   "st": {
+    "w": 7,
+    "h": 5,
+    "door": 3,
+    "roof": "#4a5568",
+    "roofDark": "#323a4a",
+    "roofLight": "#64708a"
+   },
+   "enter": {
+    "to": "town:sanglin:15",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "sect_dorm",
+   "x": 61,
+   "y": 42,
+   "face": "n",
+   "name": "繡娘房",
+   "sign": "繡娘房",
+   "door": [],
+   "st": {
+    "w": 6,
+    "h": 4,
+    "door": 3,
+    "roof": "#6a4a3a",
+    "roofDark": "#4a3226",
+    "roofLight": "#86624e"
+   },
+   "enter": {
+    "to": "town:sanglin:16",
+    "spawn": {
+     "x": 5,
+     "y": 6,
+     "facing": "up"
+    }
+   }
+  },
+  {
+   "style": "home1",
+   "x": 26,
+   "y": 53,
+   "face": "e",
+   "name": "蠶房",
+   "door": [
+    {
+     "text": "蠶房裡一排排竹匾，蠶吃桑葉的聲音沙沙的，像下雨。"
+    }
+   ],
+   "st": {
+    "w": 5,
+    "h": 4,
+    "door": 2,
+    "roof": "#a88a48",
+    "roofDark": "#7a6230",
+    "roofLight": "#c8a860"
+   }
+  }
+ ],
+ "props": [
+  {
+   "id": "",
+   "sprite": "yard_gate",
+   "x": 69,
+   "y": 12,
+   "w": 1,
+   "lines": [],
+   "label": "後門",
+   "script": "sanglin/back_door",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "log_pile",
+   "x": 25,
+   "y": 41,
+   "w": 1,
+   "lines": [
+    {
+     "text": "一堆松木料，等著蓋房子用。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "carriage",
+   "x": 61,
+   "y": 33,
+   "w": 2,
+   "lines": [
+    {
+     "text": "車馬行的馬車，車廂上漆著「東嶺」兩字。往嶺海的客人在這兒僱車。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "yard_gate",
+   "x": 48,
+   "y": 39,
+   "w": 1,
+   "lines": [],
+   "label": "側門",
+   "script": "qiansi/gate",
+   "when": "qs_trial < 1",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "drying_rack",
+   "x": 31,
+   "y": 54,
+   "w": 2,
+   "lines": [
+    {
+     "text": "竹架上攤著剛摘的桑葉，晾乾了露水才能餵蠶。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "paifang_city",
+   "x": 37,
+   "y": 60,
+   "w": 3,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": true,
+   "plaque": "桑林"
+  },
+  {
+   "id": "",
+   "sprite": "well",
+   "x": 36,
+   "y": 29,
+   "w": 1,
+   "lines": [
+    {
+     "text": "城裡的大井。井邊一塊石板，被洗絲的人磨得發亮。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "bulletin",
+   "x": 36,
+   "y": 25,
+   "w": 1,
+   "lines": [],
+   "label": "看告示",
+   "script": "town/board",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_lion",
+   "x": 40,
+   "y": 25,
+   "w": 1,
+   "lines": [
+    {
+     "text": "縣衙門口的石獅子。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stone_lion",
+   "x": 46,
+   "y": 25,
+   "w": 1,
+   "lines": [
+    {
+     "text": "縣衙門口的石獅子，頭上被孩子們摸得發亮。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "dye_vat",
+   "x": 5,
+   "y": 15,
+   "w": 2,
+   "lines": [
+    {
+     "text": "靛藍的染缸，戚師傅說要泡七回、曬七回，才染得出「天青」。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false,
+   "color": "2a4a8a"
+  },
+  {
+   "id": "",
+   "sprite": "dye_vat",
+   "x": 8,
+   "y": 15,
+   "w": 1,
+   "lines": [
+    {
+     "text": "茜紅的染缸。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false,
+   "color": "a8323a"
+  },
+  {
+   "id": "",
+   "sprite": "dye_vat",
+   "x": 5,
+   "y": 17,
+   "w": 2,
+   "lines": [
+    {
+     "text": "槐黃的染缸。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false,
+   "color": "c8a030"
+  },
+  {
+   "id": "",
+   "sprite": "silk_rack",
+   "x": 5,
+   "y": 20,
+   "w": 4,
+   "lines": [
+    {
+     "text": "長竿上晾著一束束剛染好的絲線，青、紅、黃、綠，風一吹像一面彩旗。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "silk_rack",
+   "x": 5,
+   "y": 23,
+   "w": 4,
+   "lines": [
+    {
+     "text": "晾著的絲線還在滴水，底下的地都染成了花的。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 11,
+   "y": 18,
+   "w": 1,
+   "lines": [],
+   "label": "浣紗溪",
+   "script": "sanglin/stream",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "ripple",
+   "x": 11,
+   "y": 44,
+   "w": 1,
+   "lines": [],
+   "label": "浣紗溪",
+   "script": "sanglin/stream",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 16,
+   "y": 33,
+   "w": 2,
+   "lines": [],
+   "label": "繭市",
+   "script": "sanglin/market",
+   "when": "shichen >= 3 and shichen <= 6",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 21,
+   "y": 33,
+   "w": 2,
+   "lines": [],
+   "label": "繭市",
+   "script": "sanglin/market",
+   "when": "shichen >= 3 and shichen <= 6",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 16,
+   "y": 36,
+   "w": 2,
+   "lines": [],
+   "label": "繭市",
+   "script": "sanglin/market",
+   "when": "shichen >= 3 and shichen <= 6",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "stall",
+   "x": 21,
+   "y": 36,
+   "w": 2,
+   "lines": [],
+   "label": "繭市",
+   "script": "sanglin/market",
+   "when": "shichen >= 3 and shichen <= 6",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "jars",
+   "x": 26,
+   "y": 32,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一排竹筐，裝著雪白的蠶繭。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "shichen >= 3 and shichen <= 6",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "needle_target",
+   "x": 58,
+   "y": 42,
+   "w": 1,
+   "lines": [],
+   "label": "練針",
+   "script": "qiansi/target",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "needle_target",
+   "x": 58,
+   "y": 45,
+   "w": 1,
+   "lines": [],
+   "label": "練針",
+   "script": "qiansi/target",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 57,
+   "y": 41,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "lantern_post",
+   "x": 59,
+   "y": 46,
+   "w": 1,
+   "lines": [],
+   "label": "",
+   "script": "",
+   "when": "",
+   "passable": false
+  },
+  {
+   "id": "",
+   "sprite": "carriage",
+   "x": 70,
+   "y": 15,
+   "w": 2,
+   "lines": [
+    {
+     "text": "一輛沒點燈的板車，車上蓋著油布。"
+    }
+   ],
+   "label": "",
+   "script": "",
+   "when": "sl_tribute == 2 and shichen >= 10",
+   "passable": false
+  }
+ ],
+ "exits": [
+  {
+   "tiles": [
+    [
+     79,
+     26
+    ],
+    [
+     79,
+     27
+    ],
+    [
+     79,
+     28
+    ]
+   ],
+   "world": "sanglin",
+   "worldFrom": "jiangnandu"
+  },
+  {
+   "tiles": [
+    [
+     37,
+     63
+    ],
+    [
+     38,
+     63
+    ],
+    [
+     39,
+     63
+    ]
+   ],
+   "world": "sanglin",
+   "worldFrom": "duanji"
+  }
+ ],
+ "spots": [],
+ "people": [],
+ "npcs": [
+  {
+   "id": "sl_cansao",
+   "name": "蠶花嫂",
+   "sprite": "",
+   "x": 33,
+   "y": 56,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 2,
+   "person": "",
+   "script": "sanglin/cansao",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "sl_xiaoxian",
+   "name": "桑小絃",
+   "sprite": "",
+   "x": 50,
+   "y": 26,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 3,
+   "person": "",
+   "script": "sanglin/xiaoxian",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "qs_yinr",
+   "name": "尹若絲",
+   "sprite": "",
+   "x": 55,
+   "y": 39,
+   "facing": "down",
+   "all_day": false,
+   "work": true,
+   "night": false,
+   "wander": 1,
+   "person": "",
+   "script": "qiansi/yinr",
+   "when": "",
+   "talks": []
+  },
+  {
+   "id": "sl_liao",
+   "name": "廖貴",
+   "sprite": "",
+   "x": 70,
+   "y": 13,
+   "facing": "left",
+   "all_day": true,
+   "work": false,
+   "night": false,
+   "wander": 0,
+   "person": "",
+   "script": "sanglin/liao_night",
+   "when": "sl_tribute == 2 and shichen >= 10",
+   "talks": []
+  }
+ ],
+ "ring": 18,
+ "lots": [
+  {
+   "id": "sanglin_lot1",
+   "name": "城西北空地",
+   "x": 28,
+   "y": 20
+  },
+  {
+   "id": "sanglin_lot2",
+   "name": "桑市空地",
+   "x": 27,
+   "y": 41
+  },
+  {
+   "id": "sanglin_lot3",
+   "name": "城東南空地",
+   "x": 41,
+   "y": 42
+  }
+ ]
+}

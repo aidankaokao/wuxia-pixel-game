@@ -562,6 +562,117 @@
      }
     }
    ]
+  },
+  "feizhen": {
+   "id": "feizhen",
+   "name": "飛針手",
+   "kind": "暗器",
+   "tier": "中品",
+   "desc": "千絲坊的看家暗器。繡花針穿得過九孔，就射得中三丈外的燭芯；講究的不是力氣，是手穩、眼準、心靜。暗器打得到三格外的人。",
+   "equip": {
+    "agility": 0.7,
+    "insight": 0.4,
+    "strength": 0.1
+   },
+   "grow": {
+    "agility": 0.4,
+    "insight": 0.3,
+    "energy": 0.1
+   },
+   "vital": {
+    "hp": 2,
+    "stamina": 1
+   },
+   "moves": [
+    {
+     "id": "qs_chuanyun",
+     "level": 0
+    },
+    {
+     "id": "qs_meihua",
+     "level": 2,
+     "bonus": {
+      "agility": 1
+     }
+    },
+    {
+     "id": "qs_fengmai",
+     "level": 4,
+     "bonus": {
+      "insight": 1
+     }
+    },
+    {
+     "id": "qs_huayu",
+     "level": 6,
+     "bonus": {
+      "agility": 0.5,
+      "insight": 0.5
+     }
+    }
+   ]
+  },
+  "chansi": {
+   "id": "chansi",
+   "name": "纏絲勁",
+   "kind": "內功",
+   "tier": "中品",
+   "desc": "千絲坊的內功。吐納如抽絲，一口氣綿綿不斷；練到深處，真氣能順著絲線送出去。",
+   "equip": {
+    "energy": 1,
+    "insight": 0.3
+   },
+   "grow": {
+    "energy": 0.4,
+    "insight": 0.2,
+    "constitution": 0.1
+   },
+   "vital": {
+    "qi": 4
+   },
+   "moves": [
+    {
+     "id": "qs_chousi",
+     "level": 0
+    },
+    {
+     "id": "qs_qiansi",
+     "level": 3,
+     "bonus": {
+      "energy": 1
+     }
+    }
+   ]
+  },
+  "jinsuo": {
+   "id": "jinsuo",
+   "name": "金梭步",
+   "kind": "輕功",
+   "tier": "中品",
+   "desc": "千絲坊的步法，像梭子在經線之間穿來穿去，一閃就換了位置。",
+   "equip": {
+    "agility": 1
+   },
+   "grow": {
+    "agility": 0.4,
+    "insight": 0.1
+   },
+   "vital": {
+    "stamina": 2
+   },
+   "moves": [
+    {
+     "id": "qs_chuansuo",
+     "level": 0
+    },
+    {
+     "id": "qs_huiying",
+     "level": 3,
+     "bonus": {
+      "agility": 1
+     }
+    }
+   ]
   }
  },
  "moves": {
@@ -1333,6 +1444,142 @@
    "kind": "buff",
    "target": "self",
    "skillId": "talang",
+   "fx": "wind",
+   "self": [
+    {
+     "kind": "evade",
+     "value": 0.15,
+     "turns": 2
+    },
+    {
+     "kind": "speed",
+     "value": 0.2,
+     "turns": 2
+    }
+   ]
+  },
+  "qs_chuanyun": {
+   "id": "qs_chuanyun",
+   "name": "一線穿雲",
+   "desc": "一枚繡花針破空而去，細得看不見。暗器，打得到三格外。",
+   "qi": 7,
+   "power": 1.45,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "feizhen",
+   "fx": "needle",
+   "range": 3
+  },
+  "qs_meihua": {
+   "id": "qs_meihua",
+   "name": "梅花三針",
+   "desc": "一揚手三枚針，排成梅花的三瓣，前後腳到。暗器，打得到三格外。",
+   "qi": 12,
+   "power": 0.55,
+   "hits": 3,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "feizhen",
+   "fx": "needle",
+   "range": 3
+  },
+  "qs_fengmai": {
+   "id": "qs_fengmai",
+   "name": "封脈針",
+   "desc": "針尖釘進穴道，有機會讓對手手腳發麻（速度 −30%，持續 2 次出手）。暗器，打得到三格外。",
+   "qi": 15,
+   "power": 1.7,
+   "kind": "outer",
+   "target": "enemy",
+   "skillId": "feizhen",
+   "fx": "needle",
+   "range": 3,
+   "foe": [
+    {
+     "kind": "slow",
+     "value": 0.3,
+     "turns": 2,
+     "chance": 0.5
+    }
+   ]
+  },
+  "qs_huayu": {
+   "id": "qs_huayu",
+   "name": "漫天花雨",
+   "desc": "雙手齊揚，滿天銀光罩住所有敵人，有機會打出破綻（防禦 −20%，持續 2 次出手）。暗器，打得到三格外。",
+   "qi": 20,
+   "power": 0.9,
+   "kind": "outer",
+   "target": "allEnemies",
+   "skillId": "feizhen",
+   "fx": "needle",
+   "range": 3,
+   "foe": [
+    {
+     "kind": "armorBreak",
+     "value": 0.2,
+     "turns": 2,
+     "chance": 0.3
+    }
+   ]
+  },
+  "qs_chousi": {
+   "id": "qs_chousi",
+   "name": "抽絲剝繭",
+   "desc": "一口氣抽得又細又長，回復內力與些許氣血。",
+   "qi": 0,
+   "power": 1.2,
+   "kind": "restore",
+   "target": "self",
+   "skillId": "chansi",
+   "fx": "qi"
+  },
+  "qs_qiansi": {
+   "id": "qs_qiansi",
+   "name": "千絲縛",
+   "desc": "真氣化成看不見的細絲纏上對手。內功招式，有機會讓對手遲緩（速度 −30%，持續 2 次出手）。",
+   "qi": 12,
+   "power": 1.5,
+   "kind": "inner",
+   "target": "enemy",
+   "skillId": "chansi",
+   "fx": "qi",
+   "foe": [
+    {
+     "kind": "slow",
+     "value": 0.3,
+     "turns": 2,
+     "chance": 0.45
+    }
+   ]
+  },
+  "qs_chuansuo": {
+   "id": "qs_chuansuo",
+   "name": "金梭穿經",
+   "desc": "身形一閃，像梭子穿過經線，閃避大增（+20%，持續 2 次出手）。",
+   "qi": 6,
+   "power": 0,
+   "kind": "buff",
+   "target": "self",
+   "skillId": "jinsuo",
+   "fx": "wind",
+   "self": [
+    {
+     "kind": "evade",
+     "value": 0.2,
+     "turns": 2
+    }
+   ]
+  },
+  "qs_huiying": {
+   "id": "qs_huiying",
+   "name": "金梭回影",
+   "desc": "來回穿梭，只留下一道影子，閃避與速度都提高（閃避 +15%、速度 +20%，持續 2 次出手）。",
+   "qi": 10,
+   "power": 0,
+   "kind": "buff",
+   "target": "self",
+   "skillId": "jinsuo",
    "fx": "wind",
    "self": [
     {

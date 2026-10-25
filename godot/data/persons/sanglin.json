@@ -1,5 +1,5 @@
 {
- "_note": "桑林城的人（PLAN.md 4.41 樣板城；千絲坊之後手工做）。",
+ "_note": "桑林城的人（PLAN.md 4.41 樣板城、4.45 手工地圖）。千絲坊的人在 qiansi.json。",
  "sl_ran": {
   "surname": "冉",
   "given": "春生",
@@ -136,7 +136,75 @@
   "born": -15,
   "look": "girl",
   "home": "sanglin",
-  "role": "在織造局做工的小姑娘",
+  "role": "在織造局做工的小姑娘，十五歲就進局裡織錦",
   "talk": ""
+ },
+ "sl_bo": {
+  "surname": "柏",
+  "given": "文淵",
+  "gender": "男",
+  "born": -51,
+  "look": "scholar",
+  "base": {
+   "strength": 9,
+   "agility": 9,
+   "constitution": 10,
+   "energy": 9,
+   "insight": 14
+  },
+  "skills": {},
+  "faction": {
+   "sect": "sl_zhizao",
+   "rank": 2
+  },
+  "home": "sanglin",
+  "role": "織造局的督造，奉旨督辦貢緞",
+  "talk": "",
+  "job": "官",
+  "life_roll": 5
+ },
+ "sl_liao": {
+  "surname": "廖",
+  "given": "貴",
+  "gender": "男",
+  "born": -40,
+  "look": "bandit",
+  "base": {
+   "strength": 14,
+   "agility": 11,
+   "constitution": 13,
+   "energy": 9,
+   "insight": 10
+  },
+  "skills": {
+   "changfeng": 3
+  },
+  "faction": {
+   "sect": "sl_zhizao",
+   "rank": 1
+  },
+  "home": "sanglin",
+  "role": "織造局的管工，管著局裡三百個繡娘織工",
+  "talk": "",
+  "job": "官"
+ },
+ "sl_qi": {
+  "surname": "戚",
+  "given": "長順",
+  "gender": "男",
+  "born": -45,
+  "look": "smith",
+  "base": {
+   "strength": 14,
+   "agility": 9,
+   "constitution": 14,
+   "energy": 8,
+   "insight": 10
+  },
+  "skills": {},
+  "home": "sanglin",
+  "role": "染坊的師傅，兩隻手常年是藍的",
+  "talk": "",
+  "job": "工"
  }
 }
